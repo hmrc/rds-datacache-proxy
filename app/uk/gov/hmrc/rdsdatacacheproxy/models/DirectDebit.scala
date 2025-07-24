@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy
+package uk.gov.hmrc.rdsdatacacheproxy.models
 
-import play.api.inject.{Binding, Module as AppModule}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
+import play.api.libs.json.{Json, OFormat}
 
-class Module extends AppModule:
+import java.time.LocalDateTime
 
-  override def bindings(
-    environment  : Environment,
-    configuration: Configuration
-  ): Seq[Binding[_]] =
-    bind[AuthAction].to(classOf[DefaultAuthAction]) ::
-    bind[DirectDebitController].toSelf ::
-    Nil
+case class DirectDebit(ddiRefNumber: String,
+                       submissionDateTime: LocalDateTime,
+                       bankSortCode: String,
+                       bankAccountNumber: String,
+                       bankAccountName: String,
+                       auDdisFlag: Boolean,
+                       numberOfPayPlans: Int)
+
+object DirectDebit:
+  implicit val debitFormat: OFormat[DirectDebit] = Json.format[DirectDebit]
+
