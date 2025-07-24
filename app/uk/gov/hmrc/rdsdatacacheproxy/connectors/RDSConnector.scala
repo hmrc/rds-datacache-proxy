@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy
+package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
-import play.api.inject.{Binding, Module as AppModule}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class Module extends AppModule:
+import javax.inject.{Inject, Singleton}
 
-  override def bindings(
-    environment  : Environment,
-    configuration: Configuration
-  ): Seq[Binding[_]] =
-    bind[AuthAction].to(classOf[DefaultAuthAction]) ::
-    bind[DirectDebitController].toSelf ::
-    Nil
+@Singleton
+class RDSConnector @Inject()(val http: HttpClientV2,
+                             val servicesConfig: ServicesConfig) extends PlayAuthConnector {
+  override val serviceUrl: String = servicesConfig.baseUrl("rds")
+  override def httpClientV2: HttpClientV2 = http
+}

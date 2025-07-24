@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy
+package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 
-import play.api.inject.{Binding, Module as AppModule}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
 
-class Module extends AppModule:
+import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.http.SessionId
 
-  override def bindings(
-    environment  : Environment,
-    configuration: Configuration
-  ): Seq[Binding[_]] =
-    bind[AuthAction].to(classOf[DefaultAuthAction]) ::
-    bind[DirectDebitController].toSelf ::
-    Nil
+case class AuthenticatedRequest[A](
+                                    private val request: Request[A],
+                                    internalId: String,
+                                    sessionId: SessionId
+                                  ) extends WrappedRequest[A](request)

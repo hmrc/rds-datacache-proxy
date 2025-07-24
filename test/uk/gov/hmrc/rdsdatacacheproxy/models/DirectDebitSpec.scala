@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy
+package uk.gov.hmrc.rdsdatacacheproxy.models
 
-import play.api.inject.{Binding, Module as AppModule}
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
+class DirectDebitSpec {
 
-class Module extends AppModule:
-
-  override def bindings(
-    environment  : Environment,
-    configuration: Configuration
-  ): Seq[Binding[_]] =
-    bind[AuthAction].to(classOf[DefaultAuthAction]) ::
-    bind[DirectDebitController].toSelf ::
-    Nil
+}
