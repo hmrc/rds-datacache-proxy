@@ -23,10 +23,11 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.connectors.RDSConnector
-import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
 
-import java.time.{LocalDate, LocalDateTime}
-import scala.concurrent.Future
+import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class DirectDebitServiceSpec
   extends AnyWordSpec
@@ -34,6 +35,8 @@ class DirectDebitServiceSpec
     with ScalaFutures
     with MockitoSugar
     with IntegrationPatience:
+
+  implicit val ec: ExecutionContext = global
 
   private val mockConnector = mock[RDSConnector]
   private val service = new DirectDebitService(mockConnector)
@@ -53,40 +56,27 @@ class DirectDebitServiceSpec
   "DirectDebitService" should:
     "succeed" when:
       "retrieving no Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any[None.type](), any[None.type]()))
-          .thenReturn(Future.successful(List()))
+        when(mockConnector.getDirectDebits(any(), any(), any()))
+          .thenReturn(Future.successful(Seq()))
 
-          val result = service.retrieveDirectDebits("testId").futureValue
-          result shouldBe List()
+          val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          result shouldBe UserDebits(0, Seq())
       "retrieving Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any[None.type](), any[None.type]()))
-          .thenReturn(Future.successful(List(expected(1))))
+        when(mockConnector.getDirectDebits(any(), any(), any()))
+          .thenReturn(
+            Future.successful(Seq(expected(1))),
+            Future.successful(Seq(expected(2), expected(3), expected(4))),
+          )
 
-          val result = service.retrieveDirectDebits("testId").futureValue
-          result shouldBe List(expected(1))
-
-      "retrieving a Direct Debit with an offset" in:
-        when(mockConnector.getDirectDebits(any(), any[Some[LocalDate]](), any[Some[Int]]()))
-          .thenReturn(Future.successful(List(expected(1))))
-
-        val result = service.retrieveDirectDebitsWithOffset("testId", "2020-02-02", 1).futureValue
-        result shouldBe List(expected(1))
-
-      "retrieving multiple Direct Debits with an offset" in:
-        when(mockConnector.getDirectDebits(any(), any[Some[LocalDate]](), any[Some[Int]]()))
-          .thenReturn(Future.successful(List(expected(1), expected(2), expected(3), expected(4))))
-
-        val result = service.retrieveDirectDebitsWithOffset("testId", "2020-02-02", 4).futureValue
-        result shouldBe List(expected(1), expected(2), expected(3), expected(4))
+          val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          result shouldBe UserDebits(1, Seq(expected(1)))
+          val result2 = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          result2 shouldBe UserDebits(3, Seq(expected(2),expected(3),expected(4)))
 
     "fail" when:
-      "offset is not a valid date" in:
-        val result = intercept[Exception](service.retrieveDirectDebitsWithOffset("testId", "Pancake Day", 1).futureValue)
-        result.getMessage should include("Invalid date provided for offset")
-
       "retrieving Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any[Some[LocalDate]](), any[Some[Int]]()))
+        when(mockConnector.getDirectDebits(any(), any(), any()))
           .thenReturn(Future.failed(new Exception("bang")))
 
-        val result = intercept[Exception](service.retrieveDirectDebits("testId").futureValue)
+        val result = intercept[Exception](service.retrieveDirectDebits("testId", 1, -1).futureValue)
         result.getMessage should include("bang")

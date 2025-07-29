@@ -20,8 +20,9 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class RDSConnectorSpec
   extends AnyWordSpec
@@ -29,18 +30,31 @@ class RDSConnectorSpec
     with ScalaFutures
     with IntegrationPatience:
 
-  val connector = new RDSConnector()
-  def expected(i: Int): DirectDebit = connector.defaultDD(i)
+  val connector: RDSConnector = new RDSConnector(){
+    override val stubData: StubUtils = new StubUtils {
+      override def randomDirectDebit(i: Int): DirectDebit =
+        DirectDebit.apply(
+          ddiRefNumber = s"defaultRef$i",
+          LocalDateTime.parse("2020-02-02T22:22:22"),
+          "00-00-00",
+          "00000000",
+          "BankLtd",
+          false,
+          i
+        )
+    }
+  }
+  def expected(i: Int): DirectDebit = connector.stubData.randomDirectDebit(i)
 
   "RDSConnector" should:
     "return a DirectDebit" in:
-      val result = connector.getDirectDebits("123").futureValue
+      val result = connector.getDirectDebits("123", 1, 1).futureValue
 
       result shouldBe Seq(expected(1))
 
     "return DirectDebits up to a variable limit" in:
-      val result1 = connector.getDirectDebits("123", Some(LocalDate.now()), Some(3)).futureValue
-      val result2 = connector.getDirectDebits("123", Some(LocalDate.now()), Some(5)).futureValue
+      val result1 = connector.getDirectDebits("123", 1, 3).futureValue
+      val result2 = connector.getDirectDebits("123", 1, 5).futureValue
 
       result1 shouldBe Seq(expected(1), expected(2), expected(3))
       result2 shouldBe Seq(expected(1), expected(2), expected(3), expected(4), expected(5))
