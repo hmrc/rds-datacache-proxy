@@ -32,59 +32,26 @@ class DirectDebitISpec extends ApplicationWithWiremock
   "Direct Debits" should :
     "succeed" when:
       "retrieving direct debits" when :
-        "user provides no offset or limit" in:
+        "user provides maxRecords as 0" in:
+          AuthStub.authorised()
+          val response = get("/direct-debits?maxRecords=0").futureValue
+
+          response.status shouldBe OK
+          response.json.toString shouldBe """{"directDebitCount":0,"directDebitList":[]}"""
+
+        "user provides no query parameters" in:
           AuthStub.authorised()
           val response = get("/direct-debits").futureValue
 
           response.status shouldBe OK
-          response.json.toString shouldBe
-          """ |[
-              | {
-              |   "ddiRefNumber":"defaultRef1",
-              |   "submissionDateTime":"2020-02-02T22:22:22",
-              |   "bankSortCode":"00-00-00",
-              |   "bankAccountNumber":"00000000",
-              |   "bankAccountName":"BankLtd",
-              |   "auDdisFlag":false,
-              |   "numberOfPayPlans":1
-              | }
-              |]""".stripMargin.filterNot(_.isWhitespace)
+          response.json.toString should include("""directDebitCount":99""")
 
-        "user provides an offset and limit" in:
+        "user provides a firstRecordNumber and maxRecords" in:
           AuthStub.authorised()
-          val response = get("/direct-debits?offset=2020-02-02&limit=3").futureValue
+          val response = get("/direct-debits?firstRecordNumber=1&maxRecords=3").futureValue
 
           response.status shouldBe OK
-          response.json.toString shouldBe
-            """[
-              | {
-              |   "ddiRefNumber":"defaultRef1",
-              |   "submissionDateTime":"2020-02-02T22:22:22",
-              |   "bankSortCode":"00-00-00",
-              |   "bankAccountNumber":"00000000",
-              |   "bankAccountName":"BankLtd",
-              |   "auDdisFlag":false,
-              |   "numberOfPayPlans":1
-              | },
-              | {
-              |   "ddiRefNumber":"defaultRef2",
-              |   "submissionDateTime":"2020-02-02T22:22:22",
-              |   "bankSortCode":"00-00-00",
-              |   "bankAccountNumber":"00000000",
-              |   "bankAccountName":"BankLtd",
-              |   "auDdisFlag":false,
-              |   "numberOfPayPlans":2
-              | },
-              | {
-              |   "ddiRefNumber":"defaultRef3",
-              |   "submissionDateTime":"2020-02-02T22:22:22",
-              |   "bankSortCode":"00-00-00",
-              |   "bankAccountNumber":"00000000",
-              |   "bankAccountName":"BankLtd",
-              |   "auDdisFlag":false,
-              |   "numberOfPayPlans":3
-              | }
-              |]""".stripMargin.filterNot(_.isWhitespace)
+          response.json.toString should include("""directDebitCount":3""")
 
       "creating direct debits" in:
         AuthStub.authorised()
@@ -116,21 +83,15 @@ class DirectDebitISpec extends ApplicationWithWiremock
           response.status shouldBe BAD_REQUEST
           response.json.toString should include("Json validation error")
 
-        "calling with only an offset date" in:
+        "calling with an invalid max" in:
           AuthStub.authorised()
-          val response = get("/direct-debits?offset=2020-02-02").futureValue
+          val response = get("/direct-debits?firstRecordNumber=1&maxRecords=100").futureValue
 
           response.status shouldBe BAD_REQUEST
 
-        "calling with an invalid offset date" in:
+        "calling with an invalid firstNumber" in:
           AuthStub.authorised()
-          val response = get("/direct-debits?offset=PancakeDay&limit=3").futureValue
-
-          response.status shouldBe INTERNAL_SERVER_ERROR
-
-        "calling with only a limit" in:
-          AuthStub.authorised()
-          val response = get("/direct-debits?limit=2").futureValue
+          val response = get("/direct-debits?firstRecordNumber=0&maxRecords=50").futureValue
 
           response.status shouldBe BAD_REQUEST
 

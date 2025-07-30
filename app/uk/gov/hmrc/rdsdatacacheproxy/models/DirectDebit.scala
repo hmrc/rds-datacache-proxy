@@ -29,5 +29,14 @@ case class DirectDebit(ddiRefNumber: String,
                        numberOfPayPlans: Int)
 
 object DirectDebit:
-  implicit val debitFormat: OFormat[DirectDebit] = Json.format[DirectDebit]
+  implicit val format: OFormat[DirectDebit] = Json.format[DirectDebit]
+
+
+case class UserDebits(directDebitCount: Int,
+                      directDebitList: Seq[DirectDebit])
+
+object UserDebits:
+  import DirectDebit.format
+  implicit val format: OFormat[UserDebits] = Json.format[UserDebits]
+  val empty: UserDebits = UserDebits(0, Seq())
 

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
 import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
-import java.time.{LocalDate, LocalDateTime}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class RDSConnector @Inject()() {
+class RDSConnector @Inject()():
   //  Once it's a connector, inject:
   //  httpClientV2: HttpClientV2
   //  servicesConfig: ServicesConfig
@@ -31,22 +31,9 @@ class RDSConnector @Inject()() {
   //  and define:
   //  val serviceUrl: String = servicesConfig.baseUrl("rds")
 
-  private[connectors] def defaultDD(i: Int): DirectDebit =
-    DirectDebit.apply(
-      ddiRefNumber = s"defaultRef$i",
-      LocalDateTime.parse("2020-02-02T22:22:22"),
-      "00-00-00",
-      "00000000",
-      "BankLtd",
-      false,
-      i
-    )
+  // Remove this once real stubbing exists
+  private[connectors] val stubData = new StubUtils()
 
-  def getDirectDebits(id: String, offset: Option[LocalDate] = None, limit: Option[Int] = None): Future[Seq[DirectDebit]] =
-    limit match {
-      case None => Future.successful(Seq(defaultDD(1)))
-      case Some(l) =>
-        val debits = for(i <- 1 to l) yield defaultDD(i)
-        Future.successful(debits)
-    }
-}
+  def getDirectDebits(id: String, start: Int, max: Int): Future[Seq[DirectDebit]] =
+    val debits: Seq[DirectDebit] = for(i <- 1 to max) yield stubData.randomDirectDebit(i)
+    Future.successful(debits)
