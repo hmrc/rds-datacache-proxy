@@ -67,12 +67,12 @@ class DirectDebitController @Inject()(
   def getWorkingDaysOffset(): Action[WorkingDaysOffsetRequest] =
     authorise.async(parse.json[WorkingDaysOffsetRequest]):
       implicit request =>
-        val maybeCurrentDate: Option[LocalDate] = request.getQueryString("baseDate").flatMap(date => Try(LocalDate.parse(date)).toOption)
-        val maybeNumberOfWorkingDays: Option[Int] = request.getQueryString("offsetWorkingDays").flatMap(days => Try(days.toInt).toOption)
+        val maybeCurrentDate: Option[LocalDate] = Try(LocalDate.parse(request.body.baseDate)).toOption
+        val maybeNumberOfWorkingDays: Option[Int] = Try(request.body.offsetWorkingDays.toInt).toOption
 
         (maybeCurrentDate, maybeNumberOfWorkingDays) match {
-          case (Some(currentDate), None) => Future.successful(BadRequest("Cannot provide a date without the number of working days"))
-          case (None, Some(numberOfWorkingDays)) => Future.successful(BadRequest("Cannot provide a date without the current date"))
-          case (None, None) => Future.successful(BadRequest("Cannot provide a date without both the current date and number of working days"))
+          case (Some(currentDate), None) => Future.successful(BadRequest("Could not convert offsetWorkingDays to an Int"))
+          case (None, Some(numberOfWorkingDays)) => Future.successful(BadRequest("Could not convert baseDate to LocalDate"))
+          case (None, None) => Future.successful(BadRequest("Cannot convert offsetWorkingDays to Int, and baseDate to LocalDate"))
           case (Some(currentDate), Some(numberOfWorkingDays)) => Future.successful(Ok(Json.toJson(EarliestPaymentDate(date = currentDate.plusDays(numberOfWorkingDays).toString))))
         }
