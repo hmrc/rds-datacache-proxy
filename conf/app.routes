@@ -1,4 +1,4 @@
 # microservice specific routes
 
-GET        /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits(offset: Option[String], limit: Option[Int])
+GET        /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits(firstRecordNumber: Option[Int], maxRecords: Option[Int])
 POST       /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.createDirectDebit()

@@ -17,27 +17,15 @@
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import uk.gov.hmrc.rdsdatacacheproxy.connectors.RDSConnector
-import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter.ISO_DATE
 import javax.inject.Inject
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
 
-class DirectDebitService @Inject()(rdsConnector: RDSConnector):
+class DirectDebitService @Inject()(rdsConnector: RDSConnector)
+                                  (implicit ec: ExecutionContext):
 
-  def retrieveDirectDebits(id: String): Future[Seq[DirectDebit]] =
-    rdsConnector.getDirectDebits(id)
-
-  def retrieveDirectDebitsWithOffset(id: String, offset: String, limit: Int): Future[Seq[DirectDebit]] =
-    parseStringToDate(offset) match
-      case Some(offsetDate) => rdsConnector.getDirectDebits(id, Some(offsetDate), Some(limit))
-      case None => Future.failed(new Exception("Invalid date provided for offset"))
-
-  private[services] def parseStringToDate(date: String): Option[LocalDate] =
-    Try (
-      LocalDate.parse(date, ISO_DATE)
-    ) match
-      case Success(validDate) => Some(validDate)
-      case Failure(_) => None
+  def retrieveDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
+    rdsConnector.getDirectDebits(id, start, max) map { debits =>
+      UserDebits(debits.size, debits)
+    }

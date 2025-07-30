@@ -57,6 +57,5 @@ class DirectDebitSpec
       Json.fromJson(json).get shouldBe model
 
     "write JSON correctly" in :
-      println(jsonAsString)
       Json.toJson(model).toString shouldBe jsonAsString
 
