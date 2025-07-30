@@ -20,12 +20,15 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.CreateDirectDebitRequest
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, WorkingDaysOffsetRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit.*
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
+import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class DirectDebitController @Inject()(
   authorise: AuthAction,
@@ -52,3 +55,17 @@ class DirectDebitController @Inject()(
     authorise.async(parse.json[CreateDirectDebitRequest]):
       implicit request =>
         Future.successful(Created(request.body.paymentReference))
+
+
+  def getWorkingDaysOffset(): Action[WorkingDaysOffsetRequest] =
+    authorise.async(parse.json[WorkingDaysOffsetRequest]):
+      implicit request =>
+        val maybeCurrentDate: Option[LocalDate] = request.getQueryString("baseDate").flatMap(date => Try(LocalDate.parse(date)).toOption)
+        val maybeNumberOfWorkingDays: Option[Int] = request.getQueryString("offsetWorkingDays").flatMap(days => Try(days.toInt).toOption)
+
+        (maybeCurrentDate, maybeNumberOfWorkingDays) match {
+          case (Some(currentDate), None) => Future.successful(BadRequest("Cannot provide a date without the number of working days"))
+          case (None, Some(numberOfWorkingDays)) => Future.successful(BadRequest("Cannot provide a date without the current date"))
+          case (None, None) => Future.successful(BadRequest("Cannot provide a date without both the current date and number of working days"))
+          case (Some(currentDate), Some(numberOfWorkingDays)) => Future.successful(Ok(Json.toJson(EarliestPaymentDate(date = currentDate.plusDays(numberOfWorkingDays).toString))))
+        }
