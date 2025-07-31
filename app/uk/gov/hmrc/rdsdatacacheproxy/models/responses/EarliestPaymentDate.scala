@@ -18,7 +18,9 @@ package uk.gov.hmrc.rdsdatacacheproxy.models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class EarliestPaymentDate(date: String)
+import java.time.LocalDate
+
+case class EarliestPaymentDate(date: LocalDate)
 
 object EarliestPaymentDate {
   implicit val format: OFormat[EarliestPaymentDate] = Json.format
