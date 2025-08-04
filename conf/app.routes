@@ -4,4 +4,3 @@ GET        /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.
 POST       /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.createDirectDebit()
 
 POST       /direct-debits/earliest-payment-date     uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.getWorkingDaysOffset()
-
