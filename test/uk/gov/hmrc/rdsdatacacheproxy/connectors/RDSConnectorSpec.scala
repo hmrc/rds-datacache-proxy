@@ -21,6 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
+import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits
 
 import java.time.LocalDateTime
 
@@ -30,7 +31,7 @@ class RDSConnectorSpec
     with ScalaFutures
     with IntegrationPatience:
 
-  val connector: RDSConnector = new RDSConnector(){
+  val connector: RdsStub = new RdsStub(){
     override val stubData: StubUtils = new StubUtils {
       override def randomDirectDebit(i: Int): DirectDebit =
         DirectDebit.apply(
@@ -50,11 +51,11 @@ class RDSConnectorSpec
     "return a DirectDebit" in:
       val result = connector.getDirectDebits("123", 1, 1).futureValue
 
-      result shouldBe Seq(expected(1))
+      result shouldBe UserDebits(1, Seq(expected(1)))
 
     "return DirectDebits up to a variable limit" in:
       val result1 = connector.getDirectDebits("123", 1, 3).futureValue
       val result2 = connector.getDirectDebits("123", 1, 5).futureValue
 
-      result1 shouldBe Seq(expected(1), expected(2), expected(3))
-      result2 shouldBe Seq(expected(1), expected(2), expected(3), expected(4), expected(5))
+      result1 shouldBe UserDebits(3, Seq(expected(1), expected(2), expected(3)))
+      result2 shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
