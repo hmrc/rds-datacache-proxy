@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.controllers
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
@@ -26,7 +26,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, 
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
-import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -61,13 +60,9 @@ class DirectDebitController @Inject()(
         Future.successful(Created(request.body.paymentReference))
 
 
-  def getWorkingDaysOffset(): Action[JsValue] =
-    authorise(parse.json).async:
+  def workingDaysOffset(): Action[WorkingDaysOffsetRequest] =
+    Action(parse.json[WorkingDaysOffsetRequest]).async:
       implicit request =>
-        withJsonBody[WorkingDaysOffsetRequest] { request =>
-
-          val currentDate: LocalDate = request.baseDate
-          val numberOfWorkingDays: Int = request.offsetWorkingDays
-
-          Future.successful(Ok(Json.toJson(EarliestPaymentDate(date = currentDate.plusDays(numberOfWorkingDays)))))
-        }
+        directDebitService.getEarliestPaymentDate(request.body.baseDate, request.body.offsetWorkingDays)
+          .map (Json.toJson)
+          .map (Ok(_))

@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RDSConnector
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
 
+import java.time.LocalDate
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class DirectDebitService @Inject()(rdsConnector: RDSConnector)
-                                  (implicit ec: ExecutionContext):
+class DirectDebitService @Inject()(rdsDatacache: RdsDataSource):
 
   def retrieveDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
-    rdsConnector.getDirectDebits(id, start, max) map { debits =>
-      UserDebits(debits.size, debits)
-    }
+    rdsDatacache.getDirectDebits(id, start, max)
+
+  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
+    rdsDatacache.getEarliestPaymentDate(baseDate, offsetWorkingDays)
