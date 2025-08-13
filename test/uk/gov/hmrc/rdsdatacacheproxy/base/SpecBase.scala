@@ -54,7 +54,8 @@ trait SpecBase
   val bodyParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
   val fakeAuthAction = new FakeAuthAction(bodyParsers)
 
-  def fakeRequestWithJsonBody(json: JsValue): FakeRequest[JsValue] = FakeRequest("", "/", FakeHeaders(), json)
+  def fakeRequestWithJsonBody(json: JsValue): FakeRequest[JsValue] = fakeRequestWithBody(json)
+  def fakeRequestWithBody[A](body: A): FakeRequest[A] = FakeRequest("", "/", FakeHeaders(), body)
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global

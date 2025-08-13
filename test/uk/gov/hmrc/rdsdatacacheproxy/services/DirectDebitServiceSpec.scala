@@ -22,7 +22,7 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RDSConnector
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsStub
 import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
 
 import java.time.LocalDateTime
@@ -38,7 +38,7 @@ class DirectDebitServiceSpec
 
   implicit val ec: ExecutionContext = global
 
-  private val mockConnector = mock[RDSConnector]
+  private val mockConnector = mock[RdsStub]
   private val service = new DirectDebitService(mockConnector)
 
   def expected(i: Int): DirectDebit =
@@ -57,15 +57,15 @@ class DirectDebitServiceSpec
     "succeed" when:
       "retrieving no Direct Debits" in:
         when(mockConnector.getDirectDebits(any(), any(), any()))
-          .thenReturn(Future.successful(Seq()))
+          .thenReturn(Future.successful(UserDebits(0, Seq())))
 
           val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
           result shouldBe UserDebits(0, Seq())
       "retrieving Direct Debits" in:
         when(mockConnector.getDirectDebits(any(), any(), any()))
           .thenReturn(
-            Future.successful(Seq(expected(1))),
-            Future.successful(Seq(expected(2), expected(3), expected(4))),
+            Future.successful(UserDebits(1, Seq(expected(1)))),
+            Future.successful(UserDebits(3, Seq(expected(2),expected(3),expected(4)))),
           )
 
           val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
