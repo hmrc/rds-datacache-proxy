@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
+import play.api.Logging
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
 import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
@@ -31,7 +32,7 @@ trait RdsDataSource {
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
 }
 
-class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource:
+class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
     Future {
@@ -81,11 +82,15 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.setDate("pInputDate", Date(baseDate.toEpochDay))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
 
+        logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
+
         storedProcedure.registerOutParameter("pTotalRecords", Types.DATE)
 
         storedProcedure.execute()
 
         val date = storedProcedure.getDate("pOutputDate")
+
+        logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
 
         EarliestPaymentDate(date.toLocalDate)
       }
