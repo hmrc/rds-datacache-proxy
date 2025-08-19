@@ -82,7 +82,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.setDate("pInputDate", Date(baseDate.toEpochDay))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
 
-        logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
+        logger.warn(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
 
         storedProcedure.registerOutParameter("pTotalRecords", Types.DATE)
 
@@ -90,7 +90,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         val date = storedProcedure.getDate("pOutputDate")
 
-        logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
+        logger.warn(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
 
         EarliestPaymentDate(date.toLocalDate)
       }
