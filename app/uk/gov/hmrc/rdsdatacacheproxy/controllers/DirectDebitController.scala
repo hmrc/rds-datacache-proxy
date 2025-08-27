@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.controllers
 
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -33,7 +34,7 @@ class DirectDebitController @Inject()(
                                        authorise: AuthAction,
                                        directDebitService: DirectDebitService,
                                        cc: ControllerComponents
-                                     )(implicit ec: ExecutionContext) extends BackendController(cc):
+                                     )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging:
 
   def retrieveDirectDebits(firstRecordNumber: Option[Int], maxRecords: Option[Int]): Action[AnyContent] =
     authorise.async:
@@ -42,6 +43,7 @@ class DirectDebitController @Inject()(
           case (_, 0) =>
             Future.successful(Ok(Json.toJson(UserDebits.empty)))
           case (start, max) if start > 0 && 0 < max && max <= 99 =>
+            logger.info(s"**** Cred ID: ${request.internalId}, FirstRecordNumber: ${start}, Max Records: ${max}")
             directDebitService
               .retrieveDirectDebits(
                 request.internalId,
