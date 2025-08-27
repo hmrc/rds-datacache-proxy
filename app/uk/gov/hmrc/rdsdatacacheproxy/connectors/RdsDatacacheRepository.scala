@@ -40,22 +40,29 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
 
-//        storedProcedure.setString("pCredentialID", id)
-        storedProcedure.setString("pCredentialID", "0000001548676421") //TODO - hardcoding for testing
-        storedProcedure.setInt("pFirstRecordNumber", start)
-        storedProcedure.setInt("pMaxRecords", max)
+        storedProcedure.setString(1, id) // pCredentialID
+        storedProcedure.setInt(2, start) // pFirstRecordNumber
+        storedProcedure.setInt(3, max) // pMaxRecords
 
-        storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC)
-        storedProcedure.registerOutParameter("pDDSummary", Types.REF_CURSOR)
-        storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR)
+        storedProcedure.registerOutParameter(4, Types.NUMERIC) // pTotalRecords
+        storedProcedure.registerOutParameter(5, Types.REF_CURSOR) // pDDSummary
+        storedProcedure.registerOutParameter(6, Types.VARCHAR) // pResponseStatus
 
         storedProcedure.execute()
 
-        val debitTotal = storedProcedure.getInt("pTotalRecords")
-        val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet])
-        
+        // Retrieve output parameters
+        val debitTotal = storedProcedure.getInt(4)                  // pTotalRecords
+        val pResponseStatus = storedProcedure.getString(6)          // pResponseStatus
+        val debits = storedProcedure.getObject(5, classOf[ResultSet]) // pDDSummary (REF CURSOR)
+
+        // Check for error status
+        if (pResponseStatus != "SUCCESS") {
+          logger.error(s"Stored procedure failed with status: $pResponseStatus")
+          throw new Exception(s"Stored procedure failed with status: $pResponseStatus")
+        }
+
         @tailrec
-        def collectDebits(acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] =
+        def collectDebits(debits: ResultSet, acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] =
           if (!debits.next()) {
             acc
           } else {
@@ -69,10 +76,10 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
               numberOfPayPlans = debits.getInt("NumberofPayPlans")
             )
 
-            collectDebits(acc :+ directDebit)
+            collectDebits(debits, acc :+ directDebit)
           }
 
-        UserDebits(debitTotal, collectDebits())
+        UserDebits(debitTotal, collectDebits(debits))
       }
     }
 
