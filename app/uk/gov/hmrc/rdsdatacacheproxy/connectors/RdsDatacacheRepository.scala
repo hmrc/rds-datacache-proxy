@@ -35,11 +35,13 @@ trait RdsDataSource {
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
+    logger.info(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
 
-        storedProcedure.setString("pCredentialID", id)
+//        storedProcedure.setString("pCredentialID", id)
+        storedProcedure.setString("pCredentialID", "0000001548676421") //TODO - hardcoding for testing
         storedProcedure.setInt("pFirstRecordNumber", start)
         storedProcedure.setInt("pMaxRecords", max)
 
