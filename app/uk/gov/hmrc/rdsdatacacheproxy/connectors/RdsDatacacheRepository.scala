@@ -40,7 +40,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
 
-        storedProcedure.setString("pCredentialID", id)
+//        storedProcedure.setString("pCredentialID", id)
+        storedProcedure.setString("pCredentialID", "0000001548676421") //TODO - hardcoding for testing
         storedProcedure.setInt("pFirstRecordNumber", start)
         storedProcedure.setInt("pMaxRecords", max)
 
