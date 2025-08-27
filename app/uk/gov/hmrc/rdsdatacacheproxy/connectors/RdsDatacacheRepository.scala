@@ -34,25 +34,30 @@ trait RdsDataSource {
 
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
-  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
+  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] = {
     logger.info(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
+
     Future {
       db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
+        // Correct order of parameters and no unnecessary setString for output parameters
+        val storedProcedure = connection.prepareCall("{ call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?) }")
 
-        storedProcedure.setString(1, id) // pCredentialID
+        // Set input parameters
+        storedProcedure.setString(1, "0000001548676421") // pCredentialID
         storedProcedure.setInt(2, start) // pFirstRecordNumber
         storedProcedure.setInt(3, max) // pMaxRecords
 
+        // Register output parameters
         storedProcedure.registerOutParameter(4, Types.NUMERIC) // pTotalRecords
         storedProcedure.registerOutParameter(5, Types.REF_CURSOR) // pDDSummary
         storedProcedure.registerOutParameter(6, Types.VARCHAR) // pResponseStatus
 
+        // Execute the stored procedure
         storedProcedure.execute()
 
         // Retrieve output parameters
-        val debitTotal = storedProcedure.getInt(4)                  // pTotalRecords
-        val pResponseStatus = storedProcedure.getString(6)          // pResponseStatus
+        val debitTotal = storedProcedure.getInt(4) // pTotalRecords
+        val pResponseStatus = storedProcedure.getString(6) // pResponseStatus
         val debits = storedProcedure.getObject(5, classOf[ResultSet]) // pDDSummary (REF CURSOR)
 
         // Check for error status
@@ -61,27 +66,32 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
           throw new Exception(s"Stored procedure failed with status: $pResponseStatus")
         }
 
-        @tailrec
-        def collectDebits(debits: ResultSet, acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] =
-          if (!debits.next()) {
-            acc
-          } else {
-            val directDebit = DirectDebit(
-              ddiRefNumber = debits.getString("DDIRefNumber"),
-              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-              bankSortCode = debits.getString("BankSortCode"),
-              bankAccountNumber = debits.getString("BankAccountNumber"),
-              bankAccountName = debits.getString("BankAccountName"),
-              auDdisFlag = debits.getBoolean("AuddisFlag"),
-              numberOfPayPlans = debits.getInt("NumberofPayPlans")
-            )
+        // Collect debits from the ResultSet (REF CURSOR)
+        val collectedDebits = collectDebits(debits)
 
-            collectDebits(debits, acc :+ directDebit)
-          }
-
-        UserDebits(debitTotal, collectDebits(debits))
+        // Return UserDebits
+        UserDebits(debitTotal, collectedDebits)
       }
     }
+  }
+
+  // Tail-recursive function to collect debits
+  @tailrec
+  private def collectDebits(debits: ResultSet, acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
+    if (!debits.next()) acc
+    else {
+      val directDebit = DirectDebit(
+        ddiRefNumber = debits.getString("DDIRefNumber"),
+        submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
+        bankSortCode = debits.getString("BankSortCode"),
+        bankAccountNumber = debits.getString("BankAccountNumber"),
+        bankAccountName = debits.getString("BankAccountName"),
+        auDdisFlag = debits.getBoolean("AuddisFlag"),
+        numberOfPayPlans = debits.getInt("NumberofPayPlans")
+      )
+      collectDebits(debits, acc :+ directDebit)
+    }
+  }
 
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future {
@@ -94,13 +104,11 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
 
         storedProcedure.registerOutParameter("pTotalRecords", Types.DATE)
-
         storedProcedure.execute()
 
         val date = storedProcedure.getDate("pOutputDate")
 
         logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
-
         EarliestPaymentDate(date.toLocalDate)
       }
     }
