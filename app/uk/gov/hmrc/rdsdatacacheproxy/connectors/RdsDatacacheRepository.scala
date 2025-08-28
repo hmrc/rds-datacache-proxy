@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
+import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
@@ -40,7 +41,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
     Future {
       db.withConnection { connection =>
         // Correct order of parameters and no unnecessary setString for output parameters
-        val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
+        val storedProcedure = connection.prepareCall("{ call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?) }")
 
         // Set input parameters
         storedProcedure.setString(1, "0000001548676421") // pCredentialID
@@ -49,7 +50,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         // Register output parameters
         storedProcedure.registerOutParameter(4, Types.NUMERIC) // pTotalRecords
-        storedProcedure.registerOutParameter(5, Types.REF_CURSOR) // pDDSummary
+        storedProcedure.registerOutParameter(5, OracleTypes.CURSOR) // pDDSummary
         storedProcedure.registerOutParameter(6, Types.VARCHAR) // pResponseStatus
 
         // Execute the stored procedure
@@ -57,8 +58,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt(4) // pTotalRecords
-        val pResponseStatus = storedProcedure.getString(6) // pResponseStatus
         val debits = storedProcedure.getObject(5, classOf[ResultSet]) // pDDSummary (REF CURSOR)
+        val pResponseStatus = storedProcedure.getString(6) // pResponseStatus
 
         // Check for error status
         if (pResponseStatus != "SUCCESS") {
