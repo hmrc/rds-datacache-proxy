@@ -40,7 +40,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
     Future {
       db.withConnection { connection =>
         // Correct order of parameters and no unnecessary setString for output parameters
-        val storedProcedure = connection.prepareCall("{ call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?) }")
+        val storedProcedure = connection.prepareCall("DD_PK.getDDSummary")
 
         // Set input parameters
         storedProcedure.setString(1, "0000001548676421") // pCredentialID
