@@ -20,7 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, MonthlyReturn, UserDebits, UserMonthlyReturns}
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait RdsDataSource {
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits]
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
+  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -113,3 +114,64 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         EarliestPaymentDate(date.toLocalDate)
       }
     }
+  
+  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] = {
+    logger.info(s"**** Scheme Id: $instanceId")
+
+    Future {
+      db.withConnection { connection =>
+        // Correct order of parameters and no unnecessary setString for output parameters
+        val storedProcedure = connection.prepareCall("{ call MONTHLY_RETURN_PROCS_2016.getDDSummary(?, ?, ?) }")
+
+        // Set input parameters
+        storedProcedure.setString(1, instanceId)
+
+        // Register output parameters
+        storedProcedure.registerOutParameter(2, OracleTypes.CURSOR)
+        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
+
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val monthlyReturnsScheme = storedProcedure.getObject(2, classOf[ResultSet]) // p_schemes
+        try {
+          // ignore or parse if needed later          
+        } finally if (monthlyReturnsScheme != null) monthlyReturnsScheme.close()
+        
+        val monthlyReturns = storedProcedure.getObject(3, classOf[ResultSet]) //  p_monthly_returns
+        val collectedMonthlyReturns = 
+          try {
+            collectMonthlyReturns(monthlyReturns)
+        } finally if (monthlyReturns != null) monthlyReturns.close()
+
+        // Return UserDebits
+        UserMonthlyReturns(collectedMonthlyReturns)
+      }
+    }
+  }
+
+  // Tail-recursive function to collect debits
+  @tailrec
+  private def collectMonthlyReturns(rs: ResultSet, acc: Seq[MonthlyReturn] = Seq.empty): Seq[MonthlyReturn] = {
+    if (!rs.next()) acc
+    else {
+      val monthlyReturn = MonthlyReturn(
+        monthlyReturnId = rs.getLong("monthly_return_id"),
+        taxYear = rs.getInt("tax_year"),
+        taxMonth = rs.getInt("tax_month"),
+        nilReturnIndicator = Option(rs.getString("nil_return_indicator")),
+        decEmpStatusConsidered = Option(rs.getString("dec_emp_status_considered")),
+        decAllSubsVerified = Option(rs.getString("dec_all_subs_verified")),
+        decInformationCorrect = Option(rs.getString("dec_information_correct")),
+        decNoMoreSubPayments = Option(rs.getString("dec_no_more_sub_payments")),
+        decNilReturnNoPayments = Option(rs.getString("dec_nil_return_no_payments")),
+        status = Option(rs.getString("status")),
+        lastUpdate = Option(rs.getTimestamp("last_update")).map(_.toLocalDateTime),
+        amendment = Option(rs.getString("amendment")),
+        supersededBy = { val v = rs.getLong("superseded_by"); if (rs.wasNull()) None else Some(v) }
+      )
+      collectMonthlyReturns(rs, acc :+ monthlyReturn)
+    }
+  }
+

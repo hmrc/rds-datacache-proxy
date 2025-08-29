@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, MonthlyReturn, UserDebits, UserMonthlyReturns}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.LocalDate
@@ -42,3 +42,7 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
+
+  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
+    val monthlyReturns: Seq[MonthlyReturn] = Seq.fill(3)(stubData.randomMonthlyReturn())
+    Future.successful(UserMonthlyReturns(monthlyReturns))
