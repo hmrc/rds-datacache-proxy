@@ -41,7 +41,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
     Future {
       db.withConnection { connection =>
         // Correct order of parameters and no unnecessary setString for output parameters
-        val storedProcedure = connection.prepareCall("{ call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?) }")
+        val storedProcedure = connection.prepareCall("call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)")
 
         // Set input parameters
         storedProcedure.setString(1, "0000001548676421") // pCredentialID
@@ -59,19 +59,19 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt(4) // pTotalRecords
         val debits = storedProcedure.getObject(5, classOf[ResultSet]) // pDDSummary (REF CURSOR)
-        val pResponseStatus = storedProcedure.getString(6) // pResponseStatus
+        //        val pResponseStatus = storedProcedure.getString(6) // pResponseStatus
 
         // Check for error status
-        if (pResponseStatus != "SUCCESS") {
-          logger.error(s"Stored procedure failed with status: $pResponseStatus")
-          throw new Exception(s"Stored procedure failed with status: $pResponseStatus")
-        }
+        //        if (pResponseStatus != "SUCCESS") {
+        //          logger.error(s"Stored procedure failed with status: $pResponseStatus")
+        //          throw new Exception(s"Stored procedure failed with status: $pResponseStatus")
+        //        }
 
         // Collect debits from the ResultSet (REF CURSOR)
-        val collectedDebits = collectDebits(debits)
+        //        val collectedDebits = collectDebits(debits)
 
         // Return UserDebits
-        UserDebits(debitTotal, collectedDebits)
+        UserDebits(debitTotal, collectDebits(debits))
       }
     }
   }
