@@ -40,6 +40,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
     Future {
       db.withConnection { connection =>
+
+        logger.warn("DB connection successful...")
         // Correct order of parameters and no unnecessary setString for output parameters
         val storedProcedure = connection.prepareCall("call NDDS_DATA.DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)")
 
@@ -59,27 +61,32 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt(4) // pTotalRecords
         val debits = storedProcedure.getObject(5, classOf[ResultSet]) // pDDSummary (REF CURSOR)
-        // Return UserDebits
-        UserDebits(debitTotal, collectDebits(debits))
-      }
-    }
-  }
 
-  // Tail-recursive function to collect debits
-  @tailrec
-  private def collectDebits(debits: ResultSet, acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
-    if (!debits.next()) acc
-    else {
-      val directDebit = DirectDebit(
-        ddiRefNumber = debits.getString("DDIRefNumber"),
-        submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-        bankSortCode = debits.getString("BankSortCode"),
-        bankAccountNumber = debits.getString("BankAccountNumber"),
-        bankAccountName = debits.getString("BankAccountName"),
-        auDdisFlag = debits.getBoolean("AuddisFlag"),
-        numberOfPayPlans = debits.getInt("NumberofPayPlans")
-      )
-      collectDebits(debits, acc :+ directDebit)
+        // Tail-recursive function to collect debits
+        @tailrec
+        def collectDebits(debits: ResultSet, acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
+          if (!debits.next()) acc
+          else {
+            val directDebit = DirectDebit(
+              ddiRefNumber = debits.getString("DDIRefNumber"),
+              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
+              bankSortCode = debits.getString("BankSortCode"),
+              bankAccountNumber = debits.getString("BankAccountNumber"),
+              bankAccountName = debits.getString("BankAccountName"),
+              auDdisFlag = debits.getBoolean("AuddisFlag"),
+              numberOfPayPlans = debits.getInt("NumberofPayPlans")
+            )
+            collectDebits(debits, acc :+ directDebit)
+          }
+        }
+
+        val result = collectDebits(debits)
+
+        storedProcedure.close()
+
+        // Return UserDebits
+        UserDebits(debitTotal, result)
+      }
     }
   }
 
@@ -97,6 +104,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.execute()
 
         val date = storedProcedure.getDate("pOutputDate")
+
+        storedProcedure.close()
 
         logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
         EarliestPaymentDate(date.toLocalDate)
