@@ -35,51 +35,12 @@ trait RdsDataSource {
 
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
-  def listPackageProcedures(schema: String, packageName: String): Future[Seq[String]] =
-    Future {
-      db.withConnection { conn =>
-        val stmt = conn.prepareStatement(
-          """SELECT DISTINCT procedure_name
-            |FROM all_procedures
-            |WHERE object_name = ?
-            |AND owner = ?
-            |ORDER BY procedure_name""".stripMargin
-        )
-        stmt.setString(1, packageName.toUpperCase)
-        stmt.setString(2, schema.toUpperCase)
-        val rs = stmt.executeQuery()
-        val buffer = scala.collection.mutable.ListBuffer.empty[String]
-        while (rs.next()) {
-          buffer += rs.getString("procedure_name")
-        }
-        rs.close()
-        stmt.close()
-        buffer.toList
-      }
-    }(ec)
-
-
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] = {
     logger.info(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
 
     Future {
       db.withConnection { connection =>
         logger.info(s"DB connection successful...${connection}")
-
-        //call to get all SP names
-        listPackageProcedures("NDDS_DATA", "DD_PK").foreach { procedures =>
-          logger.info(s"Procedures in DD_PK: ${procedures.mkString(", ")}")
-        }(ec)
-
-        val userStmt = connection.prepareStatement("SELECT USER AS current_user, SYS_CONTEXT('USERENV','DB_NAME') AS db_name FROM dual")
-        val rsUser = userStmt.executeQuery()
-        if (rsUser.next()) {
-          val currentUser = rsUser.getString("current_user")
-          val dbName = rsUser.getString("db_name")
-          logger.info(s"Current DB User: $currentUser, Current DB Name: $dbName")
-        }
-
-        userStmt.close()
 
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
@@ -131,7 +92,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future {
       db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("DD_PK.AddWorkingDays")
+        val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
 
         storedProcedure.setDate("pInputDate", Date(baseDate.toEpochDay))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
