@@ -71,6 +71,15 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
           logger.info(s"Procedures in DD_PK: ${procedures.mkString(", ")}")
         }(ec)
 
+        val userStmt = connection.prepareStatement("SELECT USER AS current_user, SYS_CONTEXT('USERENV','DB_NAME') AS db_name FROM dual")
+        val rsUser = userStmt.executeQuery()
+        if (rsUser.next()) {
+          val currentUser = rsUser.getString("current_user")
+          val dbName = rsUser.getString("db_name")
+          logger.info(s"Current DB User: $currentUser, Current DB Name: $dbName")
+        }
+
+        userStmt.close()
 
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
