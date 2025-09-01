@@ -36,14 +36,14 @@ trait RdsDataSource {
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] = {
-    logger.warn(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
+    logger.info(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
 
     Future {
       db.withConnection { connection =>
 
-        logger.warn("DB connection successful...")
+        logger.info(s"DB connection successful...${connection}")
         // Correct order of parameters and no unnecessary setString for output parameters
-        val storedProcedure = connection.prepareCall("call NDDS_DATA.DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)")
+        val storedProcedure = connection.prepareCall("{call NDDS_DATA.DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
         // Set input parameters
         storedProcedure.setString(1, "0000001548676421") // pCredentialID
