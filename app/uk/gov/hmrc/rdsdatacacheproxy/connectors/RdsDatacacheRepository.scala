@@ -67,7 +67,9 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         logger.info(s"DB connection successful...${connection}")
 
         //call to get all SP names
-        logger.info(s"Print procedures: ${listPackageProcedures("NDDS_DATA", "DD_PK")}")
+        listPackageProcedures("NDDS_DATA", "DD_PK").foreach { procedures =>
+          logger.info(s"Procedures in DD_PK: ${procedures.mkString(", ")}")
+        }(ec)
 
 
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
