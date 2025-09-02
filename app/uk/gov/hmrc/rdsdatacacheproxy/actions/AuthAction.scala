@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 import play.api.Logging
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import play.api.mvc.Results.{Unauthorized, Forbidden}
+import play.api.mvc.Results.Unauthorized
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
@@ -43,12 +43,9 @@ class DefaultAuthAction @Inject()(
       case Some(internalId) ~ Some(credentials) => block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId))
       case _ => throw new UnauthorizedException("Unable to retrieve credential Id")
     } recover {
-      case nas: NoActiveSession =>
-        logger.debug(s"[invokeBlock] NoActiveSession Exception with reason: ${nas.reason}")
-        Unauthorized
       case ae: AuthorisationException =>
         logger.debug(s"[invokeBlock] Authorisation Exception ${ae.reason}")
-        Forbidden
+        Unauthorized
     }
 
 trait AuthAction

@@ -29,7 +29,7 @@ object AuthStub:
         .willReturn(
           aResponse()
             .withStatus(OK)
-            .withBody(s"""{ "internalId": "testId" }""")
+            .withBody(s"""{ "internalId": "testId" , "credentialId": "testCredId"}""")
             .withHeader(SessionKeys.sessionId, "testSessionId")
         )
     )
