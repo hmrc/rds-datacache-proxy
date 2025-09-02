@@ -23,12 +23,13 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit.*
 
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class DirectDebitSpec
   extends AnyWordSpec
     with Matchers:
 
-  val dateTime: LocalDateTime = LocalDateTime.now()
+  val dateTime: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
 
   val jsonAsString: String =
     s"""
