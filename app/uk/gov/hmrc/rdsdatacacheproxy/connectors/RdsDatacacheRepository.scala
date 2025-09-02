@@ -99,7 +99,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
 
-        storedProcedure.registerOutParameter("pTotalRecords", Types.DATE)
+        storedProcedure.registerOutParameter("pOutputDate", Types.DATE)
         storedProcedure.execute()
 
         val date = storedProcedure.getDate("pOutputDate")
