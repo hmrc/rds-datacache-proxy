@@ -23,5 +23,6 @@ import uk.gov.hmrc.http.SessionId
 case class AuthenticatedRequest[A](
                                     private val request: Request[A],
                                     internalId: String,
+                                    credentialId: String,
                                     sessionId: SessionId
                                   ) extends WrappedRequest[A](request)
