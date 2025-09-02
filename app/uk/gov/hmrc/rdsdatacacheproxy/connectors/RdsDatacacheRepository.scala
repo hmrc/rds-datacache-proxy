@@ -45,7 +45,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
         // Set input parameters
-        storedProcedure.setString("pCredentialID", "0000001548676421") // pCredentialID
+        storedProcedure.setString("pCredentialID", id) // pCredentialID
         storedProcedure.setInt("pFirstRecordNumber", start) // pFirstRecordNumber
         storedProcedure.setInt("pMaxRecords", max) // pMaxRecords
 

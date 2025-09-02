@@ -38,16 +38,15 @@ class DefaultAuthAction @Inject()(
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     val sessionId = hc.sessionId.getOrElse(throw new UnauthorizedException("Unable to retrieve session ID from headers"))
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map:
-        internalId => block(AuthenticatedRequest(request, internalId, sessionId))
-      .getOrElse(throw new UnauthorizedException("Unable to retrieve internal ID from headers"))
-      .recover:
-        case _: AuthorisationException =>
-          val error = "Failed to authorise request"
-          logger.warn(error)
-          Unauthorized(error)
-    }(using hc)
+    authorised().retrieve(Retrievals.credentials) {
+      case Some(credentials) => block(AuthenticatedRequest(request, credentials.providerId, sessionId))
+      case None => throw new UnauthorizedException("Unable to retrieve credential Id")
+    } recover {
+      case _: AuthorisationException =>
+        val error = "Failed to authorise request"
+        logger.warn(error)
+        Unauthorized(error)
+    }
 
 trait AuthAction
   extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
