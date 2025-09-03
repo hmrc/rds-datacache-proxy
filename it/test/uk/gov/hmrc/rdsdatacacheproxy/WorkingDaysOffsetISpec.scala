@@ -33,7 +33,7 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
       "retrieving Earliest Payment Date" when :
         "user provides a date and offset" in:
           val response = post(
-            "/direct-debits/earliest-payment-date",
+            "/direct-debits/future-working-days",
             Json.parse(
               s"""
                  |{
@@ -50,7 +50,7 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
       "with a 400" when :
         "calling an endpoint without required JSON" in:
           val response = post(
-            "/direct-debits/earliest-payment-date",
+            "/direct-debits/future-working-days",
             Json.parse(
               """
                 |{
@@ -62,7 +62,7 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
 
         "calling with an invalid date" in:
           val response = post(
-            "/direct-debits/earliest-payment-date",
+            "/direct-debits/future-working-days",
             Json.parse(
               s"""
                  |{
@@ -77,7 +77,7 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
 
         "calling with an invalid firstNumber" in:
           val response = post(
-            "/direct-debits/earliest-payment-date",
+            "/direct-debits/future-working-days",
             Json.parse(
               s"""
                  |{
@@ -91,6 +91,6 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
 
     "with a 404" when :
       "calling an endpoint that doesn't exist" in :
-        val response = get("/earliest-payment-date").futureValue
+        val response = get("/future-working-days").futureValue
 
         response.status shouldBe NOT_FOUND
