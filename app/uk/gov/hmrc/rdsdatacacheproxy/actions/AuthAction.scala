@@ -21,7 +21,7 @@ import play.api.mvc.*
 import uk.gov.hmrc.auth.core.retrieve.~
 import play.api.mvc.Results.Unauthorized
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.AuthenticatedRequest
@@ -41,7 +41,7 @@ class DefaultAuthAction @Inject()(
 
     authorised().retrieve(Retrievals.internalId and Retrievals.credentials) {
       case Some(internalId) ~ Some(credentials) => block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId))
-      case _ => throw new UnauthorizedException("Unable to retrieve credential Id")
+      case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
     } recover {
       case ae: AuthorisationException =>
         logger.debug(s"[invokeBlock] Authorisation Exception ${ae.reason}")

@@ -40,8 +40,6 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
     Future {
       db.withConnection { connection =>
-        logger.info(s"DB connection successful...${connection}")
-
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
         // Set input parameters
@@ -62,9 +60,6 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
 
-        logger.info(s"DB response: ${debits}")
-        logger.info(s"DB Response status: $responseStatus")
-
         // Tail-recursive function to collect debits
         @tailrec
         def collectDebits(acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
@@ -84,7 +79,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         }
 
         val result = collectDebits()
-        logger.info(s"***** DD count: $debitTotal, DD details: ${result}")
+        logger.info(s"***** DD count: $debitTotal")
+        logger.info(s"DB Response status: $responseStatus")
 
         storedProcedure.close()
 
