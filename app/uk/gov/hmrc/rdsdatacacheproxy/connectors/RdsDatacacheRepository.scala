@@ -60,6 +60,10 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+
+        logger.info(s"DB response: ${debits}")
+        logger.info(s"DB Response status: $responseStatus")
 
         // Tail-recursive function to collect debits
         @tailrec
@@ -80,7 +84,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         }
 
         val result = collectDebits()
-        logger.info(s"***** DD count: ${debitTotal}, DD details: ${result}")
+        logger.info(s"***** DD count: $debitTotal, DD details: ${result}")
 
         storedProcedure.close()
 
