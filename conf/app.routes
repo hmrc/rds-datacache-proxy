@@ -2,6 +2,6 @@
 
 GET        /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits(firstRecordNumber: Option[Int], maxRecords: Option[Int])
 POST       /direct-debits             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.createDirectDebit()
-GET        /monthly-returns           uk.gov.hmrc.rdsdatacacheproxy.controllers.MonthlyReturnController.retrieveMonthlyReturns(instanceId: Option[String])
+GET        /monthly-returns           uk.gov.hmrc.rdsdatacacheproxy.controllers.MonthlyReturnController.retrieveMonthlyReturns
 
 POST       /direct-debits/earliest-payment-date     uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()

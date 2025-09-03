@@ -17,13 +17,15 @@
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsStub
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisRdsStub
 import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
+
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.global
@@ -33,14 +35,20 @@ class MonthlyReturnServiceSpec
     with Matchers
     with ScalaFutures
     with MockitoSugar
-    with IntegrationPatience:
+    with IntegrationPatience
+    with BeforeAndAfterEach:
 
   implicit val ec: ExecutionContext = global
 
-  private val mockConnector = mock[RdsStub]
+  private val mockConnector = mock[CisRdsStub]
   private val service = new MonthlyReturnService(mockConnector)
 
-  // deterministic helper for rows
+  override def beforeEach(): Unit =
+    super.beforeEach()
+    reset(mockConnector)
+    when(mockConnector.findInstanceId(any[String](), any[String]()))
+      .thenReturn(Future.successful(Some("1")))
+
   private val fixedTs = LocalDateTime.parse("2025-01-01T00:00:00")
   private def mr(id: Long, year: Int, month: Int): MonthlyReturn =
     MonthlyReturn(
@@ -65,7 +73,7 @@ class MonthlyReturnServiceSpec
         when(mockConnector.getMonthlyReturns(any[String]()))
           .thenReturn(Future.successful(UserMonthlyReturns(Seq.empty)))
 
-        val result = service.retrieveMonthlyReturns("test123").futureValue
+        val result = service.retrieveMonthlyReturns("123","AB456").futureValue
         result shouldBe UserMonthlyReturns(Seq.empty)
 
       "retrieving Monthly Returns" in:
@@ -75,20 +83,19 @@ class MonthlyReturnServiceSpec
             Future.successful(UserMonthlyReturns(Seq(mr(2, 2025, 7), mr(3, 2025, 7))))
           )
 
-        val r1 = service.retrieveMonthlyReturns("test123").futureValue
+        val r1 = service.retrieveMonthlyReturns("123","AB456").futureValue
         r1 shouldBe UserMonthlyReturns(Seq(mr(1, 2025, 1)))
 
-        val r2 = service.retrieveMonthlyReturns("test123").futureValue
+        val r2 = service.retrieveMonthlyReturns("123","AB456").futureValue
         r2 shouldBe UserMonthlyReturns(Seq(mr(2, 2025, 7), mr(3, 2025, 7)))
 
     "fail" when:
-
       "the connector errors" in:
         when(mockConnector.getMonthlyReturns(any[String]()))
           .thenReturn(Future.failed(new Exception("bang")))
 
         val ex = intercept[Exception] {
-          service.retrieveMonthlyReturns("instance-123").futureValue
+          service.retrieveMonthlyReturns("123","AB456").futureValue
         }
         ex.getMessage should include ("bang")
 

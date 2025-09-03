@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package uk.gov.hmrc.rdsdatacacheproxy.models
 
 import java.time.LocalDateTime
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 class MonthlyReturnSpec
   extends AnyWordSpec

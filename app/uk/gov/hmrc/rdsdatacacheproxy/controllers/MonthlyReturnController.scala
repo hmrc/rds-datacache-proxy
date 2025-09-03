@@ -30,17 +30,39 @@ class MonthlyReturnController @Inject()(
                                          authorise: AuthAction,
                                          monthlyReturnService: MonthlyReturnService,
                                          cc: ControllerComponents
-                                       )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging:
+                                       )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
-  def retrieveMonthlyReturns(instanceId: Option[String]): Action[AnyContent] =
-    authorise.async{ implicit request =>
-      instanceId.map(_.trim).filter(_.nonEmpty) match {
-        case Some(id) =>
-          logger.info(s"**** InstanceId: $id")
+  private val TonHeader = "X-Tax-Office-Number"
+  private val TorHeader = "X-Tax-Office-Reference"
+
+  def retrieveMonthlyReturns: Action[AnyContent] =
+    authorise.async { implicit request =>
+      val tonOpt = request.headers.get(TonHeader).map(_.trim).filter(_.nonEmpty)
+      val torOpt = request.headers.get(TorHeader).map(_.trim).filter(_.nonEmpty)
+
+      (tonOpt, torOpt) match {
+        case (Some(ton), Some(tor)) =>
+          logger.debug(s"retrieveMonthlyReturns: received $TonHeader and $TorHeader")
           monthlyReturnService
-            .retrieveMonthlyReturns(id)
+            .retrieveMonthlyReturns(ton, tor) 
             .map(res => Ok(Json.toJson(res)))
-        case None =>
-          Future.successful(BadRequest(Json.obj("message" -> "Missing or empty instanceId")))
+            .recover {
+              case u: uk.gov.hmrc.http.UpstreamErrorResponse =>
+                Status(u.statusCode)(Json.obj("message" -> u.message))
+              case t: Throwable =>
+                logger.error("retrieveMonthlyReturns failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+            }
+
+        case _ =>
+          val missing = Seq(
+            TonHeader -> tonOpt.isDefined,
+            TorHeader -> torOpt.isDefined
+          ).collect { case (name, present) if !present => name }
+
+          Future.successful(
+            BadRequest(Json.obj("message" -> s"Missing or empty header(s): ${missing.mkString(", ")}"))
+          )
       }
     }
+}

@@ -16,14 +16,26 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsDataSource
+import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisMonthlyReturnSource
 import uk.gov.hmrc.rdsdatacacheproxy.models.UserMonthlyReturns
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class MonthlyReturnService @Inject()(rdsDatacache: RdsDataSource):
+class MonthlyReturnService @Inject()(cisSource: CisMonthlyReturnSource)
+                                    (implicit ec: ExecutionContext) extends Logging:
 
-  def retrieveMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
-    rdsDatacache.getMonthlyReturns(instanceId)
+  def retrieveMonthlyReturns(taxOfficeNumber: String, taxOfficeReference: String)
+  : Future[UserMonthlyReturns] = {
+    cisSource.findInstanceId(taxOfficeNumber, taxOfficeReference).flatMap {
+      case Some(instanceId) =>
+        cisSource.getMonthlyReturns(instanceId)
+      case None =>
+        val msg = s"No instanceId found for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
+        logger.warn(msg)
+        Future.failed(new NoSuchElementException(msg))
+    }
+  }
+
 
