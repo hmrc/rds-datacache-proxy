@@ -23,7 +23,9 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
 import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
 
 import java.sql.{Date, ResultSet, Types}
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
@@ -95,10 +97,10 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
 
-        storedProcedure.setDate("pInputDate", Date(baseDate.toEpochDay))
+        storedProcedure.setDate("pInputDate", Date.valueOf(baseDate))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
 
-        logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
+        logger.info(s"Getting earliest payment date. Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
 
         storedProcedure.registerOutParameter("pOutputDate", Types.DATE)
         storedProcedure.execute()
