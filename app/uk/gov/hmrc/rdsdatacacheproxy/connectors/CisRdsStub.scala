@@ -28,7 +28,6 @@ class CisRdsStub @Inject()() extends CisMonthlyReturnSource with Logging {
   // Remove this once real stubbing exists
   private[connectors] val stubData = new StubUtils()
 
-  /** Always return instanceId = "1" when both identifiers are present. */
   override def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
     val tonOk = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
     val torOk = Option(taxOfficeReference).exists(_.trim.nonEmpty)
