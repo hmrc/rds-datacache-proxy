@@ -59,4 +59,22 @@ trait SpecBase
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
+  final val TonHeader = "X-Tax-Office-Number"
+  final val TorHeader = "X-Tax-Office-Reference"
+
+  def requestWithCisHeaders(
+                             ton: String = "123",
+                             tor: String = "AB456"
+                           ): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest().withHeaders(TonHeader -> ton, TorHeader -> tor)
+
+  def requestMissingTon(tor: String = "AB456"): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest().withHeaders(TorHeader -> tor)
+
+  def requestMissingTor(ton: String = "123"): FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest().withHeaders(TonHeader -> ton)
+
+  def requestWithoutCisHeaders: FakeRequest[AnyContentAsEmpty.type] =
+    FakeRequest()  
 }
