@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
-
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.DirectDebit
 import java.time.LocalDateTime
 import scala.util.Random
 

@@ -44,7 +44,7 @@ class DefaultAuthAction @Inject()(
       case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
     } recover {
       case ae: AuthorisationException =>
-        logger.debug(s"[invokeBlock] Authorisation Exception ${ae.reason}")
+        logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
         Unauthorized
     }
 

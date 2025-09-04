@@ -2,7 +2,6 @@ resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefac
 resolvers += Resolver.url("HMRC-open-artefacts-ivy2", url("https://open.artefacts.tax.service.gov.uk/ivy2"))(Resolver.ivyStylePatterns)
 resolvers += Resolver.typesafeRepo("releases")
 
-
 projectDependencies += "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0"
 projectDependencies += "com.oracle.ojdbc" % "orai18n" % "19.3.0.0"
 projectDependencies += "org.flywaydb" % "flyway-core" % "11.10.5"

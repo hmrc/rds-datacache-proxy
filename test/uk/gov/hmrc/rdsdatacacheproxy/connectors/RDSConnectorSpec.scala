@@ -19,11 +19,11 @@ package uk.gov.hmrc.rdsdatacacheproxy.connectors
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.models.DirectDebit
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
-import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
+import scala.collection.immutable.Seq
 
 class RDSConnectorSpec
   extends AnyWordSpec
@@ -59,3 +59,13 @@ class RDSConnectorSpec
 
       result1 shouldBe UserDebits(3, Seq(expected(1), expected(2), expected(3)))
       result2 shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
+
+    "return earliest payment date" in :
+      val result = connector.getEarliestPaymentDate(LocalDate.of(2025, 12, 15), 10).futureValue
+
+      result shouldBe EarliestPaymentDate(LocalDate.of(2025, 12, 25))
+
+    "return ddi reference number" in :
+      val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
+
+      result shouldBe DDIReference("xyz")

@@ -21,10 +21,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits
-import uk.gov.hmrc.rdsdatacacheproxy.models.UserDebits.*
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, WorkingDaysOffsetRequest}
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import javax.inject.Inject
@@ -44,12 +43,8 @@ class DirectDebitController @Inject()(
             Future.successful(Ok(Json.toJson(UserDebits.empty)))
           case (start, max) if start > 0 && 0 < max && max <= 99 =>
             logger.info(s"**** Cred ID: ${request.credentialId}, FirstRecordNumber: ${start}, Max Records: ${max}")
-            directDebitService
-              .retrieveDirectDebits(
-                request.credentialId,
-                start,
-                max
-              ).map(s => Ok(Json.toJson(s)))
+            directDebitService.retrieveDirectDebits(request.credentialId, start, max)
+              .map(result => Ok(Json.toJson(result)))
           case _ =>
             Future.successful(
               BadRequest(s"Invalid firstRecordNumber: $firstRecordNumber and maxRecordNumber: $maxRecords")
@@ -66,5 +61,24 @@ class DirectDebitController @Inject()(
     Action(parse.json[WorkingDaysOffsetRequest]).async:
       implicit request =>
         directDebitService.getEarliestPaymentDate(request.body.baseDate, request.body.offsetWorkingDays)
-          .map (Json.toJson)
-          .map (Ok(_))
+          .map { result =>
+            Ok(Json.toJson(result))
+          }
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while calculating earliest payment date", ex)
+              InternalServerError("Failed to calculate earliest payment date.")
+          }
+
+  def generateDDIReference(payReference: String): Action[AnyContent] =
+    authorise.async:
+      implicit request =>
+        directDebitService.getDDIReference(payReference, request.credentialId, request.sessionId.value)
+          .map { ddiReference =>
+            Ok(Json.toJson(ddiReference))
+          }
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while generating DDI Reference", ex)
+              InternalServerError("Failed to generate DDI Reference.")
+          }
