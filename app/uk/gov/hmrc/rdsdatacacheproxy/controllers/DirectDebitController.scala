@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, WorkingDaysOffsetRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, GenerateDdiRefRequest, WorkingDaysOffsetRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
@@ -70,16 +70,19 @@ class DirectDebitController @Inject()(
               InternalServerError("Failed to calculate earliest payment date.")
           }
 
-  def generateDDIReference(payReference: String): Action[AnyContent] =
-    authorise.async:
-      implicit request =>
-        logger.info(s"in controller input pay reference: $payReference")
-        directDebitService.getDDIReference(payReference, request.credentialId, request.sessionId.value)
-          .map { ddiReference =>
-            Ok(Json.toJson(ddiReference))
-          }
-          .recover {
-            case ex: Exception =>
-              logger.error("Error while generating DDI Reference", ex)
-              InternalServerError("Failed to generate DDI Reference.")
-          }
+  def generateDDIReference(): Action[GenerateDdiRefRequest] =
+    authorise.async(parse.json[GenerateDdiRefRequest]) { implicit request =>
+      val body = request.body
+      logger.info(s"in controller input pay reference: ${body.paymentReference}")
+      directDebitService.getDDIReference(
+          body.paymentReference,
+          request.credentialId,
+          request.sessionId.value
+        )
+        .map { ddiReference => Ok(Json.toJson(ddiReference)) }
+        .recover {
+          case ex: Exception =>
+            logger.error("Error while generating DDI Reference", ex)
+            InternalServerError("Failed to generate DDI Reference.")
+        }
+    }
