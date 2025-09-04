@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.connectors
 
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, MonthlyReturn, UserDebits, UserMonthlyReturns}
+import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.LocalDate
