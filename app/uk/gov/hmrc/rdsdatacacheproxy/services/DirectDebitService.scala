@@ -33,5 +33,4 @@ class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
     rdsDatacache.getEarliestPaymentDate(baseDate, offsetWorkingDays)
 
   def getDDIReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
-    logger.info(s"in service input pay reference: $paymentReference $credId $sessionId")
     rdsDatacache.getDirectDebitReference(paymentReference, credId, sessionId)
