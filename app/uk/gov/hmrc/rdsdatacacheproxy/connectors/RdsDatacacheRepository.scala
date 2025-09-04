@@ -115,7 +115,10 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] = {
     Future {
+      logger.info(s"getDirectDebitReference, Result from SQL Stored Procedure: $paymentReference, $credId, $sessionId")
+
       db.withConnection { connection =>
+        logger.info(s"connection successful to DB: $connection")
         val storedProcedure = connection.prepareCall("{call DD_PK.GETDDIRefNumber(?, ?, ?, ?)}")
 
         storedProcedure.setString("pPayReference", paymentReference)

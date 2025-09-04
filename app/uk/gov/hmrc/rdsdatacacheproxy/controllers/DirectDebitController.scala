@@ -73,6 +73,7 @@ class DirectDebitController @Inject()(
   def generateDDIReference(payReference: String): Action[AnyContent] =
     authorise.async:
       implicit request =>
+        logger.info(s"in controller input pay reference: $payReference")
         directDebitService.getDDIReference(payReference, request.credentialId, request.sessionId.value)
           .map { ddiReference =>
             Ok(Json.toJson(ddiReference))

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
+import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, EarliestPaymentDate, UserDebits}
 
@@ -23,7 +24,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class DirectDebitService @Inject()(rdsDatacache: RdsDataSource):
+class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
 
   def retrieveDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
     rdsDatacache.getDirectDebits(id, start, max)
@@ -32,4 +33,5 @@ class DirectDebitService @Inject()(rdsDatacache: RdsDataSource):
     rdsDatacache.getEarliestPaymentDate(baseDate, offsetWorkingDays)
 
   def getDDIReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
+    logger.info(s"in service input pay reference: $paymentReference $credId $sessionId")
     rdsDatacache.getDirectDebitReference(paymentReference, credId, sessionId)
