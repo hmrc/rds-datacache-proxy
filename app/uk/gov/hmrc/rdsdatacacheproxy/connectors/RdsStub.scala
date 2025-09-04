@@ -42,7 +42,3 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
-
-  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
-    val monthlyReturns: Seq[MonthlyReturn] = Seq.fill(3)(stubData.randomMonthlyReturn())
-    Future.successful(UserMonthlyReturns(monthlyReturns))

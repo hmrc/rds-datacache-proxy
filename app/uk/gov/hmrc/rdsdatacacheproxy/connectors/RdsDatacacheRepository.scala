@@ -110,4 +110,3 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         EarliestPaymentDate(date.toLocalDate)
       }
     }
-
