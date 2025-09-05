@@ -29,7 +29,7 @@ class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction 
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
     block(
-      AuthenticatedRequest(request, "internalId", SessionId("sessionId"))
+      AuthenticatedRequest(request, "internalId", "credId", SessionId("sessionId"))
     )
 
   override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global

@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 
+import play.api.libs.json.{Json, OFormat}
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.http.SessionId
+case class GenerateDdiRefRequest(paymentReference: String)
 
-case class AuthenticatedRequest[A](
-                                    private val request: Request[A],
-                                    internalId: String,
-                                    credentialId: String,
-                                    sessionId: SessionId
-                                  ) extends WrappedRequest[A](request)
+object GenerateDdiRefRequest {
+  implicit val format: OFormat[GenerateDdiRefRequest] = Json.format[GenerateDdiRefRequest]
+}

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.connectors
+package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
 import oracle.jdbc.OracleTypes
-import play.api.Logging
+import play.api.{Logging, db}
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -31,6 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait RdsDataSource {
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits]
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
+  def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -40,12 +40,10 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
     Future {
       db.withConnection { connection =>
-        logger.info(s"DB connection successful...${connection}")
-
         val storedProcedure = connection.prepareCall("{call DD_PK.getDDSummary(?, ?, ?, ?, ?, ?)}")
 
         // Set input parameters
-        storedProcedure.setString("pCredentialID", "0000001548676421") // pCredentialID
+        storedProcedure.setString("pCredentialID", id) // pCredentialID
         storedProcedure.setInt("pFirstRecordNumber", start) // pFirstRecordNumber
         storedProcedure.setInt("pMaxRecords", max) // pMaxRecords
 
@@ -60,6 +58,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
 
         // Tail-recursive function to collect debits
         @tailrec
@@ -80,6 +79,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         }
 
         val result = collectDebits()
+        logger.info(s"***** DD count: $debitTotal")
+        logger.info(s"DB Response status: $responseStatus")
 
         storedProcedure.close()
 
@@ -89,24 +90,49 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
     }
   }
 
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
+  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] = {
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
 
-        storedProcedure.setDate("pInputDate", Date(baseDate.toEpochDay))
+        storedProcedure.setDate("pInputDate", Date.valueOf(baseDate))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
 
-        logger.info(s"Getting earliest payment date. Base date: <$baseDate>, Working days offset: <$offsetWorkingDays>")
+        logger.info(s"Getting earliest payment date. Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
 
-        storedProcedure.registerOutParameter("pTotalRecords", Types.DATE)
+        storedProcedure.registerOutParameter("pOutputDate", Types.DATE)
         storedProcedure.execute()
 
-        val date = storedProcedure.getDate("pOutputDate")
+        val outputDate = storedProcedure.getDate("pOutputDate")
 
         storedProcedure.close()
 
-        logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $date")
-        EarliestPaymentDate(date.toLocalDate)
+        logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $outputDate")
+        EarliestPaymentDate(outputDate.toLocalDate)
       }
     }
+  }
+
+  def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] = {
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall("{call DD_PK.GETDDIRefNumber(?, ?, ?, ?)}")
+
+        storedProcedure.setString("pPayReference", paymentReference)
+        storedProcedure.setString("pCredentialID", credId)
+        storedProcedure.setString("pSessionID", sessionId)
+
+        logger.info(s"Getting DDI Ref, pPayReference: <${paymentReference}>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
+
+        storedProcedure.registerOutParameter("pDDIRefNumber", Types.VARCHAR)
+        storedProcedure.execute()
+
+        val ddiRef = storedProcedure.getString("pDDIRefNumber")
+
+        storedProcedure.close()
+
+        logger.info(s"Getting DDI Ref, Result from SQL Stored Procedure: $ddiRef")
+        DDIReference(ddiRef)
+      }
+    }
+  }

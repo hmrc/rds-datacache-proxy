@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.models.requests
+package uk.gov.hmrc.rdsdatacacheproxy.models.responses
 
+import play.api.libs.json.{Json, OFormat}
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.http.SessionId
+case class DDIReference(ddiRefNumber: String)
 
-case class AuthenticatedRequest[A](
-                                    private val request: Request[A],
-                                    internalId: String,
-                                    credentialId: String,
-                                    sessionId: SessionId
-                                  ) extends WrappedRequest[A](request)
+object DDIReference {
+  implicit val format: OFormat[DDIReference] = Json.format
+}

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.connectors
+package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.EarliestPaymentDate
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.LocalDate
@@ -34,7 +33,7 @@ class RdsStub @Inject()() extends RdsDataSource:
   //  val serviceUrl: String = servicesConfig.baseUrl("rds")
 
   // Remove this once real stubbing exists
-  private[connectors] val stubData = new StubUtils()
+  private[repositories] val stubData = new StubUtils()
 
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
     val debits: Seq[DirectDebit] = for(i <- 1 to max) yield stubData.randomDirectDebit(i)
@@ -42,3 +41,6 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
+
+  def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
+    Future.successful(DDIReference(paymentReference))
