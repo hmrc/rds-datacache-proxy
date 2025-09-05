@@ -21,7 +21,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.{Configuration, Environment}
 import play.api.inject.Binding
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
 
 class ModuleSpec extends AnyWordSpec with Matchers {

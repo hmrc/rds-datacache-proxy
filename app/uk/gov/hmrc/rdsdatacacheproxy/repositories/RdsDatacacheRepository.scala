@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.connectors
+package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
 import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, EarliestPaymentDate, UserDebits}
 
 import java.time.LocalDate
