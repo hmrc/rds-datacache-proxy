@@ -25,12 +25,21 @@ object AuthStub:
 
   def authorised(): StubMapping =
     stubFor(
-      post(urlPathMatching("/auth/authorise"))
+      post(urlPathEqualTo("/auth/authorise"))
         .willReturn(
           aResponse()
-            .withStatus(OK)
-            .withBody(s"""{ "internalId": "testId" , "credentialId": "testCredId"}""")
-            .withHeader(SessionKeys.sessionId, "testSessionId")
+            .withStatus(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              """{
+                |  "internalId": "testId",
+                |  "allEnrolments": [],
+                |  "affinityGroup": "Organisation",
+                |  "credentialRole": "User",
+                |  "credentials": { "providerId": "testCredId", "providerType": "GovernmentGateway" },
+                |  "optionalCredentials": { "providerId": "testCredId", "providerType": "GovernmentGateway" }
+                |}""".stripMargin
+            )
         )
     )
 
