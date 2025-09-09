@@ -81,6 +81,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         val result = collectDebits()
         logger.info(s"***** DD count: $debitTotal")
         logger.info(s"DB Response status: $responseStatus")
+        logger.info(s"result: ${result}")
 
         storedProcedure.close()
 
