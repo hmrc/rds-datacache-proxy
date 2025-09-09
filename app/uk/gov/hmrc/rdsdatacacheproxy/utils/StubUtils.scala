@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, MonthlyReturn}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicLong
@@ -45,12 +46,12 @@ class StubUtils {
     )
   }
 
-  private val mrId = new AtomicLong(1000000L) 
-  
+  private val mrId = new AtomicLong(1000000L)
+
   def randomMonthlyReturn(): MonthlyReturn = {
     val id = mrId.incrementAndGet()
-    val year = 2023 + Random.nextInt(3) 
-    val month = 1 + Random.nextInt(12) 
+    val year = 2023 + Random.nextInt(3)
+    val month = 1 + Random.nextInt(12)
     val now = LocalDateTime.now().minusDays(Random.nextInt(365).toLong)
       .withHour(0).withMinute(0).withSecond(0).withNano(0)
 

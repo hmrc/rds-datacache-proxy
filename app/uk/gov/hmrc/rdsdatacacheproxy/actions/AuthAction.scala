@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.Logging
 import play.api.mvc.*
+import uk.gov.hmrc.auth.core.retrieve.~
 import play.api.mvc.Results.Unauthorized
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions}
@@ -38,16 +39,14 @@ class DefaultAuthAction @Inject()(
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     val sessionId = hc.sessionId.getOrElse(throw new UnauthorizedException("Unable to retrieve session ID from headers"))
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map:
-        internalId => block(AuthenticatedRequest(request, internalId, sessionId))
-      .getOrElse(throw new UnauthorizedException("Unable to retrieve internal ID from headers"))
-      .recover:
-        case _: AuthorisationException =>
-          val error = "Failed to authorise request"
-          logger.warn(error)
-          Unauthorized(error)
-    }(using hc)
+    authorised().retrieve(Retrievals.internalId and Retrievals.credentials) {
+      case Some(internalId) ~ Some(credentials) => block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId))
+      case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
+    } recover {
+      case ae: AuthorisationException =>
+        logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
+        Unauthorized
+    }
 
 trait AuthAction
   extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]

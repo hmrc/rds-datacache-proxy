@@ -22,10 +22,10 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.RdsStub
-import uk.gov.hmrc.rdsdatacacheproxy.models.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsStub
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -67,11 +67,22 @@ class DirectDebitServiceSpec
             Future.successful(UserDebits(1, Seq(expected(1)))),
             Future.successful(UserDebits(3, Seq(expected(2),expected(3),expected(4)))),
           )
-
           val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
           result shouldBe UserDebits(1, Seq(expected(1)))
           val result2 = service.retrieveDirectDebits("testId", 1, 99).futureValue
           result2 shouldBe UserDebits(3, Seq(expected(2),expected(3),expected(4)))
+
+      "retrieving Earliest Payment Date" in:
+        when(mockConnector.getEarliestPaymentDate(any(), any()))
+          .thenReturn(Future.successful(EarliestPaymentDate(LocalDate.of(2025, 10, 20))))
+        val result = service.getEarliestPaymentDate(LocalDate.of(2025, 10, 15), 5).futureValue
+        result shouldBe EarliestPaymentDate(LocalDate.of(2025, 10, 20))
+
+      "retrieving DDI reference number" in :
+        when(mockConnector.getDirectDebitReference(any(), any(), any()))
+          .thenReturn(Future.successful(DDIReference("xyz")))
+        val result = service.getDDIReference("xyz", "123", "session-345").futureValue
+        result shouldBe DDIReference("xyz")
 
     "fail" when:
       "retrieving Direct Debits" in:
