@@ -23,8 +23,8 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisRdsStub
 import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
+import uk.gov.hmrc.rdsdatacacheproxy.utils.CisRdsStub
 
 import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}

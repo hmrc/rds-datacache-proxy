@@ -17,10 +17,12 @@
 package uk.gov.hmrc.rdsdatacacheproxy.controllers
 
 import play.api.Logging
-import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.libs.json.{JsError, JsValue, Json}
+import play.api.mvc.{Action, ControllerComponents}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.models.EmployerReference
 import uk.gov.hmrc.rdsdatacacheproxy.services.MonthlyReturnService
 
 import javax.inject.Inject
@@ -32,37 +34,27 @@ class MonthlyReturnController @Inject()(
                                          cc: ControllerComponents
                                        )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
-  private val TonHeader = "X-Tax-Office-Number"
-  private val TorHeader = "X-Tax-Office-Reference"
-
-  def retrieveMonthlyReturns: Action[AnyContent] =
-    authorise.async { implicit request =>
-      val tonOpt = request.headers.get(TonHeader).map(_.trim).filter(_.nonEmpty)
-      val torOpt = request.headers.get(TorHeader).map(_.trim).filter(_.nonEmpty)
-
-      (tonOpt, torOpt) match {
-        case (Some(ton), Some(tor)) =>
-          logger.debug(s"retrieveMonthlyReturns: received $TonHeader and $TorHeader")
+  def retrieveMonthlyReturns: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body.validate[EmployerReference].fold(
+        errs =>
+          Future.successful(
+            BadRequest(Json.obj(
+              "message" -> "Invalid JSON body",
+              "errors"  -> JsError.toJson(errs)
+            ))
+          ),
+        er =>
           monthlyReturnService
-            .retrieveMonthlyReturns(ton, tor) 
+            .retrieveMonthlyReturns(er.taxOfficeNumber, er.taxOfficeReference)
             .map(res => Ok(Json.toJson(res)))
             .recover {
-              case u: uk.gov.hmrc.http.UpstreamErrorResponse =>
+              case u: UpstreamErrorResponse =>
                 Status(u.statusCode)(Json.obj("message" -> u.message))
               case t: Throwable =>
                 logger.error("retrieveMonthlyReturns failed", t)
                 InternalServerError(Json.obj("message" -> "Unexpected error"))
             }
-
-        case _ =>
-          val missing = Seq(
-            TonHeader -> tonOpt.isDefined,
-            TorHeader -> torOpt.isDefined
-          ).collect { case (name, present) if !present => name }
-
-          Future.successful(
-            BadRequest(Json.obj("message" -> s"Missing or empty header(s): ${missing.mkString(", ")}"))
-          )
-      }
+      )
     }
 }

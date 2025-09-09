@@ -75,12 +75,3 @@ trait ApplicationWithWiremock
     wsClient.url(s"$baseUrl$uri")
       .withHttpHeaders(PlayHeaders.AUTHORIZATION -> "testId", HeaderNames.xSessionId -> "sessionId")
       .post[JsValue](body)
-
-  protected def get(uri: String, extraHeaders: (String, String)*): Future[WSResponse] =
-    wsClient.url(s"$baseUrl$uri")
-      .withHttpHeaders(
-        (PlayHeaders.AUTHORIZATION -> "testId") +:
-          (HeaderNames.xSessionId -> "sessionId") +:
-          extraHeaders.toList: _*
-      )
-      .get()

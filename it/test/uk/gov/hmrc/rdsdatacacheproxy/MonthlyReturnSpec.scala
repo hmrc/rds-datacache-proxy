@@ -20,6 +20,8 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.*
+import play.api.libs.json.Json
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 class MonthlyReturnSpec extends ApplicationWithWiremock
@@ -27,56 +29,48 @@ class MonthlyReturnSpec extends ApplicationWithWiremock
   with ScalaFutures
   with IntegrationPatience {
 
-  private val TonHeader = "X-Tax-Office-Number"
-  private val TorHeader = "X-Tax-Office-Reference"
-
   "Monthly Returns" should :
     "succeed" when {
       "retrieving monthly returns with both tax office number and tax office reference" in :
         AuthStub.authorised()
-        val response = get(
-          "/monthly-returns",
-          TonHeader -> "123",
-          TorHeader -> "AB456"
+        val response = post(
+          uri  = "/monthly-returns",
+          body = Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456")
         ).futureValue
 
         response.status shouldBe OK
         response.json.toString should include("monthlyReturnList")
-
-      "trim whitespace in both identifiers" in {
-        AuthStub.authorised()
-        val response = get(
-          "/monthly-returns",
-          TonHeader -> "   123   ",
-          TorHeader -> "   AB456   "
-        ).futureValue
-        response.status shouldBe OK
-      }
     }
 
     "fail with 400" when {
       "both identifiers are missing" in {
         AuthStub.authorised()
-        val response = get("/monthly-returns").futureValue
+        val response = post(
+          uri  = "/monthly-returns",
+          body = Json.obj() 
+        ).futureValue
+        
         response.status shouldBe BAD_REQUEST
         response.json.toString.toLowerCase should include("missing")
       }
 
       "TaxOfficeNumber is missing" in {
         AuthStub.authorised()
-        val response = get(
+        val response = post(
           "/monthly-returns",
-          TorHeader -> "AB456"
+          Json.obj("taxOfficeReference" -> "AB456")
         ).futureValue
+
         response.status shouldBe BAD_REQUEST
       }
 
       "TaxOfficeReference is missing" in {
         AuthStub.authorised()
-        val response = get(
+        val response = post(
           "/monthly-returns",
-          TonHeader -> "123"
+          Json.obj("taxOfficeNumber" -> "123")
         ).futureValue
+
         response.status shouldBe BAD_REQUEST
       }
     }
@@ -84,30 +78,30 @@ class MonthlyReturnSpec extends ApplicationWithWiremock
       "fail with 401" when {
         "auth says unauthorised" in {
           AuthStub.unauthorised()
-          val response = get(
+          val response = post(
             "/monthly-returns",
-            TonHeader -> "123",
-            TorHeader -> "AB456"
+            Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456")
           ).futureValue
+
           response.status shouldBe UNAUTHORIZED
         }
 
         "no auth/session headers sent at all" in {
           val response = wsClient
             .url(s"$baseUrl/monthly-returns")
-            .withHttpHeaders(TonHeader -> "123", TorHeader -> "AB456")
-            .get()
+            .post(Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456"))
             .futureValue
+
           response.status shouldBe UNAUTHORIZED
         }
 
         "auth returns 200 but without internalId" in {
           AuthStub.noTokenReturned()
-          val response = get(
+          val response = post(
             "/monthly-returns",
-            TonHeader -> "123",
-            TorHeader -> "AB456"
+            Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456")
           ).futureValue
+
           response.status shouldBe UNAUTHORIZED
         }
       }
@@ -115,11 +109,11 @@ class MonthlyReturnSpec extends ApplicationWithWiremock
     "return 404" when {
       "calling a non-existent endpoint" in {
         AuthStub.authorised()
-        val response = get(
-          "/does-not-exist",
-          TonHeader -> "123",
-          TorHeader -> "AB456"
-        ).futureValue
+        val response = wsClient
+          .url(s"$baseUrl/does-not-exist")
+          .post(Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456"))
+          .futureValue
+
         response.status shouldBe NOT_FOUND
       }
     }

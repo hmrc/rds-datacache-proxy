@@ -20,10 +20,11 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito.*
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
-import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Request, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
@@ -38,12 +39,12 @@ class MonthlyReturnControllerSpec extends SpecBase with MockitoSugar{
 
     "retrieveMonthlyReturns" - {
 
-      "return 200 and a successful response when headers are present" in new SetUp {
+      "return 200 and a successful response when JSON body is present" in new SetUp {
         when(mockMonthlyReturnService.retrieveMonthlyReturns(any[String], any[String]))
           .thenReturn(Future.successful(nonEmptyResponse))
 
-        val result: Future[Result] =
-          controller.retrieveMonthlyReturns(requestWithCisHeaders())
+        val req: Request[JsValue] = requestWithErJson()
+        val result: Future[Result] = controller.retrieveMonthlyReturns(req)
 
         status(result) shouldBe OK
         contentType(result) shouldBe Some("application/json")
@@ -54,54 +55,37 @@ class MonthlyReturnControllerSpec extends SpecBase with MockitoSugar{
         when(mockMonthlyReturnService.retrieveMonthlyReturns(any[String], any[String]))
           .thenReturn(Future.successful(emptyResponse))
 
-        val result: Future[Result] =
-          controller.retrieveMonthlyReturns(requestWithCisHeaders())
+        val req: Request[JsValue] = requestWithErJson()
+        val result: Future[Result] = controller.retrieveMonthlyReturns(req)
 
         status(result) shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(emptyResponse)
       }
 
-      "trim header values before calling the service" in new SetUp {
-        when(mockMonthlyReturnService.retrieveMonthlyReturns(any[String], any[String]))
-          .thenReturn(Future.successful(nonEmptyResponse))
+      "return 400 when JSON is missing required fields (missing taxOfficeNumber)" in new SetUp {
+        val reqMissingTon: Request[JsValue] = makeJsonRequest(Json.obj("taxOfficeReference" -> "ABC"))
+        val res: Future[Result] = controller.retrieveMonthlyReturns(reqMissingTon)
 
-        val result: Future[Result] =
-          controller.retrieveMonthlyReturns(requestWithCisHeaders(ton = " 123 ", tor = "  ABC  "))
-
-        status(result) shouldBe OK
-        verify(mockMonthlyReturnService).retrieveMonthlyReturns(eqTo("123"), eqTo("ABC"))
-      }
-
-      "return 400 when TON is missing or blank" in new SetUp {
-        val resMissing: Future[Result] = controller.retrieveMonthlyReturns(requestMissingTon())
-        status(resMissing) shouldBe BAD_REQUEST
-        (contentAsJson(resMissing) \ "message").as[String] should include(TonHeader)
-
-        val resBlank: Future[Result] = controller.retrieveMonthlyReturns(requestWithCisHeaders(ton = "   "))
-        status(resBlank) shouldBe BAD_REQUEST
-        (contentAsJson(resBlank) \ "message").as[String] should include(TonHeader)
-
-        verifyNoInteractions(mockMonthlyReturnService)
-      }
-
-      "return 400 when TOR is missing or blank" in new SetUp {
-        val resMissing: Future[Result] = controller.retrieveMonthlyReturns(requestMissingTor())
-        status(resMissing) shouldBe BAD_REQUEST
-        (contentAsJson(resMissing) \ "message").as[String] should include(TorHeader)
-
-        val resBlank: Future[Result] = controller.retrieveMonthlyReturns(requestWithCisHeaders(tor = "   "))
-        status(resBlank) shouldBe BAD_REQUEST
-        (contentAsJson(resBlank) \ "message").as[String] should include(TorHeader)
-
-        verifyNoInteractions(mockMonthlyReturnService)
-      }
-
-      "return 400 listing both headers when both are missing" in new SetUp {
-        val res: Future[Result] = controller.retrieveMonthlyReturns(requestWithoutCisHeaders)
         status(res) shouldBe BAD_REQUEST
-        val msg: String = (contentAsJson(res) \ "message").as[String]
-        msg should include(TonHeader)
-        msg should include(TorHeader)
+        (contentAsJson(res) \ "message").as[String] shouldBe "Invalid JSON body"
+        verifyNoInteractions(mockMonthlyReturnService)
+      }
+
+      "return 400 when JSON is missing required fields (missing taxOfficeReference)" in new SetUp {
+        val reqMissingTor: Request[JsValue] = makeJsonRequest(Json.obj("taxOfficeNumber" -> "123"))
+        val res: Future[Result] = controller.retrieveMonthlyReturns(reqMissingTor)
+
+        status(res) shouldBe BAD_REQUEST
+        (contentAsJson(res) \ "message").as[String] shouldBe "Invalid JSON body"
+        verifyNoInteractions(mockMonthlyReturnService)
+      }
+
+      "return 400 when JSON body is an empty object" in new SetUp {
+        val reqEmpty: Request[JsValue] = makeJsonRequest(Json.obj())
+        val res: Future[Result] = controller.retrieveMonthlyReturns(reqEmpty)
+
+        status(res) shouldBe BAD_REQUEST
+        (contentAsJson(res) \ "message").as[String] shouldBe "Invalid JSON body"
         verifyNoInteractions(mockMonthlyReturnService)
       }
 
@@ -111,7 +95,8 @@ class MonthlyReturnControllerSpec extends SpecBase with MockitoSugar{
         when(mockMonthlyReturnService.retrieveMonthlyReturns(any[String], any[String]))
           .thenReturn(Future.failed(err))
 
-        val result: Future[Result] = controller.retrieveMonthlyReturns(requestWithCisHeaders())
+        val req: Request[JsValue] = requestWithErJson()
+        val result: Future[Result] = controller.retrieveMonthlyReturns(req)
 
         status(result) shouldBe BAD_GATEWAY
         (contentAsJson(result) \ "message").as[String] shouldBe "External service failure"
@@ -121,7 +106,8 @@ class MonthlyReturnControllerSpec extends SpecBase with MockitoSugar{
         when(mockMonthlyReturnService.retrieveMonthlyReturns(any[String], any[String]))
           .thenReturn(Future.failed(new RuntimeException("boom")))
 
-        val result: Future[Result] = controller.retrieveMonthlyReturns(requestWithCisHeaders())
+        val req: Request[JsValue] = requestWithErJson()
+        val result: Future[Result] = controller.retrieveMonthlyReturns(req)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         (contentAsJson(result) \ "message").as[String] shouldBe "Unexpected error"
@@ -133,7 +119,14 @@ class MonthlyReturnControllerSpec extends SpecBase with MockitoSugar{
   private class SetUp {
     val mockMonthlyReturnService: MonthlyReturnService = mock[MonthlyReturnService]
 
-    // Helper to create deterministic returns (avoids randomness)
+    def requestWithErJson(ton: String = "111", tor: String = "test111"): Request[JsValue] =
+      makeJsonRequest(Json.obj("taxOfficeNumber" -> ton, "taxOfficeReference" -> tor))
+
+    def makeJsonRequest(body: JsValue): Request[JsValue] =
+      FakeRequest(POST, "/rds-datacache-proxy/monthly-returns")
+        .withHeaders(CONTENT_TYPE -> JSON)
+        .withBody[JsValue](body)
+
     private def mkReturn(id: Long, month: Int, year: Int = 2025): MonthlyReturn =
       MonthlyReturn(
         monthlyReturnId = id,

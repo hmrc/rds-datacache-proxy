@@ -20,12 +20,12 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
-import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
+import uk.gov.hmrc.rdsdatacacheproxy.utils.{CisRdsStub, StubUtils}
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class CisRDSStubSpec
+class CisRdsStubSpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures {
@@ -51,42 +51,35 @@ class CisRDSStubSpec
       supersededBy           = None
     )
 
-  private class TestStubUtils extends StubUtils {
-    override def randomMonthlyReturn(): MonthlyReturn =
-      mkReturn(id = 0L, month = 1)
-  }
-
-  private class TestableCisRdsStub(rows: Seq[MonthlyReturn]) extends CisRdsStub() {
-    override private[connectors] val stubData: StubUtils = new TestStubUtils
-
+  private class TestableCisRdsStub(rows: Seq[MonthlyReturn]) extends CisRdsStub(new StubUtils) {
     override def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
       Future.successful(UserMonthlyReturns(rows))
   }
 
   "CisRdsStub.findInstanceId" should {
     "return Some(\"1\") when TON and TOR are non-empty" in {
-      val connector = new CisRdsStub()
+      val connector = new CisRdsStub(new StubUtils)
       whenReady(connector.findInstanceId("123", "ABC")) { res =>
         res shouldBe Some("1")
       }
     }
 
     "return None when TON is empty" in {
-      val connector = new CisRdsStub()
+      val connector = new CisRdsStub(new StubUtils)
       whenReady(connector.findInstanceId("   ", "ABC")) { res =>
         res shouldBe None
       }
     }
 
     "return None when TOR is empty" in {
-      val connector = new CisRdsStub()
+      val connector = new CisRdsStub(new StubUtils)
       whenReady(connector.findInstanceId("123", "   ")) { res =>
         res shouldBe None
       }
     }
 
     "return None when both are null" in {
-      val connector = new CisRdsStub()
+      val connector = new CisRdsStub(new StubUtils)
       whenReady(connector.findInstanceId(null, null)) { res =>
         res shouldBe None
       }

@@ -33,7 +33,7 @@ trait CisMonthlyReturnSource {
 
 @Singleton
 class CisDatacacheRepository @Inject()(
-                                        @NamedDatabase("cis") db: Database        // <- binds to db.cis (not db.default)
+                                        @NamedDatabase("cis") db: Database        
                                       )(implicit ec: ExecutionContext)
   extends CisMonthlyReturnSource with Logging {
   
@@ -49,13 +49,11 @@ class CisDatacacheRepository @Inject()(
           cs.registerOutParameter(3, OracleTypes.CURSOR)
           cs.execute()
 
-          val rs = cs.getObject(3, classOf[ResultSet]) // c_TxpByTaxRef
+          val rs = cs.getObject(3, classOf[ResultSet]) 
           try {
-            // take the first row, if any
             if (rs.next()) {
               val idOpt = Option(rs.getString("UNIQUE_ID")).map(_.trim).filter(_.nonEmpty)
 
-              // if more than one row, log and still return first
               if (rs.next()) {
                 logger.warn(s"[CIS] findInstanceId: multiple rows for TON=$taxOfficeNumber, TOR=$taxOfficeReference; using first UNIQUE_ID")
               }
@@ -77,8 +75,8 @@ class CisDatacacheRepository @Inject()(
       db.withConnection { conn =>
         val cs = conn.prepareCall("{ call MONTHLY_RETURN_PROCS_2016.Get_All_Monthly_Returns(?, ?, ?) }")
         cs.setString(1, instanceId)
-        cs.registerOutParameter(2, OracleTypes.CURSOR) // p_schemes
-        cs.registerOutParameter(3, OracleTypes.CURSOR) // p_monthly_returns
+        cs.registerOutParameter(2, OracleTypes.CURSOR) 
+        cs.registerOutParameter(3, OracleTypes.CURSOR) 
         cs.execute()
 
         val rsScheme = cs.getObject(2, classOf[ResultSet])

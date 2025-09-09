@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.connectors
+package uk.gov.hmrc.rdsdatacacheproxy.utils
 
 import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisMonthlyReturnSource
 import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
-import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class CisRdsStub @Inject()() extends CisMonthlyReturnSource with Logging {
-  // Remove this once real stubbing exists
-  private[connectors] val stubData = new StubUtils()
+class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource with Logging {
+
+  private[this] val stubData = stubUtils
 
   override def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
     val tonOk = Option(taxOfficeNumber).exists(_.trim.nonEmpty)

@@ -19,8 +19,9 @@ package uk.gov.hmrc.rdsdatacacheproxy
 import play.api.inject.{Binding, Module as AppModule}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.{CisDatacacheRepository, CisMonthlyReturnSource, CisRdsStub, RdsDataSource, RdsDatacacheRepository, RdsStub}
+import uk.gov.hmrc.rdsdatacacheproxy.connectors.{CisDatacacheRepository, CisMonthlyReturnSource, RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
+import uk.gov.hmrc.rdsdatacacheproxy.utils.CisRdsStub
 
 class Module extends AppModule:
 
