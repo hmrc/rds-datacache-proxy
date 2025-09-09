@@ -31,7 +31,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
   "Module bindings" should {
 
     "bind RdsDataSource to RdsStub when feature-switch.rds-stubbed is true" in {
-      val config = Configuration("feature-switch.rds-stubbed" -> true)
+      val config = Configuration("feature-switch.rds-stubbed" -> true, "feature-switch.cis-rds-stubbed" -> true)
       val module = new Module()
       val bindings: Seq[Binding[_]] = module.bindings(environment, config)
 
@@ -39,7 +39,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "bind RdsDataSource to RdsDatacacheRepository when feature-switch.rds-stubbed is false" in {
-      val config = Configuration("feature-switch.rds-stubbed" -> false)
+      val config = Configuration("feature-switch.rds-stubbed" -> false, "feature-switch.cis-rds-stubbed" -> true)
       val module = new Module()
       val bindings: Seq[Binding[_]] = module.bindings(environment, config)
 
@@ -47,7 +47,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "bind AuthAction to DefaultAuthAction" in {
-      val config = Configuration("feature-switch.rds-stubbed" -> false)
+      val config = Configuration("feature-switch.rds-stubbed" -> false, "feature-switch.cis-rds-stubbed" -> true)
       val module = new Module()
       val bindings = module.bindings(environment, config)
 
@@ -55,7 +55,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "bind DirectDebitController to self" in {
-      val config = Configuration("feature-switch.rds-stubbed" -> false)
+      val config = Configuration("feature-switch.rds-stubbed" -> false, "feature-switch.cis-rds-stubbed" -> true)
       val module = new Module()
       val bindings = module.bindings(environment, config)
 

@@ -41,7 +41,8 @@ trait ApplicationWithWiremock
   val extraConfig: Map[String, Any] = {
     Map[String, Any](
       "microservice.services.auth.host" -> WireMockConstants.stubHost,
-      "microservice.services.auth.port" -> WireMockConstants.stubPort
+      "microservice.services.auth.port" -> WireMockConstants.stubPort,
+      "feature-switch.cis-rds-stubbed"      -> true
     )
   }
 
