@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, PaymentPlan, UserDebits}
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -31,6 +31,7 @@ trait RdsDataSource {
   def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits]
   def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
+  def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int): Future[DDPaymentPlans]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -133,6 +134,68 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         logger.info(s"Getting DDI Ref, Result from SQL Stored Procedure: $ddiRef")
         DDIReference(ddiRef)
+      }
+    }
+  }
+
+  def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int):
+  Future[DDPaymentPlans] = {
+    logger.info(s"**** Cred ID: ${credId}, Payment Reference: ${paymentReference} " +
+      s"FirstRecordNumber: ${start}, Max Records: ${max}")
+
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanSummary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+
+        // Set input parameters
+        storedProcedure.setString("pCredentialID", credId) // pCredentialID
+        storedProcedure.setString("pDDIRefNumber", paymentReference) // pDDIRefNumber
+        storedProcedure.setInt("pFirstRecordNumber", start) // pFirstRecordNumber
+        storedProcedure.setInt("pMaxRecords", max) // pMaxRecords
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
+        storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
+        storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
+        storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
+        storedProcedure.registerOutParameter("pDDSummary", OracleTypes.CURSOR) // pDDSummary
+        storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
+
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
+        val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
+        val bankAccountName = storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
+        val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+
+        // Tail-recursive function to collect payment plans
+        @tailrec
+        def collectPaymentPlans(pp: Seq[PaymentPlan] = Seq.empty): Seq[PaymentPlan] = {
+          if (!paymentPlans.next()) pp
+          else {
+            val paymentPlan = PaymentPlan(
+              scheduledPayAmount = paymentPlans.getDouble("pScheduledPayAmount"),
+              planType = paymentPlans.getString("pPayPlanType"),
+              payReference = paymentPlans.getString("pPayReference"),
+              planHoldService = paymentPlans.getString("pPayPlanHodService"),
+              submissionDateTime = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime,
+            )
+            collectPaymentPlans(pp :+ paymentPlan)
+          }
+        }
+
+        val result = collectPaymentPlans()
+        logger.info(s"***** Payment plans count: $paymentPlansCount")
+        logger.info(s"DB Response status: $responseStatus")
+
+        storedProcedure.close()
+
+        // Return DDPaymentPlans
+        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, paymentPlansCount, result)
       }
     }
   }
