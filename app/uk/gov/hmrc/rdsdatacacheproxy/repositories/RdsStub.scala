@@ -50,3 +50,4 @@ class RdsStub @Inject()() extends RdsDataSource:
     val plans: Seq[PaymentPlan] = for (i <- 1 to max) yield stubData.randomPaymentPlan(i)
     Future.successful(DDPaymentPlans("sort code", "account Number", "account name", plans.size, plans))
   }
+
