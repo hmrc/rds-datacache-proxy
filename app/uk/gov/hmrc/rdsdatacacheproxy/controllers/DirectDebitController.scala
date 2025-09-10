@@ -42,7 +42,7 @@ class DirectDebitController @Inject()(
           case (_, 0) =>
             Future.successful(Ok(Json.toJson(UserDebits.empty)))
           case (start, max) if start > 0 && 0 < max && max <= 99 =>
-            logger.info(s"**** Cred ID: ${request.credentialId}, FirstRecordNumber: ${start}, Max Records: ${max}")
+            logger.info(s"**** Cred ID: ${request.credentialId}, FirstRecordNumber: $start, Max Records: $max")
             directDebitService.retrieveDirectDebits(request.credentialId, start, max)
               .map(result => Ok(Json.toJson(result)))
           case _ =>
