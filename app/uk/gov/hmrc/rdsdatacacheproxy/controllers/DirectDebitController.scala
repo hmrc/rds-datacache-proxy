@@ -23,7 +23,7 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, GenerateDdiRefRequest, WorkingDaysOffsetRequest}
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import javax.inject.Inject
@@ -84,4 +84,28 @@ class DirectDebitController @Inject()(
             logger.error("Error while generating DDI Reference", ex)
             InternalServerError("Failed to generate DDI Reference.")
         }
+    }
+
+  def retrieveDirectDebitPaymentPlans(paymentReference: String,
+                                       firstRecordNumber: Option[Int],
+                                       maxRecords: Option[Int]
+                                     ): Action[AnyContent] =
+    authorise.async { implicit request =>
+      (firstRecordNumber.getOrElse(1), maxRecords.getOrElse(99)) match {
+        case (_, 0) =>
+          Future.successful(Ok(Json.toJson(DDPaymentPlans.empty)))
+        case (start, max) if start > 0 && 0 < max && max <= 99 =>
+          logger.info(
+            s"**** Cred ID: ${request.credentialId}, Payment Reference: $paymentReference, " +
+              s"FirstRecordNumber: $start, Max Records: $max"
+          )
+          directDebitService
+            .getDirectDebitPaymentPlans(paymentReference, request.credentialId, start, max)
+            .map(result => Ok(Json.toJson(result)))
+        case _ =>
+          Future.successful(
+            BadRequest(s"Invalid paymentReference: $paymentReference " +
+              s"firstRecordNumber: $firstRecordNumber and maxRecordNumber: $maxRecords")
+          )
+      }
     }
