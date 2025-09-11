@@ -19,6 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
@@ -51,7 +52,7 @@ class RDSStubSpec
     "return a DirectDebit" in:
       val result = connector.getDirectDebits("123").futureValue
 
-      result shouldBe UserDebits(3, Seq(expected(1), expected(2), expected(3)))
+      result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
     "return earliest payment date" in :
       val result = connector.addFutureWorkingDays(LocalDate.of(2025, 12, 15), 10).futureValue

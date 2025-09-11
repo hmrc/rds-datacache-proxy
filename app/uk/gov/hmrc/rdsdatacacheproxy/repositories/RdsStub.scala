@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
+import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
@@ -36,7 +37,8 @@ class RdsStub @Inject()() extends RdsDataSource:
   private[repositories] val stubData = new StubUtils()
 
   def getDirectDebits(id: String): Future[UserDebits] =
-    val debits: Seq[DirectDebit] = for(i <- 1 to 3) yield stubData.randomDirectDebit(i)
+//    val maxRecords = appConfig.maxRecords
+    val debits: Seq[DirectDebit] = for(i <- 1 to 5) yield stubData.randomDirectDebit(i)
     Future.successful(UserDebits(debits.size, debits))
 
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
