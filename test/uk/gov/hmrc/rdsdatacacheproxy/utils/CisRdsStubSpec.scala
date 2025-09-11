@@ -20,7 +20,6 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
-import uk.gov.hmrc.rdsdatacacheproxy.utils.{CisRdsStub, StubUtils}
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
