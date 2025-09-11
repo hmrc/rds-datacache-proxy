@@ -52,7 +52,6 @@ class DirectDebitServiceSpec
       i
     )
 
-
   "DirectDebitService" should:
     "succeed" when:
       "retrieving no Direct Debits" in:
@@ -61,6 +60,7 @@ class DirectDebitServiceSpec
 
           val result = service.retrieveDirectDebits("testId").futureValue
           result shouldBe UserDebits(0, Seq())
+
       "retrieving Direct Debits" in:
         when(mockConnector.getDirectDebits(any()))
           .thenReturn(
