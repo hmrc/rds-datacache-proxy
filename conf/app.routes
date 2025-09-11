@@ -1,10 +1,9 @@
 # microservice specific routes
 
-GET        /direct-debits                           uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits(firstRecordNumber: Option[Int], maxRecords: Option[Int])
-POST       /direct-debits                           uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.createDirectDebit()
+GET        /direct-debits                           uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits()
 
 POST       /direct-debit-reference                  uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.generateDDIReference()
 
 POST       /direct-debits/future-working-days       uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()
 
-POST        /monthly-returns                        uk.gov.hmrc.rdsdatacacheproxy.controllers.MonthlyReturnController.retrieveMonthlyReturns
+POST       /monthly-returns                         uk.gov.hmrc.rdsdatacacheproxy.controllers.MonthlyReturnController.retrieveMonthlyReturns
