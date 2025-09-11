@@ -140,10 +140,11 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     val paymentPlans = Seq(
       PaymentPlan(
-        scheduledPayAmount = 100,
+        scheduledPaymentAmount = 100,
+        planRefNumber = ddReference,
         planType = "plan type",
-        payReference = "plan ref number",
-        planHoldService = "hod service",
+        paymentReference = "plan ref number",
+        hodService = "hod service",
         submissionDateTime = submissionDateTime
       )
     )
@@ -152,15 +153,17 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
     when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
     when(mockCallableStatement.getString("pBankAccountName")).thenReturn("account name")
+    when(mockCallableStatement.getBoolean("auDdisFlag")).thenReturn(false)
     when(mockCallableStatement.getInt("pTotalRecords")).thenReturn(1)
     when(mockCallableStatement.getObject("pPayPlanSummary", classOf[ResultSet])).thenReturn(mockResultSet)
 
     // Mock the ResultSet to return the correct data
     when(mockResultSet.next()).thenReturn(true).thenReturn(false) // First call returns true, then false (no more rows)
-    when(mockResultSet.getDouble("pScheduledPayAmount")).thenReturn(100.0)
-    when(mockResultSet.getString("pPayReference")).thenReturn("plan ref number")
-    when(mockResultSet.getString("pPayPlanType")).thenReturn("plan type")
-    when(mockResultSet.getString("pPayPlanHodService")).thenReturn("hod service")
+    when(mockResultSet.getDouble("ScheduledPayAmount")).thenReturn(100.0)
+    when(mockResultSet.getString("PPRefNumber")).thenReturn(ddReference)
+    when(mockResultSet.getString("PayPlanType")).thenReturn("plan type")
+    when(mockResultSet.getString("PayReference")).thenReturn("plan ref number")
+    when(mockResultSet.getString("PayPlanHodService")).thenReturn("hod service")
     when(mockResultSet.getTimestamp("SubmissionDateTime"))
       .thenReturn(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay()))
 
@@ -168,7 +171,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val result = repository.getDirectDebitPaymentPlans(ddReference, id, start, max).futureValue
 
     // Assert
-    result shouldBe DDPaymentPlans("sort code", "account number", "account name", 1, paymentPlans)
+    result shouldBe DDPaymentPlans("sort code", "account number", "account name", false, 1, paymentPlans)
     result.paymentPlanList shouldBe paymentPlans
   }
 }

@@ -77,10 +77,11 @@ class StubUtils {
       s"-${r(12)}" +
       s"-${r(28)}"
     PaymentPlan.apply(
-      scheduledPayAmount = i * 100.0,
+      scheduledPaymentAmount = i * 100.0,
+      planRefNumber = "ddpaymentReference",
       planType = s"planType$i",
-      payReference = s"payReference$i",
-      planHoldService = s"planHoldService$i",
+      paymentReference = s"payReference$i",
+      hodService = s"planHoldService$i",
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }

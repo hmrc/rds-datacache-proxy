@@ -145,7 +145,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
     Future {
       db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanSummary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanSummary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
         // Set input parameters
         storedProcedure.setString("pCredentialID", credId) // pCredentialID
@@ -158,6 +158,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
         storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
         storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
+        storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // AuddisFlag
         storedProcedure.registerOutParameter("pDDSummary", OracleTypes.CURSOR) // pDDSummary
         storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
 
@@ -168,6 +169,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
         val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
         val bankAccountName = storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val auDdisFlag = storedProcedure.getBoolean("pAUDDISFlag") // pAUDDISFlag
         val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
@@ -178,10 +180,11 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
           if (!paymentPlans.next()) pp
           else {
             val paymentPlan = PaymentPlan(
-              scheduledPayAmount = paymentPlans.getDouble("pScheduledPayAmount"),
-              planType = paymentPlans.getString("pPayPlanType"),
-              payReference = paymentPlans.getString("pPayReference"),
-              planHoldService = paymentPlans.getString("pPayPlanHodService"),
+              scheduledPaymentAmount = paymentPlans.getDouble("ScheduledPayAmount"),
+              planRefNumber = paymentPlans.getString("PPRefNumber"),
+              planType = paymentPlans.getString("PayPlanType"),
+              paymentReference = paymentPlans.getString("PayReference"),
+              hodService = paymentPlans.getString("PayPlanHodService"),
               submissionDateTime = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime,
             )
             collectPaymentPlans(pp :+ paymentPlan)
@@ -195,7 +198,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.close()
 
         // Return DDPaymentPlans
-        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, paymentPlansCount, result)
+        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, auDdisFlag, paymentPlansCount, result)
       }
     }
   }

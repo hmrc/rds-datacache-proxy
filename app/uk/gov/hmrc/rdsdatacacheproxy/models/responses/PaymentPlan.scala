@@ -20,10 +20,11 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
 
-case class PaymentPlan(scheduledPayAmount: Double,
+case class PaymentPlan(scheduledPaymentAmount: Double,
+                       planRefNumber: String,
                        planType: String,
-                       payReference: String,
-                       planHoldService: String,
+                       paymentReference: String,
+                       hodService: String,
                        submissionDateTime: LocalDateTime)
 
 object PaymentPlan:
@@ -32,10 +33,11 @@ object PaymentPlan:
 case class DDPaymentPlans(bankSortCode: String,
                           bankAccountNumber: String,
                           bankAccountName: String,
+                          auDdisFlag: Boolean,
                           paymentPlanCount: Int,
                           paymentPlanList: Seq[PaymentPlan])
 
 object DDPaymentPlans:
   import PaymentPlan.format
   implicit val format: OFormat[DDPaymentPlans] = Json.format[DDPaymentPlans]
-  val empty: DDPaymentPlans = DDPaymentPlans("", "", "", 0, Seq())
+  val empty: DDPaymentPlans = DDPaymentPlans("", "", "", false, 0, Seq())
