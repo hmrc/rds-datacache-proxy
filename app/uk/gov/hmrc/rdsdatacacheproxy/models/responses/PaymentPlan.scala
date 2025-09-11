@@ -33,11 +33,11 @@ object PaymentPlan:
 case class DDPaymentPlans(bankSortCode: String,
                           bankAccountNumber: String,
                           bankAccountName: String,
-                          auDdisFlag: Boolean,
+                          auDdisFlag: String,
                           paymentPlanCount: Int,
                           paymentPlanList: Seq[PaymentPlan])
 
 object DDPaymentPlans:
   import PaymentPlan.format
   implicit val format: OFormat[DDPaymentPlans] = Json.format[DDPaymentPlans]
-  val empty: DDPaymentPlans = DDPaymentPlans("", "", "", false, 0, Seq())
+  val empty: DDPaymentPlans = DDPaymentPlans("", "", "", "dd", 0, Seq())

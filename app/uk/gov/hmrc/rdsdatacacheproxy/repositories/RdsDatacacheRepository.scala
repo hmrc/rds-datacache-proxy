@@ -158,7 +158,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
         storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
         storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
-        storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // AuddisFlag
+        storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
         storedProcedure.registerOutParameter("pDDSummary", OracleTypes.CURSOR) // pDDSummary
         storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
 
@@ -169,7 +169,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
         val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
         val bankAccountName = storedProcedure.getString("pBankAccountName") // pBankAccountName
-        val auDdisFlag = storedProcedure.getBoolean("pAUDDISFlag") // pAUDDISFlag
+        val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
         val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus

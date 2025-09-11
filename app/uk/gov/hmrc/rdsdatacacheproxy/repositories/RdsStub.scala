@@ -48,6 +48,6 @@ class RdsStub @Inject()() extends RdsDataSource:
   def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int):
     Future[DDPaymentPlans] = {
     val plans: Seq[PaymentPlan] = for (i <- 1 to max) yield stubData.randomPaymentPlan(i)
-    Future.successful(DDPaymentPlans("sort code", "account Number", "account name", true, plans.size, plans))
+    Future.successful(DDPaymentPlans("sort code", "account Number", "account name", "dd", plans.size, plans))
   }
 

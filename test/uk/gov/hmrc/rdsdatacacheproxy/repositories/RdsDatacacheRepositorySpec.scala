@@ -153,7 +153,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
     when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
     when(mockCallableStatement.getString("pBankAccountName")).thenReturn("account name")
-    when(mockCallableStatement.getBoolean("auDdisFlag")).thenReturn(false)
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("dd")
     when(mockCallableStatement.getInt("pTotalRecords")).thenReturn(1)
     when(mockCallableStatement.getObject("pPayPlanSummary", classOf[ResultSet])).thenReturn(mockResultSet)
 
@@ -171,7 +171,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val result = repository.getDirectDebitPaymentPlans(ddReference, id, start, max).futureValue
 
     // Assert
-    result shouldBe DDPaymentPlans("sort code", "account number", "account name", false, 1, paymentPlans)
+    result shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)
     result.paymentPlanList shouldBe paymentPlans
   }
 }
