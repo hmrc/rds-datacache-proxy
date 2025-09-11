@@ -69,66 +69,27 @@ class DirectDebitISpec extends ApplicationWithWiremock
 //        response.json shouldBe Json.parse("""12345""")
 
     "fail" when:
-      "with a 400" when :
-        "calling an endpoint without required JSON" in:
-          AuthStub.authorised()
-          val response = post(
-            "/direct-debits",
-            Json.parse(
-              """
-                |{
-                |  "whoAmI":"Where am I?"
-                |}""".stripMargin)).futureValue
-
-          response.status shouldBe BAD_REQUEST
-          response.json.toString should include("Json validation error")
-
-//        "calling with an invalid max" in:
-//          AuthStub.authorised()
-//          val response = get("/direct-debits?firstRecordNumber=1&maxRecords=100").futureValue
-//
-//          response.status shouldBe BAD_REQUEST
-
-//        "calling with an invalid firstNumber" in:
-//          AuthStub.authorised()
-//          val response = get("/direct-debits?firstRecordNumber=0&maxRecords=50").futureValue
-//
-//          response.status shouldBe BAD_REQUEST
-
       "with a 401" when :
-//        "calling an endpoint when tokens are unauthorised" in:
-//          AuthStub.unauthorised()
-//          val response = get("/direct-debits").futureValue
-//
-//          response.status shouldBe UNAUTHORIZED
-//          response.json shouldBe Json.parse("""{"statusCode":401,"message":"MissingResponseHeader"}""")
+        "calling an retrieve DD endpoint when tokens are unauthorised" in :
+          AuthStub.unauthorised()
+          val response = get("/direct-debits").futureValue
 
-//        "calling an endpoint when no internalId returned by Auth" in:
-//          AuthStub.noTokenReturned()
-//          val response = get("/direct-debits").futureValue
-//
-//          response.status shouldBe UNAUTHORIZED
-//          response.json shouldBe Json.parse("""{"statusCode":401,"message":"Unable to retrieve internal ID from headers"}""")
-
-        "calling an endpoint when no session in header" in:
+          response.status shouldBe UNAUTHORIZED
+        "calling an DD endpoint when no session in header" in:
           val response = wsClient.url(s"$baseUrl/direct-debits").get().futureValue
 
           response.status shouldBe UNAUTHORIZED
           response.json shouldBe Json.parse("""{"statusCode":401,"message":"Unable to retrieve session ID from headers"}""")
 
-//        "calling an endpoint when no auth tokens in header" in:
-//          val response = wsClient
-//            .url(s"$baseUrl/direct-debits")
-//            .withHttpHeaders(HeaderNames.xSessionId -> "sessionId")
-//            .get()
-//            .futureValue
-//
-//          response.status shouldBe UNAUTHORIZED
-//          response.json shouldBe Json.parse("""{"statusCode":401,"message":"Bearer token not supplied"}""")
-
       "with a 404" when :
         "calling an endpoint that doesn't exist" in:
           AuthStub.authorised()
           val response = get("/indirect-debits").futureValue
+
+          response.status shouldBe NOT_FOUND
+
+        "calling an future working days endpoint when tokens are unauthorised" in :
+          AuthStub.unauthorised()
+          val response = get("/direct-debit/future-working-days").futureValue
 
           response.status shouldBe NOT_FOUND

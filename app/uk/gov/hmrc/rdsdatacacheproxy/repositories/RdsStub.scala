@@ -35,11 +35,11 @@ class RdsStub @Inject()() extends RdsDataSource:
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
-  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
-    val debits: Seq[DirectDebit] = for(i <- 1 to max) yield stubData.randomDirectDebit(i)
+  def getDirectDebits(id: String): Future[UserDebits] =
+    val debits: Seq[DirectDebit] = for(i <- 1 to 3) yield stubData.randomDirectDebit(i)
     Future.successful(UserDebits(debits.size, debits))
 
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
+  def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =

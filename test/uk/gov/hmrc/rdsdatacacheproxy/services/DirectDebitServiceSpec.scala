@@ -56,26 +56,26 @@ class DirectDebitServiceSpec
   "DirectDebitService" should:
     "succeed" when:
       "retrieving no Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any(), any()))
+        when(mockConnector.getDirectDebits(any()))
           .thenReturn(Future.successful(UserDebits(0, Seq())))
 
-          val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          val result = service.retrieveDirectDebits("testId").futureValue
           result shouldBe UserDebits(0, Seq())
       "retrieving Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any(), any()))
+        when(mockConnector.getDirectDebits(any()))
           .thenReturn(
             Future.successful(UserDebits(1, Seq(expected(1)))),
             Future.successful(UserDebits(3, Seq(expected(2),expected(3),expected(4)))),
           )
-          val result = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          val result = service.retrieveDirectDebits("testId").futureValue
           result shouldBe UserDebits(1, Seq(expected(1)))
-          val result2 = service.retrieveDirectDebits("testId", 1, 99).futureValue
+          val result2 = service.retrieveDirectDebits("testId").futureValue
           result2 shouldBe UserDebits(3, Seq(expected(2),expected(3),expected(4)))
 
       "retrieving Earliest Payment Date" in:
-        when(mockConnector.getEarliestPaymentDate(any(), any()))
+        when(mockConnector.addFutureWorkingDays(any(), any()))
           .thenReturn(Future.successful(EarliestPaymentDate(LocalDate.of(2025, 10, 20))))
-        val result = service.getEarliestPaymentDate(LocalDate.of(2025, 10, 15), 5).futureValue
+        val result = service.addFutureWorkingDays(LocalDate.of(2025, 10, 15), 5).futureValue
         result shouldBe EarliestPaymentDate(LocalDate.of(2025, 10, 20))
 
       "retrieving DDI reference number" in :
@@ -86,8 +86,8 @@ class DirectDebitServiceSpec
 
     "fail" when:
       "retrieving Direct Debits" in:
-        when(mockConnector.getDirectDebits(any(), any(), any()))
+        when(mockConnector.getDirectDebits(any()))
           .thenReturn(Future.failed(new Exception("bang")))
 
-        val result = intercept[Exception](service.retrieveDirectDebits("testId", 1, -1).futureValue)
+        val result = intercept[Exception](service.retrieveDirectDebits("testId").futureValue)
         result.getMessage should include("bang")
