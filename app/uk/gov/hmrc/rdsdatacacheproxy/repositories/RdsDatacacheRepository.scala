@@ -65,7 +65,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         // Tail-recursive function to collect debits
         @tailrec
-        def collectDebits(acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
+        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
           if (!debits.next()) acc
           else {
             val directDebit = DirectDebit(
@@ -77,7 +77,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
               auDdisFlag = debits.getBoolean("AuddisFlag"),
               numberOfPayPlans = debits.getInt("NumberofPayPlans")
             )
-            collectDebits(acc :+ directDebit)
+            collectDebits(directDebit :: acc)
           }
         }
 
