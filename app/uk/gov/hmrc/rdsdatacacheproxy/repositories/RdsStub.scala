@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
-import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 

@@ -37,9 +37,9 @@ trait RdsDataSource {
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String): Future[UserDebits] = {
-    logger.info(s"Input request Credential ID: $id")
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
+    logger.info(s"Input request Credential ID: $id, firstRecordIndex: $pFirstRecord, maxRecords: $pMaxRecords")
 
     Future {
       db.withConnection { connection =>
