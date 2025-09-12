@@ -162,7 +162,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
         storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
         storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
-        storedProcedure.registerOutParameter("pDDSummary", OracleTypes.CURSOR) // pDDSummary
+        storedProcedure.registerOutParameter("pPayPlanSummary", OracleTypes.CURSOR) // pPayPlanSummary
         storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
 
         // Execute the stored procedure
