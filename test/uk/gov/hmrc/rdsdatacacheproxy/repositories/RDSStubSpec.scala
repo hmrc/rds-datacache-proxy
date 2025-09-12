@@ -51,7 +51,7 @@ class RDSStubSpec
     "return a DirectDebit" in:
       val result = connector.getDirectDebits("123").futureValue
 
-      result shouldBe UserDebits(3, Seq(expected(1), expected(2), expected(3)))
+      result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
     "return earliest payment date" in :
       val result = connector.addFutureWorkingDays(LocalDate.of(2025, 12, 15), 10).futureValue

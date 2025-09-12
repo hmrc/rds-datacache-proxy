@@ -22,25 +22,11 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.DirectDebit
-
-import java.time.LocalDateTime
 
 class DirectDebitISpec extends ApplicationWithWiremock
   with Matchers
   with ScalaFutures
   with IntegrationPatience:
-
-  def expected(i: Int): DirectDebit =
-    DirectDebit.apply(
-      s"defaultRef$i",
-      LocalDateTime.parse("2020-02-02T22:22:22"),
-      "00-00-00",
-      "00000000",
-      "Bank Ltd",
-      false,
-      i
-    )
 
   "Direct Debits" should :
     "succeed" when:
