@@ -31,17 +31,6 @@ class DirectDebitISpec extends ApplicationWithWiremock
   with ScalaFutures
   with IntegrationPatience:
 
-  def expected(i: Int): DirectDebit =
-    DirectDebit.apply(
-      s"defaultRef$i",
-      LocalDateTime.parse("2020-02-02T22:22:22"),
-      "00-00-00",
-      "00000000",
-      "Bank Ltd",
-      false,
-      i
-    )
-
   "Direct Debits" should :
     "succeed" when:
       "retrieving direct debits" in :

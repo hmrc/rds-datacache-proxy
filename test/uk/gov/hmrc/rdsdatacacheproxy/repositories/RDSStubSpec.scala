@@ -19,7 +19,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
