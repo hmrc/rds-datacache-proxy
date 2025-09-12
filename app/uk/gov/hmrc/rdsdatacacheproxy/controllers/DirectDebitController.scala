@@ -74,3 +74,14 @@ class DirectDebitController @Inject()(
             InternalServerError("Failed to generate DDI Reference.")
         }
     }
+
+  def retrieveDirectDebitPaymentPlans(directDebitReference: String): Action[AnyContent] =
+    authorise.async:
+      implicit request =>
+        directDebitService.getDirectDebitPaymentPlans(directDebitReference, request.credentialId)
+          .map(result => Ok(Json.toJson(result)))
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while retrieving data from oracle database", ex)
+              InternalServerError("Failed to retrieve earliest data from oracle database.")
+          }

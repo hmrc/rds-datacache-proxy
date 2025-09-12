@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.LocalDate
@@ -38,3 +38,12 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     Future.successful(DDIReference(paymentReference))
+
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
+    Future[DDPaymentPlans] = {
+    val plans: Seq[PaymentPlan] = for (i <- 1 to 5) yield stubData.randomPaymentPlan(i)
+    val debits: Seq[DirectDebit] = for(i <- 1 to 2) yield stubData.randomDirectDebit(i)
+    val firstDebit = debits.head
+    Future.successful(DDPaymentPlans(firstDebit.bankSortCode, firstDebit.bankAccountNumber, firstDebit.bankAccountName, "dd", plans.size, plans))
+  }
+
