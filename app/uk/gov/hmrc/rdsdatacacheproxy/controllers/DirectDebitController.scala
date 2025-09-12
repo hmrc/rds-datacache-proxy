@@ -75,10 +75,10 @@ class DirectDebitController @Inject()(
         }
     }
 
-  def retrieveDirectDebitPaymentPlans(paymentReference: String): Action[AnyContent] =
+  def retrieveDirectDebitPaymentPlans(directDebitReference: String): Action[AnyContent] =
     authorise.async:
       implicit request =>
-        directDebitService.getDirectDebitPaymentPlans(paymentReference, request.credentialId)
+        directDebitService.getDirectDebitPaymentPlans(directDebitReference, request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover {
             case ex: Exception =>

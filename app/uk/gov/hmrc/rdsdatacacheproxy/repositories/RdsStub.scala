@@ -39,7 +39,7 @@ class RdsStub @Inject()() extends RdsDataSource:
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     Future.successful(DDIReference(paymentReference))
 
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String):
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
     Future[DDPaymentPlans] = {
     val plans: Seq[PaymentPlan] = for (i <- 1 to 5) yield stubData.randomPaymentPlan(i)
     val debits: Seq[DirectDebit] = for(i <- 1 to 2) yield stubData.randomDirectDebit(i)

@@ -35,6 +35,6 @@ class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
   def getDDIReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     rdsDatacache.getDirectDebitReference(paymentReference, credId, sessionId)
 
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String):
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
     Future[DDPaymentPlans] =
-    rdsDatacache.getDirectDebitPaymentPlans(paymentReference, credId)
+    rdsDatacache.getDirectDebitPaymentPlans(directDebitReference, credId)

@@ -32,7 +32,7 @@ trait RdsDataSource {
   def getDirectDebits(id: String): Future[UserDebits]
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String): Future[DDPaymentPlans]
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -139,11 +139,11 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
     }
   }
 
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String):
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
   Future[DDPaymentPlans] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
-    logger.info(s"**** Cred ID: ${credId}, Payment Reference: ${paymentReference} " +
+    logger.info(s"**** Cred ID: ${credId}, Payment Reference: ${directDebitReference} " +
       s"FirstRecordNumber: ${pFirstRecord}, Max Records: ${pMaxRecords}")
 
     Future {
@@ -152,7 +152,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         // Set input parameters
         storedProcedure.setString("pCredentialID", credId) // pCredentialID
-        storedProcedure.setString("pDDIRefNumber", paymentReference) // pDDIRefNumber
+        storedProcedure.setString("pDDIRefNumber", directDebitReference) // pDDIRefNumber
         storedProcedure.setInt("pFirstRecordNumber", pFirstRecord) // pFirstRecordNumber
         storedProcedure.setInt("pMaxRecords", pMaxRecords) // pMaxRecords
 
@@ -179,7 +179,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         // Tail-recursive function to collect payment plans
         @tailrec
-        def collectPaymentPlans(pp: Seq[PaymentPlan] = Seq.empty): Seq[PaymentPlan] = {
+        def collectPaymentPlans(pp: List[PaymentPlan] = Nil): List[PaymentPlan] = {
           if (!paymentPlans.next()) pp
           else {
             val paymentPlan = PaymentPlan(
@@ -190,18 +190,18 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
               hodService = paymentPlans.getString("PayPlanHodService"),
               submissionDateTime = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime,
             )
-            collectPaymentPlans(pp :+ paymentPlan)
+            collectPaymentPlans(paymentPlan :: pp)
           }
         }
 
-        val result = collectPaymentPlans()
+        val paymentPlanList = collectPaymentPlans()
         logger.info(s"***** Payment plans count: $paymentPlansCount")
         logger.info(s"DB Response status: $responseStatus")
 
         storedProcedure.close()
 
         // Return DDPaymentPlans
-        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, auDdisFlag, paymentPlansCount, result)
+        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, auDdisFlag, paymentPlansCount, paymentPlanList)
       }
     }
   }
