@@ -24,7 +24,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
 
 import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.{LocalDate, LocalDateTime}
@@ -169,7 +169,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       .thenReturn(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay()))
 
     // Act
-    val result = repository.getDirectDebitPaymentPlans(ddReference, id, start, max).futureValue
+    val result = repository.getDirectDebitPaymentPlans(ddReference, id).futureValue
 
     // Assert
     result shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)

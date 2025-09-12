@@ -20,7 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, PaymentPlan, UserDebits}
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -32,7 +32,7 @@ trait RdsDataSource {
   def getDirectDebits(id: String): Future[UserDebits]
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int): Future[DDPaymentPlans]
+  def getDirectDebitPaymentPlans(paymentReference: String, credId: String): Future[DDPaymentPlans]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -139,10 +139,12 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
     }
   }
 
-  def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int):
+  def getDirectDebitPaymentPlans(paymentReference: String, credId: String):
   Future[DDPaymentPlans] = {
+    val pFirstRecord = appConfig.firstRecord
+    val pMaxRecords = appConfig.maxRecords
     logger.info(s"**** Cred ID: ${credId}, Payment Reference: ${paymentReference} " +
-      s"FirstRecordNumber: ${start}, Max Records: ${max}")
+      s"FirstRecordNumber: ${pFirstRecord}, Max Records: ${pMaxRecords}")
 
     Future {
       db.withConnection { connection =>
@@ -151,8 +153,8 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Set input parameters
         storedProcedure.setString("pCredentialID", credId) // pCredentialID
         storedProcedure.setString("pDDIRefNumber", paymentReference) // pDDIRefNumber
-        storedProcedure.setInt("pFirstRecordNumber", start) // pFirstRecordNumber
-        storedProcedure.setInt("pMaxRecords", max) // pMaxRecords
+        storedProcedure.setInt("pFirstRecordNumber", pFirstRecord) // pFirstRecordNumber
+        storedProcedure.setInt("pMaxRecords", pMaxRecords) // pMaxRecords
 
         // Register output parameters
         storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
