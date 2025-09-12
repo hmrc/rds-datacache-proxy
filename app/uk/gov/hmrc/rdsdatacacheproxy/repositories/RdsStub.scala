@@ -25,21 +25,15 @@ import scala.concurrent.Future
 
 @Singleton
 class RdsStub @Inject()() extends RdsDataSource:
-  //  Once it's a connector, inject:
-  //  httpClientV2: HttpClientV2
-  //  servicesConfig: ServicesConfig
-
-  //  and define:
-  //  val serviceUrl: String = servicesConfig.baseUrl("rds")
 
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
-  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
-    val debits: Seq[DirectDebit] = for(i <- 1 to max) yield stubData.randomDirectDebit(i)
+  def getDirectDebits(id: String): Future[UserDebits] =
+    val debits: Seq[DirectDebit] = for(i <- 1 to 5) yield stubData.randomDirectDebit(i)
     Future.successful(UserDebits(debits.size, debits))
 
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
+  def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =

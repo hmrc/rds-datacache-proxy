@@ -26,11 +26,11 @@ import scala.concurrent.Future
 
 class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
 
-  def retrieveDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] =
-    rdsDatacache.getDirectDebits(id, start, max)
+  def retrieveDirectDebits(id: String): Future[UserDebits] =
+    rdsDatacache.getDirectDebits(id)
 
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
-    rdsDatacache.getEarliestPaymentDate(baseDate, offsetWorkingDays)
+  def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
+    rdsDatacache.addFutureWorkingDays(baseDate, offsetWorkingDays)
 
   def getDDIReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     rdsDatacache.getDirectDebitReference(paymentReference, credId, sessionId)

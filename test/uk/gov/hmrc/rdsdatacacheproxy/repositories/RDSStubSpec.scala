@@ -25,7 +25,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
 
-class RDSConnectorSpec
+class RDSStubSpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures
@@ -47,21 +47,14 @@ class RDSConnectorSpec
   }
   def expected(i: Int): DirectDebit = connector.stubData.randomDirectDebit(i)
 
-  "RDSConnector" should:
+  "RDSStub" should:
     "return a DirectDebit" in:
-      val result = connector.getDirectDebits("123", 1, 1).futureValue
+      val result = connector.getDirectDebits("123").futureValue
 
-      result shouldBe UserDebits(1, Seq(expected(1)))
-
-    "return DirectDebits up to a variable limit" in:
-      val result1 = connector.getDirectDebits("123", 1, 3).futureValue
-      val result2 = connector.getDirectDebits("123", 1, 5).futureValue
-
-      result1 shouldBe UserDebits(3, Seq(expected(1), expected(2), expected(3)))
-      result2 shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
+      result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
     "return earliest payment date" in :
-      val result = connector.getEarliestPaymentDate(LocalDate.of(2025, 12, 15), 10).futureValue
+      val result = connector.addFutureWorkingDays(LocalDate.of(2025, 12, 15), 10).futureValue
 
       result shouldBe EarliestPaymentDate(LocalDate.of(2025, 12, 25))
 

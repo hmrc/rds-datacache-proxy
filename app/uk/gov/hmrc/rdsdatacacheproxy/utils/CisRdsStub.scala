@@ -42,6 +42,6 @@ class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource 
   }
 
   def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
-    val monthlyReturns: Seq[MonthlyReturn] = Seq.fill(3)(stubData.randomMonthlyReturn())
+    val monthlyReturns: Seq[MonthlyReturn] = Seq(1, 2, 3).map(stubData.generateMonthlyReturns)
     Future.successful(UserMonthlyReturns(monthlyReturns))
 }

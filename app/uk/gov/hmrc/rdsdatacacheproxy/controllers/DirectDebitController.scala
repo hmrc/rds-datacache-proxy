@@ -22,12 +22,12 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{CreateDirectDebitRequest, GenerateDdiRefRequest, WorkingDaysOffsetRequest}
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, WorkingDaysOffsetRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class DirectDebitController @Inject()(
                                        authorise: AuthAction,
@@ -35,32 +35,21 @@ class DirectDebitController @Inject()(
                                        cc: ControllerComponents
                                      )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging:
 
-  def retrieveDirectDebits(firstRecordNumber: Option[Int], maxRecords: Option[Int]): Action[AnyContent] =
+  def retrieveDirectDebits(): Action[AnyContent] =
     authorise.async:
       implicit request =>
-        (firstRecordNumber.getOrElse(1), maxRecords.getOrElse(99)) match {
-          case (_, 0) =>
-            Future.successful(Ok(Json.toJson(UserDebits.empty)))
-          case (start, max) if start > 0 && 0 < max && max <= 99 =>
-            logger.info(s"**** Cred ID: ${request.credentialId}, FirstRecordNumber: $start, Max Records: $max")
-            directDebitService.retrieveDirectDebits(request.credentialId, start, max)
-              .map(result => Ok(Json.toJson(result)))
-          case _ =>
-            Future.successful(
-              BadRequest(s"Invalid firstRecordNumber: $firstRecordNumber and maxRecordNumber: $maxRecords")
-            )
-        }
-
-  def createDirectDebit(): Action[CreateDirectDebitRequest] =
-    authorise.async(parse.json[CreateDirectDebitRequest]):
-      implicit request =>
-        Future.successful(Created(request.body.paymentReference))
-
+        directDebitService.retrieveDirectDebits(request.credentialId)
+          .map(result => Ok(Json.toJson(result)))
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while retrieving data from oracle database", ex)
+              InternalServerError("Failed to retrieve earliest data from oracle database.")
+          }
 
   def workingDaysOffset(): Action[WorkingDaysOffsetRequest] =
     Action(parse.json[WorkingDaysOffsetRequest]).async:
       implicit request =>
-        directDebitService.getEarliestPaymentDate(request.body.baseDate, request.body.offsetWorkingDays)
+        directDebitService.addFutureWorkingDays(request.body.baseDate, request.body.offsetWorkingDays)
           .map { result =>
             Ok(Json.toJson(result))
           }

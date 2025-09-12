@@ -23,7 +23,8 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
 
 import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.{LocalDate, LocalDateTime}
@@ -36,6 +37,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
+  var mockConfig: AppConfig = _
 
   before {
     // Mocking the database connection and callable statement
@@ -43,6 +45,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     mockConnection = mock(classOf[java.sql.Connection])
     mockCallableStatement = mock(classOf[CallableStatement])
     mockResultSet = mock(classOf[ResultSet])
+    mockConfig = mock(classOf[AppConfig])
 
     // When db.withConnection is called, it should invoke the passed-in function and return the result
     when(db.withConnection(any())).thenAnswer { invocation =>
@@ -54,14 +57,12 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
 
     // Initialize the repository with the mocked db connection
-    repository = new RdsDatacacheRepository(db)
+    repository = new RdsDatacacheRepository(db, mockConfig)
   }
 
   "getDirectDebits" should "return UserDebits with correct data" in {
     // Arrange
     val id = "test-cred-id"
-    val start = 0
-    val max = 10
 
     val directDebits = Seq(
       DirectDebit(
@@ -90,14 +91,14 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockResultSet.getInt("NumberofPayPlans")).thenReturn(1)
 
     // Act
-    val result = repository.getDirectDebits(id, start, max).futureValue
+    val result = repository.getDirectDebits(id).futureValue
 
     // Assert
     result shouldBe UserDebits(1, directDebits)
     result.directDebitList shouldBe directDebits
   }
 
-  "getEarliestPaymentDate" should "return EarliestPaymentDate with correct date" in {
+  "addFutureWorkingDays" should "return EarliestPaymentDate with correct date" in {
     // Arrange
     val baseDate = LocalDate.now()
     val offsetWorkingDays = 5
@@ -107,7 +108,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getDate("pOutputDate")).thenReturn(Date.valueOf(expectedDate))
 
     // Act
-    val result = repository.getEarliestPaymentDate(baseDate, offsetWorkingDays).futureValue
+    val result = repository.addFutureWorkingDays(baseDate, offsetWorkingDays).futureValue
 
     // Assert
     result.date shouldBe expectedDate

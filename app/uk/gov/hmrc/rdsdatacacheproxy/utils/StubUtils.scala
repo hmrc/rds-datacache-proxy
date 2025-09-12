@@ -48,16 +48,14 @@ class StubUtils {
 
   private val mrId = new AtomicLong(1000000L)
 
-  def randomMonthlyReturn(): MonthlyReturn = {
+  def generateMonthlyReturns(month: Int): MonthlyReturn = {
     val id = mrId.incrementAndGet()
-    val year = 2023 + Random.nextInt(3)
-    val month = 1 + Random.nextInt(12)
-    val now = LocalDateTime.now().minusDays(Random.nextInt(365).toLong)
+    val now = LocalDateTime.now().minusDays(Random.nextInt(90).toLong)
       .withHour(0).withMinute(0).withSecond(0).withNano(0)
 
     MonthlyReturn(
       monthlyReturnId = id,
-      taxYear = year,
+      taxYear = 2025,
       taxMonth = month,
       nilReturnIndicator = Some(if (Random.nextBoolean()) "Y" else "N"),
       decEmpStatusConsidered = Some(if (Random.nextBoolean()) "Y" else "N"),

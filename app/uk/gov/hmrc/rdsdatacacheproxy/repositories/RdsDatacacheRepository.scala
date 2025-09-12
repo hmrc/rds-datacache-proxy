@@ -19,7 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, PaymentPlan, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -28,16 +29,18 @@ import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RdsDataSource {
-  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits]
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
+  def getDirectDebits(id: String): Future[UserDebits]
+  def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
   def getDirectDebitPaymentPlans(paymentReference: String, credId: String, start: Int, max: Int): Future[DDPaymentPlans]
 }
 
-class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
+class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
-  def getDirectDebits(id: String, start: Int, max: Int): Future[UserDebits] = {
-    logger.info(s"**** Cred ID: ${id}, FirstRecordNumber: ${start}, Max Records: ${max}")
+  def getDirectDebits(id: String): Future[UserDebits] = {
+    val pFirstRecord = appConfig.firstRecord
+    val pMaxRecords = appConfig.maxRecords
+    logger.info(s"Input request Credential ID: $id, firstRecordIndex: $pFirstRecord, maxRecords: $pMaxRecords")
 
     Future {
       db.withConnection { connection =>
@@ -45,8 +48,8 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         // Set input parameters
         storedProcedure.setString("pCredentialID", id) // pCredentialID
-        storedProcedure.setInt("pFirstRecordNumber", start) // pFirstRecordNumber
-        storedProcedure.setInt("pMaxRecords", max) // pMaxRecords
+        storedProcedure.setInt("pFirstRecordNumber", pFirstRecord) // pFirstRecordNumber
+        storedProcedure.setInt("pMaxRecords", pMaxRecords) // pMaxRecords
 
         // Register output parameters
         storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
@@ -63,7 +66,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         // Tail-recursive function to collect debits
         @tailrec
-        def collectDebits(acc: Seq[DirectDebit] = Seq.empty): Seq[DirectDebit] = {
+        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
           if (!debits.next()) acc
           else {
             val directDebit = DirectDebit(
@@ -75,13 +78,13 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
               auDdisFlag = debits.getBoolean("AuddisFlag"),
               numberOfPayPlans = debits.getInt("NumberofPayPlans")
             )
-            collectDebits(acc :+ directDebit)
+            collectDebits(directDebit :: acc)
           }
         }
 
         val result = collectDebits()
-        logger.info(s"***** DD count: $debitTotal")
-        logger.info(s"DB Response status: $responseStatus")
+        logger.info(s"DD count from SQL stored procedure: $debitTotal")
+        logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
         storedProcedure.close()
 
@@ -91,15 +94,14 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
     }
   }
 
-  def getEarliestPaymentDate(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] = {
+  def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] = {
+    logger.info(s"Input request payment date. Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
 
         storedProcedure.setDate("pInputDate", Date.valueOf(baseDate))
         storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
-
-        logger.info(s"Getting earliest payment date. Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
 
         storedProcedure.registerOutParameter("pOutputDate", Types.DATE)
         storedProcedure.execute()
@@ -108,13 +110,14 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         storedProcedure.close()
 
-        logger.info(s"Getting earliest payment date. Result from SQL Stored Procedure: $outputDate")
+        logger.info(s"Future payment date from SQL Stored Procedure: $outputDate")
         EarliestPaymentDate(outputDate.toLocalDate)
       }
     }
   }
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] = {
+    logger.info(s"Input request, pPayReference: <${paymentReference}>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.GETDDIRefNumber(?, ?, ?, ?)}")
@@ -123,8 +126,6 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
         storedProcedure.setString("pCredentialID", credId)
         storedProcedure.setString("pSessionID", sessionId)
 
-        logger.info(s"Getting DDI Ref, pPayReference: <${paymentReference}>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
-
         storedProcedure.registerOutParameter("pDDIRefNumber", Types.VARCHAR)
         storedProcedure.execute()
 
@@ -132,7 +133,7 @@ class RdsDatacacheRepository @Inject()(db: Database)(implicit ec: ExecutionConte
 
         storedProcedure.close()
 
-        logger.info(s"Getting DDI Ref, Result from SQL Stored Procedure: $ddiRef")
+        logger.info(s"DDI reference number from SQL Stored Procedure: $ddiRef")
         DDIReference(ddiRef)
       }
     }
