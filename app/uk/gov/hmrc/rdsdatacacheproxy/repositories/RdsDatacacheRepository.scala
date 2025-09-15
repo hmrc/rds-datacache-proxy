@@ -143,7 +143,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
   Future[DDPaymentPlans] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
-    logger.info(s"**** Cred ID: ${credId}, Payment Reference: ${directDebitReference} " +
+    logger.info(s"**** Cred ID: ${credId}, Direct Debit Reference: ${directDebitReference} " +
       s"FirstRecordNumber: ${pFirstRecord}, Max Records: ${pMaxRecords}")
 
     Future {
