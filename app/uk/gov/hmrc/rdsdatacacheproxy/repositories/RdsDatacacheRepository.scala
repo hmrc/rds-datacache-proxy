@@ -61,52 +61,41 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt("pTotalRecords") // pTotalRecords
-        val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
+        val directDebitSet = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
         logger.info(s"DD count from SQL stored procedure: $debitTotal")
         logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
-        storedProcedure.close()
-
         // Tail-recursive function to collect debits
-//        @tailrec
-//        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
-//          if (!debits.next()) acc.reverse
-//          else {
-//            val directDebit = DirectDebit(
-//              ddiRefNumber = debits.getString("DDIRefNumber"),
-//              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-//              bankSortCode = debits.getString("BankSortCode"),
-//              bankAccountNumber = debits.getString("BankAccountNumber"),
-//              bankAccountName = debits.getString("BankAccountName"),
-//              auDdisFlag = debits.getBoolean("AuddisFlag"),
-//              numberOfPayPlans = debits.getInt("NumberofPayPlans")
-//            )
-//            collectDebits(directDebit :: acc)
-//          }
-//        }
-
-        def collectDebits(): List[DirectDebit] = {
-          Iterator
-            .continually(debits.next())
-            .takeWhile(identity)
-            .map(_ =>
-              DirectDebit(
-                ddiRefNumber = debits.getString("DDIRefNumber"),
-                submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-                bankSortCode = debits.getString("BankSortCode"),
-                bankAccountNumber = debits.getString("BankAccountNumber"),
-                bankAccountName = debits.getString("BankAccountName"),
-                auDdisFlag = debits.getBoolean("AuddisFlag"),
-                numberOfPayPlans = debits.getInt("NumberofPayPlans")
-              )
-            ).toList
+        @tailrec
+        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
+          val ddNext = directDebitSet.next()
+          logger.info(s"directDebitSet.next(): ${ddNext}")
+          if (ddNext) {
+            logger.info(s"Accumulator: ${acc}")
+            val directDebit = DirectDebit(
+              ddiRefNumber = directDebitSet.getString("DDIRefNumber"),
+              submissionDateTime = directDebitSet.getTimestamp("SubmissionDateTime").toLocalDateTime,
+              bankSortCode = directDebitSet.getString("BankSortCode"),
+              bankAccountNumber = directDebitSet.getString("BankAccountNumber"),
+              bankAccountName = directDebitSet.getString("BankAccountName"),
+              auDdisFlag = directDebitSet.getBoolean("AuddisFlag"),
+              numberOfPayPlans = directDebitSet.getInt("NumberofPayPlans")
+            )
+            logger.info(s"directDebit: ${directDebit}")
+            collectDebits(directDebit :: acc)
+          } else {
+            acc.reverse
+          }
         }
 
         val result = collectDebits()
+        directDebitSet.close()
+        storedProcedure.close()
+
         if (result.isEmpty) {
           logger.warn("No records found in database")
-          UserDebits(0, Nil)
+          UserDebits(0, Seq.empty)
         } else {
           logger.info(s"Count of records from DB: ${result.size}")
           // Return UserDebits
