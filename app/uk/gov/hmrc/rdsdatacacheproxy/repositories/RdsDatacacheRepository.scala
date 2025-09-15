@@ -66,30 +66,52 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         logger.info(s"DD count from SQL stored procedure: $debitTotal")
         logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
+        storedProcedure.close()
+
         // Tail-recursive function to collect debits
-        @tailrec
-        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
-          if (!debits.next()) acc.reverse
-          else {
-            val directDebit = DirectDebit(
-              ddiRefNumber = debits.getString("DDIRefNumber"),
-              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-              bankSortCode = debits.getString("BankSortCode"),
-              bankAccountNumber = debits.getString("BankAccountNumber"),
-              bankAccountName = debits.getString("BankAccountName"),
-              auDdisFlag = debits.getBoolean("AuddisFlag"),
-              numberOfPayPlans = debits.getInt("NumberofPayPlans")
-            )
-            collectDebits(directDebit :: acc)
-          }
+//        @tailrec
+//        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
+//          if (!debits.next()) acc.reverse
+//          else {
+//            val directDebit = DirectDebit(
+//              ddiRefNumber = debits.getString("DDIRefNumber"),
+//              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
+//              bankSortCode = debits.getString("BankSortCode"),
+//              bankAccountNumber = debits.getString("BankAccountNumber"),
+//              bankAccountName = debits.getString("BankAccountName"),
+//              auDdisFlag = debits.getBoolean("AuddisFlag"),
+//              numberOfPayPlans = debits.getInt("NumberofPayPlans")
+//            )
+//            collectDebits(directDebit :: acc)
+//          }
+//        }
+
+        def collectDebits(): List[DirectDebit] = {
+          Iterator
+            .continually(debits.next())
+            .takeWhile(identity)
+            .map(_ =>
+              DirectDebit(
+                ddiRefNumber = debits.getString("DDIRefNumber"),
+                submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
+                bankSortCode = debits.getString("BankSortCode"),
+                bankAccountNumber = debits.getString("BankAccountNumber"),
+                bankAccountName = debits.getString("BankAccountName"),
+                auDdisFlag = debits.getBoolean("AuddisFlag"),
+                numberOfPayPlans = debits.getInt("NumberofPayPlans")
+              )
+            ).toList
         }
 
         val result = collectDebits()
-
-        storedProcedure.close()
-
-        // Return UserDebits
-        UserDebits(debitTotal, result)
+        if (result.isEmpty) {
+          logger.warn("No records found in database")
+          UserDebits(0, Nil)
+        } else {
+          logger.info(s"Count of records from DB: ${result.size}")
+          // Return UserDebits
+          UserDebits(debitTotal, result)
+        }
       }
     }
   }
@@ -176,6 +198,8 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+        logger.info(s"***** Payment plans count: $paymentPlansCount")
+        logger.info(s"DB Response status: $responseStatus")
 
         // Tail-recursive function to collect payment plans
         @tailrec
@@ -195,8 +219,6 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         }
 
         val paymentPlanList = collectPaymentPlans()
-        logger.info(s"***** Payment plans count: $paymentPlansCount")
-        logger.info(s"DB Response status: $responseStatus")
 
         storedProcedure.close()
 
