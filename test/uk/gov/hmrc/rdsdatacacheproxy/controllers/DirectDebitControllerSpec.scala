@@ -23,17 +23,13 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Request, Result}
-import play.api.test.FakeRequest
+import play.api.mvc.Result
 import play.api.test.Helpers.*
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.WorkingDaysOffsetRequest
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, EarliestPaymentDate, UserDebits}
-import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
-import uk.gov.hmrc.rdsdatacacheproxy.services.{DirectDebitService, MonthlyReturnService}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 class DirectDebitControllerSpec extends SpecBase with MockitoSugar {

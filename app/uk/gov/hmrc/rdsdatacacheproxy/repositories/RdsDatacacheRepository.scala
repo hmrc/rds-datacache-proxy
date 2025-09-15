@@ -67,31 +67,51 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
         // Tail-recursive function to collect debits
-        @tailrec
-        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
-          val ddNext = directDebitSet.next()
-          logger.info(s"directDebitSet.next(): ${ddNext}")
-          if (ddNext) {
-            logger.info(s"Accumulator: ${acc}")
-            val directDebit = DirectDebit(
-              ddiRefNumber = directDebitSet.getString("DDIRefNumber"),
-              submissionDateTime = directDebitSet.getTimestamp("SubmissionDateTime").toLocalDateTime,
-              bankSortCode = directDebitSet.getString("BankSortCode"),
-              bankAccountNumber = directDebitSet.getString("BankAccountNumber"),
-              bankAccountName = directDebitSet.getString("BankAccountName"),
-              auDdisFlag = directDebitSet.getBoolean("AuddisFlag"),
-              numberOfPayPlans = directDebitSet.getInt("NumberofPayPlans")
+//        @tailrec
+//        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
+//          val ddNext = directDebitSet.next()
+//          logger.info(s"directDebitSet.next(): ${ddNext}")
+//          if (ddNext) {
+//            val directDebit = DirectDebit(
+//              ddiRefNumber = directDebitSet.getString("DDIRefNumber"),
+//              submissionDateTime = directDebitSet.getTimestamp("SubmissionDateTime").toLocalDateTime,
+//              bankSortCode = directDebitSet.getString("BankSortCode"),
+//              bankAccountNumber = directDebitSet.getString("BankAccountNumber"),
+//              bankAccountName = directDebitSet.getString("BankAccountName"),
+//              auDdisFlag = directDebitSet.getBoolean("AuddisFlag"),
+//              numberOfPayPlans = directDebitSet.getInt("NumberofPayPlans")
+//            )
+//            logger.info(s"directDebit: ${directDebit}")
+//            logger.info(s"Accumulator: ${acc}")
+//            collectDebits(acc :+ directDebit)
+//          } else {
+//            acc.reverse
+//          }
+//        }
+
+        def collectDirectDebits(rs: java.sql.ResultSet): List[DirectDebit] = {
+          Iterator
+            .continually(rs.next())
+            .takeWhile(identity)
+            .map(_ =>
+              DirectDebit(
+                ddiRefNumber = rs.getString("DDIRefNumber"),
+                submissionDateTime = rs.getTimestamp("SubmissionDateTime").toLocalDateTime,
+                bankSortCode = rs.getString("BankSortCode"),
+                bankAccountNumber = rs.getString("BankAccountNumber"),
+                bankAccountName = rs.getString("BankAccountName"),
+                auDdisFlag = rs.getBoolean("AuddisFlag"),
+                numberOfPayPlans = rs.getInt("NumberofPayPlans")
+              )
             )
-            logger.info(s"directDebit: ${directDebit}")
-            collectDebits(directDebit :: acc)
-          } else {
-            acc.reverse
-          }
+            .toList
         }
 
-        val result = collectDebits()
+        val result = collectDirectDebits(directDebitSet)
+        logger.info(s"DB Results List: ${result}")
         directDebitSet.close()
         storedProcedure.close()
+        connection.close()
 
         if (result.isEmpty) {
           logger.warn("No records found in database")
