@@ -63,11 +63,13 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val debitTotal = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+        logger.info(s"DD count from SQL stored procedure: $debitTotal")
+        logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
         // Tail-recursive function to collect debits
         @tailrec
         def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
-          if (!debits.next()) acc
+          if (!debits.next()) acc.reverse
           else {
             val directDebit = DirectDebit(
               ddiRefNumber = debits.getString("DDIRefNumber"),
@@ -83,8 +85,6 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         }
 
         val result = collectDebits()
-        logger.info(s"DD count from SQL stored procedure: $debitTotal")
-        logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
         storedProcedure.close()
 
@@ -180,7 +180,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Tail-recursive function to collect payment plans
         @tailrec
         def collectPaymentPlans(pp: List[PaymentPlan] = Nil): List[PaymentPlan] = {
-          if (!paymentPlans.next()) pp
+          if (!paymentPlans.next()) pp.reverse
           else {
             val paymentPlan = PaymentPlan(
               scheduledPaymentAmount = paymentPlans.getDouble("ScheduledPayAmount"),
