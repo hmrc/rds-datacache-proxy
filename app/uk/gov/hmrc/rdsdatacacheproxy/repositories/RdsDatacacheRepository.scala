@@ -206,8 +206,11 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         val paymentPlanList = collectPaymentPlans()
 
+        logger.info(s"DB Payment Plan List: ${paymentPlanList}")
+        logger.info(s"Count of records from DB: ${paymentPlanList.size}")
+        paymentPlans.close()
         storedProcedure.close()
-
+        connection.close()
         // Return DDPaymentPlans
         DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, auDdisFlag, paymentPlansCount, paymentPlanList)
       }
