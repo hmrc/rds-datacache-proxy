@@ -179,7 +179,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Retrieve output parameters
         val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
         val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
-        val bankAccountName = storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val bankAccountName = if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
         val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
         val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
