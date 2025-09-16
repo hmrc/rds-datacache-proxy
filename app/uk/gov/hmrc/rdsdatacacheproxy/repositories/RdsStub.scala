@@ -29,7 +29,7 @@ class RdsStub @Inject()() extends RdsDataSource:
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
-  private val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
+  private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
 
   def getDirectDebits(id: String): Future[UserDebits] =
     Future.successful(UserDebits(debits.size, debits))
