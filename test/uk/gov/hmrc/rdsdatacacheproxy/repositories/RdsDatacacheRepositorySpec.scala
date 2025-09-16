@@ -27,7 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
 
 import java.sql.{CallableStatement, Date, ResultSet}
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -135,8 +135,6 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     // Arrange
     val ddReference = "test reference"
     val id = "test-cred-id"
-    val start = 0
-    val max = 10
     val submissionDateTime = LocalDate.now().atStartOfDay()
 
     val paymentPlans = Seq(

@@ -20,7 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, PaymentPlan, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -84,20 +84,13 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
             .toList
         }
 
-        val result = collectDirectDebits(directDebitSet)
-        logger.info(s"DB Results List: ${result}")
+        val directDebits = collectDirectDebits(directDebitSet)
         directDebitSet.close()
         storedProcedure.close()
         connection.close()
 
-        if (result.isEmpty) {
-          logger.warn("No records found in database")
-          UserDebits(0, Seq.empty)
-        } else {
-          logger.info(s"Count of records from DB: ${result.size}")
-          // Return UserDebits
-          UserDebits(debitTotal, result)
-        }
+        // Return UserDebits
+        UserDebits(debitTotal, directDebits)
       }
     }
   }
@@ -117,6 +110,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val outputDate = storedProcedure.getDate("pOutputDate")
 
         storedProcedure.close()
+        connection.close()
 
         logger.info(s"Future payment date from SQL Stored Procedure: $outputDate")
         EarliestPaymentDate(outputDate.toLocalDate)
@@ -140,6 +134,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val ddiRef = storedProcedure.getString("pDDIRefNumber")
 
         storedProcedure.close()
+        connection.close()
 
         logger.info(s"DDI reference number from SQL Stored Procedure: $ddiRef")
         DDIReference(ddiRef)
@@ -206,8 +201,6 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         val paymentPlanList = collectPaymentPlans()
 
-        logger.info(s"DB Payment Plan List: ${paymentPlanList}")
-        logger.info(s"Count of records from DB: ${paymentPlanList.size}")
         paymentPlans.close()
         storedProcedure.close()
         connection.close()
