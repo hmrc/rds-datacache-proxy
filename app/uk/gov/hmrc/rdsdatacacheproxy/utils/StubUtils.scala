@@ -42,7 +42,7 @@ class StubUtils {
       Seq.fill(8)(Random.nextInt(10)).mkString,
       "BankLtd",
       Random.nextBoolean(),
-      Random.nextInt(100)
+      Random.nextInt(3)
     )
   }
 
