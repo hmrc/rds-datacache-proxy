@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.LocalDate
@@ -29,8 +29,9 @@ class RdsStub @Inject()() extends RdsDataSource:
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
+  private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
+
   def getDirectDebits(id: String): Future[UserDebits] =
-    val debits: Seq[DirectDebit] = for(i <- 1 to 5) yield stubData.randomDirectDebit(i)
     Future.successful(UserDebits(debits.size, debits))
 
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
@@ -38,3 +39,16 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     Future.successful(DDIReference(paymentReference))
+
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
+    Future[DDPaymentPlans] = {
+    val filteredDebit = debits.find(_.ddiRefNumber == directDebitReference)
+    filteredDebit match {
+      case Some(debit) =>
+        val plans: Seq[PaymentPlan] = for (i <- 1 to debit.numberOfPayPlans) yield stubData.randomPaymentPlan(i)
+        Future.successful(DDPaymentPlans(debit.bankSortCode, debit.bankAccountNumber, debit.bankAccountName, "dd", plans.size, plans))
+      case None =>
+        Future.failed(new NoSuchElementException(s"No DirectDebit found with ddiRefNumber: $directDebitReference"))
+    }
+  }
+

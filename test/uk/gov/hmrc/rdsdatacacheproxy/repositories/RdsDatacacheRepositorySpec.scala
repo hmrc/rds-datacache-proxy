@@ -24,7 +24,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
 
 import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.LocalDate
@@ -129,5 +129,48 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     // Assert
     result.ddiRefNumber shouldBe expectedDDIReference
+  }
+
+  "getDirectDebitPaymentPlans" should "return DDPaymentPlans with correct data" in {
+    // Arrange
+    val ddReference = "test reference"
+    val id = "test-cred-id"
+    val submissionDateTime = LocalDate.now().atStartOfDay()
+
+    val paymentPlans = Seq(
+      PaymentPlan(
+        scheduledPaymentAmount = 100,
+        planRefNumber = ddReference,
+        planType = "plan type",
+        paymentReference = "plan ref number",
+        hodService = "hod service",
+        submissionDateTime = submissionDateTime
+      )
+    )
+
+    // Mocking stored procedure behavior
+    when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
+    when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
+    when(mockCallableStatement.getString("pBankAccountName")).thenReturn("account name")
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("dd")
+    when(mockCallableStatement.getInt("pTotalRecords")).thenReturn(1)
+    when(mockCallableStatement.getObject("pPayPlanSummary", classOf[ResultSet])).thenReturn(mockResultSet)
+
+    // Mock the ResultSet to return the correct data
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false) // First call returns true, then false (no more rows)
+    when(mockResultSet.getDouble("ScheduledPayAmount")).thenReturn(100.0)
+    when(mockResultSet.getString("PPRefNumber")).thenReturn(ddReference)
+    when(mockResultSet.getString("PayPlanType")).thenReturn("plan type")
+    when(mockResultSet.getString("PayReference")).thenReturn("plan ref number")
+    when(mockResultSet.getString("PayPlanHodService")).thenReturn("hod service")
+    when(mockResultSet.getTimestamp("SubmissionDateTime"))
+      .thenReturn(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay()))
+
+    // Act
+    val result = repository.getDirectDebitPaymentPlans(ddReference, id).futureValue
+
+    // Assert
+    result shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)
+    result.paymentPlanList shouldBe paymentPlans
   }
 }

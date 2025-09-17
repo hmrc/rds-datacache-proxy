@@ -20,7 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
@@ -32,6 +32,7 @@ trait RdsDataSource {
   def getDirectDebits(id: String): Future[UserDebits]
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -60,35 +61,36 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
         // Retrieve output parameters
         val debitTotal = storedProcedure.getInt("pTotalRecords") // pTotalRecords
-        val debits = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
+        val directDebitSet = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
-
-        // Tail-recursive function to collect debits
-        @tailrec
-        def collectDebits(acc: List[DirectDebit] = Nil): List[DirectDebit] = {
-          if (!debits.next()) acc
-          else {
-            val directDebit = DirectDebit(
-              ddiRefNumber = debits.getString("DDIRefNumber"),
-              submissionDateTime = debits.getTimestamp("SubmissionDateTime").toLocalDateTime,
-              bankSortCode = debits.getString("BankSortCode"),
-              bankAccountNumber = debits.getString("BankAccountNumber"),
-              bankAccountName = debits.getString("BankAccountName"),
-              auDdisFlag = debits.getBoolean("AuddisFlag"),
-              numberOfPayPlans = debits.getInt("NumberofPayPlans")
-            )
-            collectDebits(directDebit :: acc)
-          }
-        }
-
-        val result = collectDebits()
         logger.info(s"DD count from SQL stored procedure: $debitTotal")
         logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
 
+        def collectDirectDebits(rs: java.sql.ResultSet): List[DirectDebit] = {
+          Iterator
+            .continually(rs.next())
+            .takeWhile(identity)
+            .map(_ =>
+              DirectDebit(
+                ddiRefNumber = rs.getString("DDIRefNumber"),
+                submissionDateTime = rs.getTimestamp("SubmissionDateTime").toLocalDateTime,
+                bankSortCode = rs.getString("BankSortCode"),
+                bankAccountNumber = rs.getString("BankAccountNumber"),
+                bankAccountName = if (rs.getString("BankAccountName") == null) "" else rs.getString("BankAccountName"),
+                auDdisFlag = rs.getBoolean("AuddisFlag"),
+                numberOfPayPlans = rs.getInt("NumberofPayPlans")
+              )
+            )
+            .toList
+        }
+
+        val directDebits = collectDirectDebits(directDebitSet)
+        directDebitSet.close()
         storedProcedure.close()
+        connection.close()
 
         // Return UserDebits
-        UserDebits(debitTotal, result)
+        UserDebits(debitTotal, directDebits)
       }
     }
   }
@@ -108,6 +110,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val outputDate = storedProcedure.getDate("pOutputDate")
 
         storedProcedure.close()
+        connection.close()
 
         logger.info(s"Future payment date from SQL Stored Procedure: $outputDate")
         EarliestPaymentDate(outputDate.toLocalDate)
@@ -131,9 +134,78 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val ddiRef = storedProcedure.getString("pDDIRefNumber")
 
         storedProcedure.close()
+        connection.close()
 
         logger.info(s"DDI reference number from SQL Stored Procedure: $ddiRef")
         DDIReference(ddiRef)
+      }
+    }
+  }
+
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
+  Future[DDPaymentPlans] = {
+    val pFirstRecord = appConfig.firstRecord
+    val pMaxRecords = appConfig.maxRecords
+    logger.info(s"**** Cred ID: ${credId}, Direct Debit Reference: ${directDebitReference} " +
+      s"FirstRecordNumber: ${pFirstRecord}, Max Records: ${pMaxRecords}")
+
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanSummary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+
+        // Set input parameters
+        storedProcedure.setString("pCredentialID", credId) // pCredentialID
+        storedProcedure.setString("pDDIRefNumber", directDebitReference) // pDDIRefNumber
+        storedProcedure.setInt("pFirstRecordNumber", pFirstRecord) // pFirstRecordNumber
+        storedProcedure.setInt("pMaxRecords", pMaxRecords) // pMaxRecords
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
+        storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
+        storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
+        storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
+        storedProcedure.registerOutParameter("pTotalRecords", Types.NUMERIC) // pTotalRecords
+        storedProcedure.registerOutParameter("pPayPlanSummary", OracleTypes.CURSOR) // pPayPlanSummary
+        storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
+
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
+        val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
+        val bankAccountName = if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
+        val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
+        val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+        logger.info(s"***** Payment plans count: $paymentPlansCount")
+        logger.info(s"DB Response status: $responseStatus")
+
+        // Tail-recursive function to collect payment plans
+        @tailrec
+        def collectPaymentPlans(pp: List[PaymentPlan] = Nil): List[PaymentPlan] = {
+          if (!paymentPlans.next()) pp.reverse
+          else {
+            val paymentPlan = PaymentPlan(
+              scheduledPaymentAmount = paymentPlans.getDouble("ScheduledPayAmount"),
+              planRefNumber = paymentPlans.getString("PPRefNumber"),
+              planType = paymentPlans.getString("PayPlanType"),
+              paymentReference = paymentPlans.getString("PayReference"),
+              hodService = paymentPlans.getString("PayPlanHodService"),
+              submissionDateTime = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime,
+            )
+            collectPaymentPlans(paymentPlan :: pp)
+          }
+        }
+
+        val paymentPlanList = collectPaymentPlans()
+
+        paymentPlans.close()
+        storedProcedure.close()
+        connection.close()
+        // Return DDPaymentPlans
+        DDPaymentPlans(sortCode, bankAccountNumber, bankAccountName, auDdisFlag, paymentPlansCount, paymentPlanList)
       }
     }
   }

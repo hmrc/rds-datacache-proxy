@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.DirectDebit
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, PaymentPlan}
 import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 import java.time.LocalDateTime
@@ -42,7 +42,7 @@ class StubUtils {
       Seq.fill(8)(Random.nextInt(10)).mkString,
       "BankLtd",
       Random.nextBoolean(),
-      Random.nextInt(100)
+      Random.nextInt(3)
     )
   }
 
@@ -69,5 +69,18 @@ class StubUtils {
       supersededBy = None
     )
   }
-  
+
+  def randomPaymentPlan(i: Int): PaymentPlan = {
+    val date = s"${Random.nextInt(5) + 2022}" +
+      s"-${r(12)}" +
+      s"-${r(28)}"
+    PaymentPlan.apply(
+      scheduledPaymentAmount = i * 100.0,
+      planRefNumber = "ddpaymentReference",
+      planType = s"planType$i",
+      paymentReference = s"payReference$i",
+      hodService = s"planHoldService$i",
+      submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
+    )
+  }
 }
