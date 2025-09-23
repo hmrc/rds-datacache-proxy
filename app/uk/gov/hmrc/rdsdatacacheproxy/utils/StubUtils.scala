@@ -17,10 +17,8 @@
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, PaymentPlan}
-import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 import java.time.LocalDateTime
-import java.util.concurrent.atomic.AtomicLong
 import scala.util.Random
 
 class StubUtils {
@@ -43,30 +41,6 @@ class StubUtils {
       "BankLtd",
       Random.nextBoolean(),
       Random.nextInt(3)
-    )
-  }
-
-  private val mrId = new AtomicLong(1000000L)
-
-  def generateMonthlyReturns(month: Int): MonthlyReturn = {
-    val id = mrId.incrementAndGet()
-    val now = LocalDateTime.now().minusDays(Random.nextInt(90).toLong)
-      .withHour(0).withMinute(0).withSecond(0).withNano(0)
-
-    MonthlyReturn(
-      monthlyReturnId = id,
-      taxYear = 2025,
-      taxMonth = month,
-      nilReturnIndicator = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decEmpStatusConsidered = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decAllSubsVerified = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decInformationCorrect = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNoMoreSubPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNilReturnNoPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      status = Some(Seq("STARTED", "SUBMITTED")(Random.nextInt(2))),
-      lastUpdate = Some(now),
-      amendment = Some(if (Random.nextBoolean()) "Y" else "N"),
-      supersededBy = None
     )
   }
 

@@ -17,25 +17,22 @@
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisMonthlyReturnSource
-import uk.gov.hmrc.rdsdatacacheproxy.models.UserMonthlyReturns
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class MonthlyReturnService @Inject()(cisSource: CisMonthlyReturnSource)
-                                    (implicit ec: ExecutionContext) extends Logging:
+class CisTaxpayerService @Inject()(cisSource: CisMonthlyReturnSource)
+                                  (implicit ec: ExecutionContext) extends Logging:
 
-  def retrieveMonthlyReturns(taxOfficeNumber: String, taxOfficeReference: String)
-  : Future[UserMonthlyReturns] = {
-    cisSource.findInstanceId(taxOfficeNumber, taxOfficeReference).flatMap {
-      case Some(instanceId) =>
-        cisSource.getMonthlyReturns(instanceId)
+  def getInstanceIdByTaxReference(
+                                   taxOfficeNumber: String,
+                                   taxOfficeReference: String
+                                 ): Future[String] =
+    cisSource.getInstanceIdByTaxRef(taxOfficeNumber, taxOfficeReference).map {
+      case Some(id) => id
       case None =>
-        val msg = s"No instanceId found for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
+        val msg = s"[CIS] No instanceId (UNIQUE_ID) found for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
         logger.warn(msg)
-        Future.failed(new NoSuchElementException(msg))
+        throw new NoSuchElementException(msg)
     }
-  }
-
-

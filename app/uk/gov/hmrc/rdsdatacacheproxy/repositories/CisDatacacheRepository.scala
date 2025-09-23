@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.connectors
+package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
 
 import javax.inject.{Inject, Singleton}
@@ -23,12 +23,9 @@ import play.api.db.{Database, NamedDatabase}
 import scala.concurrent.{ExecutionContext, Future}
 import java.sql.ResultSet
 import oracle.jdbc.OracleTypes
-import scala.annotation.tailrec
-import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns} 
 
 trait CisMonthlyReturnSource {
-  def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]]
-  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns]
+  def getInstanceIdByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]]
 }
 
 @Singleton
@@ -37,7 +34,7 @@ class CisDatacacheRepository @Inject()(
                                       )(implicit ec: ExecutionContext)
   extends CisMonthlyReturnSource with Logging {
   
-  override def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
+  override def getInstanceIdByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
     logger.info(s"[CIS] findInstanceId(TaxOfficeNumber=$taxOfficeNumber, TaxOfficeReference=$taxOfficeReference)")
     
     Future {
@@ -67,50 +64,4 @@ class CisDatacacheRepository @Inject()(
       }
     }
   }
-  
-  
-  override def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] = {
-    logger.info(s"[CIS] getMonthlyReturns(instanceId=$instanceId)")
-    Future {
-      db.withConnection { conn =>
-        val cs = conn.prepareCall("{ call MONTHLY_RETURN_PROCS_2016.Get_All_Monthly_Returns(?, ?, ?) }")
-        cs.setString(1, instanceId)
-        cs.registerOutParameter(2, OracleTypes.CURSOR) 
-        cs.registerOutParameter(3, OracleTypes.CURSOR) 
-        cs.execute()
-
-        val rsScheme = cs.getObject(2, classOf[ResultSet])
-        try () finally if (rsScheme != null) rsScheme.close()
-
-        val rsMonthly = cs.getObject(3, classOf[ResultSet])
-        val returns =
-          try collectMonthlyReturns(rsMonthly)
-          finally if (rsMonthly != null) rsMonthly.close()
-
-        UserMonthlyReturns(returns)
-      }
-    }
-  }
-
-  @tailrec
-  private def collectMonthlyReturns(rs: ResultSet, acc: Seq[MonthlyReturn] = Nil): Seq[MonthlyReturn] =
-    if (!rs.next()) acc
-    else {
-      val mr = MonthlyReturn(
-        monthlyReturnId = rs.getLong("monthly_return_id"),
-        taxYear         = rs.getInt("tax_year"),
-        taxMonth        = rs.getInt("tax_month"),
-        nilReturnIndicator     = Option(rs.getString("nil_return_indicator")),
-        decEmpStatusConsidered = Option(rs.getString("dec_emp_status_considered")),
-        decAllSubsVerified     = Option(rs.getString("dec_all_subs_verified")),
-        decInformationCorrect  = Option(rs.getString("dec_information_correct")),
-        decNoMoreSubPayments   = Option(rs.getString("dec_no_more_sub_payments")),
-        decNilReturnNoPayments = Option(rs.getString("dec_nil_return_no_payments")),
-        status                 = Option(rs.getString("status")),
-        lastUpdate             = Option(rs.getTimestamp("last_update")).map(_.toLocalDateTime),
-        amendment              = Option(rs.getString("amendment")),
-        supersededBy           = { val v = rs.getLong("superseded_by"); if (rs.wasNull()) None else Some(v) }
-      )
-      collectMonthlyReturns(rs, acc :+ mr)
-    }
 }

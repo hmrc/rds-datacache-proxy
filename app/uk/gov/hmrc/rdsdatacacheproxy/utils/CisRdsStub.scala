@@ -17,18 +17,15 @@
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisMonthlyReturnSource
-import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource with Logging {
-
-  private[this] val stubData = stubUtils
-
-  override def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
+class CisRdsStub @Inject()() extends CisMonthlyReturnSource with Logging {
+  
+  override def getInstanceIdByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
     val tonOk = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
     val torOk = Option(taxOfficeReference).exists(_.trim.nonEmpty)
 
@@ -40,8 +37,4 @@ class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource 
       Future.successful(None)
     }
   }
-
-  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
-    val monthlyReturns: Seq[MonthlyReturn] = Seq(1, 2, 3).map(stubData.generateMonthlyReturns)
-    Future.successful(UserMonthlyReturns(monthlyReturns))
 }

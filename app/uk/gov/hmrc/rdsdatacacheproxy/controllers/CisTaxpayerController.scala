@@ -23,18 +23,18 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.EmployerReference
-import uk.gov.hmrc.rdsdatacacheproxy.services.MonthlyReturnService
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.InstanceIdResponse
+import uk.gov.hmrc.rdsdatacacheproxy.services.CisTaxpayerService
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class MonthlyReturnController @Inject()(
-                                         authorise: AuthAction,
-                                         monthlyReturnService: MonthlyReturnService,
-                                         cc: ControllerComponents
+class CisTaxpayerController @Inject()(
+                                       authorise: AuthAction,
+                                       service: CisTaxpayerService,
+                                       cc: ControllerComponents
                                        )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
-
-  def retrieveMonthlyReturns: Action[JsValue] =
+  def getInstanceIdByTaxReference: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body.validate[EmployerReference].fold(
         errs =>
@@ -45,14 +45,14 @@ class MonthlyReturnController @Inject()(
             ))
           ),
         er =>
-          monthlyReturnService
-            .retrieveMonthlyReturns(er.taxOfficeNumber, er.taxOfficeReference)
-            .map(res => Ok(Json.toJson(res)))
+          service
+            .getInstanceIdByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
+            .map(id => Ok(Json.toJson(InstanceIdResponse(id))))
             .recover {
               case u: UpstreamErrorResponse =>
                 Status(u.statusCode)(Json.obj("message" -> u.message))
               case t: Throwable =>
-                logger.error("retrieveMonthlyReturns failed", t)
+                logger.error("getCisTaxpayerByTaxReference failed", t)
                 InternalServerError(Json.obj("message" -> "Unexpected error"))
             }
       )
