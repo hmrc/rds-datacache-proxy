@@ -54,7 +54,6 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
       val res  = controller.getInstanceIdByTaxReference(req)
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
-      // optional: structure of errors comes from JsError.toJson(errs)
       verifyNoInteractions(mockService)
     }
 
@@ -98,12 +97,10 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
     }
   }
 
-  // ── Test fixture ──────────────────────────────────────────────────────────────
   private trait Setup {
     val mockService: CisTaxpayerService = mock[CisTaxpayerService]
     val controller = new CisTaxpayerController(fakeAuthAction, mockService, cc)
 
-    // Match your real route here: POST /cis-taxpayer/instance-id
     def makeJsonRequest(body: JsValue) =
       FakeRequest(POST, "/cis-taxpayer/instance-id")
         .withHeaders(CONTENT_TYPE -> JSON, ACCEPT -> JSON)

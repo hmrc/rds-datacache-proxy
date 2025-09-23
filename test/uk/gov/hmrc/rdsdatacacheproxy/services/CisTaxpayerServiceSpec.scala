@@ -37,10 +37,8 @@ final class CisTaxpayerServiceSpec
     with BeforeAndAfterEach {
 
   private val source = mock[CisMonthlyReturnSource]
-  
   implicit val ec: ExecutionContext = ExecutionContext.global
-
-  private val service = new CisTaxpayerService(source) // (implicit ec) comes from global above
+  private val service = new CisTaxpayerService(source)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -55,12 +53,11 @@ final class CisTaxpayerServiceSpec
     "return instanceId when the repository returns Some(id)" in {
       when(source.getInstanceIdByTaxRef(eqTo(ton), eqTo(tor)))
         .thenReturn(Future.successful(Some("inst-1")))
-
       val out = service.getInstanceIdByTaxReference(ton, tor).futureValue
-      out mustBe "inst-1"
 
       verify(source).getInstanceIdByTaxRef(eqTo(ton), eqTo(tor))
       verifyNoMoreInteractions(source)
+      out mustBe "inst-1"
     }
 
     "fail with NoSuchElementException (including TON/TOR) when the repository returns None" in {
