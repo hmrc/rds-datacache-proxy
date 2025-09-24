@@ -23,7 +23,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsStub
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, UserDebits}
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
@@ -83,6 +83,14 @@ class DirectDebitServiceSpec
           .thenReturn(Future.successful(DDIReference("xyz")))
         val result = service.getDDIReference("xyz", "123", "session-345").futureValue
         result shouldBe DDIReference("xyz")
+
+      "retrieving no Direct Debits Payment Plans" in :
+        val paymentPlans = DDPaymentPlans("sort code", "account number", "account name", "dd", 0, Seq())
+        when(mockConnector.getDirectDebitPaymentPlans(any(), any()))
+          .thenReturn(Future.successful(paymentPlans))
+
+        val result = service.getDirectDebitPaymentPlans("ddReference", "testId").futureValue
+        result shouldBe paymentPlans
 
     "fail" when:
       "retrieving Direct Debits" in:
