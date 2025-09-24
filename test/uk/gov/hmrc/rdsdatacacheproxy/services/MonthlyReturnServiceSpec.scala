@@ -99,3 +99,12 @@ class MonthlyReturnServiceSpec
         }
         ex.getMessage should include ("bang")
 
+      "fail when no instanceId is found" in {
+        when(mockConnector.findInstanceId(any[String], any[String]))
+          .thenReturn(Future.successful(None))
+
+        val result = service.retrieveMonthlyReturns("123", "AB456")
+
+        result.failed.futureValue shouldBe a[NoSuchElementException]
+        result.failed.futureValue.getMessage should include("No instanceId found for TON=123, TOR=AB456")
+      }
