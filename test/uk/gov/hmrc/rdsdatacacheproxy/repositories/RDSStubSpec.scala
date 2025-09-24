@@ -19,11 +19,12 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RDSStubSpec
   extends AnyWordSpec
@@ -62,3 +63,21 @@ class RDSStubSpec
       val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
 
       result shouldBe DDIReference("xyz")
+
+    "return a DirectDebit Payment Plans" in {
+      val directDebits = connector.getDirectDebits("123").futureValue
+
+      val result = connector.getDirectDebitPaymentPlans(directDebits.directDebitList.head.ddiRefNumber, "credId").futureValue
+
+      result.paymentPlanCount shouldBe directDebits.directDebitList.head.numberOfPayPlans
+    }
+
+    "return error when DirectDebit is not found" in {
+      val result = connector.getDirectDebitPaymentPlans("invalid dd reference", "credId")
+
+      result.recover {
+        case ex: NoSuchElementException =>
+          ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
+      }
+    }
+
