@@ -18,26 +18,17 @@ package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers.mustBe
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.UpstreamErrorResponse
+import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 final class CisTaxpayerServiceSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with MockitoSugar
-    with BeforeAndAfterEach {
+  extends SpecBase{
 
   private val source = mock[CisMonthlyReturnSource]
-  implicit val ec: ExecutionContext = ExecutionContext.global
   private val service = new CisTaxpayerService(source)
 
   override def beforeEach(): Unit = {
@@ -48,41 +39,42 @@ final class CisTaxpayerServiceSpec
   private val ton = "123"
   private val tor = "AB456"
 
-  "CisTaxpayerService#getInstanceIdByTaxReference" should {
+  "CisTaxpayerService#getInstanceIdByTaxReference" - {
 
-    "return instanceId when the repository returns Some(id)" in {
-      when(source.getInstanceIdByTaxRef(eqTo(ton), eqTo(tor)))
-        .thenReturn(Future.successful(Some("inst-1")))
-      val out = service.getInstanceIdByTaxReference(ton, tor).futureValue
+    "return CisTaxpayer when the repository returns Some(CisTaxpayer)" in {
+      val taxpayer = mkTaxpayer()
+      when(source.getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor)))
+        .thenReturn(Future.successful(Some(taxpayer)))
+      val out = service.getCisTaxpayerByTaxReference(ton, tor).futureValue
 
-      verify(source).getInstanceIdByTaxRef(eqTo(ton), eqTo(tor))
+      verify(source).getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor))
       verifyNoMoreInteractions(source)
-      out mustBe "inst-1"
+      out mustBe taxpayer
     }
 
     "fail with NoSuchElementException (including TON/TOR) when the repository returns None" in {
-      when(source.getInstanceIdByTaxRef(eqTo(ton), eqTo(tor)))
+      when(source.getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor)))
         .thenReturn(Future.successful(None))
 
-      val ex = service.getInstanceIdByTaxReference(ton, tor).failed.futureValue
+      val ex = service.getCisTaxpayerByTaxReference(ton, tor).failed.futureValue
       ex mustBe a [NoSuchElementException]
-      ex.getMessage should include ("TON=123")
-      ex.getMessage should include ("TOR=AB456")
+      ex.getMessage must include ("TON=123")
+      ex.getMessage must include ("TOR=AB456")
 
-      verify(source).getInstanceIdByTaxRef(eqTo(ton), eqTo(tor))
+      verify(source).getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor))
       verifyNoMoreInteractions(source)
     }
 
     "propagate upstream failures from the repository" in {
       val boom = UpstreamErrorResponse("db exploded", 502)
 
-      when(source.getInstanceIdByTaxRef(eqTo(ton), eqTo(tor)))
+      when(source.getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor)))
         .thenReturn(Future.failed(boom))
 
-      val ex = service.getInstanceIdByTaxReference(ton, tor).failed.futureValue
+      val ex = service.getCisTaxpayerByTaxReference(ton, tor).failed.futureValue
       ex mustBe boom
 
-      verify(source).getInstanceIdByTaxRef(eqTo(ton), eqTo(tor))
+      verify(source).getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor))
       verifyNoMoreInteractions(source)
     }
   }

@@ -31,14 +31,14 @@ class CisTaxpayerControllerSpec
     with IntegrationPatience
     with ApplicationWithWiremock {
 
-  private val endpoint = "/cis-taxpayer/instance-id"
+  private val endpoint = "/cis-taxpayer"
 
   private def postJson(uri: String, body: JsValue): WSResponse =
     post(uri, body).futureValue
 
-  "POST /cis-taxpayer/instance-id (stubbed repo, no DB)" should {
+  "POST /cis-taxpayer (stubbed repo, no DB)" should {
 
-    "return 200 with instanceId wrapper when authorised and JSON is valid" in {
+    "return 200 with CisTaxpayer when authorised and JSON is valid" in {
       AuthStub.authorised()
       val res = postJson(
         endpoint,
@@ -46,7 +46,9 @@ class CisTaxpayerControllerSpec
       )
 
       res.status mustBe OK
-      (res.json \ "instanceId").as[String] must not be empty
+      (res.json \ "uniqueId").as[String]              must not be empty
+      (res.json \ "taxOfficeNumber").as[String]       mustBe "123"
+      (res.json \ "taxOfficeRef").as[String]          mustBe "AB456"
     }
 
     "return 400 when JSON is missing required fields" in {

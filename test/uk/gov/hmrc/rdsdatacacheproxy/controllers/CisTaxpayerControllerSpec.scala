@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.InstanceIdResponse
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 import uk.gov.hmrc.rdsdatacacheproxy.services.CisTaxpayerService
 
 import scala.concurrent.Future
@@ -36,22 +36,23 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
   "CisTaxpayerController#getInstanceIdByTaxReference" - {
 
     "returns 200 and instanceId wrapper when service succeeds" in new Setup {
-      when(mockService.getInstanceIdByTaxReference(eqTo("111"), eqTo("test111")))
-        .thenReturn(Future.successful("abc-123"))
+      val taxpayer = mkTaxpayer()
+      when(mockService.getCisTaxpayerByTaxReference(eqTo("111"), eqTo("test111")))
+        .thenReturn(Future.successful(taxpayer))
 
       val req: FakeRequest[JsValue] = requestWithErJson("111", "test111")
-      val res: Future[Result]       = controller.getInstanceIdByTaxReference(req)
+      val res: Future[Result]       = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(InstanceIdResponse("abc-123"))
-      verify(mockService).getInstanceIdByTaxReference(eqTo("111"), eqTo("test111"))
+      contentAsJson(res) mustBe Json.toJson(taxpayer)
+      verify(mockService).getCisTaxpayerByTaxReference(eqTo("111"), eqTo("test111"))
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when JSON is an empty object" in new Setup {
       val req  = makeJsonRequest(Json.obj())
-      val res  = controller.getInstanceIdByTaxReference(req)
+      val res  = controller.getCisTaxpayerByTaxReference(req)
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
       verifyNoInteractions(mockService)
@@ -59,7 +60,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
 
     "returns 400 when taxOfficeNumber is missing" in new Setup {
       val req = makeJsonRequest(Json.obj("taxOfficeReference" -> "test111"))
-      val res = controller.getInstanceIdByTaxReference(req)
+      val res = controller.getCisTaxpayerByTaxReference(req)
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
       verifyNoInteractions(mockService)
@@ -67,7 +68,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
 
     "returns 400 when taxOfficeReference is missing" in new Setup {
       val req = makeJsonRequest(Json.obj("taxOfficeNumber" -> "111"))
-      val res = controller.getInstanceIdByTaxReference(req)
+      val res = controller.getCisTaxpayerByTaxReference(req)
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
       verifyNoInteractions(mockService)
@@ -75,22 +76,22 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
 
     "propagates UpstreamErrorResponse status and message from service" in new Setup {
       val err = UpstreamErrorResponse("SP1 exploded", BAD_GATEWAY, BAD_GATEWAY)
-      when(mockService.getInstanceIdByTaxReference(any[String], any[String]))
+      when(mockService.getCisTaxpayerByTaxReference(any[String], any[String]))
         .thenReturn(Future.failed(err))
 
       val req = requestWithErJson()
-      val res = controller.getInstanceIdByTaxReference(req)
+      val res = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe BAD_GATEWAY
       (contentAsJson(res) \ "message").as[String] must include ("SP1 exploded")
     }
 
     "returns 500 with generic message on unexpected exceptions" in new Setup {
-      when(mockService.getInstanceIdByTaxReference(any[String], any[String]))
+      when(mockService.getCisTaxpayerByTaxReference(any[String], any[String]))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val req = requestWithErJson()
-      val res = controller.getInstanceIdByTaxReference(req)
+      val res = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       (contentAsJson(res) \ "message").as[String] mustBe "Unexpected error"
@@ -102,7 +103,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
     val controller = new CisTaxpayerController(fakeAuthAction, mockService, cc)
 
     def makeJsonRequest(body: JsValue) =
-      FakeRequest(POST, "/cis-taxpayer/instance-id")
+      FakeRequest(POST, "/cis-taxpayer")
         .withHeaders(CONTENT_TYPE -> JSON, ACCEPT -> JSON)
         .withBody(body)
 

@@ -17,22 +17,29 @@
 package uk.gov.hmrc.rdsdatacacheproxy.services
 
 import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CisTaxpayerService @Inject()(cisSource: CisMonthlyReturnSource)
-                                  (implicit ec: ExecutionContext) extends Logging:
+                                  (implicit ec: ExecutionContext) extends Logging {
 
-  def getInstanceIdByTaxReference(
-                                   taxOfficeNumber: String,
-                                   taxOfficeReference: String
-                                 ): Future[String] =
-    cisSource.getInstanceIdByTaxRef(taxOfficeNumber, taxOfficeReference).map {
-      case Some(id) => id
+  def getCisTaxpayerByTaxReference(
+                                    taxOfficeNumber: String,
+                                    taxOfficeReference: String
+                                  ): Future[CisTaxpayer] = {
+    cisSource.getCisTaxpayerByTaxRef(taxOfficeNumber, taxOfficeReference).map {
+      case Some(t) if t.uniqueId.trim.nonEmpty => t
+      case Some(_) =>
+        val msg = s"[CIS] Contractor found but UNIQUE_ID missing/blank for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
+        logger.warn(msg)
+        throw new NoSuchElementException(msg)
       case None =>
-        val msg = s"[CIS] No instanceId (UNIQUE_ID) found for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
+        val msg = s"[CIS] No contractor found for TON=$taxOfficeNumber, TOR=$taxOfficeReference"
         logger.warn(msg)
         throw new NoSuchElementException(msg)
     }
+  }
+}

@@ -18,12 +18,12 @@ package uk.gov.hmrc.rdsdatacacheproxy.controllers
 
 import play.api.Logging
 import play.api.libs.json.{JsError, JsValue, Json}
-import play.api.mvc.{Action, ControllerComponents}
+import play.api.mvc.Results.{InternalServerError, NotFound, Status}
+import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.EmployerReference
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.InstanceIdResponse
 import uk.gov.hmrc.rdsdatacacheproxy.services.CisTaxpayerService
 
 import javax.inject.Inject
@@ -34,27 +34,36 @@ class CisTaxpayerController @Inject()(
                                        service: CisTaxpayerService,
                                        cc: ControllerComponents
                                        )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
-  def getInstanceIdByTaxReference: Action[JsValue] =
+  def getCisTaxpayerByTaxReference: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body.validate[EmployerReference].fold(
-        errs =>
-          Future.successful(
-            BadRequest(Json.obj(
-              "message" -> "Invalid JSON body",
-              "errors"  -> JsError.toJson(errs)
-            ))
-          ),
+        errs => Future.successful(BadRequest(Json.obj(
+          "message" -> "Invalid JSON body",
+          "errors" -> JsError.toJson(errs)
+        ))),
         er =>
           service
-            .getInstanceIdByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
-            .map(id => Ok(Json.toJson(InstanceIdResponse(id))))
-            .recover {
-              case u: UpstreamErrorResponse =>
-                Status(u.statusCode)(Json.obj("message" -> u.message))
-              case t: Throwable =>
-                logger.error("getCisTaxpayerByTaxReference failed", t)
-                InternalServerError(Json.obj("message" -> "Unexpected error"))
-            }
+            .getCisTaxpayerByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
+            .map(tp => Ok(Json.toJson(tp)))
+            .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", er))
       )
     }
+
+  
+  private def recoverServiceErrors(
+                                    op: String,
+                                    er: EmployerReference
+                                  ): PartialFunction[Throwable, Result] = {
+    case u: UpstreamErrorResponse =>
+      Status(u.statusCode)(Json.obj("message" -> u.message))
+
+    case _: NoSuchElementException =>
+      NotFound(Json.obj(
+        "message" -> s"CIS taxpayer not found for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}"
+      ))
+
+    case t: Throwable =>
+      logger.error(s"[$op] failed for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}", t)
+      InternalServerError(Json.obj("message" -> "Unexpected error"))
+  }
 }

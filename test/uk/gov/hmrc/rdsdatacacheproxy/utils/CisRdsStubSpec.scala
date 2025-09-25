@@ -26,27 +26,33 @@ final class CisRdsStubSpec
     with Matchers
     with ScalaFutures {
 
-  "CisRdsStub#getInstanceIdByTaxRef" should {
+  "CisRdsStub#getCisTaxpayerByTaxRef" should {
 
-    "return Some(\"1\") when TON and TOR are non-empty (after trim)" in {
+    "return Some(CisTaxpayer) with uniqueId='1' when TON and TOR are non-empty" in {
       val stub = new CisRdsStub()
-      stub.getInstanceIdByTaxRef("123", "ABC").futureValue mustBe Some("1")
-      stub.getInstanceIdByTaxRef(" 123 ", " ABC ").futureValue mustBe Some("1")
+
+      val r1 = stub.getCisTaxpayerByTaxRef("123", "ABC").futureValue
+      val tp1 = r1.getOrElse(fail("expected Some(CisTaxpayer)"))
+      
+      tp1.uniqueId mustBe "1"
+      tp1.taxOfficeNumber mustBe "123"
+      tp1.taxOfficeRef mustBe "ABC"
+      tp1.employerName1 mustBe Some("TEST LTD")
     }
 
     "return None when TON is blank" in {
       val stub = new CisRdsStub()
-      stub.getInstanceIdByTaxRef("   ", "ABC").futureValue mustBe None
+      stub.getCisTaxpayerByTaxRef("   ", "ABC").futureValue mustBe None
     }
 
     "return None when TOR is blank" in {
       val stub = new CisRdsStub()
-      stub.getInstanceIdByTaxRef("123", "   ").futureValue mustBe None
+      stub.getCisTaxpayerByTaxRef("123", "   ").futureValue mustBe None
     }
 
     "return None when both are null" in {
       val stub = new CisRdsStub()
-      stub.getInstanceIdByTaxRef(null, null).futureValue mustBe None
+      stub.getCisTaxpayerByTaxRef(null, null).futureValue mustBe None
     }
   }
 }
