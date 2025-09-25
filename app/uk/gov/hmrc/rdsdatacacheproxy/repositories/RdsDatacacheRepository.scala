@@ -142,8 +142,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
     }
   }
 
-  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
-  Future[DDPaymentPlans] = {
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
     logger.info(s"**** Cred ID: ${credId}, Direct Debit Reference: ${directDebitReference} " +
@@ -209,3 +208,108 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
       }
     }
   }
+
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
+
+    logger.info(s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+      s"Payment Plan Reference: $paymentPlanReference")
+
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanSummary(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+
+        // Set input parameters
+        storedProcedure.setString("pCredentialID", credId) // pCredentialID
+        storedProcedure.setString("pDDIRefNumber", directDebitReference) // pDDIRefNumber
+        storedProcedure.setString("pPPRefNumber", paymentPlanReference) // pPPRefNumber
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
+        storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
+        storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
+        storedProcedure.registerOutParameter("pDDISubmissionDateTime", Types.DATE) // pDDISubmissionDateTime
+        storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
+        storedProcedure.registerOutParameter("pPayPlanHodService", Types.VARCHAR) // pPayPlanHodService
+        storedProcedure.registerOutParameter("pPayPlanType", Types.VARCHAR) // pPayPlanType
+        storedProcedure.registerOutParameter("pPayReference", Types.VARCHAR) // pResponseStatus
+        storedProcedure.registerOutParameter("pSubmissionDateTime", Types.DATE) // pSubmissionDateTime
+        storedProcedure.registerOutParameter("pScheduledPayAmount", Types.DECIMAL) // pScheduledPayAmount
+        storedProcedure.registerOutParameter("pScheduledPayStartDate", Types.DATE) // pScheduledPayStartDate
+        storedProcedure.registerOutParameter("pInitialPayStartDate", Types.DATE) // pInitialPayStartDate
+        storedProcedure.registerOutParameter("pInitialPayAmount", Types.DECIMAL) // pInitialPayAmount
+        storedProcedure.registerOutParameter("pScheduledPayEndDate", Types.DATE) // pScheduledPayEndDate
+        storedProcedure.registerOutParameter("pScheduledPayFreq", Types.VARCHAR) // pScheduledPayFreq
+        storedProcedure.registerOutParameter("pSuspensionStartDate", Types.DATE) // pSuspensionStartDate
+        storedProcedure.registerOutParameter("pSuspensionEndDate", Types.DATE) // pSuspensionEndDate
+        storedProcedure.registerOutParameter("pBalancingPayAmount", Types.DECIMAL) // pBalancingPayAmount
+        storedProcedure.registerOutParameter("pBalancingPayDate", Types.DATE) // pBalancingPayDate
+        storedProcedure.registerOutParameter("pTotalLiability", Types.DECIMAL) // pTotalLiability
+        storedProcedure.registerOutParameter("PayPlanEditFlag", Types.NUMERIC) // PayPlanEditFlag
+        storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
+
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+
+        // Direct debit details
+        val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
+        val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
+        val bankAccountName = if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val ddSubmissionDateTime = storedProcedure.getTimestamp("pDDISubmissionDateTime") // pDDISubmissionDateTime
+        val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
+
+        // Payment plan details
+        val hodService = storedProcedure.getString("pPayPlanHodService") // pPayPlanHodService
+        val planType = storedProcedure.getString("pPayPlanType") // pPayPlanType
+        val paymentReference = storedProcedure.getString("pPayReference") // pPayReference
+        val paymentPlanSubmissionDateTime = storedProcedure.getTimestamp("pSubmissionDateTime") // pSubmissionDateTime
+        val scheduledPaymentAmount = storedProcedure.getDouble("pScheduledPayAmount") // pScheduledPayAmount
+        val scheduledPaymentStartDate = storedProcedure.getDate("pScheduledPayStartDate") // pScheduledPayStartDate
+        val initialPaymentStartDate = storedProcedure.getDate("pInitialPayStartDate") // pInitialPayStartDate
+        val initialPaymentAmount = storedProcedure.getDouble("pInitialPayAmount") // pInitialPayAmount
+        val scheduledPaymentEndDate = storedProcedure.getDate("pScheduledPayEndDate") // pScheduledPayEndDate
+        val scheduledPaymentFrequency = storedProcedure.getString("pScheduledPayFreq") // pScheduledPayFreq
+        val suspensionStartDate = storedProcedure.getDate("pSuspensionStartDate") // pSuspensionStartDate
+        val suspensionEndDate = storedProcedure.getDate("pSuspensionEndDate") // pSuspensionEndDate
+        val balancingPaymentAmount = storedProcedure.getDouble("pBalancingPayAmount") // pBalancingPayAmount
+        val balancingPaymentDate = storedProcedure.getDate("pBalancingPayDate") // pBalancingPayDate
+        val totalLiability = storedProcedure.getDouble("pTotalLiability") // pTotalLiability
+        val paymentPlanEditable = storedProcedure.getInt("PayPlanEditFlag") // PayPlanEditFlag
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+
+        logger.info(s"DB Response status: $responseStatus")
+
+        storedProcedure.close()
+        connection.close()
+
+        // Return PaymentPlanDetails
+        PaymentPlanDetails(
+          directDebitDetails = DirectDebitDetail(
+            bankSortCode = sortCode,
+            bankAccountNumber = bankAccountNumber,
+            bankAccountName = bankAccountName,
+            auDdisFlag = auDdisFlag,
+            submissionDateTime = ddSubmissionDateTime.toLocalDateTime),
+          paymentPlanDetails = PaymentPlanDetail(
+            hodService = hodService,
+            planType = planType,
+            paymentReference = paymentReference,
+            submissionDateTime = paymentPlanSubmissionDateTime.toLocalDateTime,
+            scheduledPaymentAmount = scheduledPaymentAmount,
+            scheduledPaymentStartDate = scheduledPaymentStartDate.toLocalDate,
+            initialPaymentStartDate = initialPaymentStartDate.toLocalDate,
+            initialPaymentAmount = initialPaymentAmount,
+            scheduledPaymentEndDate = scheduledPaymentEndDate.toLocalDate,
+            scheduledPaymentFrequency = scheduledPaymentFrequency,
+            suspensionStartDate = suspensionStartDate.toLocalDate,
+            suspensionEndDate = suspensionEndDate.toLocalDate,
+            balancingPaymentAmount = balancingPaymentAmount,
+            balancingPaymentDate = balancingPaymentDate.toLocalDate,
+            totalLiability = totalLiability,
+            paymentPlanEditable = paymentPlanEditable == 1)
+        )
+      }
+    }
+  }
+
