@@ -20,38 +20,37 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 
 final class CisRdsStubSpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures {
 
+  private val utils   = new StubUtils()
+  private val stub = new CisRdsStub(utils)
+
   "CisRdsStub#getCisTaxpayerByTaxRef" should {
 
     "return Some(CisTaxpayer) with uniqueId='1' when TON and TOR are non-empty" in {
-      val stub = new CisRdsStub()
-
       val r1 = stub.getCisTaxpayerByTaxRef("123", "ABC").futureValue
       val tp1 = r1.getOrElse(fail("expected Some(CisTaxpayer)"))
-      
+
       tp1.uniqueId mustBe "1"
       tp1.taxOfficeNumber mustBe "123"
-      tp1.taxOfficeRef mustBe "ABC"
+      tp1.taxOfficeRef mustBe "AB456"
       tp1.employerName1 mustBe Some("TEST LTD")
     }
 
     "return None when TON is blank" in {
-      val stub = new CisRdsStub()
       stub.getCisTaxpayerByTaxRef("   ", "ABC").futureValue mustBe None
     }
 
     "return None when TOR is blank" in {
-      val stub = new CisRdsStub()
       stub.getCisTaxpayerByTaxRef("123", "   ").futureValue mustBe None
     }
 
     "return None when both are null" in {
-      val stub = new CisRdsStub()
       stub.getCisTaxpayerByTaxRef(null, null).futureValue mustBe None
     }
   }
