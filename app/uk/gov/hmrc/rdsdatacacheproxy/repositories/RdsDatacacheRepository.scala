@@ -33,6 +33,7 @@ trait RdsDataSource {
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:

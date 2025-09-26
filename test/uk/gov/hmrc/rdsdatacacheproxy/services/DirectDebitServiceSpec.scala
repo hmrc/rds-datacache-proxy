@@ -23,7 +23,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsStub
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
@@ -91,6 +91,43 @@ class DirectDebitServiceSpec
 
         val result = service.getDirectDebitPaymentPlans("ddReference", "testId").futureValue
         result shouldBe paymentPlans
+
+      "retrieving Payment Plan Details" in {
+
+        val currentTime = LocalDateTime.now()
+
+        val paymentPlanDetails = PaymentPlanDetails(
+          directDebitDetails = DirectDebitDetail(
+            bankSortCode = "sort code",
+            bankAccountNumber = "account number",
+            bankAccountName = "account name",
+            auDdisFlag = "dd",
+            submissionDateTime = currentTime),
+          paymentPlanDetails = PaymentPlanDetail(
+            hodService = "hod service",
+            planType = "plan Type",
+            paymentReference = "payment Reference",
+            submissionDateTime = currentTime,
+            scheduledPaymentAmount = 1000,
+            scheduledPaymentStartDate = currentTime.toLocalDate,
+            initialPaymentStartDate = currentTime.toLocalDate,
+            initialPaymentAmount = 150,
+            scheduledPaymentEndDate = currentTime.toLocalDate,
+            scheduledPaymentFrequency = "monthly",
+            suspensionStartDate = currentTime.toLocalDate,
+            suspensionEndDate = currentTime.toLocalDate,
+            balancingPaymentAmount = 600,
+            balancingPaymentDate = currentTime.toLocalDate,
+            totalLiability = 300,
+            paymentPlanEditable = false)
+        )
+        when(mockConnector.getPaymentPlanDetails(any(), any(), any()))
+          .thenReturn(Future.successful(paymentPlanDetails))
+
+        val result = service.getPaymentPlanDetails("ddReference", "testId", "payment Reference").futureValue
+        result shouldBe paymentPlanDetails
+      }
+
 
     "fail" when:
       "retrieving Direct Debits" in:

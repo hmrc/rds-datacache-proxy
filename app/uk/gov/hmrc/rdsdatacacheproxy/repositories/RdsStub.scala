@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
@@ -50,5 +50,37 @@ class RdsStub @Inject()() extends RdsDataSource:
       case None =>
         Future.failed(new NoSuchElementException(s"No DirectDebit found with ddiRefNumber: $directDebitReference"))
     }
+  }
+
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentReference: String): Future[PaymentPlanDetails] = {
+
+    val currentTime = LocalDateTime.now()
+
+    val paymentPlanDetails = PaymentPlanDetails(
+      directDebitDetails = DirectDebitDetail(
+        bankSortCode = "sort code",
+        bankAccountNumber = "account number",
+        bankAccountName = "account name",
+        auDdisFlag = "dd",
+        submissionDateTime = currentTime),
+      paymentPlanDetails = PaymentPlanDetail(
+        hodService = "hod service",
+        planType = "plan Type",
+        paymentReference = paymentReference,
+        submissionDateTime = currentTime,
+        scheduledPaymentAmount = 1000,
+        scheduledPaymentStartDate = currentTime.toLocalDate,
+        initialPaymentStartDate = currentTime.toLocalDate,
+        initialPaymentAmount = 150,
+        scheduledPaymentEndDate = currentTime.toLocalDate,
+        scheduledPaymentFrequency = "monthly",
+        suspensionStartDate = currentTime.toLocalDate,
+        suspensionEndDate = currentTime.toLocalDate,
+        balancingPaymentAmount = 600,
+        balancingPaymentDate = currentTime.toLocalDate,
+        totalLiability = 300,
+        paymentPlanEditable = false)
+    )
+    Future.successful(paymentPlanDetails)
   }
 
