@@ -188,7 +188,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
           if (!paymentPlans.next()) pp.reverse
           else {
             val paymentPlan = PaymentPlan(
-              scheduledPaymentAmount = paymentPlans.getDouble("ScheduledPayAmount"),
+              scheduledPaymentAmount = paymentPlans.getBigDecimal("ScheduledPayAmount"),
               planRefNumber = paymentPlans.getString("PPRefNumber"),
               planType = paymentPlans.getString("PayPlanType"),
               paymentReference = paymentPlans.getString("PayReference"),
@@ -265,17 +265,17 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val planType = storedProcedure.getString("pPayPlanType") // pPayPlanType
         val paymentReference = storedProcedure.getString("pPayReference") // pPayReference
         val paymentPlanSubmissionDateTime = storedProcedure.getTimestamp("pSubmissionDateTime") // pSubmissionDateTime
-        val scheduledPaymentAmount = storedProcedure.getDouble("pScheduledPayAmount") // pScheduledPayAmount
+        val scheduledPaymentAmount = storedProcedure.getBigDecimal("pScheduledPayAmount") // pScheduledPayAmount
         val scheduledPaymentStartDate = storedProcedure.getDate("pScheduledPayStartDate") // pScheduledPayStartDate
         val initialPaymentStartDate = storedProcedure.getDate("pInitialPayStartDate") // pInitialPayStartDate
-        val initialPaymentAmount = storedProcedure.getDouble("pInitialPayAmount") // pInitialPayAmount
+        val initialPaymentAmount = storedProcedure.getBigDecimal("pInitialPayAmount") // pInitialPayAmount
         val scheduledPaymentEndDate = storedProcedure.getDate("pScheduledPayEndDate") // pScheduledPayEndDate
         val scheduledPaymentFrequency = storedProcedure.getString("pScheduledPayFreq") // pScheduledPayFreq
         val suspensionStartDate = storedProcedure.getDate("pSuspensionStartDate") // pSuspensionStartDate
         val suspensionEndDate = storedProcedure.getDate("pSuspensionEndDate") // pSuspensionEndDate
-        val balancingPaymentAmount = storedProcedure.getDouble("pBalancingPayAmount") // pBalancingPayAmount
+        val balancingPaymentAmount = storedProcedure.getBigDecimal("pBalancingPayAmount") // pBalancingPayAmount
         val balancingPaymentDate = storedProcedure.getDate("pBalancingPayDate") // pBalancingPayDate
-        val totalLiability = storedProcedure.getDouble("pTotalLiability") // pTotalLiability
+        val totalLiability = storedProcedure.getBigDecimal("pTotalLiability") // pTotalLiability
         val paymentPlanEditable = storedProcedure.getInt("PayPlanEditFlag") // PayPlanEditFlag
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
 
