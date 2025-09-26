@@ -50,6 +50,17 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
       verifyNoMoreInteractions(mockService)
     }
 
+    "return 404 with NOT FOUND message when service throw NoSuchElementException" in new Setup {
+      when(mockService.getCisTaxpayerByTaxReference(any[String], any[String]))
+        .thenReturn(Future.failed(new NoSuchElementException("not found")))
+
+      val req = requestWithErJson()
+      val res = controller.getCisTaxpayerByTaxReference(req)
+
+      status(res) mustBe NOT_FOUND
+      (contentAsJson(res) \ "message").as[String] mustBe "CIS taxpayer not found for TON=111, TOR=test111"
+    }
+
     "returns 400 when JSON is an empty object" in new Setup {
       val req  = makeJsonRequest(Json.obj())
       val res  = controller.getCisTaxpayerByTaxReference(req)
@@ -75,7 +86,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
     }
 
     "propagates UpstreamErrorResponse status and message from service" in new Setup {
-      val err = UpstreamErrorResponse("SP1 exploded", BAD_GATEWAY, BAD_GATEWAY)
+      val err = UpstreamErrorResponse("rds-datacache exploded", BAD_GATEWAY, BAD_GATEWAY)
       when(mockService.getCisTaxpayerByTaxReference(any[String], any[String]))
         .thenReturn(Future.failed(err))
 
@@ -83,7 +94,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
       val res = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe BAD_GATEWAY
-      (contentAsJson(res) \ "message").as[String] must include ("SP1 exploded")
+      (contentAsJson(res) \ "message").as[String] must include ("rds-datacache exploded")
     }
 
     "returns 500 with generic message on unexpected exceptions" in new Setup {

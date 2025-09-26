@@ -52,6 +52,20 @@ final class CisTaxpayerServiceSpec
       out mustBe taxpayer
     }
 
+    "fail with NoSuchElementException (including TON/TOR) when the repository returns Some but uniqueId is blank" in {
+      val taxpayer = mkTaxpayer().copy(uniqueId = "  ")
+      when(source.getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor)))
+        .thenReturn(Future.successful(Some(taxpayer)))
+
+      val ex = service.getCisTaxpayerByTaxReference(ton, tor).failed.futureValue
+      ex mustBe a[NoSuchElementException]
+      ex.getMessage must include("TON=123")
+      ex.getMessage must include("TOR=AB456")
+
+      verify(source).getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor))
+      verifyNoMoreInteractions(source)
+    }
+
     "fail with NoSuchElementException (including TON/TOR) when the repository returns None" in {
       when(source.getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor)))
         .thenReturn(Future.successful(None))
