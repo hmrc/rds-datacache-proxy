@@ -4,7 +4,7 @@ GET        /direct-debits                                                       
 
 GET        /direct-debits/:directDebitReference/payment-plans                               uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
 
-GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference         uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String, paymentPlanReference: String)
+GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference         uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
 
 POST       /direct-debit-reference                                                          uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.generateDDIReference()
 

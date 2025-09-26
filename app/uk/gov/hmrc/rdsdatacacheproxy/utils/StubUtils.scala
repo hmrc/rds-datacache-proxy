@@ -75,7 +75,7 @@ class StubUtils {
       s"-${r(12)}" +
       s"-${r(28)}"
 
-    val planTypes = Seq("Single Payment Plan", "Budget Payment Plan")
+    val planTypes = Seq("01", "02")
     val randomPlanType = planTypes(Random.nextInt(planTypes.length))
 
     PaymentPlan.apply(
