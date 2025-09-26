@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.{LocalDate, LocalDateTime}
@@ -79,5 +79,39 @@ class RDSStubSpec
         case ex: NoSuchElementException =>
           ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
       }
+    }
+
+    "return a Payment Plan Details" in {
+      val currentTime = LocalDateTime.MIN
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(
+          bankSortCode = "sort code",
+          bankAccountNumber = "account number",
+          bankAccountName = "account name",
+          auDdisFlag = "dd",
+          submissionDateTime = currentTime),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService = "hod service",
+          planType = "plan Type",
+          paymentReference = "payment reference",
+          submissionDateTime = currentTime,
+          scheduledPaymentAmount = 1000,
+          scheduledPaymentStartDate = currentTime.toLocalDate,
+          initialPaymentStartDate = currentTime.toLocalDate,
+          initialPaymentAmount = 150,
+          scheduledPaymentEndDate = currentTime.toLocalDate,
+          scheduledPaymentFrequency = "monthly",
+          suspensionStartDate = currentTime.toLocalDate,
+          suspensionEndDate = currentTime.toLocalDate,
+          balancingPaymentAmount = 600,
+          balancingPaymentDate = currentTime.toLocalDate,
+          totalLiability = 300,
+          paymentPlanEditable = false)
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
     }
 

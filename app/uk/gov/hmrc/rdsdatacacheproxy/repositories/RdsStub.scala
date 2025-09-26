@@ -54,7 +54,7 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentReference: String): Future[PaymentPlanDetails] = {
 
-    val currentTime = LocalDateTime.now()
+    val currentTime = LocalDateTime.MIN
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
