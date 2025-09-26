@@ -24,10 +24,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
 
-import java.sql.{CallableStatement, Date, ResultSet}
-import java.time.LocalDate
+import java.sql.{CallableStatement, Date, ResultSet, Timestamp}
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -172,5 +172,71 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     // Assert
     result shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)
     result.paymentPlanList shouldBe paymentPlans
+  }
+
+  "getPaymentPlanDetails" should "return PaymentPlanDetails with correct data" in {
+    // Arrange
+    val ddReference = "test dd reference"
+    val id = "test-cred-id"
+    val paymentReference = "test payment reference"
+
+    val currentTime = LocalDateTime.now()
+    val currentDate = LocalDate.now()
+
+    val mockPaymentDetails = PaymentPlanDetails(
+      directDebitDetails = DirectDebitDetail(
+        bankSortCode = "sort code",
+        bankAccountNumber = "account number",
+        bankAccountName = "account name",
+        auDdisFlag = "dd",
+        submissionDateTime = currentTime),
+      paymentPlanDetails = PaymentPlanDetail(
+        hodService = "hod service",
+        planType = "plan Type",
+        paymentReference = paymentReference,
+        submissionDateTime = currentTime,
+        scheduledPaymentAmount = 1000,
+        scheduledPaymentStartDate = currentTime.toLocalDate,
+        initialPaymentStartDate = currentTime.toLocalDate,
+        initialPaymentAmount = 150,
+        scheduledPaymentEndDate = currentTime.toLocalDate,
+        scheduledPaymentFrequency = "monthly",
+        suspensionStartDate = currentTime.toLocalDate,
+        suspensionEndDate = currentTime.toLocalDate,
+        balancingPaymentAmount = 600,
+        balancingPaymentDate = currentTime.toLocalDate,
+        totalLiability = 300,
+        paymentPlanEditable = false)
+    )
+
+    // Mocking stored procedure behavior
+    when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
+    when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
+    when(mockCallableStatement.getString("pBankAccountName")).thenReturn("account name")
+    when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("dd")
+    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("hod service")
+    when(mockCallableStatement.getString("pPayPlanType")).thenReturn("plan Type")
+    when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")
+    when(mockCallableStatement.getTimestamp("pSubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
+    when(mockCallableStatement.getDouble("pScheduledPayAmount")).thenReturn(1000.0)
+    when(mockCallableStatement.getDate("pScheduledPayStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDate("pInitialPayStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDouble("pInitialPayAmount")).thenReturn(150.0)
+    when(mockCallableStatement.getDate("pScheduledPayEndDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getString("pScheduledPayFreq")).thenReturn("monthly")
+    when(mockCallableStatement.getDate("pSuspensionStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDate("pSuspensionEndDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDouble("pBalancingPayAmount")).thenReturn(600.0)
+    when(mockCallableStatement.getDate("pBalancingPayDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDouble("pTotalLiability")).thenReturn(300.0)
+    when(mockCallableStatement.getInt("PayPlanEditFlag")).thenReturn(0)
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
+
+    // Act
+    val result = repository.getPaymentPlanDetails(ddReference, id, paymentReference).futureValue
+
+    // Assert
+    result shouldBe mockPaymentDetails
   }
 }

@@ -231,7 +231,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
         storedProcedure.registerOutParameter("pPayPlanHodService", Types.VARCHAR) // pPayPlanHodService
         storedProcedure.registerOutParameter("pPayPlanType", Types.VARCHAR) // pPayPlanType
-        storedProcedure.registerOutParameter("pPayReference", Types.VARCHAR) // pResponseStatus
+        storedProcedure.registerOutParameter("pPayReference", Types.VARCHAR) // pPayReference
         storedProcedure.registerOutParameter("pSubmissionDateTime", Types.DATE) // pSubmissionDateTime
         storedProcedure.registerOutParameter("pScheduledPayAmount", Types.DECIMAL) // pScheduledPayAmount
         storedProcedure.registerOutParameter("pScheduledPayStartDate", Types.DATE) // pScheduledPayStartDate
