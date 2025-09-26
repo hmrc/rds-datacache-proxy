@@ -78,12 +78,16 @@ class StubUtils {
     val planTypes = Seq("01", "02")
     val randomPlanType = planTypes(Random.nextInt(planTypes.length))
 
+    val hodServices = Seq("COTA", "NIDN", "SAFE", "PAYE", "CESA", "SDLT", "NTC", "VAT", "MGD")
+
+    val randomHodService = hodServices(Random.nextInt(hodServices.length))
+
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
       planRefNumber = "ddpaymentReference",
       planType = randomPlanType,
       paymentReference = s"payReference$i",
-      hodService = s"planHoldService$i",
+      hodService = randomHodService,
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }
