@@ -89,7 +89,7 @@ class RDSStubSpec
           bankSortCode = Some("sort code"),
           bankAccountNumber = Some("account number"),
           bankAccountName = Some("account name"),
-          auDdisFlag = Some("dd"),
+          auDdisFlag = true,
           submissionDateTime = currentTime),
         paymentPlanDetails = PaymentPlanDetail(
           hodService = "SA",

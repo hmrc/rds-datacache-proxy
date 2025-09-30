@@ -163,7 +163,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         bankSortCode = Some("sort code"),
         bankAccountNumber = Some("account number"),
         bankAccountName = Some("account name"),
-        auDdisFlag = Some("dd"),
+        auDdisFlag = true,
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
         hodService = "hod service",

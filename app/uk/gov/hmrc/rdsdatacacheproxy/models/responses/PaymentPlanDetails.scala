@@ -23,7 +23,7 @@ import java.time.{LocalDate, LocalDateTime}
 case class DirectDebitDetail(bankSortCode: Option[String],
                              bankAccountNumber: Option[String],
                              bankAccountName: Option[String],
-                             auDdisFlag: Option[String],
+                             auDdisFlag: Boolean,
                              submissionDateTime: LocalDateTime)
 
 object DirectDebitDetail:

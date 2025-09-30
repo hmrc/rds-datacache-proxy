@@ -188,7 +188,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
         bankSortCode = Some("sort code"),
         bankAccountNumber = Some("account number"),
         bankAccountName = None,
-        auDdisFlag = Some("dd"),
+        auDdisFlag = true,
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
         hodService = "SA",
@@ -214,7 +214,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
     when(mockCallableStatement.getString("pBankAccountName")).thenReturn(null)
     when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
-    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("dd")
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("01")
     when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("SA")
     when(mockCallableStatement.getString("pPayPlanType")).thenReturn("01")
     when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")
