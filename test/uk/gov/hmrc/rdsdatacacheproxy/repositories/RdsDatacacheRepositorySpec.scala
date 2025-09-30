@@ -141,9 +141,9 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       PaymentPlan(
         scheduledPaymentAmount = 100,
         planRefNumber = ddReference,
-        planType = "plan type",
+        planType = "01",
         paymentReference = "plan ref number",
-        hodService = "hod service",
+        hodService = "CESA",
         submissionDateTime = submissionDateTime
       )
     )
@@ -160,9 +160,9 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockResultSet.next()).thenReturn(true).thenReturn(false) // First call returns true, then false (no more rows)
     when(mockResultSet.getBigDecimal("ScheduledPayAmount")).thenReturn(scala.math.BigDecimal(100.0).bigDecimal)
     when(mockResultSet.getString("PPRefNumber")).thenReturn(ddReference)
-    when(mockResultSet.getString("PayPlanType")).thenReturn("plan type")
+    when(mockResultSet.getString("PayPlanType")).thenReturn("01")
     when(mockResultSet.getString("PayReference")).thenReturn("plan ref number")
-    when(mockResultSet.getString("PayPlanHodService")).thenReturn("hod service")
+    when(mockResultSet.getString("PayPlanHodService")).thenReturn("CESA")
     when(mockResultSet.getTimestamp("SubmissionDateTime"))
       .thenReturn(java.sql.Timestamp.valueOf(LocalDate.now().atStartOfDay()))
 
@@ -191,7 +191,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
         auDdisFlag = true,
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "SA",
+        hodService = "CESA",
         planType = "01",
         paymentReference = paymentReference,
         submissionDateTime = currentTime,
@@ -215,7 +215,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getString("pBankAccountName")).thenReturn(null)
     when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
     when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("01")
-    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("SA")
+    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("CESA")
     when(mockCallableStatement.getString("pPayPlanType")).thenReturn("01")
     when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")
     when(mockCallableStatement.getTimestamp("pSubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))

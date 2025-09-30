@@ -104,8 +104,8 @@ class DirectDebitServiceSpec
             auDdisFlag = true,
             submissionDateTime = currentTime),
           paymentPlanDetails = PaymentPlanDetail(
-            hodService = "01",
-            planType = "SA",
+            hodService = "CESA",
+            planType = "01",
             paymentReference = "payment Reference",
             submissionDateTime = currentTime,
             scheduledPaymentAmount = Some(1000),

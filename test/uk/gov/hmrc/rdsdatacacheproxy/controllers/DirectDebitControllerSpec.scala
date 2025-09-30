@@ -166,8 +166,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         auDdisFlag = true,
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "hod service",
-        planType = "plan Type",
+        hodService = "CESA",
+        planType = "01",
         paymentReference = "payment reference",
         submissionDateTime = currentTime,
         scheduledPaymentAmount = Some(1000),

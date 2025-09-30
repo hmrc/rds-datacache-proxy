@@ -92,7 +92,7 @@ class RDSStubSpec
           auDdisFlag = true,
           submissionDateTime = currentTime),
         paymentPlanDetails = PaymentPlanDetail(
-          hodService = "SA",
+          hodService = "CESA",
           planType = "01",
           paymentReference = "payment reference",
           submissionDateTime = currentTime,
