@@ -217,7 +217,11 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
     Future {
       db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanDetails(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanDetails(?, ?, ?, ?, ?, " +
+                                                                                    "?, ?, ?, ?, ?, " +
+                                                                                    "?, ?, ?, ?, ?, " +
+                                                                                    "?, ?, ?, ?, ?, " +
+                                                                                    "?, ?, ?, ?, ?)}")
 
         // Set input parameters
         storedProcedure.setString("pCredentialID", credId) // pCredentialID

@@ -52,9 +52,16 @@ class RdsStub @Inject()() extends RdsDataSource:
     }
   }
 
-  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentReference: String): Future[PaymentPlanDetails] = {
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
 
     val currentTime = LocalDateTime.MIN
+
+    val (playType, frequency) = Map(
+      "0000000009000201" -> ("01", Some("2")),
+      "0000000009000202" -> ("02", Some("5")),
+      "0000000009000203" -> ("03", None)
+    ).getOrElse(credId, ("04", None))
+
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
@@ -65,15 +72,15 @@ class RdsStub @Inject()() extends RdsDataSource:
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
         hodService = "CESA",
-        planType = "01",
-        paymentReference = paymentReference,
+        planType = playType,
+        paymentReference = paymentPlanReference,
         submissionDateTime = currentTime,
         scheduledPaymentAmount = Some(1000),
-        scheduledPaymentStartDate = Some(currentTime.toLocalDate),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
         initialPaymentStartDate = Some(currentTime.toLocalDate),
         initialPaymentAmount = Some(150),
-        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
-        scheduledPaymentFrequency = Some("1"),
+        scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+        scheduledPaymentFrequency = frequency,
         suspensionStartDate = Some(currentTime.toLocalDate),
         suspensionEndDate = Some(currentTime.toLocalDate),
         balancingPaymentAmount = Some(600),
