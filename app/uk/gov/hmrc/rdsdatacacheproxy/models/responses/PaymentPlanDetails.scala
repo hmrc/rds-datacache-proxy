@@ -20,10 +20,10 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.{LocalDate, LocalDateTime}
 
-case class DirectDebitDetail(bankSortCode: String,
-                             bankAccountNumber: String,
-                             bankAccountName: String,
-                             auDdisFlag: String,
+case class DirectDebitDetail(bankSortCode: Option[String],
+                             bankAccountNumber: Option[String],
+                             bankAccountName: Option[String],
+                             auDdisFlag: Option[String],
                              submissionDateTime: LocalDateTime)
 
 object DirectDebitDetail:
@@ -33,17 +33,17 @@ case class PaymentPlanDetail(hodService: String,
                              planType: String,
                              paymentReference: String,
                              submissionDateTime: LocalDateTime,
-                             scheduledPaymentAmount: BigDecimal,
-                             scheduledPaymentStartDate: LocalDate,
-                             initialPaymentStartDate: LocalDate,
-                             initialPaymentAmount: BigDecimal,
-                             scheduledPaymentEndDate: LocalDate,
-                             scheduledPaymentFrequency: String,
-                             suspensionStartDate: LocalDate,
-                             suspensionEndDate: LocalDate,
-                             balancingPaymentAmount: BigDecimal,
-                             balancingPaymentDate: LocalDate,
-                             totalLiability: BigDecimal,
+                             scheduledPaymentAmount: Option[BigDecimal],
+                             scheduledPaymentStartDate: Option[LocalDate],
+                             initialPaymentStartDate: Option[LocalDate],
+                             initialPaymentAmount: Option[BigDecimal],
+                             scheduledPaymentEndDate: Option[LocalDate],
+                             scheduledPaymentFrequency: Option[String],
+                             suspensionStartDate: Option[LocalDate],
+                             suspensionEndDate: Option[LocalDate],
+                             balancingPaymentAmount: Option[BigDecimal],
+                             balancingPaymentDate: Option[LocalDate],
+                             totalLiability: Option[BigDecimal],
                              paymentPlanEditable: Boolean)
 
 object PaymentPlanDetail:

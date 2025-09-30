@@ -120,7 +120,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
   }
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] = {
-    logger.info(s"Input request, pPayReference: <${paymentReference}>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
+    logger.info(s"Input request, pPayReference: <$paymentReference>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.GETDDIRefNumber(?, ?, ?, ?)}")
@@ -146,8 +146,8 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
-    logger.info(s"**** Cred ID: ${credId}, Direct Debit Reference: ${directDebitReference} " +
-      s"FirstRecordNumber: ${pFirstRecord}, Max Records: ${pMaxRecords}")
+    logger.info(s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+      s"FirstRecordNumber: $pFirstRecord, Max Records: $pMaxRecords")
 
     Future {
       db.withConnection { connection =>
@@ -256,7 +256,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Direct debit details
         val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
         val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
-        val bankAccountName = if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val bankAccountName = storedProcedure.getString("pBankAccountName") // pBankAccountName
         val ddSubmissionDateTime = storedProcedure.getTimestamp("pDDISubmissionDateTime") // pDDISubmissionDateTime
         val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
 
@@ -287,27 +287,27 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Return PaymentPlanDetails
         PaymentPlanDetails(
           directDebitDetails = DirectDebitDetail(
-            bankSortCode = sortCode,
-            bankAccountNumber = bankAccountNumber,
-            bankAccountName = bankAccountName,
-            auDdisFlag = auDdisFlag,
+            bankSortCode = Option(sortCode),
+            bankAccountNumber = Option(bankAccountNumber),
+            bankAccountName = Option(bankAccountName),
+            auDdisFlag = Option(auDdisFlag),
             submissionDateTime = ddSubmissionDateTime.toLocalDateTime),
           paymentPlanDetails = PaymentPlanDetail(
             hodService = hodService,
             planType = planType,
             paymentReference = paymentReference,
             submissionDateTime = paymentPlanSubmissionDateTime.toLocalDateTime,
-            scheduledPaymentAmount = scheduledPaymentAmount,
-            scheduledPaymentStartDate = scheduledPaymentStartDate.toLocalDate,
-            initialPaymentStartDate = initialPaymentStartDate.toLocalDate,
-            initialPaymentAmount = initialPaymentAmount,
-            scheduledPaymentEndDate = scheduledPaymentEndDate.toLocalDate,
-            scheduledPaymentFrequency = scheduledPaymentFrequency,
-            suspensionStartDate = suspensionStartDate.toLocalDate,
-            suspensionEndDate = suspensionEndDate.toLocalDate,
-            balancingPaymentAmount = balancingPaymentAmount,
-            balancingPaymentDate = balancingPaymentDate.toLocalDate,
-            totalLiability = totalLiability,
+            scheduledPaymentAmount = Option(scheduledPaymentAmount),
+            scheduledPaymentStartDate = Option(scheduledPaymentStartDate).map(_.toLocalDate),
+            initialPaymentStartDate = Option(initialPaymentStartDate).map(_.toLocalDate),
+            initialPaymentAmount = Option(initialPaymentAmount),
+            scheduledPaymentEndDate = Option(scheduledPaymentEndDate).map(_.toLocalDate),
+            scheduledPaymentFrequency = Option(scheduledPaymentFrequency),
+            suspensionStartDate = Option(suspensionStartDate).map(_.toLocalDate),
+            suspensionEndDate = Option(suspensionEndDate).map(_.toLocalDate),
+            balancingPaymentAmount =  Option(balancingPaymentAmount),
+            balancingPaymentDate =  Option(balancingPaymentDate).map(_.toLocalDate),
+            totalLiability = Option(totalLiability),
             paymentPlanEditable = paymentPlanEditable == 1)
         )
       }

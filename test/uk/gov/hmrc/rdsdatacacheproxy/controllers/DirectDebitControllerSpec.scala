@@ -160,27 +160,27 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
     val paymentPlanDetailsResponse = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
-        bankSortCode = "sort code",
-        bankAccountNumber = "account number",
-        bankAccountName = "account name",
-        auDdisFlag = "dd",
+        bankSortCode = Some("sort code"),
+        bankAccountNumber = Some("account number"),
+        bankAccountName = Some("account name"),
+        auDdisFlag = Some("dd"),
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
         hodService = "hod service",
         planType = "plan Type",
         paymentReference = "payment reference",
         submissionDateTime = currentTime,
-        scheduledPaymentAmount = 1000,
-        scheduledPaymentStartDate = currentTime.toLocalDate,
-        initialPaymentStartDate = currentTime.toLocalDate,
-        initialPaymentAmount = 150,
-        scheduledPaymentEndDate = currentTime.toLocalDate,
-        scheduledPaymentFrequency = "monthly",
-        suspensionStartDate = currentTime.toLocalDate,
-        suspensionEndDate = currentTime.toLocalDate,
-        balancingPaymentAmount = 600,
-        balancingPaymentDate = currentTime.toLocalDate,
-        totalLiability = 300,
+        scheduledPaymentAmount = Some(1000),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentAmount = Some(150),
+        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+        scheduledPaymentFrequency = Some("1"),
+        suspensionStartDate = Some(currentTime.toLocalDate),
+        suspensionEndDate = Some(currentTime.toLocalDate),
+        balancingPaymentAmount = Some(600),
+        balancingPaymentDate = Some(currentTime.toLocalDate),
+        totalLiability = Some(300),
         paymentPlanEditable = false)
     )
 

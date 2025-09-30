@@ -185,38 +185,38 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     val mockPaymentDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
-        bankSortCode = "sort code",
-        bankAccountNumber = "account number",
-        bankAccountName = "account name",
-        auDdisFlag = "dd",
+        bankSortCode = Some("sort code"),
+        bankAccountNumber = Some("account number"),
+        bankAccountName = None,
+        auDdisFlag = Some("dd"),
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "hod service",
-        planType = "plan Type",
+        hodService = "SA",
+        planType = "01",
         paymentReference = paymentReference,
         submissionDateTime = currentTime,
-        scheduledPaymentAmount = 1000,
-        scheduledPaymentStartDate = currentTime.toLocalDate,
-        initialPaymentStartDate = currentTime.toLocalDate,
-        initialPaymentAmount = 150,
-        scheduledPaymentEndDate = currentTime.toLocalDate,
-        scheduledPaymentFrequency = "monthly",
-        suspensionStartDate = currentTime.toLocalDate,
-        suspensionEndDate = currentTime.toLocalDate,
-        balancingPaymentAmount = 600,
-        balancingPaymentDate = currentTime.toLocalDate,
-        totalLiability = 300,
+        scheduledPaymentAmount = Some(1000),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentAmount = Some(150),
+        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+        scheduledPaymentFrequency = Some("1"),
+        suspensionStartDate = Some(currentTime.toLocalDate),
+        suspensionEndDate = None,
+        balancingPaymentAmount = Some(600),
+        balancingPaymentDate = Some(currentTime.toLocalDate),
+        totalLiability = None,
         paymentPlanEditable = false)
     )
 
     // Mocking stored procedure behavior
     when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
     when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
-    when(mockCallableStatement.getString("pBankAccountName")).thenReturn("account name")
+    when(mockCallableStatement.getString("pBankAccountName")).thenReturn(null)
     when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
     when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("dd")
-    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("hod service")
-    when(mockCallableStatement.getString("pPayPlanType")).thenReturn("plan Type")
+    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("SA")
+    when(mockCallableStatement.getString("pPayPlanType")).thenReturn("01")
     when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")
     when(mockCallableStatement.getTimestamp("pSubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
     when(mockCallableStatement.getBigDecimal("pScheduledPayAmount")).thenReturn(scala.math.BigDecimal(1000.0).bigDecimal)
@@ -224,12 +224,12 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getDate("pInitialPayStartDate")).thenReturn(Date.valueOf(currentDate))
     when(mockCallableStatement.getBigDecimal("pInitialPayAmount")).thenReturn(scala.math.BigDecimal(150.0).bigDecimal)
     when(mockCallableStatement.getDate("pScheduledPayEndDate")).thenReturn(Date.valueOf(currentDate))
-    when(mockCallableStatement.getString("pScheduledPayFreq")).thenReturn("monthly")
+    when(mockCallableStatement.getString("pScheduledPayFreq")).thenReturn("1")
     when(mockCallableStatement.getDate("pSuspensionStartDate")).thenReturn(Date.valueOf(currentDate))
-    when(mockCallableStatement.getDate("pSuspensionEndDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDate("pSuspensionEndDate")).thenReturn(null)
     when(mockCallableStatement.getBigDecimal("pBalancingPayAmount")).thenReturn(scala.math.BigDecimal(600.0).bigDecimal)
     when(mockCallableStatement.getDate("pBalancingPayDate")).thenReturn(Date.valueOf(currentDate))
-    when(mockCallableStatement.getBigDecimal("pTotalLiability")).thenReturn(scala.math.BigDecimal(300.0).bigDecimal)
+    when(mockCallableStatement.getBigDecimal("pTotalLiability")).thenReturn(null)
     when(mockCallableStatement.getInt("PayPlanEditFlag")).thenReturn(0)
     when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
 
