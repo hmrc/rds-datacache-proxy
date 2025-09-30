@@ -11,3 +11,5 @@ POST       /direct-debit-reference                                              
 POST       /direct-debits/future-working-days                                               uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()
 
 POST       /monthly-returns                                                                 uk.gov.hmrc.rdsdatacacheproxy.controllers.MonthlyReturnController.retrieveMonthlyReturns
+
+POST       /cis-taxpayer                                                                    uk.gov.hmrc.rdsdatacacheproxy.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
