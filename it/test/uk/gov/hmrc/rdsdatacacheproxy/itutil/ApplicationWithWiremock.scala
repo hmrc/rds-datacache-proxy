@@ -42,7 +42,7 @@ trait ApplicationWithWiremock
     Map[String, Any](
       "microservice.services.auth.host" -> WireMockConstants.stubHost,
       "microservice.services.auth.port" -> WireMockConstants.stubPort,
-      "feature-switch.cis-rds-stubbed"      -> true
+      "feature-switch.cis-rds-stubbed"  -> true
     )
   }
 

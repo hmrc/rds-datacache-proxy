@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, PaymentPlan}
-import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 import java.time.LocalDateTime
-import java.util.concurrent.atomic.AtomicLong
 import scala.util.Random
 
 class StubUtils {
@@ -46,30 +45,6 @@ class StubUtils {
     )
   }
 
-  private val mrId = new AtomicLong(1000000L)
-
-  def generateMonthlyReturns(month: Int): MonthlyReturn = {
-    val id = mrId.incrementAndGet()
-    val now = LocalDateTime.now().minusDays(Random.nextInt(90).toLong)
-      .withHour(0).withMinute(0).withSecond(0).withNano(0)
-
-    MonthlyReturn(
-      monthlyReturnId = id,
-      taxYear = 2025,
-      taxMonth = month,
-      nilReturnIndicator = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decEmpStatusConsidered = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decAllSubsVerified = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decInformationCorrect = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNoMoreSubPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNilReturnNoPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      status = Some(Seq("STARTED", "SUBMITTED")(Random.nextInt(2))),
-      lastUpdate = Some(now),
-      amendment = Some(if (Random.nextBoolean()) "Y" else "N"),
-      supersededBy = None
-    )
-  }
-
   def randomPaymentPlan(i: Int): PaymentPlan = {
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
@@ -83,4 +58,29 @@ class StubUtils {
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }
+
+  def createCisTaxpayer(
+     uniqueId: String = "1",
+     taxOfficeNumber: String = "123",
+     taxOfficeRef: String = "AB456",
+     employerName1: Option[String] = Some("TEST LTD")
+  ): CisTaxpayer =
+    CisTaxpayer(
+      uniqueId = uniqueId,
+      taxOfficeNumber = taxOfficeNumber,
+      taxOfficeRef = taxOfficeRef,
+      aoDistrict = Some("123"),
+      aoPayType = Some("M"),
+      aoCheckCode = Some("XY"),
+      aoReference = Some("1234567XY"),
+      validBusinessAddr = Some("Y"),
+      correlation = Some("corr-abc"),
+      ggAgentId = Some("AGENT-001"),
+      employerName1 = employerName1,
+      employerName2 = None,
+      agentOwnRef = Some("AG-REF-001"),
+      schemeName = Some("CIS Scheme"),
+      utr = Some("1234567890"),
+      enrolledSig = Some("Y")
+    )
 }
