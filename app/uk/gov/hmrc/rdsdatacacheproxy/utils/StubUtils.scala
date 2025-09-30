@@ -59,7 +59,7 @@ class StubUtils {
 
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber = "ddpaymentReference",
+      planRefNumber = s"paymentPlanRefNumber$i",
       planType = randomPlanType,
       paymentReference = s"payReference$i",
       hodService = randomHodService,
