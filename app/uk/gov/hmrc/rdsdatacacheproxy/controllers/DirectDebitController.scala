@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, WorkingDaysOffsetRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, PaymentPlanDuplicateCheckRequest, WorkingDaysOffsetRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
@@ -86,18 +86,18 @@ class DirectDebitController @Inject()(
               InternalServerError("Failed to retrieve earliest data from oracle database.")
           }
 
-//  def isDuplicatePaymentPlan(directDebitReference: String, duplicateCheckRequest: PaymentPlanDuplicateCheckRequest): Action[AnyContent] =
-//    authorise.async(parse.json[PaymentPlanDuplicateCheckRequest]):
-//      implicit request =>
-//        val body = request.body
-//        directDebitService.isDuplicatePaymentPlan(
-//            body.paymentPlanReference,
-//            request.credentialId,
-//            duplicateCheckRequest
-//          )
-//          .map(result => Ok(Json.toJson(result)))
-//          .recover {
-//            case ex: Exception =>
-//              logger.error("Error while retrieving data from oracle database", ex)
-//              InternalServerError("Failed to retrieve earliest data from oracle database.")
-//          }
+  def isDuplicatePaymentPlan(directDebitReference: String): Action[PaymentPlanDuplicateCheckRequest] =
+    authorise.async(parse.json[PaymentPlanDuplicateCheckRequest]):
+      implicit request =>
+        val body = request.body
+        directDebitService.isDuplicatePaymentPlan(
+            directDebitReference,
+            request.credentialId,
+            body
+          )
+          .map(result => Ok(Json.toJson(result)))
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while retrieving data from oracle database", ex)
+              InternalServerError("Failed to retrieve earliest data from oracle database.")
+          }

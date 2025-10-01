@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
@@ -52,3 +53,21 @@ class RdsStub @Inject()() extends RdsDataSource:
     }
   }
 
+  def isDuplicatePaymentPlan(
+                              directDebitReference: String,
+                              credId: String,
+                              request: PaymentPlanDuplicateCheckRequest
+                            ): Future[Boolean] = {
+
+    val flag: Boolean =
+      if (credId.endsWith("01")) true
+      else if (credId.endsWith("02")) false
+      else false
+
+    val (playType, frequency) = Map(
+      "0000000009000201" -> ("01", Some("true")),
+      "0000000009000202" -> ("02", Some("false"))
+    ).getOrElse(credId, ("03", None))
+
+    Future.successful(flag)
+  }

@@ -19,6 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 import play.api.libs.json.{Json, OFormat}
 
 case class PaymentPlanDuplicateCheckRequest(
+                                             directDebitReference: String,
                                              paymentPlanReference: String,
                                              planType: String,
                                              paymentService: String,
