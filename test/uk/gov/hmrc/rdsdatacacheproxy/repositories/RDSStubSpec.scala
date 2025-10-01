@@ -82,7 +82,7 @@ class RDSStubSpec
     }
 
     "return a Single Payment Plan Details" in {
-      val currentTime = LocalDateTime.MIN
+      val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
         directDebitDetails = DirectDebitDetail(
@@ -94,7 +94,7 @@ class RDSStubSpec
         paymentPlanDetails = PaymentPlanDetail(
           hodService = "CESA",
           planType = "01",
-          paymentReference = "payment reference",
+          paymentReference = "paymentReference",
           submissionDateTime = currentTime,
           scheduledPaymentAmount = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -116,7 +116,7 @@ class RDSStubSpec
     }
 
     "return a Budget Payment Plan Details" in {
-      val currentTime = LocalDateTime.MIN
+      val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
         directDebitDetails = DirectDebitDetail(
@@ -128,7 +128,7 @@ class RDSStubSpec
         paymentPlanDetails = PaymentPlanDetail(
           hodService = "CESA",
           planType = "02",
-          paymentReference = "payment reference",
+          paymentReference = "paymentReference",
           submissionDateTime = currentTime,
           scheduledPaymentAmount = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -150,7 +150,7 @@ class RDSStubSpec
     }
 
     "return a Tax Credit Repayment Plan Details" in {
-      val currentTime = LocalDateTime.MIN
+      val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
         directDebitDetails = DirectDebitDetail(
@@ -162,7 +162,7 @@ class RDSStubSpec
         paymentPlanDetails = PaymentPlanDetail(
           hodService = "CESA",
           planType = "03",
-          paymentReference = "payment reference",
+          paymentReference = "paymentReference",
           submissionDateTime = currentTime,
           scheduledPaymentAmount = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -184,7 +184,7 @@ class RDSStubSpec
     }
 
     "return a VPP Payment Plan Details" in {
-      val currentTime = LocalDateTime.MIN
+      val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
         directDebitDetails = DirectDebitDetail(
@@ -196,7 +196,7 @@ class RDSStubSpec
         paymentPlanDetails = PaymentPlanDetail(
           hodService = "CESA",
           planType = "04",
-          paymentReference = "payment reference",
+          paymentReference = "paymentReference",
           submissionDateTime = currentTime,
           scheduledPaymentAmount = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),

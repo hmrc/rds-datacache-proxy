@@ -54,7 +54,7 @@ class RdsStub @Inject()() extends RdsDataSource:
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
 
-    val currentTime = LocalDateTime.MIN
+    val currentTime = LocalDateTime.now().withNano(0)
 
     val (playType, frequency) = Map(
       "0000000009000201" -> ("01", Some("2")),
@@ -73,7 +73,7 @@ class RdsStub @Inject()() extends RdsDataSource:
       paymentPlanDetails = PaymentPlanDetail(
         hodService = "CESA",
         planType = playType,
-        paymentReference = paymentPlanReference,
+        paymentReference = "paymentReference",
         submissionDateTime = currentTime,
         scheduledPaymentAmount = Some(1000),
         scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
