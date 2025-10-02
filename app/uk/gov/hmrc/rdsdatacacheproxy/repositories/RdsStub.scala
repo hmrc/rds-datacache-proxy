@@ -65,9 +65,9 @@ class RdsStub @Inject()() extends RdsDataSource:
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
-        bankSortCode = Some("sort code"),
-        bankAccountNumber = Some("account number"),
-        bankAccountName = Some("account name"),
+        bankSortCode = Some("123456"),
+        bankAccountNumber = Some("12345678"),
+        bankAccountName = Some("Bank Ltd"),
         auDdisFlag = true,
         submissionDateTime = currentTime),
       paymentPlanDetails = PaymentPlanDetail(

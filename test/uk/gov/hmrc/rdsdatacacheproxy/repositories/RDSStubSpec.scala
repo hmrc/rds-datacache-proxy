@@ -86,8 +86,8 @@ class RDSStubSpec
 
       val paymentPlanDetails = PaymentPlanDetails(
         directDebitDetails = DirectDebitDetail(
-          bankSortCode = Some("sort code"),
-          bankAccountNumber = Some("account number"),
+          bankSortCode = Some("123456"),
+          bankAccountNumber = Some("12345678"),
           bankAccountName = Some("account name"),
           auDdisFlag = true,
           submissionDateTime = currentTime),

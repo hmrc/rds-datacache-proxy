@@ -35,7 +35,7 @@ class StubUtils {
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
-      ddiRefNumber = s"defaultRef$i",
+      ddiRefNumber = s"99055002$i",
       LocalDateTime.parse(s"${date}T00:00:00"),
       s"${r(99)}-${r(99)}-${r(99)}",
       Seq.fill(8)(Random.nextInt(10)).mkString,
@@ -59,9 +59,9 @@ class StubUtils {
 
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber = s"pPlanReference$i",
+      planRefNumber = s"20000080$i",
       planType = randomPlanType,
-      paymentReference = s"payReference$i",
+      paymentReference = s"{$i}400256374K",
       hodService = randomHodService,
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
