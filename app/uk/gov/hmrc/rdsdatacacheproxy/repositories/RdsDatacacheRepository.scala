@@ -213,7 +213,6 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
   }
 
   def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[Boolean] = {
-    println("Reached rds repo")
     logger.info(s"**** Direct Debit Reference: ${directDebitReference}")
 
     Future {

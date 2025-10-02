@@ -19,6 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
@@ -62,3 +63,41 @@ class RDSStubSpec
       val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
 
       result shouldBe DDIReference("xyz")
+
+    "return true if duplicate payment plan" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType = "type 1",
+        paymentService = "CESA",
+        paymentReference = "payment ref",
+        paymentAmount = 120.00,
+        totalLiability = 780.00,
+        paymentFrequency = "1"
+      )
+
+      val result = connector.isDuplicatePaymentPlan("dd reference", "0000000009000201", duplicateCheckRequest).futureValue
+
+      result shouldBe true
+    }
+
+    "return false if not a duplicate payment plan" in {
+        val currentTime = LocalDateTime.now().withNano(0)
+
+        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+          directDebitReference = "testRef",
+          paymentPlanReference = "payment ref 123",
+          planType = "type 1",
+          paymentService = "CESA",
+          paymentReference = "payment ref",
+          paymentAmount = 120.00,
+          totalLiability = 780.00,
+          paymentFrequency = "WEEKLY"
+        )
+
+        val result = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
+
+        result shouldBe false
+      }
