@@ -35,13 +35,13 @@ class StubUtils {
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
-      ddiRefNumber = s"defaultRef$i",
+      ddiRefNumber = s"99055002$i",
       LocalDateTime.parse(s"${date}T00:00:00"),
       s"${r(99)}-${r(99)}-${r(99)}",
       Seq.fill(8)(Random.nextInt(10)).mkString,
       "BankLtd",
       Random.nextBoolean(),
-      Random.nextInt(3)
+      Random.nextInt(3) + 1
     )
   }
 
@@ -49,12 +49,20 @@ class StubUtils {
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
+
+    val planTypes = Seq("01", "02")
+    val randomPlanType = planTypes(Random.nextInt(planTypes.length))
+
+    val hodServices = Seq("COTA", "NIDN", "SAFE", "PAYE", "CESA", "SDLT", "NTC", "VAT", "MGD")
+
+    val randomHodService = hodServices(Random.nextInt(hodServices.length))
+
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber = "ddpaymentReference",
-      planType = s"planType$i",
-      paymentReference = s"payReference$i",
-      hodService = s"planHoldService$i",
+      planRefNumber = s"20000080$i",
+      planType = randomPlanType,
+      paymentReference = s"{$i}400256374K",
+      hodService = randomHodService,
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }

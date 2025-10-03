@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
@@ -50,5 +50,44 @@ class RdsStub @Inject()() extends RdsDataSource:
       case None =>
         Future.failed(new NoSuchElementException(s"No DirectDebit found with ddiRefNumber: $directDebitReference"))
     }
+  }
+
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
+
+    val currentTime = LocalDateTime.now().withNano(0)
+
+    val (playType, frequency) = Map(
+      "0000000009000201" -> ("01", Some("2")),
+      "0000000009000202" -> ("02", Some("5")),
+      "0000000009000203" -> ("03", None)
+    ).getOrElse(credId, ("04", None))
+
+
+    val paymentPlanDetails = PaymentPlanDetails(
+      directDebitDetails = DirectDebitDetail(
+        bankSortCode = Some("123456"),
+        bankAccountNumber = Some("12345678"),
+        bankAccountName = Some("Bank Ltd"),
+        auDdisFlag = true,
+        submissionDateTime = currentTime),
+      paymentPlanDetails = PaymentPlanDetail(
+        hodService = "CESA",
+        planType = playType,
+        paymentReference = "paymentReference",
+        submissionDateTime = currentTime,
+        scheduledPaymentAmount = Some(1000),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+        initialPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentAmount = Some(150),
+        scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+        scheduledPaymentFrequency = frequency,
+        suspensionStartDate = Some(currentTime.toLocalDate),
+        suspensionEndDate = Some(currentTime.toLocalDate),
+        balancingPaymentAmount = Some(600),
+        balancingPaymentDate = Some(currentTime.toLocalDate),
+        totalLiability = Some(300),
+        paymentPlanEditable = false)
+    )
+    Future.successful(paymentPlanDetails)
   }
 

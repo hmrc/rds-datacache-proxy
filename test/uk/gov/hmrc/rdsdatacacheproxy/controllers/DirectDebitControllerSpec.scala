@@ -26,7 +26,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import java.time.LocalDateTime
@@ -38,33 +38,98 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
     "retrieveDirectDebits" - {
       "return 200 and a successful response when DB returns records" in new SetUp {
         when(mockDirectDebitService.retrieveDirectDebits(any[String]))
-          .thenReturn(Future.successful(nonEmptyResponse))
+          .thenReturn(Future.successful(nonEmptyDirectDebitResponse))
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
         status(result) shouldBe OK
         contentType(result) shouldBe Some("application/json")
-        contentAsJson(result) shouldBe Json.toJson(nonEmptyResponse)
+        contentAsJson(result) shouldBe Json.toJson(nonEmptyDirectDebitResponse)
       }
 
       "return 200 and an empty records when no data returned from DB" in new SetUp {
         when(mockDirectDebitService.retrieveDirectDebits(any[String]))
-          .thenReturn(Future.successful(emptyResponse))
+          .thenReturn(Future.successful(emptyDirectDebitResponse))
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
         status(result) shouldBe OK
-        contentAsJson(result) shouldBe Json.toJson(emptyResponse)
+        contentAsJson(result) shouldBe Json.toJson(emptyDirectDebitResponse)
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.retrieveDirectDebits(any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
 
+    "retrieveDirectDebitPaymentPlans" - {
+      "return 200 and a successful response when DB returns records" in new SetUp {
+        when(mockDirectDebitService.getDirectDebitPaymentPlans(any[String], any[String]))
+          .thenReturn(Future.successful(nonEmptyDirectDebitPaymentPlanResponse))
+        val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
+
+        status(result) shouldBe OK
+        contentType(result) shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(nonEmptyDirectDebitPaymentPlanResponse)
+      }
+
+      "return 200 and an empty records when no data returned from DB" in new SetUp {
+        when(mockDirectDebitService.getDirectDebitPaymentPlans(any[String], any[String]))
+          .thenReturn(Future.successful(emptyDirectDebitPaymentPlanResponse))
+        val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
+
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe Json.toJson(emptyDirectDebitPaymentPlanResponse)
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.getDirectDebitPaymentPlans(any[String], any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+      }
+    }
+
+    "retrievePaymentPlanDetails" - {
+      "return 200 and a successful response when DB returns records" in new SetUp {
+        when(mockDirectDebitService.getPaymentPlanDetails(any[String], any[String], any[String]))
+          .thenReturn(Future.successful(paymentPlanDetailsResponse))
+        val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
+
+        status(result) shouldBe OK
+        contentType(result) shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(paymentPlanDetailsResponse)
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.getPaymentPlanDetails(any[String], any[String], any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+      }
+    }
   }
 
   private class SetUp {
     val mockDirectDebitService: DirectDebitService = mock[DirectDebitService]
 
-    val emptyResponse: UserDebits =
+    val emptyDirectDebitResponse: UserDebits =
       UserDebits(0, Seq.empty)
 
-    val nonEmptyResponse: UserDebits =
+    val nonEmptyDirectDebitResponse: UserDebits =
       UserDebits(1, Seq(DirectDebit(
         "0123456789",
         LocalDateTime.of(2025, 12, 12, 12, 12),
@@ -74,6 +139,50 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         false,
         2
       )))
+
+    val emptyDirectDebitPaymentPlanResponse: DDPaymentPlans =
+      DDPaymentPlans("sort code", "account number", "account name", "dd", 0, Seq())
+
+    val nonEmptyDirectDebitPaymentPlanResponse: DDPaymentPlans =
+      DDPaymentPlans("sort code", "account number", "account name", "dd", 0,
+        Seq(
+          PaymentPlan(
+            150.0,
+            "plan reference",
+            "singlePaymentPlan",
+            "payment reference",
+            "dd",
+            LocalDateTime.parse("2020-02-02T22:22:22")
+          )
+        ))
+
+    private val currentTime = LocalDateTime.MIN
+
+    val paymentPlanDetailsResponse = PaymentPlanDetails(
+      directDebitDetails = DirectDebitDetail(
+        bankSortCode = Some("sort code"),
+        bankAccountNumber = Some("account number"),
+        bankAccountName = Some("account name"),
+        auDdisFlag = true,
+        submissionDateTime = currentTime),
+      paymentPlanDetails = PaymentPlanDetail(
+        hodService = "CESA",
+        planType = "01",
+        paymentReference = "payment reference",
+        submissionDateTime = currentTime,
+        scheduledPaymentAmount = Some(1000),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentAmount = Some(150),
+        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+        scheduledPaymentFrequency = Some("1"),
+        suspensionStartDate = Some(currentTime.toLocalDate),
+        suspensionEndDate = Some(currentTime.toLocalDate),
+        balancingPaymentAmount = Some(600),
+        balancingPaymentDate = Some(currentTime.toLocalDate),
+        totalLiability = Some(300),
+        paymentPlanEditable = false)
+    )
 
     val controller =
       new DirectDebitController(fakeAuthAction, mockDirectDebitService, cc)

@@ -1,11 +1,13 @@
 # microservice specific routes
 
-GET        /direct-debits                                           uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits()
+GET        /direct-debits                                                                   uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits()
 
-GET        /direct-debits/:directDebitReference/payment-plans       uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
+GET        /direct-debits/:directDebitReference/payment-plans                               uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
 
-POST       /direct-debit-reference                                  uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.generateDDIReference()
+GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference         uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
 
-POST       /direct-debits/future-working-days                       uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()
+POST       /direct-debit-reference                                                          uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.generateDDIReference()
 
-POST       /cis-taxpayer                                            uk.gov.hmrc.rdsdatacacheproxy.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
+POST       /direct-debits/future-working-days                                               uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()
+
+POST       /cis-taxpayer                                                                    uk.gov.hmrc.rdsdatacacheproxy.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference

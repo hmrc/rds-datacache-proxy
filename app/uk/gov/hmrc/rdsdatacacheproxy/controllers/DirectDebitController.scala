@@ -85,3 +85,14 @@ class DirectDebitController @Inject()(
               logger.error("Error while retrieving data from oracle database", ex)
               InternalServerError("Failed to retrieve earliest data from oracle database.")
           }
+
+  def retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String): Action[AnyContent] =
+    authorise.async:
+      implicit request =>
+        directDebitService.getPaymentPlanDetails(directDebitReference, request.credentialId, paymentPlanReference)
+          .map(result => Ok(Json.toJson(result)))
+          .recover {
+            case ex: Exception =>
+              logger.error("Error while retrieving data from oracle database", ex)
+              InternalServerError("Failed to retrieve earliest data from oracle database.")
+          }

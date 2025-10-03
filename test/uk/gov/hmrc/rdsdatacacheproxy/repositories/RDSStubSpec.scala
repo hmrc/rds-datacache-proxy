@@ -19,11 +19,12 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class RDSStubSpec
   extends AnyWordSpec
@@ -62,3 +63,157 @@ class RDSStubSpec
       val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
 
       result shouldBe DDIReference("xyz")
+
+    "return a DirectDebit Payment Plans" in {
+      val directDebits = connector.getDirectDebits("123").futureValue
+
+      val result = connector.getDirectDebitPaymentPlans(directDebits.directDebitList.head.ddiRefNumber, "credId").futureValue
+
+      result.paymentPlanCount shouldBe directDebits.directDebitList.head.numberOfPayPlans
+    }
+
+    "return error when DirectDebit is not found" in {
+      val result = connector.getDirectDebitPaymentPlans("invalid dd reference", "credId")
+
+      result.recover {
+        case ex: NoSuchElementException =>
+          ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
+      }
+    }
+
+    "return a Single Payment Plan Details" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(
+          bankSortCode = Some("123456"),
+          bankAccountNumber = Some("12345678"),
+          bankAccountName = Some("Bank Ltd"),
+          auDdisFlag = true,
+          submissionDateTime = currentTime),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService = "CESA",
+          planType = "01",
+          paymentReference = "paymentReference",
+          submissionDateTime = currentTime,
+          scheduledPaymentAmount = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate = Some(currentTime.toLocalDate),
+          initialPaymentAmount = Some(150),
+          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = Some("2"),
+          suspensionStartDate = Some(currentTime.toLocalDate),
+          suspensionEndDate = Some(currentTime.toLocalDate),
+          balancingPaymentAmount = Some(600),
+          balancingPaymentDate = Some(currentTime.toLocalDate),
+          totalLiability = Some(300),
+          paymentPlanEditable = false)
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000201", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Budget Payment Plan Details" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(
+          bankSortCode = Some("123456"),
+          bankAccountNumber = Some("12345678"),
+          bankAccountName = Some("Bank Ltd"),
+          auDdisFlag = true,
+          submissionDateTime = currentTime),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService = "CESA",
+          planType = "02",
+          paymentReference = "paymentReference",
+          submissionDateTime = currentTime,
+          scheduledPaymentAmount = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate = Some(currentTime.toLocalDate),
+          initialPaymentAmount = Some(150),
+          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = Some("5"),
+          suspensionStartDate = Some(currentTime.toLocalDate),
+          suspensionEndDate = Some(currentTime.toLocalDate),
+          balancingPaymentAmount = Some(600),
+          balancingPaymentDate = Some(currentTime.toLocalDate),
+          totalLiability = Some(300),
+          paymentPlanEditable = false)
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Tax Credit Repayment Plan Details" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(
+          bankSortCode = Some("123456"),
+          bankAccountNumber = Some("12345678"),
+          bankAccountName = Some("Bank Ltd"),
+          auDdisFlag = true,
+          submissionDateTime = currentTime),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService = "CESA",
+          planType = "03",
+          paymentReference = "paymentReference",
+          submissionDateTime = currentTime,
+          scheduledPaymentAmount = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate = Some(currentTime.toLocalDate),
+          initialPaymentAmount = Some(150),
+          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate = Some(currentTime.toLocalDate),
+          suspensionEndDate = Some(currentTime.toLocalDate),
+          balancingPaymentAmount = Some(600),
+          balancingPaymentDate = Some(currentTime.toLocalDate),
+          totalLiability = Some(300),
+          paymentPlanEditable = false)
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000203", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a VPP Payment Plan Details" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(
+          bankSortCode = Some("123456"),
+          bankAccountNumber = Some("12345678"),
+          bankAccountName = Some("Bank Ltd"),
+          auDdisFlag = true,
+          submissionDateTime = currentTime),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService = "CESA",
+          planType = "04",
+          paymentReference = "paymentReference",
+          submissionDateTime = currentTime,
+          scheduledPaymentAmount = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate = Some(currentTime.toLocalDate),
+          initialPaymentAmount = Some(150),
+          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate = Some(currentTime.toLocalDate),
+          suspensionEndDate = Some(currentTime.toLocalDate),
+          balancingPaymentAmount = Some(600),
+          balancingPaymentDate = Some(currentTime.toLocalDate),
+          totalLiability = Some(300),
+          paymentPlanEditable = false)
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
