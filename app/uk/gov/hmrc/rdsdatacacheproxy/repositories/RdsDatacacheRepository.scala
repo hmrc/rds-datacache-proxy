@@ -34,7 +34,7 @@ trait RdsDataSource {
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate]
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
-  def isDuplicatePaymentPlan(directDebitReference: String, credId:String, request: PaymentPlanDuplicateCheckRequest): Future[Boolean]
+  def isDuplicatePaymentPlan(directDebitReference: String, credId:String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
 }
 
 class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -212,7 +212,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
     }
   }
 
-  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[Boolean] = {
+  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse] = {
     logger.info(s"**** Direct Debit Reference: ${directDebitReference}")
 
     Future {
@@ -242,8 +242,8 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         storedProcedure.close()
         connection.close()
 
-        // Return isDuplicate
-        if (isDuplicate == 1) true else false
+        // Return DuplicateCheckResponse 
+        DuplicateCheckResponse(isDuplicate==1)
       }
     }
 

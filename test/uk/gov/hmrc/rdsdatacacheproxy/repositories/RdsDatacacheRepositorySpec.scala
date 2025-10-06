@@ -25,7 +25,7 @@ import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, PaymentPlan, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DuplicateCheckResponse, PaymentPlan, UserDebits}
 
 import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.{LocalDate, LocalDateTime}
@@ -197,10 +197,10 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(1)
 
     // Act
-    val result = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
+    val result: DuplicateCheckResponse = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
 
     // Assert
-    result shouldBe true
+    result shouldBe DuplicateCheckResponse(true)
   }
 
   "isDuplicatePaymentPlan" should "return false if it is not a duplicate" in {
@@ -225,10 +225,10 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(0)
 
     // Act
-    val result = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
+    val result: DuplicateCheckResponse = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
 
     // Assert
-    result shouldBe false
+    result shouldBe DuplicateCheckResponse(false)
   }
 
 }

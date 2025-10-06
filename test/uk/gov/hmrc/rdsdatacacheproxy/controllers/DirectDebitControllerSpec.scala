@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, DuplicateCheckResponse, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import java.time.LocalDateTime
@@ -66,17 +66,18 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
             any[String],
             any[PaymentPlanDuplicateCheckRequest]
           )
-        ).thenReturn(Future.successful(true))
+        ).thenReturn(Future.successful(DuplicateCheckResponse(true)))
 
         val request: FakeRequest[PaymentPlanDuplicateCheckRequest] =
           FakeRequest()
             .withBody(duplicateCheckRequest)
 
         val result: Future[Result] =
-          controller.isDuplicatePaymentPlan("testDirectDebitReference")(request)
+          controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
 
-        status(result) mustBe OK
-        contentAsJson(result).as[Boolean] mustBe true
+        status(result) shouldBe OK
+        contentType(result) shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(DuplicateCheckResponse(true))
       }
 
       "return 500 and log error when DB call fails" in new SetUp {
@@ -95,7 +96,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
             .withBody(duplicateCheckRequest)
 
         val result: Future[Result] =
-          controller.isDuplicatePaymentPlan("testDirectDebitReference")(request)
+          controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")

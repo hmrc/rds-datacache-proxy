@@ -21,7 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DuplicateCheckResponse, EarliestPaymentDate, UserDebits}
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
@@ -78,9 +78,9 @@ class RDSStubSpec
         paymentFrequency = "1"
       )
 
-      val result = connector.isDuplicatePaymentPlan("dd reference", "0000000009000201", duplicateCheckRequest).futureValue
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000201", duplicateCheckRequest).futureValue
 
-      result shouldBe true
+      result shouldBe DuplicateCheckResponse(true)
     }
 
     "return false if not a duplicate payment plan" in {
@@ -97,7 +97,7 @@ class RDSStubSpec
           paymentFrequency = "WEEKLY"
         )
 
-        val result = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
+        val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
 
-        result shouldBe false
+        result shouldBe DuplicateCheckResponse(false)
       }

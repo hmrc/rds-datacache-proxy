@@ -24,7 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsStub
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, EarliestPaymentDate, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DuplicateCheckResponse, EarliestPaymentDate, UserDebits}
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
@@ -102,8 +102,8 @@ class DirectDebitServiceSpec
           when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
             .thenReturn(Future.successful(true))
 
-          val result = service.isDuplicatePaymentPlan("ddReference", "0000000009000201", duplicateCheckRequest).futureValue
-          result shouldBe true
+        val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000201", duplicateCheckRequest).futureValue
+          result shouldBe DuplicateCheckResponse(true)
         }
 
        "return false if it is not a duplicate Payment Plan" in {
@@ -123,8 +123,8 @@ class DirectDebitServiceSpec
           when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
             .thenReturn(Future.successful(false))
 
-          val result = service.isDuplicatePaymentPlan("ddReference", "0000000009000202", duplicateCheckRequest).futureValue
-          result shouldBe false
+         val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000202", duplicateCheckRequest).futureValue
+          result shouldBe DuplicateCheckResponse(false)
         }
 
     "fail" when:
