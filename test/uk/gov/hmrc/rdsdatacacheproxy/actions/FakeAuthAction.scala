@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.requests.AuthenticatedRequest
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends AuthAction {
+class FakeAuthAction @Inject() (bodyParsers: PlayBodyParsers) extends AuthAction {
 
   override def parser: BodyParser[AnyContent] = bodyParsers.defaultBodyParser
 

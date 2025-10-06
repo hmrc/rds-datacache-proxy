@@ -19,14 +19,14 @@ package uk.gov.hmrc.rdsdatacacheproxy
 import play.api.inject.{Binding, Module as AppModule}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub, CisDatacacheRepository, CisMonthlyReturnSource}
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.{CisDatacacheRepository, CisMonthlyReturnSource, RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController
 import uk.gov.hmrc.rdsdatacacheproxy.utils.CisRdsStub
 
 class Module extends AppModule:
 
   override def bindings(
-    environment  : Environment,
+    environment: Environment,
     configuration: Configuration
   ): Seq[Binding[_]] =
     lazy val rdsStubbed = configuration.get[Boolean]("feature-switch.rds-stubbed")

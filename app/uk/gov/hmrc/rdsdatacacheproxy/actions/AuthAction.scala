@@ -29,11 +29,13 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.requests.AuthenticatedRequest
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DefaultAuthAction @Inject()(
-                           override val authConnector: AuthConnector,
-                           val parser: BodyParsers.Default
-                         )(implicit val executionContext: ExecutionContext)
-  extends AuthAction with AuthorisedFunctions with Logging:
+class DefaultAuthAction @Inject() (
+  override val authConnector: AuthConnector,
+  val parser: BodyParsers.Default
+)(implicit val executionContext: ExecutionContext)
+    extends AuthAction
+    with AuthorisedFunctions
+    with Logging:
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
@@ -41,12 +43,10 @@ class DefaultAuthAction @Inject()(
 
     authorised().retrieve(Retrievals.internalId and Retrievals.credentials) {
       case Some(internalId) ~ Some(credentials) => block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId))
-      case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
-    } recover {
-      case ae: AuthorisationException =>
-        logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
-        Unauthorized
+      case _                                    => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
+    } recover { case ae: AuthorisationException =>
+      logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
+      Unauthorized
     }
 
-trait AuthAction
-  extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
+trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]

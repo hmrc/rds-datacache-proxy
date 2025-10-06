@@ -48,29 +48,29 @@ class CisTaxpayerSpec extends AnyWordSpec with Matchers {
         """.stripMargin
       )
 
-      val json = Json.parse(jsonAsString)  
-      val model = json.as[CisTaxpayer]     
+      val json = Json.parse(jsonAsString)
+      val model = json.as[CisTaxpayer]
 
       model mustBe CisTaxpayer(
-        uniqueId = "1",
-        taxOfficeNumber = "123",
-        taxOfficeRef = "AB456",
-        aoDistrict = Some("999"),
-        aoPayType = Some("CIS"),
-        aoCheckCode = Some("999"),
-        aoReference = Some("test"),
+        uniqueId          = "1",
+        taxOfficeNumber   = "123",
+        taxOfficeRef      = "AB456",
+        aoDistrict        = Some("999"),
+        aoPayType         = Some("CIS"),
+        aoCheckCode       = Some("999"),
+        aoReference       = Some("test"),
         validBusinessAddr = Some("Y"),
-        correlation = Some("corr-123"),
-        ggAgentId = Some("agent-123"),
-        employerName1 = Some("TEST LTD"),
-        employerName2 = Some("GROUP"),
-        agentOwnRef = Some("ref-123"),
-        schemeName = Some("CIS"),
-        utr = Some("1234567890"),
-        enrolledSig = Some("test-sig")
-      ) 
+        correlation       = Some("corr-123"),
+        ggAgentId         = Some("agent-123"),
+        employerName1     = Some("TEST LTD"),
+        employerName2     = Some("GROUP"),
+        agentOwnRef       = Some("ref-123"),
+        schemeName        = Some("CIS"),
+        utr               = Some("1234567890"),
+        enrolledSig       = Some("test-sig")
+      )
 
-      Json.toJson(model) mustBe json 
+      Json.toJson(model) mustBe json
     }
   }
 }

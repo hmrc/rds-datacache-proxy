@@ -39,7 +39,7 @@ class EmployerReferenceSpec extends AnyWordSpec with Matchers {
       val model = json.as[EmployerReference]
 
       model mustBe EmployerReference(
-        taxOfficeNumber = "123",
+        taxOfficeNumber    = "123",
         taxOfficeReference = "AB456"
       )
 

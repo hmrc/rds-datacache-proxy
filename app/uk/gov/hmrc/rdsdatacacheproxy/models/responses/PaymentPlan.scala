@@ -25,7 +25,8 @@ case class PaymentPlan(scheduledPaymentAmount: BigDecimal,
                        planType: String,
                        paymentReference: String,
                        hodService: String,
-                       submissionDateTime: LocalDateTime)
+                       submissionDateTime: LocalDateTime
+                      )
 
 object PaymentPlan:
   implicit val format: OFormat[PaymentPlan] = Json.format[PaymentPlan]
@@ -35,7 +36,8 @@ case class DDPaymentPlans(bankSortCode: String,
                           bankAccountName: String,
                           auDdisFlag: String,
                           paymentPlanCount: Int,
-                          paymentPlanList: Seq[PaymentPlan])
+                          paymentPlanList: Seq[PaymentPlan]
+                         )
 
 object DDPaymentPlans:
   import PaymentPlan.format
