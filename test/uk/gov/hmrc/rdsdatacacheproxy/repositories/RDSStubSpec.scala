@@ -220,7 +220,6 @@ class RDSStubSpec
 
 
     "return true if duplicate payment plan" in {
-      val currentTime = LocalDateTime.now().withNano(0)
 
       val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
         directDebitReference = "testRef",
@@ -239,7 +238,6 @@ class RDSStubSpec
     }
 
     "return false if not a duplicate payment plan" in {
-        val currentTime = LocalDateTime.now().withNano(0)
 
         val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
           directDebitReference = "testRef",

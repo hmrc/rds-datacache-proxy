@@ -129,48 +129,43 @@ class DirectDebitServiceSpec
         result shouldBe paymentPlanDetails
       }
 
-
       "return true if it is a duplicate Payment Plan" in {
 
-          val currentTime = LocalDateTime.now()
-
-          val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-            directDebitReference = "testRef",
-            paymentPlanReference = "payment ref 123",
-            planType = "type 1",
-            paymentService = "CESA",
-            paymentReference = "payment ref",
-            paymentAmount = 120.00,
-            totalLiability = 780.00,
-            paymentFrequency = "WEEKLY"
-          )
-          when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
-            .thenReturn(Future.successful(true))
+        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+          directDebitReference = "testRef",
+          paymentPlanReference = "payment ref 123",
+          planType = "type 1",
+          paymentService = "CESA",
+          paymentReference = "payment ref",
+          paymentAmount = 120.00,
+          totalLiability = 780.00,
+          paymentFrequency = "WEEKLY"
+        )
+        when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
+          .thenReturn(Future.successful(DuplicateCheckResponse(true)))
 
         val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000201", duplicateCheckRequest).futureValue
-          result shouldBe DuplicateCheckResponse(true)
-        }
+        result shouldBe DuplicateCheckResponse(true)
+      }
 
-       "return false if it is not a duplicate Payment Plan" in {
+      "return false if it is not a duplicate Payment Plan" in {
 
-          val currentTime = LocalDateTime.now()
+        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+          directDebitReference = "testRef",
+          paymentPlanReference = "payment ref 123",
+          planType = "type 1",
+          paymentService = "CESA",
+          paymentReference = "payment ref",
+          paymentAmount = 120.00,
+          totalLiability = 780.00,
+          paymentFrequency = "WEEKLY"
+        )
+        when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
+          .thenReturn(Future.successful(DuplicateCheckResponse(false)))
 
-          val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-            directDebitReference = "testRef",
-            paymentPlanReference = "payment ref 123",
-            planType = "type 1",
-            paymentService = "CESA",
-            paymentReference = "payment ref",
-            paymentAmount = 120.00,
-            totalLiability = 780.00,
-            paymentFrequency = "WEEKLY"
-          )
-          when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
-            .thenReturn(Future.successful(false))
-
-         val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000202", duplicateCheckRequest).futureValue
-          result shouldBe DuplicateCheckResponse(false)
-        }
+        val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000202", duplicateCheckRequest).futureValue
+        result shouldBe DuplicateCheckResponse(false)
+      }
 
     "fail" when:
       "retrieving Direct Debits" in:
