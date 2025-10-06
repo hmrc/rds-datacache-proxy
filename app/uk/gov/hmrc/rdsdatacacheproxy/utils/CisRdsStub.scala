@@ -17,8 +17,8 @@
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.connectors.CisMonthlyReturnSource
-import uk.gov.hmrc.rdsdatacacheproxy.models.{MonthlyReturn, UserMonthlyReturns}
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
+import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
@@ -26,22 +26,22 @@ import scala.concurrent.Future
 @Singleton
 class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource with Logging {
 
-  private[this] val stubData = stubUtils
+  override def getCisTaxpayerByTaxRef(
+                                       taxOfficeNumber: String,
+                                       taxOfficeReference: String
+                                     ): Future[Option[CisTaxpayer]] = {
+    val ton = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
+    val tor = Option(taxOfficeReference).exists(_.trim.nonEmpty)
 
-  override def findInstanceId(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[String]] = {
-    val tonOk = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
-    val torOk = Option(taxOfficeReference).exists(_.trim.nonEmpty)
+    (ton, tor) match {
+      case (true, true) =>
+        val taxpayer = stubUtils.createCisTaxpayer()
+        logger.info(s"[CIS-STUB] getCisTaxpayerByTaxRef -> TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim} => uniqueId=${taxpayer.uniqueId}")
+        Future.successful(Some(taxpayer))
 
-    if (tonOk && torOk) {
-      logger.info(s"[CIS-STUB] findInstanceId -> TON=$taxOfficeNumber, TOR=$taxOfficeReference => instanceId=1")
-      Future.successful(Some("1"))
-    } else {
-      logger.warn(s"[CIS-STUB] findInstanceId -> missing/blank TON/TOR: ton='$taxOfficeNumber', tor='$taxOfficeReference'")
-      Future.successful(None)
+      case _ =>
+        logger.warn(s"[CIS-STUB] getCisTaxpayerByTaxRef -> missing/blank TON/TOR: ton='$taxOfficeNumber', tor='$taxOfficeReference'")
+        Future.successful(None)
     }
   }
-
-  def getMonthlyReturns(instanceId: String): Future[UserMonthlyReturns] =
-    val monthlyReturns: Seq[MonthlyReturn] = Seq(1, 2, 3).map(stubData.generateMonthlyReturns)
-    Future.successful(UserMonthlyReturns(monthlyReturns))
 }

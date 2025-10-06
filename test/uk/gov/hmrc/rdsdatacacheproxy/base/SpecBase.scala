@@ -20,6 +20,7 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TestSuite, TryValues}
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.{BaseOneAppPerSuite, FakeApplicationFactory}
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -29,6 +30,7 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FakeHeaders, FakeRequest}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 
 import scala.concurrent.ExecutionContext
 
@@ -40,6 +42,7 @@ trait SpecBase
     with OptionValues
     with ScalaFutures
     with IntegrationPatience
+    with MockitoSugar
     with BeforeAndAfterEach
     with TestSuite
     with FakeApplicationFactory
@@ -76,5 +79,30 @@ trait SpecBase
     FakeRequest().withHeaders(TonHeader -> ton)
 
   def requestWithoutCisHeaders: FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest()  
+    FakeRequest()
+
+  def mkTaxpayer(
+                  id: String = "CIS-123",
+                  ton: String = "123",
+                  tor: String = "AB456",
+                  employerName1: Option[String] = Some("TEST LTD")
+                ): CisTaxpayer =
+    CisTaxpayer(
+      uniqueId = id,
+      taxOfficeNumber = ton,
+      taxOfficeRef = tor,
+      aoDistrict = None,
+      aoPayType = None,
+      aoCheckCode = None,
+      aoReference = None,
+      validBusinessAddr = None,
+      correlation = None,
+      ggAgentId = None,
+      employerName1 = employerName1,
+      employerName2 = None,
+      agentOwnRef = None,
+      schemeName = None,
+      utr = None,
+      enrolledSig = None
+    )
 }

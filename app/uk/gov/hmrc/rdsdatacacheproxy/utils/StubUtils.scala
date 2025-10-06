@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.utils
 
+import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DirectDebit, PaymentPlan}
-import uk.gov.hmrc.rdsdatacacheproxy.models.MonthlyReturn
 
 import java.time.LocalDateTime
-import java.util.concurrent.atomic.AtomicLong
 import scala.util.Random
 
 class StubUtils {
@@ -36,37 +35,13 @@ class StubUtils {
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
-      ddiRefNumber = s"defaultRef$i",
+      ddiRefNumber = s"99055002$i",
       LocalDateTime.parse(s"${date}T00:00:00"),
       s"${r(99)}-${r(99)}-${r(99)}",
       Seq.fill(8)(Random.nextInt(10)).mkString,
       "BankLtd",
       Random.nextBoolean(),
-      Random.nextInt(3)
-    )
-  }
-
-  private val mrId = new AtomicLong(1000000L)
-
-  def generateMonthlyReturns(month: Int): MonthlyReturn = {
-    val id = mrId.incrementAndGet()
-    val now = LocalDateTime.now().minusDays(Random.nextInt(90).toLong)
-      .withHour(0).withMinute(0).withSecond(0).withNano(0)
-
-    MonthlyReturn(
-      monthlyReturnId = id,
-      taxYear = 2025,
-      taxMonth = month,
-      nilReturnIndicator = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decEmpStatusConsidered = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decAllSubsVerified = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decInformationCorrect = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNoMoreSubPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      decNilReturnNoPayments = Some(if (Random.nextBoolean()) "Y" else "N"),
-      status = Some(Seq("STARTED", "SUBMITTED")(Random.nextInt(2))),
-      lastUpdate = Some(now),
-      amendment = Some(if (Random.nextBoolean()) "Y" else "N"),
-      supersededBy = None
+      Random.nextInt(3) + 1
     )
   }
 
@@ -74,13 +49,46 @@ class StubUtils {
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
+
+    val planTypes = Seq("01", "02")
+    val randomPlanType = planTypes(Random.nextInt(planTypes.length))
+
+    val hodServices = Seq("COTA", "NIDN", "SAFE", "PAYE", "CESA", "SDLT", "NTC", "VAT", "MGD")
+
+    val randomHodService = hodServices(Random.nextInt(hodServices.length))
+
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber = "ddpaymentReference",
-      planType = s"planType$i",
-      paymentReference = s"payReference$i",
-      hodService = s"planHoldService$i",
+      planRefNumber = s"20000080$i",
+      planType = randomPlanType,
+      paymentReference = s"{$i}400256374K",
+      hodService = randomHodService,
       submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }
+
+  def createCisTaxpayer(
+     uniqueId: String = "1",
+     taxOfficeNumber: String = "123",
+     taxOfficeRef: String = "AB456",
+     employerName1: Option[String] = Some("TEST LTD")
+  ): CisTaxpayer =
+    CisTaxpayer(
+      uniqueId = uniqueId,
+      taxOfficeNumber = taxOfficeNumber,
+      taxOfficeRef = taxOfficeRef,
+      aoDistrict = Some("123"),
+      aoPayType = Some("M"),
+      aoCheckCode = Some("XY"),
+      aoReference = Some("1234567XY"),
+      validBusinessAddr = Some("Y"),
+      correlation = Some("corr-abc"),
+      ggAgentId = Some("AGENT-001"),
+      employerName1 = employerName1,
+      employerName2 = None,
+      agentOwnRef = Some("AG-REF-001"),
+      schemeName = Some("CIS Scheme"),
+      utr = Some("1234567890"),
+      enrolledSig = Some("Y")
+    )
 }

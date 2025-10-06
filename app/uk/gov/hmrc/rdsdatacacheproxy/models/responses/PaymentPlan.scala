@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
 
-case class PaymentPlan(scheduledPaymentAmount: Double,
+case class PaymentPlan(scheduledPaymentAmount: BigDecimal,
                        planRefNumber: String,
                        planType: String,
                        paymentReference: String,
