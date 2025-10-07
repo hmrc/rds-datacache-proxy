@@ -24,7 +24,8 @@ case class DirectDebitDetail(bankSortCode: Option[String],
                              bankAccountNumber: Option[String],
                              bankAccountName: Option[String],
                              auDdisFlag: Boolean,
-                             submissionDateTime: LocalDateTime)
+                             submissionDateTime: LocalDateTime
+                            )
 
 object DirectDebitDetail:
   implicit val format: OFormat[DirectDebitDetail] = Json.format[DirectDebitDetail]
@@ -44,13 +45,13 @@ case class PaymentPlanDetail(hodService: String,
                              balancingPaymentAmount: Option[BigDecimal],
                              balancingPaymentDate: Option[LocalDate],
                              totalLiability: Option[BigDecimal],
-                             paymentPlanEditable: Boolean)
+                             paymentPlanEditable: Boolean
+                            )
 
 object PaymentPlanDetail:
   implicit val format: OFormat[PaymentPlanDetail] = Json.format[PaymentPlanDetail]
 
-case class PaymentPlanDetails(directDebitDetails: DirectDebitDetail,
-                              paymentPlanDetails: PaymentPlanDetail)
+case class PaymentPlanDetails(directDebitDetails: DirectDebitDetail, paymentPlanDetails: PaymentPlanDetail)
 
 object PaymentPlanDetails:
   implicit val format: OFormat[PaymentPlanDetails] = Json.format[PaymentPlanDetails]

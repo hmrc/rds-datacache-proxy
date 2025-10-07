@@ -59,36 +59,36 @@ class StubUtils {
 
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber = s"20000080$i",
-      planType = randomPlanType,
-      paymentReference = s"{$i}400256374K",
-      hodService = randomHodService,
-      submissionDateTime = LocalDateTime.parse(s"${date}T00:00:00")
+      planRefNumber          = s"20000080$i",
+      planType               = randomPlanType,
+      paymentReference       = s"{$i}400256374K",
+      hodService             = randomHodService,
+      submissionDateTime     = LocalDateTime.parse(s"${date}T00:00:00")
     )
   }
 
   def createCisTaxpayer(
-     uniqueId: String = "1",
-     taxOfficeNumber: String = "123",
-     taxOfficeRef: String = "AB456",
-     employerName1: Option[String] = Some("TEST LTD")
+    uniqueId: String = "1",
+    taxOfficeNumber: String = "123",
+    taxOfficeRef: String = "AB456",
+    employerName1: Option[String] = Some("TEST LTD")
   ): CisTaxpayer =
     CisTaxpayer(
-      uniqueId = uniqueId,
-      taxOfficeNumber = taxOfficeNumber,
-      taxOfficeRef = taxOfficeRef,
-      aoDistrict = Some("123"),
-      aoPayType = Some("M"),
-      aoCheckCode = Some("XY"),
-      aoReference = Some("1234567XY"),
+      uniqueId          = uniqueId,
+      taxOfficeNumber   = taxOfficeNumber,
+      taxOfficeRef      = taxOfficeRef,
+      aoDistrict        = Some("123"),
+      aoPayType         = Some("M"),
+      aoCheckCode       = Some("XY"),
+      aoReference       = Some("1234567XY"),
       validBusinessAddr = Some("Y"),
-      correlation = Some("corr-abc"),
-      ggAgentId = Some("AGENT-001"),
-      employerName1 = employerName1,
-      employerName2 = None,
-      agentOwnRef = Some("AG-REF-001"),
-      schemeName = Some("CIS Scheme"),
-      utr = Some("1234567890"),
-      enrolledSig = Some("Y")
+      correlation       = Some("corr-abc"),
+      ggAgentId         = Some("AGENT-001"),
+      employerName1     = employerName1,
+      employerName2     = None,
+      agentOwnRef       = Some("AG-REF-001"),
+      schemeName        = Some("CIS Scheme"),
+      utr               = Some("1234567890"),
+      enrolledSig       = Some("Y")
     )
 }

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
-
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
@@ -31,38 +30,39 @@ trait CisMonthlyReturnSource {
 }
 
 @Singleton
-class CisDatacacheRepository @Inject()(
-                                        @NamedDatabase("cis") db: Database        
-                                      )(implicit ec: ExecutionContext)
-  extends CisMonthlyReturnSource with Logging {
+class CisDatacacheRepository @Inject() (
+  @NamedDatabase("cis") db: Database
+)(implicit ec: ExecutionContext)
+    extends CisMonthlyReturnSource
+    with Logging {
 
   private def str(rs: ResultSet, col: String): Option[String] =
     Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
 
   private def toCisTaxpayer(rs: ResultSet): CisTaxpayer =
     CisTaxpayer(
-      uniqueId         = str(rs, "UNIQUE_ID").getOrElse(""),
-      taxOfficeNumber  = str(rs, "TAX_OFFICE_NUMBER").getOrElse(""),
-      taxOfficeRef     = str(rs, "TAX_OFFICE_REF").getOrElse(""),
-      aoDistrict       = str(rs, "AO_DISTRICT"),
-      aoPayType        = str(rs, "AO_PAY_TYPE"),
-      aoCheckCode      = str(rs, "AO_CHECK_CODE"),
-      aoReference      = str(rs, "AO_REFERENCE"),
-      validBusinessAddr= str(rs, "VALID_BUSINESS_ADDR"),
-      correlation      = str(rs, "CORRELATION"),
-      ggAgentId        = str(rs, "GG_AGENT_ID"),
-      employerName1    = str(rs, "EMPLOYER_NAME1"),
-      employerName2    = str(rs, "EMPLOYER_NAME2"),
-      agentOwnRef      = str(rs, "AGENT_OWN_REF"),
-      schemeName       = str(rs, "SCHEME_NAME"),
-      utr              = str(rs, "UTR"),
-      enrolledSig      = str(rs, "ENROLLED_SIG")
+      uniqueId          = str(rs, "UNIQUE_ID").getOrElse(""),
+      taxOfficeNumber   = str(rs, "TAX_OFFICE_NUMBER").getOrElse(""),
+      taxOfficeRef      = str(rs, "TAX_OFFICE_REF").getOrElse(""),
+      aoDistrict        = str(rs, "AO_DISTRICT"),
+      aoPayType         = str(rs, "AO_PAY_TYPE"),
+      aoCheckCode       = str(rs, "AO_CHECK_CODE"),
+      aoReference       = str(rs, "AO_REFERENCE"),
+      validBusinessAddr = str(rs, "VALID_BUSINESS_ADDR"),
+      correlation       = str(rs, "CORRELATION"),
+      ggAgentId         = str(rs, "GG_AGENT_ID"),
+      employerName1     = str(rs, "EMPLOYER_NAME1"),
+      employerName2     = str(rs, "EMPLOYER_NAME2"),
+      agentOwnRef       = str(rs, "AGENT_OWN_REF"),
+      schemeName        = str(rs, "SCHEME_NAME"),
+      utr               = str(rs, "UTR"),
+      enrolledSig       = str(rs, "ENROLLED_SIG")
     )
 
   override def getCisTaxpayerByTaxRef(
-                                       taxOfficeNumber: String,
-                                       taxOfficeReference: String
-                                     ): Future[Option[CisTaxpayer]] = {
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[Option[CisTaxpayer]] = {
     logger.info(s"[CIS] getCisTaxpayerByTaxRef(TON=$taxOfficeNumber, TOR=$taxOfficeReference)")
     Future {
       db.withConnection { conn =>

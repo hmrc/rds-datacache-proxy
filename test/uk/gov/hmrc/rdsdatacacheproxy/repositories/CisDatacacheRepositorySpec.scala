@@ -20,17 +20,13 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.OptionValues
-import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers.{any => anyArg, eq => eqTo}
+import org.mockito.Mockito.*
+import org.mockito.ArgumentMatchers.{any as anyArg, eq as eqTo}
 import play.api.db.Database
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-final class CisDatacacheRepositorySpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with OptionValues {
+final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with ScalaFutures with OptionValues {
 
   "getCisTaxpayerByTaxRef" should {
     "return None on empty cursor" in {
@@ -62,44 +58,44 @@ final class CisDatacacheRepositorySpec
     }
   }
 
-    "return Some(CisTaxpayer) on one-row cursor" in {
-      val db = mock(classOf[Database])
-      val conn = mock(classOf[java.sql.Connection])
-      val cs = mock(classOf[CallableStatement])
-      val rs = mock(classOf[ResultSet])
+  "return Some(CisTaxpayer) on one-row cursor" in {
+    val db = mock(classOf[Database])
+    val conn = mock(classOf[java.sql.Connection])
+    val cs = mock(classOf[CallableStatement])
+    val rs = mock(classOf[ResultSet])
 
-      when(db.withConnection(anyArg())).thenAnswer { inv =>
-        val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
-        f(conn)
-      }
-      when(conn.prepareCall(anyArg[String])).thenReturn(cs)
-
-      when(cs.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(rs)
-
-      when(rs.next()).thenReturn(true, false)
-      when(rs.getString("UNIQUE_ID")).thenReturn(" 1 ")
-      when(rs.getString("TAX_OFFICE_NUMBER")).thenReturn(" 123 ")
-      when(rs.getString("TAX_OFFICE_REF")).thenReturn(" AB456 ")
-      when(rs.getString("EMPLOYER_NAME1")).thenReturn(" TEST LTD ")
-
-      val repo = new CisDatacacheRepository(db)
-
-      val out = repo.getCisTaxpayerByTaxRef("123", "AB456").futureValue
-      val tp = out.value
-
-      tp.uniqueId mustBe "1"
-      tp.taxOfficeNumber mustBe "123"
-      tp.taxOfficeRef mustBe "AB456"
-      tp.employerName1 mustBe Some("TEST LTD")
-
-      verify(conn).prepareCall("{ call ECISR_SEARCH_PK.getCISTaxpayerByTaxReference(?, ?, ?) }")
-      verify(cs).setString(1, "123")
-      verify(cs).setString(2, "AB456")
-      verify(cs).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
-
-      verify(rs).close()
-      verify(cs).close()
+    when(db.withConnection(anyArg())).thenAnswer { inv =>
+      val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+      f(conn)
     }
+    when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+
+    when(cs.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(rs)
+
+    when(rs.next()).thenReturn(true, false)
+    when(rs.getString("UNIQUE_ID")).thenReturn(" 1 ")
+    when(rs.getString("TAX_OFFICE_NUMBER")).thenReturn(" 123 ")
+    when(rs.getString("TAX_OFFICE_REF")).thenReturn(" AB456 ")
+    when(rs.getString("EMPLOYER_NAME1")).thenReturn(" TEST LTD ")
+
+    val repo = new CisDatacacheRepository(db)
+
+    val out = repo.getCisTaxpayerByTaxRef("123", "AB456").futureValue
+    val tp = out.value
+
+    tp.uniqueId mustBe "1"
+    tp.taxOfficeNumber mustBe "123"
+    tp.taxOfficeRef mustBe "AB456"
+    tp.employerName1 mustBe Some("TEST LTD")
+
+    verify(conn).prepareCall("{ call ECISR_SEARCH_PK.getCISTaxpayerByTaxReference(?, ?, ?) }")
+    verify(cs).setString(1, "123")
+    verify(cs).setString(2, "AB456")
+    verify(cs).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
+
+    verify(rs).close()
+    verify(cs).close()
+  }
 
   "return Some(taxpayers)  on two-row cursor" in {
     val db = mock(classOf[Database])

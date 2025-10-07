@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.models
 
-
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsValue, Json}
@@ -26,9 +25,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.responses.DirectDebit.*
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
-class DirectDebitSpec
-  extends AnyWordSpec
-    with Matchers:
+class DirectDebitSpec extends AnyWordSpec with Matchers:
 
   val dateTime: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
 
@@ -44,20 +41,19 @@ class DirectDebitSpec
       |  "numberOfPayPlans": 1
       |}""".stripMargin.filterNot(_.isWhitespace)
   val model: DirectDebit = DirectDebit(
-      ddiRefNumber = "refnum",
-      submissionDateTime = dateTime,
-      bankSortCode = "00-00-00",
-      bankAccountNumber = "00000000",
-      bankAccountName = "BankLtd",
-      auDdisFlag = false,
-      numberOfPayPlans = 1
-    )
+    ddiRefNumber       = "refnum",
+    submissionDateTime = dateTime,
+    bankSortCode       = "00-00-00",
+    bankAccountNumber  = "00000000",
+    bankAccountName    = "BankLtd",
+    auDdisFlag         = false,
+    numberOfPayPlans   = 1
+  )
   val json: JsValue = Json.parse(jsonAsString)
 
-  "DirectDebit" should :
-    "read JSON correctly" in :
+  "DirectDebit" should:
+    "read JSON correctly" in:
       Json.fromJson(json).get shouldBe model
 
-    "write JSON correctly" in :
+    "write JSON correctly" in:
       Json.toJson(model).toString shouldBe jsonAsString
-

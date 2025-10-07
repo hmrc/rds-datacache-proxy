@@ -24,19 +24,21 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class CisRdsStub @Inject()(stubUtils: StubUtils) extends CisMonthlyReturnSource with Logging {
+class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource with Logging {
 
   override def getCisTaxpayerByTaxRef(
-                                       taxOfficeNumber: String,
-                                       taxOfficeReference: String
-                                     ): Future[Option[CisTaxpayer]] = {
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[Option[CisTaxpayer]] = {
     val ton = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
     val tor = Option(taxOfficeReference).exists(_.trim.nonEmpty)
 
     (ton, tor) match {
       case (true, true) =>
         val taxpayer = stubUtils.createCisTaxpayer()
-        logger.info(s"[CIS-STUB] getCisTaxpayerByTaxRef -> TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim} => uniqueId=${taxpayer.uniqueId}")
+        logger.info(
+          s"[CIS-STUB] getCisTaxpayerByTaxRef -> TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim} => uniqueId=${taxpayer.uniqueId}"
+        )
         Future.successful(Some(taxpayer))
 
       case _ =>

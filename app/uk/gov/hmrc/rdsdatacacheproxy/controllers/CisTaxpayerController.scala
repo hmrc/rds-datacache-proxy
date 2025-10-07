@@ -29,38 +29,48 @@ import uk.gov.hmrc.rdsdatacacheproxy.services.CisTaxpayerService
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CisTaxpayerController @Inject()(
-                                       authorise: AuthAction,
-                                       service: CisTaxpayerService,
-                                       cc: ControllerComponents
-                                       )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
+class CisTaxpayerController @Inject() (
+  authorise: AuthAction,
+  service: CisTaxpayerService,
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
+    with Logging {
   def getCisTaxpayerByTaxReference: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
-      request.body.validate[EmployerReference].fold(
-        errs => Future.successful(BadRequest(Json.obj(
-          "message" -> "Invalid JSON body",
-          "errors" -> JsError.toJson(errs)
-        ))),
-        er =>
-          service
-            .getCisTaxpayerByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
-            .map(tp => Ok(Json.toJson(tp)))
-            .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", er))
-      )
+      request.body
+        .validate[EmployerReference]
+        .fold(
+          errs =>
+            Future.successful(
+              BadRequest(
+                Json.obj(
+                  "message" -> "Invalid JSON body",
+                  "errors"  -> JsError.toJson(errs)
+                )
+              )
+            ),
+          er =>
+            service
+              .getCisTaxpayerByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
+              .map(tp => Ok(Json.toJson(tp)))
+              .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", er))
+        )
     }
 
-  
   private def recoverServiceErrors(
-                                    op: String,
-                                    er: EmployerReference
-                                  ): PartialFunction[Throwable, Result] = {
+    op: String,
+    er: EmployerReference
+  ): PartialFunction[Throwable, Result] = {
     case u: UpstreamErrorResponse =>
       Status(u.statusCode)(Json.obj("message" -> u.message))
 
     case _: NoSuchElementException =>
-      NotFound(Json.obj(
-        "message" -> s"CIS taxpayer not found for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}"
-      ))
+      NotFound(
+        Json.obj(
+          "message" -> s"CIS taxpayer not found for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}"
+        )
+      )
 
     case t: Throwable =>
       logger.error(s"[$op] failed for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}", t)
