@@ -200,7 +200,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
         initialPaymentStartDate = Some(currentTime.toLocalDate),
         initialPaymentAmount = Some(150),
         scheduledPaymentEndDate = Some(currentTime.toLocalDate),
-        scheduledPaymentFrequency = Some("1"),
+        scheduledPaymentFrequency = Some(1),
         suspensionStartDate = Some(currentTime.toLocalDate),
         suspensionEndDate = None,
         balancingPaymentAmount = Some(600),
@@ -224,7 +224,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getDate("pInitialPayStartDate")).thenReturn(Date.valueOf(currentDate))
     when(mockCallableStatement.getBigDecimal("pInitialPayAmount")).thenReturn(scala.math.BigDecimal(150.0).bigDecimal)
     when(mockCallableStatement.getDate("pScheduledPayEndDate")).thenReturn(Date.valueOf(currentDate))
-    when(mockCallableStatement.getString("pScheduledPayFreq")).thenReturn("1")
+    when(mockCallableStatement.getInt("pScheduledPayFreq")).thenReturn(1)
     when(mockCallableStatement.getDate("pSuspensionStartDate")).thenReturn(Date.valueOf(currentDate))
     when(mockCallableStatement.getDate("pSuspensionEndDate")).thenReturn(null)
     when(mockCallableStatement.getBigDecimal("pBalancingPayAmount")).thenReturn(scala.math.BigDecimal(600.0).bigDecimal)

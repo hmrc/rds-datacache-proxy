@@ -232,18 +232,18 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
         storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
         storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
-        storedProcedure.registerOutParameter("pDDISubmissionDateTime", Types.DATE) // pDDISubmissionDateTime
+        storedProcedure.registerOutParameter("pDDISubmissionDateTime", Types.TIMESTAMP) // pDDISubmissionDateTime
         storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
         storedProcedure.registerOutParameter("pPayPlanHodService", Types.VARCHAR) // pPayPlanHodService
         storedProcedure.registerOutParameter("pPayPlanType", Types.VARCHAR) // pPayPlanType
         storedProcedure.registerOutParameter("pPayReference", Types.VARCHAR) // pPayReference
-        storedProcedure.registerOutParameter("pSubmissionDateTime", Types.DATE) // pSubmissionDateTime
+        storedProcedure.registerOutParameter("pSubmissionDateTime", Types.TIMESTAMP) // pSubmissionDateTime
         storedProcedure.registerOutParameter("pScheduledPayAmount", Types.DECIMAL) // pScheduledPayAmount
         storedProcedure.registerOutParameter("pScheduledPayStartDate", Types.DATE) // pScheduledPayStartDate
         storedProcedure.registerOutParameter("pInitialPayStartDate", Types.DATE) // pInitialPayStartDate
         storedProcedure.registerOutParameter("pInitialPayAmount", Types.DECIMAL) // pInitialPayAmount
         storedProcedure.registerOutParameter("pScheduledPayEndDate", Types.DATE) // pScheduledPayEndDate
-        storedProcedure.registerOutParameter("pScheduledPayFreq", Types.VARCHAR) // pScheduledPayFreq
+        storedProcedure.registerOutParameter("pScheduledPayFreq", Types.NUMERIC) // pScheduledPayFreq
         storedProcedure.registerOutParameter("pSuspensionStartDate", Types.DATE) // pSuspensionStartDate
         storedProcedure.registerOutParameter("pSuspensionEndDate", Types.DATE) // pSuspensionEndDate
         storedProcedure.registerOutParameter("pBalancingPayAmount", Types.DECIMAL) // pBalancingPayAmount
@@ -274,7 +274,7 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         val initialPaymentStartDate = storedProcedure.getDate("pInitialPayStartDate") // pInitialPayStartDate
         val initialPaymentAmount = storedProcedure.getBigDecimal("pInitialPayAmount") // pInitialPayAmount
         val scheduledPaymentEndDate = storedProcedure.getDate("pScheduledPayEndDate") // pScheduledPayEndDate
-        val scheduledPaymentFrequency = storedProcedure.getString("pScheduledPayFreq") // pScheduledPayFreq
+        val scheduledPaymentFrequency = storedProcedure.getInt("pScheduledPayFreq") // pScheduledPayFreq
         val suspensionStartDate = storedProcedure.getDate("pSuspensionStartDate") // pSuspensionStartDate
         val suspensionEndDate = storedProcedure.getDate("pSuspensionEndDate") // pSuspensionEndDate
         val balancingPaymentAmount = storedProcedure.getBigDecimal("pBalancingPayAmount") // pBalancingPayAmount
