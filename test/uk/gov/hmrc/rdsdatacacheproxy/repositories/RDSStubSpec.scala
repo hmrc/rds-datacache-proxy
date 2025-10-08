@@ -93,16 +93,17 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
-          initialPaymentStartDate = Some(currentTime.toLocalDate),
-          initialPaymentAmount = Some(150),
-          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = Some(2),
-          suspensionStartDate = Some(currentTime.toLocalDate),
-          suspensionEndDate = Some(currentTime.toLocalDate),
-          balancingPaymentAmount = Some(600),
-          balancingPaymentDate = Some(currentTime.toLocalDate),
-          totalLiability = Some(300),
-          paymentPlanEditable = false)
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000201", "payment reference").futureValue
@@ -127,16 +128,17 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
-          initialPaymentStartDate = Some(currentTime.toLocalDate),
-          initialPaymentAmount = Some(150),
-          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = Some(5),
-          suspensionStartDate = Some(currentTime.toLocalDate),
-          suspensionEndDate = Some(currentTime.toLocalDate),
-          balancingPaymentAmount = Some(600),
-          balancingPaymentDate = Some(currentTime.toLocalDate),
-          totalLiability = Some(300),
-          paymentPlanEditable = false)
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "payment reference").futureValue
