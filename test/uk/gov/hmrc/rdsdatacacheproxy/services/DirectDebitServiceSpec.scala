@@ -109,7 +109,7 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
             initialPaymentStartDate   = Some(currentTime.toLocalDate),
             initialPaymentAmount      = Some(150),
             scheduledPaymentEndDate   = Some(currentTime.toLocalDate),
-            scheduledPaymentFrequency = Some("1"),
+            scheduledPaymentFrequency = Some(1),
             suspensionStartDate       = Some(currentTime.toLocalDate),
             suspensionEndDate         = Some(currentTime.toLocalDate),
             balancingPaymentAmount    = Some(600),
