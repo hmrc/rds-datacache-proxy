@@ -231,7 +231,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getBigDecimal("pBalancingPayAmount")).thenReturn(scala.math.BigDecimal(600.0).bigDecimal)
     when(mockCallableStatement.getDate("pBalancingPayDate")).thenReturn(Date.valueOf(currentDate))
     when(mockCallableStatement.getBigDecimal("pTotalLiability")).thenReturn(null)
-    when(mockCallableStatement.getInt("PayPlanEditFlag")).thenReturn(0)
+    when(mockCallableStatement.getInt("pPayPlanEditFlag")).thenReturn(0)
     when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
 
     // Act

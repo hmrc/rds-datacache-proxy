@@ -256,7 +256,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         storedProcedure.registerOutParameter("pBalancingPayAmount", Types.DECIMAL) // pBalancingPayAmount
         storedProcedure.registerOutParameter("pBalancingPayDate", Types.DATE) // pBalancingPayDate
         storedProcedure.registerOutParameter("pTotalLiability", Types.DECIMAL) // pTotalLiability
-        storedProcedure.registerOutParameter("PayPlanEditFlag", Types.NUMERIC) // PayPlanEditFlag
+        storedProcedure.registerOutParameter("pPayPlanEditFlag", Types.NUMERIC) // pPayPlanEditFlag
         storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
 
         // Execute the stored procedure
@@ -287,7 +287,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         val balancingPaymentAmount = storedProcedure.getBigDecimal("pBalancingPayAmount") // pBalancingPayAmount
         val balancingPaymentDate = storedProcedure.getDate("pBalancingPayDate") // pBalancingPayDate
         val totalLiability = storedProcedure.getBigDecimal("pTotalLiability") // pTotalLiability
-        val paymentPlanEditable = storedProcedure.getInt("PayPlanEditFlag") // PayPlanEditFlag
+        val paymentPlanEditable = storedProcedure.getInt("pPayPlanEditFlag") // PayPlanEditFlag
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
 
         logger.info(s"DB Response status: $responseStatus")
