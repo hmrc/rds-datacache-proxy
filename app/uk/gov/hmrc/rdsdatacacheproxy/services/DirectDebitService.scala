@@ -25,7 +25,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
+class DirectDebitService @Inject() (rdsDatacache: RdsDataSource) extends Logging:
 
   def retrieveDirectDebits(id: String): Future[UserDebits] =
     rdsDatacache.getDirectDebits(id)
@@ -36,14 +36,12 @@ class DirectDebitService @Inject()(rdsDatacache: RdsDataSource) extends Logging:
   def getDDIReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     rdsDatacache.getDirectDebitReference(paymentReference, credId, sessionId)
 
-  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
-    Future[DDPaymentPlans] =
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] =
     rdsDatacache.getDirectDebitPaymentPlans(directDebitReference, credId)
 
-  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest):
-    Future[DuplicateCheckResponse] =
-    rdsDatacache.isDuplicatePaymentPlan( directDebitReference, credId, request)
-
-  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String):
-  Future[PaymentPlanDetails] =
+  def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] =
     rdsDatacache.getPaymentPlanDetails(directDebitReference, credId, paymentPlanReference)
+
+  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest):
+  Future[DuplicateCheckResponse] =
+    rdsDatacache.isDuplicatePaymentPlan( directDebitReference, credId, request)

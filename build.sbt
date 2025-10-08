@@ -7,6 +7,11 @@ ThisBuild / scalacOptions += "-Wconf:msg=Flag.*repeatedly:s"
 lazy val microservice = Project("rds-datacache-proxy", file("."))
   .enablePlugins(play.sbt.PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .settings(scalafmtOnCompile := true,
+    scalafmtDetailedError := true,
+    scalafmtPrintDiff := true,
+    scalafmtFailOnErrors := true
+  )
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html

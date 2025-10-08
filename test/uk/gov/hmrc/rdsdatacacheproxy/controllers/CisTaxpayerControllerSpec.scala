@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.controllers
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito.*
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
@@ -32,7 +32,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.services.CisTaxpayerService
 
 import scala.concurrent.Future
 
-class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
+class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar {
   "CisTaxpayerController#getInstanceIdByTaxReference" - {
 
     "returns 200 and instanceId wrapper when service succeeds" in new Setup {
@@ -41,7 +41,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
         .thenReturn(Future.successful(taxpayer))
 
       val req: FakeRequest[JsValue] = requestWithErJson("111", "test111")
-      val res: Future[Result]       = controller.getCisTaxpayerByTaxReference(req)
+      val res: Future[Result] = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -62,8 +62,8 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
     }
 
     "returns 400 when JSON is an empty object" in new Setup {
-      val req  = makeJsonRequest(Json.obj())
-      val res  = controller.getCisTaxpayerByTaxReference(req)
+      val req = makeJsonRequest(Json.obj())
+      val res = controller.getCisTaxpayerByTaxReference(req)
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
       verifyNoInteractions(mockService)
@@ -94,7 +94,7 @@ class CisTaxpayerControllerSpec extends SpecBase with MockitoSugar{
       val res = controller.getCisTaxpayerByTaxReference(req)
 
       status(res) mustBe BAD_GATEWAY
-      (contentAsJson(res) \ "message").as[String] must include ("rds-datacache exploded")
+      (contentAsJson(res) \ "message").as[String] must include("rds-datacache exploded")
     }
 
     "returns 500 with generic message on unexpected exceptions" in new Setup {

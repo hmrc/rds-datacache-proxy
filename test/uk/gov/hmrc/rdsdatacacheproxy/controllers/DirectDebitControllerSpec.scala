@@ -43,8 +43,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(nonEmptyDirectDebitResponse))
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
-        status(result) shouldBe OK
-        contentType(result) shouldBe Some("application/json")
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
         contentAsJson(result) shouldBe Json.toJson(nonEmptyDirectDebitResponse)
       }
 
@@ -53,7 +53,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(emptyDirectDebitResponse))
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
-        status(result) shouldBe OK
+        status(result)        shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(emptyDirectDebitResponse)
       }
 
@@ -64,7 +64,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
@@ -75,8 +75,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(nonEmptyDirectDebitPaymentPlanResponse))
         val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
 
-        status(result) shouldBe OK
-        contentType(result) shouldBe Some("application/json")
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
         contentAsJson(result) shouldBe Json.toJson(nonEmptyDirectDebitPaymentPlanResponse)
       }
 
@@ -85,7 +85,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(emptyDirectDebitPaymentPlanResponse))
         val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
 
-        status(result) shouldBe OK
+        status(result)        shouldBe OK
         contentAsJson(result) shouldBe Json.toJson(emptyDirectDebitPaymentPlanResponse)
       }
 
@@ -96,7 +96,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
         val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
@@ -107,8 +107,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.successful(paymentPlanDetailsResponse))
         val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
 
-        status(result) shouldBe OK
-        contentType(result) shouldBe Some("application/json")
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
         contentAsJson(result) shouldBe Json.toJson(paymentPlanDetailsResponse)
       }
 
@@ -119,7 +119,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
         val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
@@ -178,21 +178,30 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
       UserDebits(0, Seq.empty)
 
     val nonEmptyDirectDebitResponse: UserDebits =
-      UserDebits(1, Seq(DirectDebit(
-        "0123456789",
-        LocalDateTime.of(2025, 12, 12, 12, 12),
-        "123456",
-        "12345678",
-        "DDBank",
-        false,
-        2
-      )))
+      UserDebits(1,
+                 Seq(
+                   DirectDebit(
+                     "0123456789",
+                     LocalDateTime.of(2025, 12, 12, 12, 12),
+                     "123456",
+                     "12345678",
+                     "DDBank",
+                     false,
+                     2
+                   )
+                 )
+                )
 
     val emptyDirectDebitPaymentPlanResponse: DDPaymentPlans =
       DDPaymentPlans("sort code", "account number", "account name", "dd", 0, Seq())
 
     val nonEmptyDirectDebitPaymentPlanResponse: DDPaymentPlans =
-      DDPaymentPlans("sort code", "account number", "account name", "dd", 0,
+      DDPaymentPlans(
+        "sort code",
+        "account number",
+        "account name",
+        "dd",
+        0,
         Seq(
           PaymentPlan(
             150.0,
@@ -202,34 +211,37 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
             "dd",
             LocalDateTime.parse("2020-02-02T22:22:22")
           )
-        ))
+        )
+      )
 
     private val currentTime = LocalDateTime.MIN
 
     val paymentPlanDetailsResponse = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
-        bankSortCode = Some("sort code"),
-        bankAccountNumber = Some("account number"),
-        bankAccountName = Some("account name"),
-        auDdisFlag = true,
-        submissionDateTime = currentTime),
+        bankSortCode       = Some("sort code"),
+        bankAccountNumber  = Some("account number"),
+        bankAccountName    = Some("account name"),
+        auDdisFlag         = true,
+        submissionDateTime = currentTime
+      ),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "CESA",
-        planType = "01",
-        paymentReference = "payment reference",
-        submissionDateTime = currentTime,
-        scheduledPaymentAmount = Some(1000),
+        hodService                = "CESA",
+        planType                  = "01",
+        paymentReference          = "payment reference",
+        submissionDateTime        = currentTime,
+        scheduledPaymentAmount    = Some(1000),
         scheduledPaymentStartDate = Some(currentTime.toLocalDate),
-        initialPaymentStartDate = Some(currentTime.toLocalDate),
-        initialPaymentAmount = Some(150),
-        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate   = Some(currentTime.toLocalDate),
+        initialPaymentAmount      = Some(150),
+        scheduledPaymentEndDate   = Some(currentTime.toLocalDate),
         scheduledPaymentFrequency = Some("1"),
-        suspensionStartDate = Some(currentTime.toLocalDate),
-        suspensionEndDate = Some(currentTime.toLocalDate),
-        balancingPaymentAmount = Some(600),
-        balancingPaymentDate = Some(currentTime.toLocalDate),
-        totalLiability = Some(300),
-        paymentPlanEditable = false)
+        suspensionStartDate       = Some(currentTime.toLocalDate),
+        suspensionEndDate         = Some(currentTime.toLocalDate),
+        balancingPaymentAmount    = Some(600),
+        balancingPaymentDate      = Some(currentTime.toLocalDate),
+        totalLiability            = Some(300),
+        paymentPlanEditable       = false
+      )
     )
 
     val controller =

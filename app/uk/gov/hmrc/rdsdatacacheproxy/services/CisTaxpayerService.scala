@@ -23,13 +23,12 @@ import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CisTaxpayerService @Inject()(cisSource: CisMonthlyReturnSource)
-                                  (implicit ec: ExecutionContext) extends Logging {
+class CisTaxpayerService @Inject() (cisSource: CisMonthlyReturnSource)(implicit ec: ExecutionContext) extends Logging {
 
   def getCisTaxpayerByTaxReference(
-                                    taxOfficeNumber: String,
-                                    taxOfficeReference: String
-                                  ): Future[CisTaxpayer] = {
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[CisTaxpayer] = {
     cisSource.getCisTaxpayerByTaxRef(taxOfficeNumber, taxOfficeReference).map {
       case Some(t) if t.uniqueId.trim.nonEmpty => t
       case Some(_) =>

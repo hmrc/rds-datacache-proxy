@@ -38,7 +38,7 @@ trait RdsDataSource {
   def isDuplicatePaymentPlan(directDebitReference: String, credId:String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
 }
 
-class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
+class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String): Future[UserDebits] = {
     val pFirstRecord = appConfig.firstRecord
@@ -75,13 +75,13 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
             .takeWhile(identity)
             .map(_ =>
               DirectDebit(
-                ddiRefNumber = rs.getString("DDIRefNumber"),
+                ddiRefNumber       = rs.getString("DDIRefNumber"),
                 submissionDateTime = rs.getTimestamp("SubmissionDateTime").toLocalDateTime,
-                bankSortCode = rs.getString("BankSortCode"),
-                bankAccountNumber = rs.getString("BankAccountNumber"),
-                bankAccountName = if (rs.getString("BankAccountName") == null) "" else rs.getString("BankAccountName"),
-                auDdisFlag = rs.getBoolean("AuddisFlag"),
-                numberOfPayPlans = rs.getInt("NumberofPayPlans")
+                bankSortCode       = rs.getString("BankSortCode"),
+                bankAccountNumber  = rs.getString("BankAccountNumber"),
+                bankAccountName    = if (rs.getString("BankAccountName") == null) "" else rs.getString("BankAccountName"),
+                auDdisFlag         = rs.getBoolean("AuddisFlag"),
+                numberOfPayPlans   = rs.getInt("NumberofPayPlans")
               )
             )
             .toList
@@ -148,8 +148,10 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
-    logger.info(s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
-      s"FirstRecordNumber: $pFirstRecord, Max Records: $pMaxRecords")
+    logger.info(
+      s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+        s"FirstRecordNumber: $pFirstRecord, Max Records: $pMaxRecords"
+    )
 
     Future {
       db.withConnection { connection =>
@@ -176,7 +178,8 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Retrieve output parameters
         val sortCode = storedProcedure.getString("pBankSortCode") // pBankSortCode
         val bankAccountNumber = storedProcedure.getString("pBankAccountNumber") // pBankAccountNumber
-        val bankAccountName = if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
+        val bankAccountName =
+          if (storedProcedure.getString("pBankAccountName") == null) "" else storedProcedure.getString("pBankAccountName") // pBankAccountName
         val auDdisFlag = storedProcedure.getString("pAUDDISFlag") // pAUDDISFlag
         val paymentPlansCount = storedProcedure.getInt("pTotalRecords") // pTotalRecords
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
@@ -191,11 +194,11 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
           else {
             val paymentPlan = PaymentPlan(
               scheduledPaymentAmount = paymentPlans.getBigDecimal("ScheduledPayAmount"),
-              planRefNumber = paymentPlans.getString("PPRefNumber"),
-              planType = paymentPlans.getString("PayPlanType"),
-              paymentReference = paymentPlans.getString("PayReference"),
-              hodService = paymentPlans.getString("PayPlanHodService"),
-              submissionDateTime = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime,
+              planRefNumber          = paymentPlans.getString("PPRefNumber"),
+              planType               = paymentPlans.getString("PayPlanType"),
+              paymentReference       = paymentPlans.getString("PayReference"),
+              hodService             = paymentPlans.getString("PayPlanHodService"),
+              submissionDateTime     = paymentPlans.getTimestamp("SubmissionDateTime").toLocalDateTime
             )
             collectPaymentPlans(paymentPlan :: pp)
           }
@@ -214,16 +217,20 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
 
-    logger.info(s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
-      s"Payment Plan Reference: $paymentPlanReference")
+    logger.info(
+      s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+        s"Payment Plan Reference: $paymentPlanReference"
+    )
 
     Future {
       db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("{call DD_PK.getPayPlanDetails(?, ?, ?, ?, ?, " +
-                                                                                    "?, ?, ?, ?, ?, " +
-                                                                                    "?, ?, ?, ?, ?, " +
-                                                                                    "?, ?, ?, ?, ?, " +
-                                                                                    "?, ?, ?, ?, ?)}")
+        val storedProcedure = connection.prepareCall(
+          "{call DD_PK.getPayPlanDetails(?, ?, ?, ?, ?, " +
+            "?, ?, ?, ?, ?, " +
+            "?, ?, ?, ?, ?, " +
+            "?, ?, ?, ?, ?, " +
+            "?, ?, ?, ?, ?)}"
+        )
 
         // Set input parameters
         storedProcedure.setString("pCredentialID", credId) // pCredentialID
@@ -234,18 +241,18 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         storedProcedure.registerOutParameter("pBankAccountNumber", Types.VARCHAR) // pBankAccountNumber
         storedProcedure.registerOutParameter("pBankSortCode", Types.VARCHAR) // pBankSortCode
         storedProcedure.registerOutParameter("pBankAccountName", Types.VARCHAR) // pBankAccountName
-        storedProcedure.registerOutParameter("pDDISubmissionDateTime", Types.DATE) // pDDISubmissionDateTime
+        storedProcedure.registerOutParameter("pDDISubmissionDateTime", Types.TIMESTAMP) // pDDISubmissionDateTime
         storedProcedure.registerOutParameter("pAUDDISFlag", Types.VARCHAR) // pAUDDISFlag
         storedProcedure.registerOutParameter("pPayPlanHodService", Types.VARCHAR) // pPayPlanHodService
         storedProcedure.registerOutParameter("pPayPlanType", Types.VARCHAR) // pPayPlanType
         storedProcedure.registerOutParameter("pPayReference", Types.VARCHAR) // pPayReference
-        storedProcedure.registerOutParameter("pSubmissionDateTime", Types.DATE) // pSubmissionDateTime
+        storedProcedure.registerOutParameter("pSubmissionDateTime", Types.TIMESTAMP) // pSubmissionDateTime
         storedProcedure.registerOutParameter("pScheduledPayAmount", Types.DECIMAL) // pScheduledPayAmount
         storedProcedure.registerOutParameter("pScheduledPayStartDate", Types.DATE) // pScheduledPayStartDate
         storedProcedure.registerOutParameter("pInitialPayStartDate", Types.DATE) // pInitialPayStartDate
         storedProcedure.registerOutParameter("pInitialPayAmount", Types.DECIMAL) // pInitialPayAmount
         storedProcedure.registerOutParameter("pScheduledPayEndDate", Types.DATE) // pScheduledPayEndDate
-        storedProcedure.registerOutParameter("pScheduledPayFreq", Types.VARCHAR) // pScheduledPayFreq
+        storedProcedure.registerOutParameter("pScheduledPayFreq", Types.NUMERIC) // pScheduledPayFreq
         storedProcedure.registerOutParameter("pSuspensionStartDate", Types.DATE) // pSuspensionStartDate
         storedProcedure.registerOutParameter("pSuspensionEndDate", Types.DATE) // pSuspensionEndDate
         storedProcedure.registerOutParameter("pBalancingPayAmount", Types.DECIMAL) // pBalancingPayAmount
@@ -293,33 +300,33 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         // Return PaymentPlanDetails
         PaymentPlanDetails(
           directDebitDetails = DirectDebitDetail(
-            bankSortCode = Option(sortCode),
-            bankAccountNumber = Option(bankAccountNumber),
-            bankAccountName = Option(bankAccountName),
-            auDdisFlag = auDdisFlag.contains("01"),
-            submissionDateTime = ddSubmissionDateTime.toLocalDateTime),
+            bankSortCode       = Option(sortCode),
+            bankAccountNumber  = Option(bankAccountNumber),
+            bankAccountName    = Option(bankAccountName),
+            auDdisFlag         = auDdisFlag.contains("01"),
+            submissionDateTime = ddSubmissionDateTime.toLocalDateTime
+          ),
           paymentPlanDetails = PaymentPlanDetail(
-            hodService = hodService,
-            planType = planType,
-            paymentReference = paymentReference,
-            submissionDateTime = paymentPlanSubmissionDateTime.toLocalDateTime,
-            scheduledPaymentAmount = Option(scheduledPaymentAmount),
+            hodService                = hodService,
+            planType                  = planType,
+            paymentReference          = paymentReference,
+            submissionDateTime        = paymentPlanSubmissionDateTime.toLocalDateTime,
+            scheduledPaymentAmount    = Option(scheduledPaymentAmount),
             scheduledPaymentStartDate = Option(scheduledPaymentStartDate).map(_.toLocalDate),
-            initialPaymentStartDate = Option(initialPaymentStartDate).map(_.toLocalDate),
-            initialPaymentAmount = Option(initialPaymentAmount),
-            scheduledPaymentEndDate = Option(scheduledPaymentEndDate).map(_.toLocalDate),
+            initialPaymentStartDate   = Option(initialPaymentStartDate).map(_.toLocalDate),
+            initialPaymentAmount      = Option(initialPaymentAmount),
+            scheduledPaymentEndDate   = Option(scheduledPaymentEndDate).map(_.toLocalDate),
             scheduledPaymentFrequency = Option(scheduledPaymentFrequency),
-            suspensionStartDate = Option(suspensionStartDate).map(_.toLocalDate),
-            suspensionEndDate = Option(suspensionEndDate).map(_.toLocalDate),
-            balancingPaymentAmount =  Option(balancingPaymentAmount),
-            balancingPaymentDate =  Option(balancingPaymentDate).map(_.toLocalDate),
-            totalLiability = Option(totalLiability),
-            paymentPlanEditable = paymentPlanEditable == 1)
+            suspensionStartDate       = Option(suspensionStartDate).map(_.toLocalDate),
+            suspensionEndDate         = Option(suspensionEndDate).map(_.toLocalDate),
+            balancingPaymentAmount    = Option(balancingPaymentAmount),
+            balancingPaymentDate      = Option(balancingPaymentDate).map(_.toLocalDate),
+            totalLiability            = Option(totalLiability),
+            paymentPlanEditable       = paymentPlanEditable == 1
+          )
         )
       }
     }
-
-
   }
 
 
@@ -357,5 +364,4 @@ class RdsDatacacheRepository @Inject()(db: Database, appConfig: AppConfig)(impli
         DuplicateCheckResponse(isDuplicate==1)
       }
     }
-
   }

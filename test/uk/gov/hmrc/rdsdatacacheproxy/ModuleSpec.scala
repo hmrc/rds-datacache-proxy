@@ -63,4 +63,3 @@ class ModuleSpec extends AnyWordSpec with Matchers {
     }
   }
 }
-

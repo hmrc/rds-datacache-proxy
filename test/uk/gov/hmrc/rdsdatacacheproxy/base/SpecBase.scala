@@ -35,7 +35,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 import scala.concurrent.ExecutionContext
 
 trait SpecBase
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with TryValues
     with DefaultAwaitTimeout
@@ -67,9 +67,9 @@ trait SpecBase
   final val TorHeader = "X-Tax-Office-Reference"
 
   def requestWithCisHeaders(
-                             ton: String = "123",
-                             tor: String = "AB456"
-                           ): FakeRequest[AnyContentAsEmpty.type] =
+    ton: String = "123",
+    tor: String = "AB456"
+  ): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest().withHeaders(TonHeader -> ton, TorHeader -> tor)
 
   def requestMissingTon(tor: String = "AB456"): FakeRequest[AnyContentAsEmpty.type] =
@@ -82,27 +82,27 @@ trait SpecBase
     FakeRequest()
 
   def mkTaxpayer(
-                  id: String = "CIS-123",
-                  ton: String = "123",
-                  tor: String = "AB456",
-                  employerName1: Option[String] = Some("TEST LTD")
-                ): CisTaxpayer =
+    id: String = "CIS-123",
+    ton: String = "123",
+    tor: String = "AB456",
+    employerName1: Option[String] = Some("TEST LTD")
+  ): CisTaxpayer =
     CisTaxpayer(
-      uniqueId = id,
-      taxOfficeNumber = ton,
-      taxOfficeRef = tor,
-      aoDistrict = None,
-      aoPayType = None,
-      aoCheckCode = None,
-      aoReference = None,
+      uniqueId          = id,
+      taxOfficeNumber   = ton,
+      taxOfficeRef      = tor,
+      aoDistrict        = None,
+      aoPayType         = None,
+      aoCheckCode       = None,
+      aoReference       = None,
       validBusinessAddr = None,
-      correlation = None,
-      ggAgentId = None,
-      employerName1 = employerName1,
-      employerName2 = None,
-      agentOwnRef = None,
-      schemeName = None,
-      utr = None,
-      enrolledSig = None
+      correlation       = None,
+      ggAgentId         = None,
+      employerName1     = employerName1,
+      employerName2     = None,
+      agentOwnRef       = None,
+      schemeName        = None,
+      utr               = None,
+      enrolledSig       = None
     )
 }

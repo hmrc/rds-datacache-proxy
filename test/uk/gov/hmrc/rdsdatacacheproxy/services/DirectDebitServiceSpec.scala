@@ -30,12 +30,7 @@ import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class DirectDebitServiceSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with MockitoSugar
-    with IntegrationPatience:
+class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar with IntegrationPatience:
 
   implicit val ec: ExecutionContext = global
 
@@ -59,19 +54,19 @@ class DirectDebitServiceSpec
         when(mockConnector.getDirectDebits(any()))
           .thenReturn(Future.successful(UserDebits(0, Seq())))
 
-          val result = service.retrieveDirectDebits("testId").futureValue
-          result shouldBe UserDebits(0, Seq())
+        val result = service.retrieveDirectDebits("testId").futureValue
+        result shouldBe UserDebits(0, Seq())
 
       "retrieving Direct Debits" in:
         when(mockConnector.getDirectDebits(any()))
           .thenReturn(
             Future.successful(UserDebits(1, Seq(expected(1)))),
-            Future.successful(UserDebits(3, Seq(expected(2),expected(3),expected(4)))),
+            Future.successful(UserDebits(3, Seq(expected(2), expected(3), expected(4))))
           )
-          val result = service.retrieveDirectDebits("testId").futureValue
-          result shouldBe UserDebits(1, Seq(expected(1)))
-          val result2 = service.retrieveDirectDebits("testId").futureValue
-          result2 shouldBe UserDebits(3, Seq(expected(2),expected(3),expected(4)))
+        val result = service.retrieveDirectDebits("testId").futureValue
+        result shouldBe UserDebits(1, Seq(expected(1)))
+        val result2 = service.retrieveDirectDebits("testId").futureValue
+        result2 shouldBe UserDebits(3, Seq(expected(2), expected(3), expected(4)))
 
       "retrieving Earliest Payment Date" in:
         when(mockConnector.addFutureWorkingDays(any(), any()))
@@ -79,13 +74,13 @@ class DirectDebitServiceSpec
         val result = service.addFutureWorkingDays(LocalDate.of(2025, 10, 15), 5).futureValue
         result shouldBe EarliestPaymentDate(LocalDate.of(2025, 10, 20))
 
-      "retrieving DDI reference number" in :
+      "retrieving DDI reference number" in:
         when(mockConnector.getDirectDebitReference(any(), any(), any()))
           .thenReturn(Future.successful(DDIReference("xyz")))
         val result = service.getDDIReference("xyz", "123", "session-345").futureValue
         result shouldBe DDIReference("xyz")
 
-      "retrieving no Direct Debits Payment Plans" in :
+      "retrieving no Direct Debits Payment Plans" in:
         val paymentPlans = DDPaymentPlans("sort code", "account number", "account name", "dd", 0, Seq())
         when(mockConnector.getDirectDebitPaymentPlans(any(), any()))
           .thenReturn(Future.successful(paymentPlans))
@@ -99,28 +94,30 @@ class DirectDebitServiceSpec
 
         val paymentPlanDetails = PaymentPlanDetails(
           directDebitDetails = DirectDebitDetail(
-            bankSortCode = Some("sort code"),
-            bankAccountNumber = Some("account number"),
-            bankAccountName = Some("account name"),
-            auDdisFlag = true,
-            submissionDateTime = currentTime),
+            bankSortCode       = Some("sort code"),
+            bankAccountNumber  = Some("account number"),
+            bankAccountName    = Some("account name"),
+            auDdisFlag         = true,
+            submissionDateTime = currentTime
+          ),
           paymentPlanDetails = PaymentPlanDetail(
-            hodService = "CESA",
-            planType = "01",
-            paymentReference = "payment Reference",
-            submissionDateTime = currentTime,
-            scheduledPaymentAmount = Some(1000),
+            hodService                = "CESA",
+            planType                  = "01",
+            paymentReference          = "payment Reference",
+            submissionDateTime        = currentTime,
+            scheduledPaymentAmount    = Some(1000),
             scheduledPaymentStartDate = Some(currentTime.toLocalDate),
-            initialPaymentStartDate = Some(currentTime.toLocalDate),
-            initialPaymentAmount = Some(150),
-            scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+            initialPaymentStartDate   = Some(currentTime.toLocalDate),
+            initialPaymentAmount      = Some(150),
+            scheduledPaymentEndDate   = Some(currentTime.toLocalDate),
             scheduledPaymentFrequency = Some("1"),
-            suspensionStartDate = Some(currentTime.toLocalDate),
-            suspensionEndDate = Some(currentTime.toLocalDate),
-            balancingPaymentAmount = Some(600),
-            balancingPaymentDate = Some(currentTime.toLocalDate),
-            totalLiability = Some(300),
-            paymentPlanEditable = false)
+            suspensionStartDate       = Some(currentTime.toLocalDate),
+            suspensionEndDate         = Some(currentTime.toLocalDate),
+            balancingPaymentAmount    = Some(600),
+            balancingPaymentDate      = Some(currentTime.toLocalDate),
+            totalLiability            = Some(300),
+            paymentPlanEditable       = false
+          )
         )
         when(mockConnector.getPaymentPlanDetails(any(), any(), any()))
           .thenReturn(Future.successful(paymentPlanDetails))

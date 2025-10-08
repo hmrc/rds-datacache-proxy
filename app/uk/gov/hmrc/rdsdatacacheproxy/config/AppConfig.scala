@@ -20,7 +20,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 
 @Singleton
-class AppConfig @Inject()(configuration: Configuration) {
+class AppConfig @Inject() (configuration: Configuration) {
 
   lazy val firstRecord: Int =
     configuration.get[Int]("ndds.firstRecord")

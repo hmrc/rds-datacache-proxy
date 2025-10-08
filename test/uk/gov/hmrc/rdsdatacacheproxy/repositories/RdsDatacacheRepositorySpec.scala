@@ -43,16 +43,16 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
   before {
     // Mocking the database connection and callable statement
-    db = mock(classOf[Database])
-    mockConnection = mock(classOf[java.sql.Connection])
+    db                    = mock(classOf[Database])
+    mockConnection        = mock(classOf[java.sql.Connection])
     mockCallableStatement = mock(classOf[CallableStatement])
-    mockResultSet = mock(classOf[ResultSet])
-    mockConfig = mock(classOf[AppConfig])
+    mockResultSet         = mock(classOf[ResultSet])
+    mockConfig            = mock(classOf[AppConfig])
 
     // When db.withConnection is called, it should invoke the passed-in function and return the result
     when(db.withConnection(any())).thenAnswer { invocation =>
       val func = invocation.getArgument(0, classOf[java.sql.Connection => Any])
-      func(mockConnection)  // Return the result of the lambda function passed to withConnection
+      func(mockConnection) // Return the result of the lambda function passed to withConnection
     }
 
     // When prepareCall is invoked on the connection, return the mocked callable statement
@@ -68,13 +68,13 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     val directDebits = Seq(
       DirectDebit(
-        ddiRefNumber = "DDI001",
+        ddiRefNumber       = "DDI001",
         submissionDateTime = LocalDate.now().atStartOfDay(),
-        bankSortCode = "123456",
-        bankAccountNumber = "654321",
-        bankAccountName = "Test Bank",
-        auDdisFlag = true,
-        numberOfPayPlans = 1
+        bankSortCode       = "123456",
+        bankAccountNumber  = "654321",
+        bankAccountName    = "Test Bank",
+        auDdisFlag         = true,
+        numberOfPayPlans   = 1
       )
     )
 
@@ -96,7 +96,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val result = repository.getDirectDebits(id).futureValue
 
     // Assert
-    result shouldBe UserDebits(1, directDebits)
+    result                 shouldBe UserDebits(1, directDebits)
     result.directDebitList shouldBe directDebits
   }
 
@@ -142,11 +142,11 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val paymentPlans = Seq(
       PaymentPlan(
         scheduledPaymentAmount = 100,
-        planRefNumber = ddReference,
-        planType = "01",
-        paymentReference = "plan ref number",
-        hodService = "CESA",
-        submissionDateTime = submissionDateTime
+        planRefNumber          = ddReference,
+        planType               = "01",
+        paymentReference       = "plan ref number",
+        hodService             = "CESA",
+        submissionDateTime     = submissionDateTime
       )
     )
 
@@ -172,7 +172,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val result = repository.getDirectDebitPaymentPlans(ddReference, id).futureValue
 
     // Assert
-    result shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)
+    result                 shouldBe DDPaymentPlans("sort code", "account number", "account name", "dd", 1, paymentPlans)
     result.paymentPlanList shouldBe paymentPlans
   }
 
@@ -186,29 +186,30 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val currentDate = LocalDate.now()
 
     val mockPaymentDetails = PaymentPlanDetails(
-      directDebitDetails = DirectDebitDetail(
-        bankSortCode = Some("sort code"),
-        bankAccountNumber = Some("account number"),
-        bankAccountName = None,
-        auDdisFlag = true,
-        submissionDateTime = currentTime),
+      directDebitDetails = DirectDebitDetail(bankSortCode = Some("sort code"),
+                                             bankAccountNumber  = Some("account number"),
+                                             bankAccountName    = None,
+                                             auDdisFlag         = true,
+                                             submissionDateTime = currentTime
+                                            ),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "CESA",
-        planType = "01",
-        paymentReference = paymentReference,
-        submissionDateTime = currentTime,
-        scheduledPaymentAmount = Some(1000),
+        hodService                = "CESA",
+        planType                  = "01",
+        paymentReference          = paymentReference,
+        submissionDateTime        = currentTime,
+        scheduledPaymentAmount    = Some(1000),
         scheduledPaymentStartDate = Some(currentTime.toLocalDate),
-        initialPaymentStartDate = Some(currentTime.toLocalDate),
-        initialPaymentAmount = Some(150),
-        scheduledPaymentEndDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate   = Some(currentTime.toLocalDate),
+        initialPaymentAmount      = Some(150),
+        scheduledPaymentEndDate   = Some(currentTime.toLocalDate),
         scheduledPaymentFrequency = Some("1"),
-        suspensionStartDate = Some(currentTime.toLocalDate),
-        suspensionEndDate = None,
-        balancingPaymentAmount = Some(600),
-        balancingPaymentDate = Some(currentTime.toLocalDate),
-        totalLiability = None,
-        paymentPlanEditable = false)
+        suspensionStartDate       = Some(currentTime.toLocalDate),
+        suspensionEndDate         = None,
+        balancingPaymentAmount    = Some(600),
+        balancingPaymentDate      = Some(currentTime.toLocalDate),
+        totalLiability            = None,
+        paymentPlanEditable       = false
+      )
     )
 
     // Mocking stored procedure behavior
