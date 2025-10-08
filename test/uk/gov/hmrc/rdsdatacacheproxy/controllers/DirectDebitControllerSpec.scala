@@ -141,8 +141,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         val result: Future[Result] =
           controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
 
-        status(result) shouldBe OK
-        contentType(result) shouldBe Some("application/json")
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
         contentAsJson(result) shouldBe Json.toJson(DuplicateCheckResponse(true))
       }
 
@@ -164,7 +164,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         val result: Future[Result] =
           controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
 
-        status(result) shouldBe INTERNAL_SERVER_ERROR
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
@@ -250,12 +250,12 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
     val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
       directDebitReference = "testRef",
       paymentPlanReference = "payment ref 123",
-      planType = "type 1",
-      paymentService = "CESA",
-      paymentReference = "payment ref",
-      paymentAmount = 120.00,
-      totalLiability = 780.00,
-      paymentFrequency = "WEEKLY"
+      planType             = "type 1",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = "WEEKLY"
     )
   }
 }

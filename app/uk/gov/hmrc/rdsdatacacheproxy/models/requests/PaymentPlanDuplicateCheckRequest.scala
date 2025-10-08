@@ -19,15 +19,15 @@ package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 import play.api.libs.json.{Json, OFormat}
 
 case class PaymentPlanDuplicateCheckRequest(
-                                             directDebitReference: String,
-                                             paymentPlanReference: String,
-                                             planType: String,
-                                             paymentService: String,
-                                             paymentReference: String,
-                                             paymentAmount: Double,
-                                             totalLiability: Double,
-                                             paymentFrequency: String
-                                           )
+  directDebitReference: String,
+  paymentPlanReference: String,
+  planType: String,
+  paymentService: String,
+  paymentReference: String,
+  paymentAmount: Double,
+  totalLiability: Double,
+  paymentFrequency: String
+)
 
 object PaymentPlanDuplicateCheckRequest {
   implicit val format: OFormat[PaymentPlanDuplicateCheckRequest] = Json.format[PaymentPlanDuplicateCheckRequest]

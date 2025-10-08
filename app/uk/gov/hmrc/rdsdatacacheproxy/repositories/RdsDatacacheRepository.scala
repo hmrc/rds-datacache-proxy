@@ -35,7 +35,7 @@ trait RdsDataSource {
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails]
-  def isDuplicatePaymentPlan(directDebitReference: String, credId:String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
+  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
 }
 
 class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -329,9 +329,11 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
     }
   }
 
-
-  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse] = {
-    logger.info(s"**** Direct Debit Reference: ${directDebitReference}")
+  def isDuplicatePaymentPlan(directDebitReference: String,
+                             credId: String,
+                             request: PaymentPlanDuplicateCheckRequest
+                            ): Future[DuplicateCheckResponse] = {
+    logger.info(s"**** Direct Debit Reference: $directDebitReference")
 
     Future {
       db.withConnection { connection =>
@@ -361,7 +363,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         connection.close()
 
         // Return DuplicateCheckResponse
-        DuplicateCheckResponse(isDuplicate==1)
+        DuplicateCheckResponse(isDuplicate == 1)
       }
     }
   }

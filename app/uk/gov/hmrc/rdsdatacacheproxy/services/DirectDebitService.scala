@@ -42,6 +42,8 @@ class DirectDebitService @Inject() (rdsDatacache: RdsDataSource) extends Logging
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] =
     rdsDatacache.getPaymentPlanDetails(directDebitReference, credId, paymentPlanReference)
 
-  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest):
-  Future[DuplicateCheckResponse] =
-    rdsDatacache.isDuplicatePaymentPlan( directDebitReference, credId, request)
+  def isDuplicatePaymentPlan(directDebitReference: String,
+                             credId: String,
+                             request: PaymentPlanDuplicateCheckRequest
+                            ): Future[DuplicateCheckResponse] =
+    rdsDatacache.isDuplicatePaymentPlan(directDebitReference, credId, request)

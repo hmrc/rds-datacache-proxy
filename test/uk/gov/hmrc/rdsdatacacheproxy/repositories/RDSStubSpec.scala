@@ -217,18 +217,17 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
-
     "return true if duplicate payment plan" in {
 
       val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
         directDebitReference = "testRef",
         paymentPlanReference = "payment ref 123",
-        planType = "type 1",
-        paymentService = "CESA",
-        paymentReference = "payment ref",
-        paymentAmount = 120.00,
-        totalLiability = 780.00,
-        paymentFrequency = "1"
+        planType             = "type 1",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = "1"
       )
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000201", duplicateCheckRequest).futureValue
@@ -238,18 +237,18 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
     "return false if not a duplicate payment plan" in {
 
-        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-          directDebitReference = "testRef",
-          paymentPlanReference = "payment ref 123",
-          planType = "type 1",
-          paymentService = "CESA",
-          paymentReference = "payment ref",
-          paymentAmount = 120.00,
-          totalLiability = 780.00,
-          paymentFrequency = "WEEKLY"
-        )
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType             = "type 1",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = "WEEKLY"
+      )
 
-        val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
 
-        result shouldBe DuplicateCheckResponse(false)
-      }
+      result shouldBe DuplicateCheckResponse(false)
+    }

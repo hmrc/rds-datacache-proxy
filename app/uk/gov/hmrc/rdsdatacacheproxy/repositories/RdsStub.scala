@@ -92,10 +92,10 @@ class RdsStub @Inject() () extends RdsDataSource:
   }
 
   def isDuplicatePaymentPlan(
-                              directDebitReference: String,
-                              credId: String,
-                              request: PaymentPlanDuplicateCheckRequest
-                            ): Future[DuplicateCheckResponse] = {
+    directDebitReference: String,
+    credId: String,
+    request: PaymentPlanDuplicateCheckRequest
+  ): Future[DuplicateCheckResponse] = {
 
     val flag: Boolean =
       if (credId.endsWith("01")) true
