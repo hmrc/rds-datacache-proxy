@@ -24,7 +24,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class RdsStub @Inject()() extends RdsDataSource:
+class RdsStub @Inject() () extends RdsDataSource:
 
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
@@ -40,8 +40,7 @@ class RdsStub @Inject()() extends RdsDataSource:
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
     Future.successful(DDIReference(paymentReference))
 
-  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String):
-    Future[DDPaymentPlans] = {
+  def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val filteredDebit = debits.find(_.ddiRefNumber == directDebitReference)
     filteredDebit match {
       case Some(debit) =>
@@ -62,32 +61,31 @@ class RdsStub @Inject()() extends RdsDataSource:
       "0000000009000203" -> ("03", None)
     ).getOrElse(credId, ("04", None))
 
-
     val paymentPlanDetails = PaymentPlanDetails(
-      directDebitDetails = DirectDebitDetail(
-        bankSortCode = Some("123456"),
-        bankAccountNumber = Some("12345678"),
-        bankAccountName = Some("Bank Ltd"),
-        auDdisFlag = true,
-        submissionDateTime = currentTime),
+      directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                             bankAccountNumber  = Some("12345678"),
+                                             bankAccountName    = Some("Bank Ltd"),
+                                             auDdisFlag         = true,
+                                             submissionDateTime = currentTime
+                                            ),
       paymentPlanDetails = PaymentPlanDetail(
-        hodService = "CESA",
-        planType = playType,
-        paymentReference = "paymentReference",
-        submissionDateTime = currentTime,
-        scheduledPaymentAmount = Some(1000),
+        hodService                = "CESA",
+        planType                  = playType,
+        paymentReference          = "paymentReference",
+        submissionDateTime        = currentTime,
+        scheduledPaymentAmount    = Some(1000),
         scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
-        initialPaymentStartDate = Some(currentTime.toLocalDate),
-        initialPaymentAmount = Some(150),
-        scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+        initialPaymentStartDate   = Some(currentTime.toLocalDate),
+        initialPaymentAmount      = Some(150),
+        scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
         scheduledPaymentFrequency = frequency,
-        suspensionStartDate = Some(currentTime.toLocalDate),
-        suspensionEndDate = Some(currentTime.toLocalDate),
-        balancingPaymentAmount = Some(600),
-        balancingPaymentDate = Some(currentTime.toLocalDate),
-        totalLiability = Some(300),
-        paymentPlanEditable = false)
+        suspensionStartDate       = Some(currentTime.toLocalDate),
+        suspensionEndDate         = Some(currentTime.toLocalDate),
+        balancingPaymentAmount    = Some(600),
+        balancingPaymentDate      = Some(currentTime.toLocalDate),
+        totalLiability            = Some(300),
+        paymentPlanEditable       = false
+      )
     )
     Future.successful(paymentPlanDetails)
   }
-

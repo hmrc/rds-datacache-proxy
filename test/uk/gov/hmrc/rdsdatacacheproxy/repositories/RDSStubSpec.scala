@@ -26,13 +26,9 @@ import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RDSStubSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience:
+class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience:
 
-  val connector: RdsStub = new RdsStub(){
+  val connector: RdsStub = new RdsStub() {
     override val stubData: StubUtils = new StubUtils {
       override def randomDirectDebit(i: Int): DirectDebit =
         DirectDebit.apply(
@@ -54,12 +50,12 @@ class RDSStubSpec
 
       result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
-    "return earliest payment date" in :
+    "return earliest payment date" in:
       val result = connector.addFutureWorkingDays(LocalDate.of(2025, 12, 15), 10).futureValue
 
       result shouldBe EarliestPaymentDate(LocalDate.of(2025, 12, 25))
 
-    "return ddi reference number" in :
+    "return ddi reference number" in:
       val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
 
       result shouldBe DDIReference("xyz")
@@ -75,9 +71,8 @@ class RDSStubSpec
     "return error when DirectDebit is not found" in {
       val result = connector.getDirectDebitPaymentPlans("invalid dd reference", "credId")
 
-      result.recover {
-        case ex: NoSuchElementException =>
-          ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
+      result.recover { case ex: NoSuchElementException =>
+        ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
       }
     }
 
@@ -85,18 +80,18 @@ class RDSStubSpec
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
-        directDebitDetails = DirectDebitDetail(
-          bankSortCode = Some("123456"),
-          bankAccountNumber = Some("12345678"),
-          bankAccountName = Some("Bank Ltd"),
-          auDdisFlag = true,
-          submissionDateTime = currentTime),
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
         paymentPlanDetails = PaymentPlanDetail(
-          hodService = "CESA",
-          planType = "01",
-          paymentReference = "paymentReference",
-          submissionDateTime = currentTime,
-          scheduledPaymentAmount = Some(1000),
+          hodService                = "CESA",
+          planType                  = "01",
+          paymentReference          = "paymentReference",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate = Some(currentTime.toLocalDate),
           initialPaymentAmount = Some(150),
@@ -119,18 +114,18 @@ class RDSStubSpec
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
-        directDebitDetails = DirectDebitDetail(
-          bankSortCode = Some("123456"),
-          bankAccountNumber = Some("12345678"),
-          bankAccountName = Some("Bank Ltd"),
-          auDdisFlag = true,
-          submissionDateTime = currentTime),
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
         paymentPlanDetails = PaymentPlanDetail(
-          hodService = "CESA",
-          planType = "02",
-          paymentReference = "paymentReference",
-          submissionDateTime = currentTime,
-          scheduledPaymentAmount = Some(1000),
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "paymentReference",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate = Some(currentTime.toLocalDate),
           initialPaymentAmount = Some(150),
@@ -153,29 +148,30 @@ class RDSStubSpec
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
-        directDebitDetails = DirectDebitDetail(
-          bankSortCode = Some("123456"),
-          bankAccountNumber = Some("12345678"),
-          bankAccountName = Some("Bank Ltd"),
-          auDdisFlag = true,
-          submissionDateTime = currentTime),
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
         paymentPlanDetails = PaymentPlanDetail(
-          hodService = "CESA",
-          planType = "03",
-          paymentReference = "paymentReference",
-          submissionDateTime = currentTime,
-          scheduledPaymentAmount = Some(1000),
+          hodService                = "CESA",
+          planType                  = "03",
+          paymentReference          = "paymentReference",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
-          initialPaymentStartDate = Some(currentTime.toLocalDate),
-          initialPaymentAmount = Some(150),
-          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = None,
-          suspensionStartDate = Some(currentTime.toLocalDate),
-          suspensionEndDate = Some(currentTime.toLocalDate),
-          balancingPaymentAmount = Some(600),
-          balancingPaymentDate = Some(currentTime.toLocalDate),
-          totalLiability = Some(300),
-          paymentPlanEditable = false)
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000203", "payment reference").futureValue
@@ -187,33 +183,33 @@ class RDSStubSpec
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
-        directDebitDetails = DirectDebitDetail(
-          bankSortCode = Some("123456"),
-          bankAccountNumber = Some("12345678"),
-          bankAccountName = Some("Bank Ltd"),
-          auDdisFlag = true,
-          submissionDateTime = currentTime),
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
         paymentPlanDetails = PaymentPlanDetail(
-          hodService = "CESA",
-          planType = "04",
-          paymentReference = "paymentReference",
-          submissionDateTime = currentTime,
-          scheduledPaymentAmount = Some(1000),
+          hodService                = "CESA",
+          planType                  = "04",
+          paymentReference          = "paymentReference",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
-          initialPaymentStartDate = Some(currentTime.toLocalDate),
-          initialPaymentAmount = Some(150),
-          scheduledPaymentEndDate = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = None,
-          suspensionStartDate = Some(currentTime.toLocalDate),
-          suspensionEndDate = Some(currentTime.toLocalDate),
-          balancingPaymentAmount = Some(600),
-          balancingPaymentDate = Some(currentTime.toLocalDate),
-          totalLiability = Some(300),
-          paymentPlanEditable = false)
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
-

@@ -25,8 +25,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.repositories.CisMonthlyReturnSource
 
 import scala.concurrent.Future
 
-final class CisTaxpayerServiceSpec
-  extends SpecBase{
+final class CisTaxpayerServiceSpec extends SpecBase {
 
   private val source = mock[CisMonthlyReturnSource]
   private val service = new CisTaxpayerService(source)
@@ -71,9 +70,9 @@ final class CisTaxpayerServiceSpec
         .thenReturn(Future.successful(None))
 
       val ex = service.getCisTaxpayerByTaxReference(ton, tor).failed.futureValue
-      ex mustBe a [NoSuchElementException]
-      ex.getMessage must include ("TON=123")
-      ex.getMessage must include ("TOR=AB456")
+      ex mustBe a[NoSuchElementException]
+      ex.getMessage must include("TON=123")
+      ex.getMessage must include("TOR=AB456")
 
       verify(source).getCisTaxpayerByTaxRef(eqTo(ton), eqTo(tor))
       verifyNoMoreInteractions(source)
@@ -93,4 +92,3 @@ final class CisTaxpayerServiceSpec
     }
   }
 }
-

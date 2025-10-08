@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 
-
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.http.SessionId
 
 case class AuthenticatedRequest[A](
-                                    private val request: Request[A],
-                                    internalId: String,
-                                    credentialId: String,
-                                    sessionId: SessionId
-                                  ) extends WrappedRequest[A](request)
+  private val request: Request[A],
+  internalId: String,
+  credentialId: String,
+  sessionId: SessionId
+) extends WrappedRequest[A](request)

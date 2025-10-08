@@ -22,12 +22,9 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
 
-final class CisRdsStubSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures {
+final class CisRdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
-  private val utils   = new StubUtils()
+  private val utils = new StubUtils()
   private val stub = new CisRdsStub(utils)
 
   "CisRdsStub#getCisTaxpayerByTaxRef" should {
