@@ -71,7 +71,7 @@ class RdsStub @Inject() () extends RdsDataSource:
       paymentPlanDetails = PaymentPlanDetail(
         hodService                = "CESA",
         planType                  = playType,
-        paymentReference          = "paymentReference",
+        paymentReference          = "4558540144K",
         submissionDateTime        = currentTime,
         scheduledPaymentAmount    = Some(1000),
         scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),

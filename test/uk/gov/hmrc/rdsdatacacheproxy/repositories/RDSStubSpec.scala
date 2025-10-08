@@ -89,7 +89,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "01",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -124,7 +124,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -159,7 +159,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "03",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -194,7 +194,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "04",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
