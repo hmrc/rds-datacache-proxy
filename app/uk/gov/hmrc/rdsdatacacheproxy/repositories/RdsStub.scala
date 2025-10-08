@@ -59,6 +59,8 @@ class RdsStub @Inject() () extends RdsDataSource:
     val (playType, frequency) = Map(
       "0000000009000201" -> ("01", Some("2")),
       "0000000009000202" -> ("02", Some("5")),
+      "0000000009000204" -> ("02", Some("5")),
+      "0000000009000205" -> ("01", Some("2")),
       "0000000009000203" -> ("03", None)
     ).getOrElse(credId, ("04", None))
 
@@ -97,15 +99,12 @@ class RdsStub @Inject() () extends RdsDataSource:
     request: PaymentPlanDuplicateCheckRequest
   ): Future[DuplicateCheckResponse] = {
 
-    val flag: Boolean =
-      if (credId.endsWith("01")) true
-      else if (credId.endsWith("02")) false
-      else false
-
-    val (playType, frequency) = Map(
-      "0000000009000201" -> ("01", Some("true")),
-      "0000000009000202" -> ("02", Some("false"))
-    ).getOrElse(credId, ("03", None))
+    val flag = Map(
+      "0000000009000201" -> true,
+      "0000000009000202" -> true,
+      "0000000009000204" -> false,
+      "0000000009000205" -> false
+    ).getOrElse(credId, false)
 
     Future.successful(DuplicateCheckResponse(flag))
   }
