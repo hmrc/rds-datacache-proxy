@@ -125,14 +125,14 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "01",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
           initialPaymentAmount      = Some(150),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
-          scheduledPaymentFrequency = Some("2"),
+          scheduledPaymentFrequency = Some(2),
           suspensionStartDate       = Some(currentTime.toLocalDate),
           suspensionEndDate         = Some(currentTime.toLocalDate),
           balancingPaymentAmount    = Some(600),
@@ -142,7 +142,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "payment plan reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -195,14 +195,14 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "paymentReference",
+          paymentReference          = "4558540144K",
           submissionDateTime        = currentTime,
           scheduledPaymentAmount    = Some(1000),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
           initialPaymentAmount      = Some(150),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
-          scheduledPaymentFrequency = Some("5"),
+          scheduledPaymentFrequency = Some(5),
           suspensionStartDate       = Some(currentTime.toLocalDate),
           suspensionEndDate         = Some(currentTime.toLocalDate),
           balancingPaymentAmount    = Some(600),
@@ -212,7 +212,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "payment plan reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
