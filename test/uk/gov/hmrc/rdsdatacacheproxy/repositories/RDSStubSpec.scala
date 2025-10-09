@@ -297,7 +297,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = "1"
+        paymentFrequency     = 1
       )
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000201", duplicateCheckRequest).futureValue
@@ -315,7 +315,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = "1"
+        paymentFrequency     = 1
       )
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000205", duplicateCheckRequest).futureValue
@@ -333,7 +333,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = "WEEKLY"
+        paymentFrequency     = 1
       )
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
@@ -351,7 +351,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = "WEEKLY"
+        paymentFrequency     = 1
       )
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000204", duplicateCheckRequest).futureValue

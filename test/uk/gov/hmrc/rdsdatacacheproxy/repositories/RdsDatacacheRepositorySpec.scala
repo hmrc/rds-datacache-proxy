@@ -255,7 +255,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentReference     = "payment ref",
       paymentAmount        = 120.00,
       totalLiability       = 780.00,
-      paymentFrequency     = "1"
+      paymentFrequency     = 1
     )
 
     val currentTime = LocalDateTime.now()
@@ -283,7 +283,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentReference     = "payment ref",
       paymentAmount        = 120.00,
       totalLiability       = 780.00,
-      paymentFrequency     = "1"
+      paymentFrequency     = 1
     )
 
     val currentTime = LocalDateTime.now()

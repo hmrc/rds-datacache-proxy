@@ -26,7 +26,7 @@ case class PaymentPlanDuplicateCheckRequest(
   paymentReference: String,
   paymentAmount: Double,
   totalLiability: Double,
-  paymentFrequency: String
+  paymentFrequency: Int
 )
 
 object PaymentPlanDuplicateCheckRequest {
