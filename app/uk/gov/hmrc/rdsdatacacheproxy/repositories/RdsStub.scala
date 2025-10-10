@@ -100,10 +100,10 @@ class RdsStub @Inject() () extends RdsDataSource:
   ): Future[DuplicateCheckResponse] = {
 
     val flag = Map(
-      "0000000009000201" -> true,
+      "0000000009000201" -> false,
       "0000000009000202" -> false,
       "0000000009000204" -> true,
-      "0000000009000205" -> false
+      "0000000009000205" -> true
     ).getOrElse(credId, false)
 
     Future.successful(DuplicateCheckResponse(flag))
