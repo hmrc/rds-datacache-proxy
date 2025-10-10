@@ -102,6 +102,7 @@ class DirectDebitController @Inject() (
   def isDuplicatePaymentPlan(directDebitReference: String): Action[PaymentPlanDuplicateCheckRequest] =
     authorise.async(parse.json[PaymentPlanDuplicateCheckRequest]):
       implicit request =>
+        logger.info("Duplicate check request received is "+ request.body.toString)
         val body = request.body
         directDebitService
           .isDuplicatePaymentPlan(
