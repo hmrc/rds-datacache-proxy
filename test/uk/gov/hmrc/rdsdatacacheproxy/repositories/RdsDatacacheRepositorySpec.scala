@@ -24,7 +24,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.sql.{CallableStatement, Date, ResultSet, Timestamp}
 import java.time.{LocalDate, LocalDateTime}
@@ -239,5 +239,27 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     // Assert
     result shouldBe mockPaymentDetails
+  }
+
+  "lockPaymentPlan" should "return PaymentPlanLock(true) when response status is PP FOUND" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
+
+    val result = repository.lockPaymentPlan(paymentPlanReference, id).futureValue
+
+    result shouldBe PaymentPlanLock(lockSuccessful = true)
+  }
+
+  it should "return PaymentPlanLock(false) when response status is PP NOT FOUND" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP NOT FOUND")
+
+    val result = repository.lockPaymentPlan(paymentPlanReference, id).futureValue
+
+    result shouldBe PaymentPlanLock(lockSuccessful = false)
   }
 }
