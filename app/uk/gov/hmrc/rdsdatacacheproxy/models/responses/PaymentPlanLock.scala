@@ -18,9 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class PaymentPlanLock(
-  lockSuccessful: Boolean
-)
+case class PaymentPlanLock(lockSuccessful: Boolean)
 
 object PaymentPlanLock:
   implicit val format: OFormat[PaymentPlanLock] = Json.format[PaymentPlanLock]
