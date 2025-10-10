@@ -23,7 +23,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.repositories.RdsStub
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DDPaymentPlans, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
@@ -123,6 +123,14 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
 
         val result = service.getPaymentPlanDetails("ddReference", "testId", "payment Reference").futureValue
         result shouldBe paymentPlanDetails
+      }
+
+      "locking Payment Plan" in {
+        when(mockConnector.lockPaymentPlan(any(), any()))
+          .thenReturn(Future.successful(PaymentPlanLock(lockSuccessful = true)))
+
+        val result = service.lockPaymentPlan("payment Reference", "testId").futureValue
+        result shouldBe PaymentPlanLock(lockSuccessful = true)
       }
 
     "fail" when:

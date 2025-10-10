@@ -26,7 +26,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
 import java.time.LocalDateTime
@@ -116,6 +116,29 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           .thenReturn(Future.failed(exception))
 
         val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
+
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+      }
+    }
+
+    "lockPaymentPlan" - {
+      "return 200 and a successful response when DB returns records" in new SetUp {
+        when(mockDirectDebitService.lockPaymentPlan(any[String], any[String]))
+          .thenReturn(Future.successful(PaymentPlanLock(lockSuccessful = true)))
+        val result: Future[Result] = controller.lockPaymentPlan("test dd reference", "pay plan reference")(fakeRequest)
+
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(PaymentPlanLock(lockSuccessful = true))
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.lockPaymentPlan(any[String], any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.lockPaymentPlan("test dd reference", "pay plan reference")(fakeRequest)
 
         status(result)        shouldBe INTERNAL_SERVER_ERROR
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")

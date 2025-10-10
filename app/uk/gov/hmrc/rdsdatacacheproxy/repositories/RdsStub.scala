@@ -89,3 +89,7 @@ class RdsStub @Inject() () extends RdsDataSource:
     )
     Future.successful(paymentPlanDetails)
   }
+
+  def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] = {
+    Future.successful(PaymentPlanLock(lockSuccessful = true))
+  }

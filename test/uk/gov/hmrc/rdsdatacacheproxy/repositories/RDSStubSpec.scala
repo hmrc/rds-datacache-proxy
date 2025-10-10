@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
 import java.time.{LocalDate, LocalDateTime}
@@ -215,3 +215,9 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
       result shouldBe paymentPlanDetails
     }
+
+  "return PaymentPlanLock" in {
+    val result = connector.lockPaymentPlan("payment reference", "123").futureValue
+
+    result shouldBe PaymentPlanLock(lockSuccessful = true)
+  }
