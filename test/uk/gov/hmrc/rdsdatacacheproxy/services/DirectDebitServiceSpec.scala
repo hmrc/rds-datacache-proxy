@@ -128,6 +128,8 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
 
       "return true if it is a duplicate Payment Plan" in {
 
+        val currentTime = LocalDateTime.now()
+
         val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
           directDebitReference = "testRef",
           paymentPlanReference = "payment ref 123",
@@ -136,7 +138,8 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
           paymentReference     = "payment ref",
           paymentAmount        = 120.00,
           totalLiability       = 780.00,
-          paymentFrequency     = 1
+          paymentFrequency     = 1,
+          paymentStartDate     = currentTime.toLocalDate
         )
         when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
           .thenReturn(Future.successful(DuplicateCheckResponse(true)))
@@ -147,6 +150,8 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
 
       "return false if it is not a duplicate Payment Plan" in {
 
+        val currentTime = LocalDateTime.now()
+
         val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
           directDebitReference = "testRef",
           paymentPlanReference = "payment ref 123",
@@ -155,7 +160,8 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
           paymentReference     = "payment ref",
           paymentAmount        = 120.00,
           totalLiability       = 780.00,
-          paymentFrequency     = 1
+          paymentFrequency     = 1,
+          paymentStartDate     = currentTime.toLocalDate
         )
         when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
           .thenReturn(Future.successful(DuplicateCheckResponse(false)))

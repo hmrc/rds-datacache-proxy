@@ -31,7 +31,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
 class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
@@ -247,6 +247,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
     val controller =
       new DirectDebitController(fakeAuthAction, mockDirectDebitService, cc)
 
+    val currentDate = LocalDate.now()
+
     val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
       directDebitReference = "testRef",
       paymentPlanReference = "payment ref 123",
@@ -255,7 +257,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
       paymentReference     = "payment ref",
       paymentAmount        = 120.00,
       totalLiability       = 780.00,
-      paymentFrequency     = 1
+      paymentFrequency     = 1,
+      paymentStartDate     = currentDate
     )
   }
 }

@@ -18,6 +18,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.models.requests
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDate
+
 case class PaymentPlanDuplicateCheckRequest(
   directDebitReference: String,
   paymentPlanReference: String,
@@ -26,7 +28,8 @@ case class PaymentPlanDuplicateCheckRequest(
   paymentReference: String,
   paymentAmount: Double,
   totalLiability: Double,
-  paymentFrequency: Int
+  paymentFrequency: Int,
+  paymentStartDate: LocalDate
 )
 
 object PaymentPlanDuplicateCheckRequest {

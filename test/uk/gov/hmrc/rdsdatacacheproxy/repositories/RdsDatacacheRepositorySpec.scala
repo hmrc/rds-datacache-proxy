@@ -245,6 +245,8 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
   "isDuplicatePaymentPlan" should "return true if it is duplicate" in {
     // Arrange
+    val currentDate = LocalDate.now()
+
     val ddReference = "test dd reference"
     val id = "0000000009000201"
     val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
@@ -255,11 +257,9 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentReference     = "payment ref",
       paymentAmount        = 120.00,
       totalLiability       = 780.00,
-      paymentFrequency     = 1
+      paymentFrequency     = 1,
+      paymentStartDate     = currentDate
     )
-
-    val currentTime = LocalDateTime.now()
-    val currentDate = LocalDate.now()
 
     // Mocking stored procedure behavior
     when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(1)
@@ -275,6 +275,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     // Arrange
     val ddReference = "test dd reference"
     val id = "0000000009000202"
+    val currentDate = LocalDate.now()
     val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
       directDebitReference = "testRef",
       paymentPlanReference = "payment ref 123",
@@ -283,11 +284,9 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentReference     = "payment ref",
       paymentAmount        = 120.00,
       totalLiability       = 780.00,
-      paymentFrequency     = 1
+      paymentFrequency     = 1,
+      paymentStartDate     = currentDate
     )
-
-    val currentTime = LocalDateTime.now()
-    val currentDate = LocalDate.now()
 
     // Mocking stored procedure behavior
     when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(0)

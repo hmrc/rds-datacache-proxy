@@ -349,6 +349,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         storedProcedure.setInt("pScheduledPayAmount", request.paymentAmount.toInt) // pScheduledPayAmount
         storedProcedure.setInt("pTotalLiability", request.totalLiability.toInt) // pTotalLiability
         storedProcedure.setInt("pScheduledPayFreq", request.paymentFrequency) // pScheduledPayFreq
+        storedProcedure.setDate("pScheduledPayStartDate", Date.valueOf(request.paymentStartDate)) // pScheduledPayStartDate
 
         // Register output parameters
         storedProcedure.registerOutParameter("pDuplicatePayPlan", Types.NUMERIC) // pDuplicatePayPlan
