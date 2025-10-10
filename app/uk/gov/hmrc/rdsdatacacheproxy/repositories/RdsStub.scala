@@ -101,8 +101,8 @@ class RdsStub @Inject() () extends RdsDataSource:
 
     val flag = Map(
       "0000000009000201" -> true,
-      "0000000009000202" -> true,
-      "0000000009000204" -> false,
+      "0000000009000202" -> false,
+      "0000000009000204" -> true,
       "0000000009000205" -> false
     ).getOrElse(credId, false)
 

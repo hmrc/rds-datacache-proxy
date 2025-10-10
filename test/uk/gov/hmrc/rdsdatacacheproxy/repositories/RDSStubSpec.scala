@@ -308,7 +308,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe DuplicateCheckResponse(true)
     }
 
-    "return true if duplicate payment plan and credId with 05" in {
+    "return false if not a duplicate payment plan and credId with 05" in {
 
       val currentDate = LocalDate.now()
 
@@ -347,10 +347,10 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
 
-      result shouldBe DuplicateCheckResponse(true)
+      result shouldBe DuplicateCheckResponse(false)
     }
 
-    "return false if not a duplicate payment plan and credId ending with 04" in {
+    "return true if duplicate payment plan and credId ending with 04" in {
 
       val currentDate = LocalDate.now()
 
@@ -368,5 +368,5 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
       val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000204", duplicateCheckRequest).futureValue
 
-      result shouldBe DuplicateCheckResponse(false)
+      result shouldBe DuplicateCheckResponse(true)
     }
