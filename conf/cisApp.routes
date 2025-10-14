@@ -1,0 +1,3 @@
+# microservice specific routes
+
+POST       /cis-taxpayer                        uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference

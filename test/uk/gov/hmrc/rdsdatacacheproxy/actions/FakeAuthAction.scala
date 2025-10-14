@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.mvc.{AnyContent, BodyParser, PlayBodyParsers, Request, Result}
 import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.AuthenticatedRequest
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.requests.AuthenticatedRequest
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

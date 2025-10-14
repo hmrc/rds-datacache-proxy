@@ -1,0 +1,11 @@
+# microservice specific routes
+
+GET        /direct-debits                                                                   uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebits()
+
+GET        /direct-debits/:directDebitReference/payment-plans                               uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
+
+GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference         uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
+
+POST       /direct-debit-reference                                                          uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.generateDDIReference()
+
+POST       /direct-debits/future-working-days                                               uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.workingDaysOffset()

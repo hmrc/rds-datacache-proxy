@@ -30,7 +30,7 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FakeHeaders, FakeRequest}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.models.CisTaxpayer
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
 
 import scala.concurrent.ExecutionContext
 
