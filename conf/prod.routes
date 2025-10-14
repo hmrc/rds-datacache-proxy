@@ -1,3 +1,4 @@
 # Add all the application routes to the app.routes file
-->         /rds-datacache-proxy       nddsApp.Routes
-->         /                          cisApp.Routes
+->         /rds-datacache-proxy             nddsApp.Routes
+->         /cis-taxpayer                    cisApp.Routes
+->         /                                health.Routes

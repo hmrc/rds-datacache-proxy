@@ -2,7 +2,7 @@ import play.sbt.PlayImport.jdbc
 import sbt.*
 
 object AppDependencies {
-  private val bootstrapVersion = "10.2.0"
+  private val bootstrapVersion = "10.3.0"
   val oraVersion               = "19.3.0.0"
 
   val compile: Seq[ModuleID] = Seq(

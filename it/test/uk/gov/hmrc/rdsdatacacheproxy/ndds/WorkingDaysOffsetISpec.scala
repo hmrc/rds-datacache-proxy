@@ -34,13 +34,13 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock with Matchers with 
             Json.parse(s"""
                  |{
                  |  "baseDate": "2025-01-01",
-                 |  "offsetWorkingDays": 5
+                 |  "offsetWorkingDays": 2
                  |}
                  |""".stripMargin)
           ).futureValue
 
           response.status        shouldBe OK
-          response.json.toString shouldBe """{"date":"2025-01-08"}"""
+          response.json.toString shouldBe """{"date":"2025-01-03"}"""
 
     "fail" when:
       "with a 400" when:

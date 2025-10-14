@@ -33,12 +33,12 @@ class HealthEndpointIntegrationSpec extends AnyWordSpec with Matchers with Scala
     GuiceApplicationBuilder()
       .build()
 
-//  "service health endpoint" should:
-//    "respond with 200 status" in:
-//      val response =
-//        wsClient
-//          .url(s"$baseUrl/ping/ping")
-//          .get()
-//          .futureValue
-//
-//      response.status shouldBe 200
+  "service health endpoint" should:
+    "respond with 200 status" in:
+      val response =
+        wsClient
+          .url(s"$baseUrl/ping/ping")
+          .get()
+          .futureValue
+
+      response.status shouldBe 200
