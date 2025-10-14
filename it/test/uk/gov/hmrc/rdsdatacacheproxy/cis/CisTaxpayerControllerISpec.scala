@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-class CisTaxpayerControllerSpec
+class CisTaxpayerControllerISpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures

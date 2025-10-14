@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.cis.models.requests
+package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.http.SessionId
