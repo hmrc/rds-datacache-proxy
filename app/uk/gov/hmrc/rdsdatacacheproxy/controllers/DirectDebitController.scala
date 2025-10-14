@@ -63,10 +63,9 @@ class DirectDebitController @Inject() (
 
   def generateDDIReference(): Action[GenerateDdiRefRequest] =
     authorise.async(parse.json[GenerateDdiRefRequest]) { implicit request =>
-      val body = request.body
       directDebitService
         .getDDIReference(
-          body.paymentReference,
+          request.body.paymentReference,
           request.credentialId,
           request.sessionId.value
         )
