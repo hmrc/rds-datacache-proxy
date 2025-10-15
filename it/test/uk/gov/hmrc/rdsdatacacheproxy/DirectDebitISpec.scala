@@ -23,24 +23,21 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-class DirectDebitISpec extends ApplicationWithWiremock
-  with Matchers
-  with ScalaFutures
-  with IntegrationPatience:
+class DirectDebitISpec extends ApplicationWithWiremock with Matchers with ScalaFutures with IntegrationPatience:
 
-  "Direct Debits" should :
+  "Direct Debits" should:
     "succeed" when:
-      "retrieving direct debits" in :
+      "retrieving direct debits" in:
         AuthStub.authorised()
         val response = get("/direct-debits").futureValue
 
         response.status shouldBe OK
 
-      "retrieving future working days" in :
+      "retrieving future working days" in:
         AuthStub.authorised()
-        val response = post("/direct-debits/future-working-days",
-          Json.parse(
-            s"""
+        val response = post(
+          "/direct-debits/future-working-days",
+          Json.parse(s"""
                |{
                |  "baseDate": "2024-12-28",
                |  "offsetWorkingDays": 10
@@ -50,11 +47,11 @@ class DirectDebitISpec extends ApplicationWithWiremock
 
         response.status shouldBe OK
 
-      "retrieving direct debit reference" in :
+      "retrieving direct debit reference" in:
         AuthStub.authorised()
-        val response = post("/direct-debit-reference",
-          Json.parse(
-            s"""
+        val response = post(
+          "/direct-debit-reference",
+          Json.parse(s"""
                |{
                |  "paymentReference": "693048576"
                |}
@@ -64,8 +61,8 @@ class DirectDebitISpec extends ApplicationWithWiremock
         response.status shouldBe OK
 
     "fail" when:
-      "with a 401" when :
-        "calling an retrieve DD endpoint when tokens are unauthorised" in :
+      "with a 401" when:
+        "calling an retrieve DD endpoint when tokens are unauthorised" in:
           AuthStub.unauthorised()
           val response = get("/direct-debits").futureValue
 
@@ -74,22 +71,22 @@ class DirectDebitISpec extends ApplicationWithWiremock
           val response = wsClient.url(s"$baseUrl/direct-debits").get().futureValue
 
           response.status shouldBe UNAUTHORIZED
-          response.json shouldBe Json.parse("""{"statusCode":401,"message":"Unable to retrieve session ID from headers"}""")
+          response.json   shouldBe Json.parse("""{"statusCode":401,"message":"Unable to retrieve session ID from headers"}""")
 
-      "with a 404" when :
+      "with a 404" when:
         "calling incorrect retrieval DD endpoint that doesn't exist" in:
           AuthStub.authorised()
           val response = get("/indirect-debits").futureValue
 
           response.status shouldBe NOT_FOUND
 
-        "calling incorrect future working days endpoint when tokens are unauthorised" in :
+        "calling incorrect future working days endpoint when tokens are unauthorised" in:
           AuthStub.unauthorised()
           val response = get("/direct-debit/future-working-days").futureValue
 
           response.status shouldBe NOT_FOUND
 
-        "calling incorrect ddi ref endpoint when tokens are unauthorised" in :
+        "calling incorrect ddi ref endpoint when tokens are unauthorised" in:
           AuthStub.unauthorised()
           val response = get("/direct-debit-reference1").futureValue
 
