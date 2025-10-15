@@ -138,7 +138,7 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
           paymentReference     = "payment ref",
           paymentAmount        = 120.00,
           totalLiability       = 780.00,
-          paymentFrequency     = 1,
+          paymentFrequency     = Some(1),
           paymentStartDate     = currentTime.toLocalDate
         )
         when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
@@ -160,7 +160,7 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
           paymentReference     = "payment ref",
           paymentAmount        = 120.00,
           totalLiability       = 780.00,
-          paymentFrequency     = 1,
+          paymentFrequency     = Some(1),
           paymentStartDate     = currentTime.toLocalDate
         )
         when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))

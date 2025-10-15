@@ -132,7 +132,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
           initialPaymentAmount      = Some(150),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
-          scheduledPaymentFrequency = Some(2),
+          scheduledPaymentFrequency = None,
           suspensionStartDate       = Some(currentTime.toLocalDate),
           suspensionEndDate         = Some(currentTime.toLocalDate),
           balancingPaymentAmount    = Some(600),
@@ -299,7 +299,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = 1,
+        paymentFrequency     = Some(1),
         paymentStartDate     = currentDate
       )
 
@@ -320,7 +320,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = 1,
+        paymentFrequency     = None,
         paymentStartDate     = currentDate
       )
 
@@ -341,7 +341,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = 1,
+        paymentFrequency     = Some(1),
         paymentStartDate     = currentDate
       )
 
@@ -362,7 +362,7 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentReference     = "payment ref",
         paymentAmount        = 120.00,
         totalLiability       = 780.00,
-        paymentFrequency     = 1,
+        paymentFrequency     = Some(1),
         paymentStartDate     = currentDate
       )
 
