@@ -4,9 +4,11 @@
 GET        /direct-debits                                                                   uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebits()
 GET        /direct-debits/:directDebitReference/payment-plans                               uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
 GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference         uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
-POST       /direct-debit-reference                                                          uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.generateDDIReference()
+PUT        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference/lock    uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.lockPaymentPlan(directDebitReference: String, paymentPlanReference: String)
+POST       /direct-debits/:directDebitReference/duplicate-plan-check                        uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.isDuplicatePaymentPlan(directDebitReference: String)
 POST       /direct-debits/future-working-days                                               uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.workingDaysOffset()
+POST       /direct-debit-reference                                                          uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.generateDDIReference()
 
 
 #CIS routes
-POST       /cis-taxpayer                        uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
+POST       /cis-taxpayer                            uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference

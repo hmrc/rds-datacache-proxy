@@ -22,8 +22,9 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
+import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.RdsStub
+import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.ExecutionContext.global
@@ -88,7 +89,6 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
         result shouldBe paymentPlans
 
       "retrieving Payment Plan Details" in {
-
         val currentTime = LocalDateTime.now()
 
         val paymentPlanDetails = PaymentPlanDetails(
@@ -123,6 +123,56 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
 
         val result = service.getPaymentPlanDetails("ddReference", "testId", "payment Reference").futureValue
         result shouldBe paymentPlanDetails
+      }
+
+      "locking Payment Plan" in {
+        when(mockConnector.lockPaymentPlan(any(), any()))
+          .thenReturn(Future.successful(PaymentPlanLock(lockSuccessful = true)))
+
+        val result = service.lockPaymentPlan("payment Reference", "testId").futureValue
+        result shouldBe PaymentPlanLock(lockSuccessful = true)
+      }
+
+      "return true if it is a duplicate Payment Plan" in {
+        val currentTime = LocalDateTime.now()
+
+        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+          directDebitReference = "testRef",
+          paymentPlanReference = "payment ref 123",
+          planType             = "01",
+          paymentService       = "CESA",
+          paymentReference     = "payment ref",
+          paymentAmount        = 120.00,
+          totalLiability       = 780.00,
+          paymentFrequency     = Some(1),
+          paymentStartDate     = currentTime.toLocalDate
+        )
+        when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
+          .thenReturn(Future.successful(DuplicateCheckResponse(true)))
+
+        val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000201", duplicateCheckRequest).futureValue
+        result shouldBe DuplicateCheckResponse(true)
+      }
+
+      "return false if it is not a duplicate Payment Plan" in {
+        val currentTime = LocalDateTime.now()
+
+        val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+          directDebitReference = "testRef",
+          paymentPlanReference = "payment ref 123",
+          planType             = "01",
+          paymentService       = "CESA",
+          paymentReference     = "payment ref",
+          paymentAmount        = 120.00,
+          totalLiability       = 780.00,
+          paymentFrequency     = Some(1),
+          paymentStartDate     = currentTime.toLocalDate
+        )
+        when(mockConnector.isDuplicatePaymentPlan(any(), any(), any()))
+          .thenReturn(Future.successful(DuplicateCheckResponse(false)))
+
+        val result: DuplicateCheckResponse = service.isDuplicatePaymentPlan("ddReference", "0000000009000202", duplicateCheckRequest).futureValue
+        result shouldBe DuplicateCheckResponse(false)
       }
 
     "fail" when:

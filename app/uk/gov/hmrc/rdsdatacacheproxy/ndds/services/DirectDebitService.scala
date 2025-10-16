@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.services
 
 import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
 
@@ -40,3 +41,12 @@ class DirectDebitService @Inject() (rdsDatacache: RdsDataSource) extends Logging
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] =
     rdsDatacache.getPaymentPlanDetails(directDebitReference, credId, paymentPlanReference)
+
+  def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] =
+    rdsDatacache.lockPaymentPlan(credId, paymentPlanReference)
+
+  def isDuplicatePaymentPlan(directDebitReference: String,
+                             credId: String,
+                             request: PaymentPlanDuplicateCheckRequest
+                            ): Future[DuplicateCheckResponse] =
+    rdsDatacache.isDuplicatePaymentPlan(directDebitReference, credId, request)
