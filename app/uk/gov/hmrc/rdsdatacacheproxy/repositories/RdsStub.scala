@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.repositories
 
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
 
@@ -58,6 +59,8 @@ class RdsStub @Inject() () extends RdsDataSource:
     val (playType, frequency) = Map(
       "0000000009000201" -> ("01", Some(2)),
       "0000000009000202" -> ("02", Some(5)),
+      "0000000009000204" -> ("02", Some(5)),
+      "0000000009000205" -> ("01", None),
       "0000000009000203" -> ("03", None)
     ).getOrElse(credId, ("04", None))
 
@@ -92,4 +95,20 @@ class RdsStub @Inject() () extends RdsDataSource:
 
   def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] = {
     Future.successful(PaymentPlanLock(lockSuccessful = true))
+  }
+
+  def isDuplicatePaymentPlan(
+    directDebitReference: String,
+    credId: String,
+    request: PaymentPlanDuplicateCheckRequest
+  ): Future[DuplicateCheckResponse] = {
+
+    val flag = Map(
+      "0000000009000201" -> false,
+      "0000000009000202" -> false,
+      "0000000009000204" -> true,
+      "0000000009000205" -> true
+    ).getOrElse(credId, false)
+
+    Future.successful(DuplicateCheckResponse(flag))
   }

@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, WorkingDaysOffsetRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, PaymentPlanDuplicateCheckRequest, WorkingDaysOffsetRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
@@ -45,7 +45,7 @@ class DirectDebitController @Inject() (
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
             logger.error("Error while retrieving data from oracle database", ex)
-            InternalServerError("Failed to retrieve earliest data from oracle database.")
+            InternalServerError("Failed to retrieve direct debits")
           }
 
   def workingDaysOffset(): Action[WorkingDaysOffsetRequest] =
@@ -57,16 +57,15 @@ class DirectDebitController @Inject() (
             Ok(Json.toJson(result))
           }
           .recover { case ex: Exception =>
-            logger.error("Error while calculating earliest payment date", ex)
-            InternalServerError("Failed to calculate earliest payment date.")
+            logger.error("Error while calculating future working days", ex)
+            InternalServerError("Failed to retrieve future working days")
           }
 
   def generateDDIReference(): Action[GenerateDdiRefRequest] =
     authorise.async(parse.json[GenerateDdiRefRequest]) { implicit request =>
-      val body = request.body
       directDebitService
         .getDDIReference(
-          body.paymentReference,
+          request.body.paymentReference,
           request.credentialId,
           request.sessionId.value
         )
@@ -84,8 +83,8 @@ class DirectDebitController @Inject() (
           .getDirectDebitPaymentPlans(directDebitReference, request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving data from oracle database", ex)
-            InternalServerError("Failed to retrieve earliest data from oracle database.")
+            logger.error("Error while retrieving direct debit payment plans", ex)
+            InternalServerError("Failed to retrieve direct debit payment plans")
           }
 
   def retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String): Action[AnyContent] =
@@ -95,8 +94,8 @@ class DirectDebitController @Inject() (
           .getPaymentPlanDetails(directDebitReference, request.credentialId, paymentPlanReference)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving data from oracle database", ex)
-            InternalServerError("Failed to retrieve earliest data from oracle database.")
+            logger.error("Error while retrieving payment plan details", ex)
+            InternalServerError("Failed to retrieve payment plan details")
           }
 
   def lockPaymentPlan(directDebitReference: String, paymentPlanReference: String): Action[AnyContent] =
@@ -106,6 +105,17 @@ class DirectDebitController @Inject() (
           .lockPaymentPlan(request.credentialId, paymentPlanReference)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving data from oracle database", ex)
-            InternalServerError("Failed to retrieve earliest data from oracle database.")
+            logger.error("Error while retrieving lock payment plan", ex)
+            InternalServerError("Failed to retrieve lock payment plan")
+          }
+
+  def isDuplicatePaymentPlan(directDebitReference: String): Action[PaymentPlanDuplicateCheckRequest] =
+    authorise.async(parse.json[PaymentPlanDuplicateCheckRequest]):
+      implicit request =>
+        directDebitService
+          .isDuplicatePaymentPlan(directDebitReference, request.credentialId, request.body)
+          .map(result => Ok(Json.toJson(result)))
+          .recover { case ex: Exception =>
+            logger.error("Error while retrieving duplicate payment plan", ex)
+            InternalServerError("Failed to retrieve duplicate payment plan")
           }

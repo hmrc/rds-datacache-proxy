@@ -20,6 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.{Logging, db}
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.sql.{Date, ResultSet, Types}
@@ -35,6 +36,7 @@ trait RdsDataSource {
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails]
   def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock]
+  def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
 }
 
 class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -329,7 +331,6 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   }
 
   def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] = {
-
     logger.info(s"**** Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
 
     Future {
@@ -344,13 +345,11 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Register output parameters
         storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
-
         // Execute the stored procedure
         storedProcedure.execute()
 
         // Retrieve output parameters
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
-
         logger.info(s"DB Response status: $responseStatus")
 
         storedProcedure.close()
@@ -358,6 +357,49 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Return PaymentPlanLock
         PaymentPlanLock(lockSuccessful = responseStatus.equalsIgnoreCase("PP FOUND"))
+      }
+    }
+  }
+
+  def isDuplicatePaymentPlan(directDebitReference: String,
+                             credId: String,
+                             request: PaymentPlanDuplicateCheckRequest
+                            ): Future[DuplicateCheckResponse] = {
+    logger.info(s"**** Direct Debit Reference: $directDebitReference")
+
+    Future {
+      db.withConnection { connection =>
+
+        val storedProcedure = connection.prepareCall("{call DD_PK.isDuplicatePaymentPlan(?, ?, ?, ?, ?, ?, ?, ?,?,?)}")
+
+        // Set input parameters
+        storedProcedure.setString("pCredentialID", credId) // pCredentialID
+        storedProcedure.setString("pPPRefNumber", request.paymentPlanReference) // pPPRefNumber
+        storedProcedure.setString("pPayPlanType", request.planType) // pPayPlanType
+        storedProcedure.setString("pPayPlanHodService", request.paymentService) // pPayPlanHodService
+        storedProcedure.setString("pPayReference", request.paymentReference) // pPayReference
+        storedProcedure.setInt("pScheduledPayAmount", request.paymentAmount.toInt) // pScheduledPayAmount
+        storedProcedure.setInt("pTotalLiability", request.totalLiability.toInt) // pTotalLiability
+        request.paymentFrequency match { // pScheduledPayFreq
+          case Some(freq) => storedProcedure.setInt("pScheduledPayFreq", freq)
+          case None       => storedProcedure.setNull("pScheduledPayFreq", java.sql.Types.INTEGER)
+        }
+        storedProcedure.setDate("pScheduledPayStartDate", Date.valueOf(request.paymentStartDate)) // pScheduledPayStartDate
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("pDuplicatePayPlan", Types.NUMERIC) // pDuplicatePayPlan
+
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val isDuplicate = storedProcedure.getInt("pDuplicatePayPlan") // pDuplicatePayPlan
+
+        storedProcedure.close()
+        connection.close()
+
+        // Return DuplicateCheckResponse
+        DuplicateCheckResponse(isDuplicate == 1)
       }
     }
   }

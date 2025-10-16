@@ -23,48 +23,42 @@ import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
-class WorkingDaysOffsetISpec extends ApplicationWithWiremock
-  with Matchers
-  with ScalaFutures
-  with IntegrationPatience:
+class WorkingDaysOffsetISpec extends ApplicationWithWiremock with Matchers with ScalaFutures with IntegrationPatience:
 
-  "Working Days Offset" should :
+  "Working Days Offset" should:
     "succeed" when:
-      "retrieving Earliest Payment Date" when :
+      "retrieving Earliest Payment Date" when:
         "user provides a date and offset" in:
           val response = post(
             "/direct-debits/future-working-days",
-            Json.parse(
-              s"""
+            Json.parse(s"""
                  |{
                  |  "baseDate": "2025-01-01",
-                 |  "offsetWorkingDays": 5
+                 |  "offsetWorkingDays": 2
                  |}
                  |""".stripMargin)
           ).futureValue
 
-          response.status shouldBe OK
-          response.json.toString shouldBe """{"date":"2025-01-06"}"""
+          response.status        shouldBe OK
+          response.json.toString shouldBe """{"date":"2025-01-03"}"""
 
     "fail" when:
-      "with a 400" when :
+      "with a 400" when:
         "calling an endpoint without required JSON" in:
-          val response = post(
-            "/direct-debits/future-working-days",
-            Json.parse(
-              """
+          val response = post("/direct-debits/future-working-days",
+                              Json.parse("""
                 |{
                 |  "whoAmI":"Where am I?"
-                |}""".stripMargin)).futureValue
+                |}""".stripMargin)
+                             ).futureValue
 
-          response.status shouldBe BAD_REQUEST
+          response.status      shouldBe BAD_REQUEST
           response.json.toString should include("Json validation error")
 
         "calling with an invalid date" in:
           val response = post(
             "/direct-debits/future-working-days",
-            Json.parse(
-              s"""
+            Json.parse(s"""
                  |{
                  |  "baseDate": "My Birthday",
                  |  "offsetWorkingDays": 5
@@ -72,14 +66,13 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
                  |""".stripMargin)
           ).futureValue
 
-          response.status shouldBe BAD_REQUEST
+          response.status      shouldBe BAD_REQUEST
           response.json.toString should include("Json validation error")
 
         "calling with an invalid firstNumber" in:
           val response = post(
             "/direct-debits/future-working-days",
-            Json.parse(
-              s"""
+            Json.parse(s"""
                  |{
                  |  "baseDate": "2025-01-01",
                  |  "offsetWorkingDays": "five"
@@ -89,8 +82,8 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock
 
           response.status shouldBe BAD_REQUEST
 
-    "with a 404" when :
-      "calling an endpoint that doesn't exist" in :
+    "with a 404" when:
+      "calling an endpoint that doesn't exist" in:
         val response = get("/future-working-days").futureValue
 
         response.status shouldBe NOT_FOUND

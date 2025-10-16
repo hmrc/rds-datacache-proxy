@@ -1,15 +1,12 @@
 # microservice specific routes
 
 GET        /direct-debits                                                                       uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebits()
-
 GET        /direct-debits/:directDebitReference/payment-plans                                   uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
-
 GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference             uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
-
 PUT        /direct-debits/:directDebitReference/payment-plans/:paymentPlanReference/lock        uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.lockPaymentPlan(directDebitReference: String, paymentPlanReference: String)
-
 POST       /direct-debit-reference                                                              uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.generateDDIReference()
-
 POST       /direct-debits/future-working-days                                                   uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.workingDaysOffset()
+POST       /direct-debits/:directDebitReference/duplicate-plan-check                            uk.gov.hmrc.rdsdatacacheproxy.controllers.DirectDebitController.isDuplicatePaymentPlan(directDebitReference: String)
+
 
 POST       /cis-taxpayer                                                                        uk.gov.hmrc.rdsdatacacheproxy.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
