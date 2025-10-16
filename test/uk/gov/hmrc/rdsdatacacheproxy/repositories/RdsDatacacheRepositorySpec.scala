@@ -24,10 +24,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.config.AppConfig
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
-import java.sql.{CallableStatement, Date, ResultSet, Timestamp}
+import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.{LocalDate, LocalDateTime}
+import java.sql.{CallableStatement, Date, ResultSet, Timestamp}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -240,4 +242,60 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     // Assert
     result shouldBe mockPaymentDetails
   }
+
+  "isDuplicatePaymentPlan" should "return true if it is duplicate" in {
+    // Arrange
+    val currentDate = LocalDate.now()
+
+    val ddReference = "test dd reference"
+    val id = "0000000009000201"
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "type 1",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
+
+    // Mocking stored procedure behavior
+    when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(1)
+
+    // Act
+    val result: DuplicateCheckResponse = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
+
+    // Assert
+    result shouldBe DuplicateCheckResponse(true)
+  }
+
+  "isDuplicatePaymentPlan" should "return false if it is not a duplicate" in {
+    // Arrange
+    val ddReference = "test dd reference"
+    val id = "0000000009000202"
+    val currentDate = LocalDate.now()
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "type 1",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
+
+    // Mocking stored procedure behavior
+    when(mockCallableStatement.getInt("pDuplicatePayPlan")).thenReturn(0)
+
+    // Act
+    val result: DuplicateCheckResponse = repository.isDuplicatePaymentPlan(ddReference, id, duplicateCheckRequest).futureValue
+
+    // Assert
+    result shouldBe DuplicateCheckResponse(false)
+  }
+
 }

@@ -19,8 +19,9 @@ package uk.gov.hmrc.rdsdatacacheproxy.repositories
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDIReference, DirectDebit, DirectDebitDetail, EarliestPaymentDate, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.utils.StubUtils
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
@@ -111,6 +112,41 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
+    "return a Single Payment Plan Details and credId ending with 05" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "01",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "payment plan reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
     "return a Budget Payment Plan Details" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
@@ -142,6 +178,41 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Budget Payment Plan Details when credId ending with 04" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime,
+          scheduledPaymentAmount    = Some(1000),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(150),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = Some(5),
+          suspensionStartDate       = Some(currentTime.toLocalDate),
+          suspensionEndDate         = Some(currentTime.toLocalDate),
+          balancingPaymentAmount    = Some(600),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(300),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "payment plan reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -214,4 +285,88 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
 
       result shouldBe paymentPlanDetails
+    }
+
+    "return false if not a duplicate payment plan and credId ending with 01" in {
+
+      val currentDate = LocalDate.now()
+
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType             = "01",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = Some(1),
+        paymentStartDate     = currentDate
+      )
+
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000201", duplicateCheckRequest).futureValue
+
+      result shouldBe DuplicateCheckResponse(false)
+    }
+
+    "return true if a duplicate payment plan and credId with 05" in {
+
+      val currentDate = LocalDate.now()
+
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType             = "01",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = None,
+        paymentStartDate     = currentDate
+      )
+
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000205", duplicateCheckRequest).futureValue
+
+      result shouldBe DuplicateCheckResponse(true)
+    }
+
+    "return false if not a duplicate payment plan and credId ending with 02" in {
+
+      val currentDate = LocalDate.now()
+
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType             = "02",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = Some(1),
+        paymentStartDate     = currentDate
+      )
+
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
+
+      result shouldBe DuplicateCheckResponse(false)
+    }
+
+    "return true if duplicate payment plan and credId ending with 04" in {
+
+      val currentDate = LocalDate.now()
+
+      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+        directDebitReference = "testRef",
+        paymentPlanReference = "payment ref 123",
+        planType             = "02",
+        paymentService       = "CESA",
+        paymentReference     = "payment ref",
+        paymentAmount        = 120.00,
+        totalLiability       = 780.00,
+        paymentFrequency     = Some(1),
+        paymentStartDate     = currentDate
+      )
+
+      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000204", duplicateCheckRequest).futureValue
+
+      result shouldBe DuplicateCheckResponse(true)
     }

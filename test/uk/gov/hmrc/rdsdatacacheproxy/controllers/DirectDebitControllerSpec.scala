@@ -24,12 +24,14 @@ import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
+import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{DDPaymentPlans, DirectDebit, DirectDebitDetail, PaymentPlan, PaymentPlanDetail, PaymentPlanDetails, UserDebits}
+import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.Future
 
 class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
@@ -121,6 +123,52 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
       }
     }
+
+    "isDuplicatePaymentPlan method" - {
+      "return 200 and a successful response when duplicate payment plan exist" in new SetUp {
+        when(
+          mockDirectDebitService.isDuplicatePaymentPlan(
+            any[String],
+            any[String],
+            any[PaymentPlanDuplicateCheckRequest]
+          )
+        ).thenReturn(Future.successful(DuplicateCheckResponse(true)))
+
+        val request: FakeRequest[PaymentPlanDuplicateCheckRequest] =
+          FakeRequest()
+            .withBody(duplicateCheckRequest)
+
+        val result: Future[Result] =
+          controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
+
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(DuplicateCheckResponse(true))
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+
+        when(
+          mockDirectDebitService.isDuplicatePaymentPlan(
+            any[String],
+            any[String],
+            any[PaymentPlanDuplicateCheckRequest]
+          )
+        ).thenReturn(Future.failed(exception))
+
+        val request: FakeRequest[PaymentPlanDuplicateCheckRequest] =
+          FakeRequest()
+            .withBody(duplicateCheckRequest)
+
+        val result: Future[Result] =
+          controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
+
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+      }
+    }
+
   }
 
   private class SetUp {
@@ -198,5 +246,19 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
     val controller =
       new DirectDebitController(fakeAuthAction, mockDirectDebitService, cc)
+
+    val currentDate = LocalDate.now()
+
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "01",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
   }
 }

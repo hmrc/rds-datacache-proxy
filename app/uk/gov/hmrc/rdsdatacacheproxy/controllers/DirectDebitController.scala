@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.UserDebits.*
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, WorkingDaysOffsetRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.models.requests.{GenerateDdiRefRequest, PaymentPlanDuplicateCheckRequest, WorkingDaysOffsetRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.models.responses.{EarliestPaymentDate, UserDebits}
 import uk.gov.hmrc.rdsdatacacheproxy.services.DirectDebitService
 
@@ -92,6 +92,24 @@ class DirectDebitController @Inject() (
       implicit request =>
         directDebitService
           .getPaymentPlanDetails(directDebitReference, request.credentialId, paymentPlanReference)
+          .map(result => Ok(Json.toJson(result)))
+          .recover { case ex: Exception =>
+            logger.error("Error while retrieving data from oracle database", ex)
+            InternalServerError("Failed to retrieve earliest data from oracle database.")
+          }
+
+  def isDuplicatePaymentPlan(directDebitReference: String): Action[PaymentPlanDuplicateCheckRequest] =
+    authorise.async(parse.json[PaymentPlanDuplicateCheckRequest]):
+      implicit request =>
+        val body = request.body
+        logger.info("Duplicate check request received is " + body.toString)
+
+        directDebitService
+          .isDuplicatePaymentPlan(
+            directDebitReference,
+            request.credentialId,
+            body
+          )
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
             logger.error("Error while retrieving data from oracle database", ex)
