@@ -24,7 +24,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.rdsdatacacheproxy.models.requests.AuthenticatedRequest
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

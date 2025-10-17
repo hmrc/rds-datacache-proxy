@@ -16,21 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.actions
 
-import play.api.mvc.{AnyContent, BodyParser, PlayBodyParsers, Request, Result}
+import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.http.SessionId
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-
-class FakeAuthAction @Inject() (bodyParsers: PlayBodyParsers) extends AuthAction {
-
-  override def parser: BodyParser[AnyContent] = bodyParsers.defaultBodyParser
-
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
-    block(
-      AuthenticatedRequest(request, "internalId", "credId", SessionId("sessionId"))
-    )
-
-  override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-
-}
+case class AuthenticatedRequest[A](
+  private val request: Request[A],
+  internalId: String,
+  credentialId: String,
+  sessionId: SessionId
+) extends WrappedRequest[A](request)
