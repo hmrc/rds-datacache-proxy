@@ -65,7 +65,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         val result: Future[Result] = controller.retrieveDirectDebits()(fakeRequest)
 
         status(result)        shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+        contentAsString(result) should include("Failed to retrieve direct debits")
       }
     }
 
@@ -97,7 +97,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         val result: Future[Result] = controller.retrieveDirectDebitPaymentPlans("test reference")(fakeRequest)
 
         status(result)        shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+        contentAsString(result) should include("Failed to retrieve direct debit payment plans")
       }
     }
 
@@ -120,7 +120,30 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         val result: Future[Result] = controller.retrievePaymentPlanDetails("dd reference", "test reference")(fakeRequest)
 
         status(result)        shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+        contentAsString(result) should include("Failed to retrieve payment plan details")
+      }
+    }
+
+    "lockPaymentPlan" - {
+      "return 200 and a successful response when DB returns records" in new SetUp {
+        when(mockDirectDebitService.lockPaymentPlan(any[String], any[String]))
+          .thenReturn(Future.successful(PaymentPlanLock(lockSuccessful = true)))
+        val result: Future[Result] = controller.lockPaymentPlan("test dd reference", "pay plan reference")(fakeRequest)
+
+        status(result)        shouldBe OK
+        contentType(result)   shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(PaymentPlanLock(lockSuccessful = true))
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.lockPaymentPlan(any[String], any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.lockPaymentPlan("test dd reference", "pay plan reference")(fakeRequest)
+
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve lock payment plan")
       }
     }
 
@@ -165,10 +188,9 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
           controller.isDuplicatePaymentPlan("testDuplicatePaymentPlan")(request)
 
         status(result)        shouldBe INTERNAL_SERVER_ERROR
-        contentAsString(result) should include("Failed to retrieve earliest data from oracle database.")
+        contentAsString(result) should include("Failed to retrieve duplicate payment plan")
       }
     }
-
   }
 
   private class SetUp {
@@ -216,7 +238,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
     private val currentTime = LocalDateTime.MIN
 
-    val paymentPlanDetailsResponse = PaymentPlanDetails(
+    val paymentPlanDetailsResponse: PaymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(
         bankSortCode       = Some("sort code"),
         bankAccountNumber  = Some("account number"),
@@ -247,7 +269,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
     val controller =
       new DirectDebitController(fakeAuthAction, mockDirectDebitService, cc)
 
-    val currentDate = LocalDate.now()
+    val currentDate: LocalDate = LocalDate.now()
 
     val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
       directDebitReference = "testRef",

@@ -35,6 +35,7 @@ trait RdsDataSource {
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference]
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans]
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails]
+  def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock]
   def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
 }
 
@@ -325,6 +326,37 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
             paymentPlanEditable       = paymentPlanEditable == 1
           )
         )
+      }
+    }
+  }
+
+  def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] = {
+    logger.info(s"**** Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
+
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall(
+          "{call DD_PK.LockPayPlan(?, ?, ?)}"
+        )
+
+        // Set input parameters
+        storedProcedure.setString("pCredentialID", credId) // pCredentialID
+        storedProcedure.setString("pPPRefNumber", paymentPlanReference) // pPPRefNumber
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("pResponseStatus", Types.VARCHAR) // pResponseStatus
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
+        logger.info(s"DB Response status: $responseStatus")
+
+        storedProcedure.close()
+        connection.close()
+
+        // Return PaymentPlanLock
+        PaymentPlanLock(lockSuccessful = responseStatus.equalsIgnoreCase("PP FOUND"))
       }
     }
   }

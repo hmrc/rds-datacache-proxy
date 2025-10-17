@@ -27,7 +27,7 @@ import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience:
+class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience:
 
   val connector: RdsStub = new RdsStub() {
     override val stubData: StubUtils = new StubUtils {
@@ -287,86 +287,88 @@ class RDSStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
-    "return false if not a duplicate payment plan and credId ending with 01" in {
+  "return PaymentPlanLock" in {
+    val result = connector.lockPaymentPlan("payment reference", "123").futureValue
 
-      val currentDate = LocalDate.now()
+    result shouldBe PaymentPlanLock(lockSuccessful = true)
+  }
 
-      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-        directDebitReference = "testRef",
-        paymentPlanReference = "payment ref 123",
-        planType             = "01",
-        paymentService       = "CESA",
-        paymentReference     = "payment ref",
-        paymentAmount        = 120.00,
-        totalLiability       = 780.00,
-        paymentFrequency     = Some(1),
-        paymentStartDate     = currentDate
-      )
+  "return false if not a duplicate payment plan and credId ending with 01" in {
+    val currentDate = LocalDate.now()
 
-      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000201", duplicateCheckRequest).futureValue
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "01",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
 
-      result shouldBe DuplicateCheckResponse(false)
-    }
+    val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000201", duplicateCheckRequest).futureValue
 
-    "return true if a duplicate payment plan and credId with 05" in {
+    result shouldBe DuplicateCheckResponse(false)
+  }
 
-      val currentDate = LocalDate.now()
+  "return true if a duplicate payment plan and credId with 05" in {
+    val currentDate = LocalDate.now()
 
-      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-        directDebitReference = "testRef",
-        paymentPlanReference = "payment ref 123",
-        planType             = "01",
-        paymentService       = "CESA",
-        paymentReference     = "payment ref",
-        paymentAmount        = 120.00,
-        totalLiability       = 780.00,
-        paymentFrequency     = None,
-        paymentStartDate     = currentDate
-      )
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "01",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = None,
+      paymentStartDate     = currentDate
+    )
 
-      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000205", duplicateCheckRequest).futureValue
+    val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("testRef", "0000000009000205", duplicateCheckRequest).futureValue
 
-      result shouldBe DuplicateCheckResponse(true)
-    }
+    result shouldBe DuplicateCheckResponse(true)
+  }
 
-    "return false if not a duplicate payment plan and credId ending with 02" in {
+  "return false if not a duplicate payment plan and credId ending with 02" in {
+    val currentDate = LocalDate.now()
 
-      val currentDate = LocalDate.now()
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "02",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
 
-      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-        directDebitReference = "testRef",
-        paymentPlanReference = "payment ref 123",
-        planType             = "02",
-        paymentService       = "CESA",
-        paymentReference     = "payment ref",
-        paymentAmount        = 120.00,
-        totalLiability       = 780.00,
-        paymentFrequency     = Some(1),
-        paymentStartDate     = currentDate
-      )
+    val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
 
-      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000202", duplicateCheckRequest).futureValue
+    result shouldBe DuplicateCheckResponse(false)
+  }
 
-      result shouldBe DuplicateCheckResponse(false)
-    }
+  "return true if duplicate payment plan and credId ending with 04" in {
+    val currentDate = LocalDate.now()
 
-    "return true if duplicate payment plan and credId ending with 04" in {
+    val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
+      directDebitReference = "testRef",
+      paymentPlanReference = "payment ref 123",
+      planType             = "02",
+      paymentService       = "CESA",
+      paymentReference     = "payment ref",
+      paymentAmount        = 120.00,
+      totalLiability       = 780.00,
+      paymentFrequency     = Some(1),
+      paymentStartDate     = currentDate
+    )
 
-      val currentDate = LocalDate.now()
+    val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000204", duplicateCheckRequest).futureValue
 
-      val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
-        directDebitReference = "testRef",
-        paymentPlanReference = "payment ref 123",
-        planType             = "02",
-        paymentService       = "CESA",
-        paymentReference     = "payment ref",
-        paymentAmount        = 120.00,
-        totalLiability       = 780.00,
-        paymentFrequency     = Some(1),
-        paymentStartDate     = currentDate
-      )
-
-      val result: DuplicateCheckResponse = connector.isDuplicatePaymentPlan("dd reference", "0000000009000204", duplicateCheckRequest).futureValue
-
-      result shouldBe DuplicateCheckResponse(true)
-    }
+    result shouldBe DuplicateCheckResponse(true)
+  }

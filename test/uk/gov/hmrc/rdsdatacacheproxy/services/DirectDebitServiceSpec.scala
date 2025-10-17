@@ -89,7 +89,6 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
         result shouldBe paymentPlans
 
       "retrieving Payment Plan Details" in {
-
         val currentTime = LocalDateTime.now()
 
         val paymentPlanDetails = PaymentPlanDetails(
@@ -126,8 +125,15 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
         result shouldBe paymentPlanDetails
       }
 
-      "return true if it is a duplicate Payment Plan" in {
+      "locking Payment Plan" in {
+        when(mockConnector.lockPaymentPlan(any(), any()))
+          .thenReturn(Future.successful(PaymentPlanLock(lockSuccessful = true)))
 
+        val result = service.lockPaymentPlan("payment Reference", "testId").futureValue
+        result shouldBe PaymentPlanLock(lockSuccessful = true)
+      }
+
+      "return true if it is a duplicate Payment Plan" in {
         val currentTime = LocalDateTime.now()
 
         val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(
@@ -149,7 +155,6 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
       }
 
       "return false if it is not a duplicate Payment Plan" in {
-
         val currentTime = LocalDateTime.now()
 
         val duplicateCheckRequest: PaymentPlanDuplicateCheckRequest = PaymentPlanDuplicateCheckRequest(

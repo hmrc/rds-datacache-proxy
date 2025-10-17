@@ -29,7 +29,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.models.responses.*
 
 import java.sql.{CallableStatement, Date, ResultSet}
 import java.time.{LocalDate, LocalDateTime}
-import java.sql.{CallableStatement, Date, ResultSet, Timestamp}
+import java.sql.Timestamp
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -241,6 +241,28 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     // Assert
     result shouldBe mockPaymentDetails
+  }
+
+  "lockPaymentPlan" should "return PaymentPlanLock(true) when response status is PP FOUND" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
+
+    val result = repository.lockPaymentPlan(paymentPlanReference, id).futureValue
+
+    result shouldBe PaymentPlanLock(lockSuccessful = true)
+  }
+
+  it should "return PaymentPlanLock(false) when response status is PP NOT FOUND" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP NOT FOUND")
+
+    val result = repository.lockPaymentPlan(paymentPlanReference, id).futureValue
+
+    result shouldBe PaymentPlanLock(lockSuccessful = false)
   }
 
   "isDuplicatePaymentPlan" should "return true if it is duplicate" in {
