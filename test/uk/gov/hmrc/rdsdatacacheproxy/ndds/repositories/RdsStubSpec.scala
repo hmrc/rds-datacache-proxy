@@ -302,8 +302,8 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       planType             = "01",
       paymentService       = "CESA",
       paymentReference     = "payment ref",
-      paymentAmount        = 120.00,
-      totalLiability       = 780.00,
+      paymentAmount        = Some(120.00),
+      totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
       paymentStartDate     = currentDate
     )
@@ -322,8 +322,8 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       planType             = "01",
       paymentService       = "CESA",
       paymentReference     = "payment ref",
-      paymentAmount        = 120.00,
-      totalLiability       = 780.00,
+      paymentAmount        = Some(120.00),
+      totalLiability       = Some(780.00),
       paymentFrequency     = None,
       paymentStartDate     = currentDate
     )
@@ -342,8 +342,8 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       planType             = "02",
       paymentService       = "CESA",
       paymentReference     = "payment ref",
-      paymentAmount        = 120.00,
-      totalLiability       = 780.00,
+      paymentAmount        = Some(120.00),
+      totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
       paymentStartDate     = currentDate
     )
@@ -362,8 +362,8 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       planType             = "02",
       paymentService       = "CESA",
       paymentReference     = "payment ref",
-      paymentAmount        = 120.00,
-      totalLiability       = 780.00,
+      paymentAmount        = Some(120.00),
+      totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
       paymentStartDate     = currentDate
     )
