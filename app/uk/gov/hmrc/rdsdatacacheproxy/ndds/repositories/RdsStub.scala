@@ -69,7 +69,7 @@ class RdsStub @Inject() () extends RdsDataSource:
                              Some(currentTime.toLocalDate.plusMonths(1)),
                              Some(currentTime.toLocalDate.plusMonths(2))
                             )
-    ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10), None, None)))
+    ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
