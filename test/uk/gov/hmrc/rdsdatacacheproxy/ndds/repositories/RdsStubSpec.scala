@@ -77,7 +77,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       }
     }
 
-    "return a Single Payment Plan Details" in {
+    "return a Single Payment Plan Details when credId is 0000000009000201" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
@@ -91,18 +91,18 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "01",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
+          initialPaymentAmount      = Some(100),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = Some(2),
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )
@@ -112,7 +112,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
-    "return a Single Payment Plan Details and credId ending with 05" in {
+    "return a Single Payment Plan Details and credId is 0000000009000205" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
@@ -126,18 +126,18 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "01",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
+          initialPaymentAmount      = Some(100),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = None,
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )
@@ -147,7 +147,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
-    "return a Budget Payment Plan Details" in {
+    "return a Budget Payment Plan Details when credId is 0000000009000202" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
@@ -161,18 +161,18 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "02",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
-          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
           scheduledPaymentFrequency = Some(5),
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )
@@ -182,7 +182,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
-    "return a Budget Payment Plan Details when credId ending with 04" in {
+    "return a Budget Payment Plan Details when credId is 0000000009000204" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
       val paymentPlanDetails = PaymentPlanDetails(
@@ -196,23 +196,58 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "02",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
-          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
           scheduledPaymentFrequency = Some(5),
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "payment plan reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Budget Payment Plan Details when credId is 0000000009000206" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
+          scheduledPaymentFrequency = Some(5),
+          suspensionStartDate       = Some(currentTime.toLocalDate.plusMonths(1)),
+          suspensionEndDate         = Some(currentTime.toLocalDate.plusMonths(2)),
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000206", "payment plan reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -231,18 +266,18 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "03",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
+          initialPaymentAmount      = Some(100),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = None,
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )
@@ -266,18 +301,18 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           hodService                = "CESA",
           planType                  = "04",
           paymentReference          = "4558540144K",
-          submissionDateTime        = currentTime,
-          scheduledPaymentAmount    = Some(1000),
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
-          initialPaymentAmount      = Some(150),
+          initialPaymentAmount      = Some(100),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
           scheduledPaymentFrequency = None,
-          suspensionStartDate       = Some(currentTime.toLocalDate),
-          suspensionEndDate         = Some(currentTime.toLocalDate),
-          balancingPaymentAmount    = Some(600),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
-          totalLiability            = Some(300),
+          totalLiability            = Some(1200),
           paymentPlanEditable       = false
         )
       )

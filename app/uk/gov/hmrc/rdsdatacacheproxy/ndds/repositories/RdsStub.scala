@@ -56,13 +56,20 @@ class RdsStub @Inject() () extends RdsDataSource:
 
     val currentTime = LocalDateTime.now().withNano(0)
 
-    val (playType, frequency) = Map(
-      "0000000009000201" -> ("01", Some(2)),
-      "0000000009000202" -> ("02", Some(5)),
-      "0000000009000204" -> ("02", Some(5)),
-      "0000000009000205" -> ("01", None),
-      "0000000009000203" -> ("03", None)
-    ).getOrElse(credId, ("04", None))
+    val (playType, frequency, scheduledPaymentStartDate, scheduledPaymentEndDate, suspensionStartDate, suspensionEndDate) = Map(
+      "0000000009000201" -> ("01", Some(2), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+      "0000000009000202" -> ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None),
+      "0000000009000204" -> ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None),
+      "0000000009000205" -> ("01", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+      "0000000009000203" -> ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+      "0000000009000206" -> ("02",
+                             Some(5),
+                             Some(currentTime.toLocalDate.plusDays(5)),
+                             Some(currentTime.toLocalDate.plusMonths(12)),
+                             Some(currentTime.toLocalDate.plusMonths(1)),
+                             Some(currentTime.toLocalDate.plusMonths(2))
+                            )
+    ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
@@ -75,18 +82,18 @@ class RdsStub @Inject() () extends RdsDataSource:
         hodService                = "CESA",
         planType                  = playType,
         paymentReference          = "4558540144K",
-        submissionDateTime        = currentTime,
-        scheduledPaymentAmount    = Some(1000),
-        scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+        submissionDateTime        = currentTime.minusDays(5),
+        scheduledPaymentAmount    = Some(100),
+        scheduledPaymentStartDate = scheduledPaymentStartDate,
         initialPaymentStartDate   = Some(currentTime.toLocalDate),
-        initialPaymentAmount      = Some(150),
-        scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+        initialPaymentAmount      = Some(100),
+        scheduledPaymentEndDate   = scheduledPaymentEndDate,
         scheduledPaymentFrequency = frequency,
-        suspensionStartDate       = Some(currentTime.toLocalDate),
-        suspensionEndDate         = Some(currentTime.toLocalDate),
-        balancingPaymentAmount    = Some(600),
+        suspensionStartDate       = suspensionStartDate,
+        suspensionEndDate         = suspensionEndDate,
+        balancingPaymentAmount    = Some(100),
         balancingPaymentDate      = Some(currentTime.toLocalDate),
-        totalLiability            = Some(300),
+        totalLiability            = Some(1200),
         paymentPlanEditable       = false
       )
     )
