@@ -21,7 +21,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.*
 import play.api.libs.json.Json
-import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
+import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 class WorkingDaysOffsetISpec extends ApplicationWithWiremock with Matchers with ScalaFutures with IntegrationPatience:
 
@@ -29,6 +29,7 @@ class WorkingDaysOffsetISpec extends ApplicationWithWiremock with Matchers with 
     "succeed" when:
       "retrieving Earliest Payment Date" when:
         "user provides a date and offset" in:
+          AuthStub.authorised()
           val response = post(
             "/direct-debits/future-working-days",
             Json.parse(s"""
