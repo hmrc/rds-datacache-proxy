@@ -233,7 +233,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           paymentReference          = "4558540144K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
-          scheduledPaymentStartDate = Some(currentTime.toLocalDate.minusDays(4)),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
           initialPaymentStartDate   = Some(currentTime.toLocalDate),
           initialPaymentAmount      = Some(100),
           scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),

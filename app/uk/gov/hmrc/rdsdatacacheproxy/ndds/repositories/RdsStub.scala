@@ -64,7 +64,7 @@ class RdsStub @Inject() () extends RdsDataSource:
       "0000000009000203" -> ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
       "0000000009000206" -> ("02",
                              Some(5),
-                             Some(currentTime.toLocalDate.minusDays(4)),
+                             Some(currentTime.toLocalDate.plusDays(5)),
                              Some(currentTime.toLocalDate.plusMonths(12)),
                              Some(currentTime.toLocalDate.plusMonths(1)),
                              Some(currentTime.toLocalDate.plusMonths(2))
