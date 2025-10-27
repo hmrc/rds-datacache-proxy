@@ -49,7 +49,7 @@ class DirectDebitController @Inject() (
           }
 
   def workingDaysOffset(): Action[WorkingDaysOffsetRequest] =
-    Action(parse.json[WorkingDaysOffsetRequest]).async:
+    authorise.async(parse.json[WorkingDaysOffsetRequest]):
       implicit request =>
         directDebitService
           .addFutureWorkingDays(request.body.baseDate, request.body.offsetWorkingDays)
