@@ -32,8 +32,13 @@ class RdsStub @Inject() () extends RdsDataSource:
 
   private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
 
-  def getDirectDebits(id: String): Future[UserDebits] =
-    Future.successful(UserDebits(debits.size, debits))
+  def getDirectDebits(id: String): Future[UserDebits] = {
+    if (id == "0000000009000200") {
+      Future.successful(UserDebits(0, Seq.empty))
+    } else {
+      Future.successful(UserDebits(debits.size, debits))
+    }
+  }
 
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] =
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
