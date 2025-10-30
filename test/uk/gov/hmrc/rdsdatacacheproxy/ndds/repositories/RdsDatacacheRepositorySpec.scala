@@ -176,7 +176,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     result.paymentPlanList shouldBe paymentPlans
   }
 
-  "getPaymentPlanDetails" should "return PaymentPlanDetails with correct data" in {
+  "getPaymentPlanDetails" should "return PaymentPlanDetails with correct data when auDdisFlag is true" in {
     // Arrange
     val ddReference = "test dd reference"
     val id = "test-cred-id"
@@ -217,7 +217,74 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
     when(mockCallableStatement.getString("pBankAccountName")).thenReturn(null)
     when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
-    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("01")
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("1")
+    when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("CESA")
+    when(mockCallableStatement.getString("pPayPlanType")).thenReturn("01")
+    when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")
+    when(mockCallableStatement.getTimestamp("pSubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
+    when(mockCallableStatement.getBigDecimal("pScheduledPayAmount")).thenReturn(scala.math.BigDecimal(1000.0).bigDecimal)
+    when(mockCallableStatement.getDate("pScheduledPayStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDate("pInitialPayStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getBigDecimal("pInitialPayAmount")).thenReturn(scala.math.BigDecimal(150.0).bigDecimal)
+    when(mockCallableStatement.getDate("pScheduledPayEndDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getInt("pScheduledPayFreq")).thenReturn(1)
+    when(mockCallableStatement.getDate("pSuspensionStartDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getDate("pSuspensionEndDate")).thenReturn(null)
+    when(mockCallableStatement.getBigDecimal("pBalancingPayAmount")).thenReturn(scala.math.BigDecimal(600.0).bigDecimal)
+    when(mockCallableStatement.getDate("pBalancingPayDate")).thenReturn(Date.valueOf(currentDate))
+    when(mockCallableStatement.getBigDecimal("pTotalLiability")).thenReturn(null)
+    when(mockCallableStatement.getInt("pPayPlanEditFlag")).thenReturn(0)
+    when(mockCallableStatement.getString("pResponseStatus")).thenReturn("PP FOUND")
+
+    // Act
+    val result = repository.getPaymentPlanDetails(ddReference, id, paymentReference).futureValue
+
+    // Assert
+    result shouldBe mockPaymentDetails
+  }
+
+  "getPaymentPlanDetails" should "return PaymentPlanDetails with correct data when auDdisFlag is false" in {
+    // Arrange
+    val ddReference = "test dd reference"
+    val id = "test-cred-id"
+    val paymentReference = "test payment reference"
+
+    val currentTime = LocalDateTime.now()
+    val currentDate = LocalDate.now()
+
+    val mockPaymentDetails = PaymentPlanDetails(
+      directDebitDetails = DirectDebitDetail(bankSortCode = Some("sort code"),
+                                             bankAccountNumber  = Some("account number"),
+                                             bankAccountName    = None,
+                                             auDdisFlag         = false,
+                                             submissionDateTime = currentTime
+                                            ),
+      paymentPlanDetails = PaymentPlanDetail(
+        hodService                = "CESA",
+        planType                  = "01",
+        paymentReference          = paymentReference,
+        submissionDateTime        = currentTime,
+        scheduledPaymentAmount    = Some(1000),
+        scheduledPaymentStartDate = Some(currentTime.toLocalDate),
+        initialPaymentStartDate   = Some(currentTime.toLocalDate),
+        initialPaymentAmount      = Some(150),
+        scheduledPaymentEndDate   = Some(currentTime.toLocalDate),
+        scheduledPaymentFrequency = Some(1),
+        suspensionStartDate       = Some(currentTime.toLocalDate),
+        suspensionEndDate         = None,
+        balancingPaymentAmount    = Some(600),
+        balancingPaymentDate      = Some(currentTime.toLocalDate),
+        totalLiability            = None,
+        paymentPlanEditable       = false
+      )
+    )
+
+    // Mocking stored procedure behavior
+    when(mockCallableStatement.getString("pBankAccountNumber")).thenReturn("account number")
+    when(mockCallableStatement.getString("pBankSortCode")).thenReturn("sort code")
+    when(mockCallableStatement.getString("pBankAccountName")).thenReturn(null)
+    when(mockCallableStatement.getTimestamp("pDDISubmissionDateTime")).thenReturn(Timestamp.valueOf(currentTime))
+    when(mockCallableStatement.getString("pAUDDISFlag")).thenReturn("0")
     when(mockCallableStatement.getString("pPayPlanHodService")).thenReturn("CESA")
     when(mockCallableStatement.getString("pPayPlanType")).thenReturn("01")
     when(mockCallableStatement.getString("pPayReference")).thenReturn("test payment reference")

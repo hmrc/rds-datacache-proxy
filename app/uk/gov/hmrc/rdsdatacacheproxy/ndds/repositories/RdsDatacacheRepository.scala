@@ -304,7 +304,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
             bankSortCode       = Option(sortCode),
             bankAccountNumber  = Option(bankAccountNumber),
             bankAccountName    = Option(bankAccountName),
-            auDdisFlag         = auDdisFlag.contains("01"),
+            auDdisFlag         = auDdisFlag == "1",
             submissionDateTime = ddSubmissionDateTime.toLocalDateTime
           ),
           paymentPlanDetails = PaymentPlanDetail(
