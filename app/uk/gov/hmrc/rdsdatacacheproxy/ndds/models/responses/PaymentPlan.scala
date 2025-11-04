@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.LocalDateTime
 
@@ -29,7 +30,14 @@ case class PaymentPlan(scheduledPaymentAmount: BigDecimal,
                       )
 
 object PaymentPlan:
-  implicit val format: OFormat[PaymentPlan] = Json.format[PaymentPlan]
+  implicit val format: Format[PaymentPlan] = (
+    (__ \ "scheduledPaymentAmount").format[BigDecimal] and
+      (__ \ "planRefNumber").format[String] and
+      (__ \ "planType").format[String] and
+      (__ \ "paymentReference").format[String] and
+      (__ \ "hodService").format[String] and
+      (__ \ "submissionDateTime").format[LocalDateTime]
+  )(PaymentPlan.apply, o => Tuple.fromProductTyped(o))
 
 case class DDPaymentPlans(bankSortCode: String,
                           bankAccountNumber: String,
@@ -41,5 +49,13 @@ case class DDPaymentPlans(bankSortCode: String,
 
 object DDPaymentPlans:
   import PaymentPlan.format
-  implicit val format: OFormat[DDPaymentPlans] = Json.format[DDPaymentPlans]
+  implicit val format: Format[DDPaymentPlans] = (
+    (__ \ "bankSortCode").format[String] and
+      (__ \ "bankAccountNumber").format[String] and
+      (__ \ "bankAccountName").format[String] and
+      (__ \ "auDdisFlag").format[String] and
+      (__ \ "paymentPlanCount").format[Int] and
+      (__ \ "paymentPlanList").format[Seq[PaymentPlan]]
+  )(DDPaymentPlans.apply, o => Tuple.fromProductTyped(o))
+
   val empty: DDPaymentPlans = DDPaymentPlans("", "", "", "dd", 0, Seq())

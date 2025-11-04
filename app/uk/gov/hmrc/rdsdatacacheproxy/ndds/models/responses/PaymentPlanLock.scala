@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 case class PaymentPlanLock(lockSuccessful: Boolean)
 
 object PaymentPlanLock:
-  implicit val format: OFormat[PaymentPlanLock] = Json.format[PaymentPlanLock]
+  implicit val format: Format[PaymentPlanLock] =
+    (__ \ "lockSuccessful").format[Boolean].inmap(PaymentPlanLock.apply, _.lockSuccessful)

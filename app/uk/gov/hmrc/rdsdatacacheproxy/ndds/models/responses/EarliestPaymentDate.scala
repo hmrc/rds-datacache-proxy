@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.LocalDate
 
 case class EarliestPaymentDate(date: LocalDate)
 
 object EarliestPaymentDate {
-  implicit val format: OFormat[EarliestPaymentDate] = Json.format
+  implicit val format: Format[EarliestPaymentDate] =
+    (__ \ "date").format[LocalDate].inmap(EarliestPaymentDate.apply, _.date)
 }

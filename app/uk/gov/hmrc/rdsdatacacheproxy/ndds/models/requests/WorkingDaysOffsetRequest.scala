@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests
 
-import play.api.libs.json.{Json, OFormat, Reads, Writes}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.LocalDate
 
 case class WorkingDaysOffsetRequest(baseDate: LocalDate, offsetWorkingDays: Int)
 
 object WorkingDaysOffsetRequest {
-  implicit val format: OFormat[WorkingDaysOffsetRequest] = Json.format
+  implicit val format: Format[WorkingDaysOffsetRequest] = (
+    (__ \ "baseDate").format[LocalDate] and
+      (__ \ "offsetWorkingDays").format[Int]
+  )(WorkingDaysOffsetRequest.apply, o => Tuple.fromProductTyped(o))
 }
