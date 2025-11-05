@@ -124,3 +124,21 @@ class RdsStub @Inject() () extends RdsDataSource:
 
     Future.successful(DuplicateCheckResponse(flag))
   }
+
+  def isAdvanceNoticePresent(
+    directDebitReference: String,
+    paymentPlanReference: String
+  ): Future[AdvanceNoticeResponse] = {
+//    val flag = Map(
+//      "0000000009000201" -> false,
+//      "0000000009000202" -> false,
+//      "0000000009000204" -> true,
+//      "0000000009000205" -> true
+//    ).getOrElse(credId, false)
+    Future.successful(
+      AdvanceNoticeResponse(
+        totalAmount = Some("500"),
+        dueDate     = Some("03-11-2026")
+      )
+    )
+  }
