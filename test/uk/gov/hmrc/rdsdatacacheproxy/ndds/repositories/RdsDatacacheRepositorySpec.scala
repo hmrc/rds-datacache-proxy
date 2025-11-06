@@ -387,4 +387,34 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     result shouldBe DuplicateCheckResponse(false)
   }
 
+  "isAdvanceNoticeDetails" should "return Advance notice details when present" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("p_total_amount")).thenReturn("500")
+    when(mockCallableStatement.getString("p_due_date")).thenReturn("03-11-2026")
+
+    val result = repository.isAdvanceNoticePresent(paymentPlanReference, id).futureValue
+
+    result shouldBe AdvanceNoticeResponse(
+      totalAmount = Some("500"),
+      dueDate     = Some("03-11-2026")
+    )
+  }
+
+  it should "return None Advance notice details when not present" in {
+    val id = "test-cred-id"
+    val paymentPlanReference = "test payment reference"
+
+    when(mockCallableStatement.getString("p_total_amount")).thenReturn(null)
+    when(mockCallableStatement.getString("p_due_date")).thenReturn(null)
+
+    val result = repository.isAdvanceNoticePresent(paymentPlanReference, id).futureValue
+
+    result shouldBe AdvanceNoticeResponse(
+      totalAmount = None,
+      dueDate     = None
+    )
+  }
+
 }

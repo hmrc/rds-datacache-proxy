@@ -412,3 +412,21 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
     result shouldBe DuplicateCheckResponse(true)
   }
+
+  "return advance notice details and credId ending with 08" in {
+    val result = connector.isAdvanceNoticePresent("0000000009000208", "payment reference").futureValue
+
+    result shouldBe AdvanceNoticeResponse(
+      totalAmount = Some("500"),
+      dueDate     = Some("03-11-2026")
+    )
+  }
+
+  "return advance notice details as None and credId ending with 09" in {
+    val result = connector.isAdvanceNoticePresent("0000000009000209", "payment reference").futureValue
+
+    result shouldBe AdvanceNoticeResponse(
+      totalAmount = None,
+      dueDate     = None
+    )
+  }

@@ -191,6 +191,41 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) should include("Failed to retrieve duplicate payment plan")
       }
     }
+
+    "isAdvanceNoticePresent" - {
+      "return 200 and a successful response when DB returns records" in new SetUp {
+        when(mockDirectDebitService.isAdvanceNoticePresent(any[String], any[String]))
+          .thenReturn(
+            Future.successful(
+              AdvanceNoticeResponse(
+                totalAmount = Some("500"),
+                dueDate     = Some("03-11-2026")
+              )
+            )
+          )
+        val result: Future[Result] = controller.isAdvanceNoticePresent("test dd reference", "pay plan reference")(fakeRequest)
+
+        status(result)      shouldBe OK
+        contentType(result) shouldBe Some("application/json")
+        contentAsJson(result) shouldBe Json.toJson(
+          AdvanceNoticeResponse(
+            totalAmount = Some("500"),
+            dueDate     = Some("03-11-2026")
+          )
+        )
+      }
+
+      "return 500 and log error when DB call fails" in new SetUp {
+        val exception = new RuntimeException("DB error")
+        when(mockDirectDebitService.isAdvanceNoticePresent(any[String], any[String]))
+          .thenReturn(Future.failed(exception))
+
+        val result: Future[Result] = controller.isAdvanceNoticePresent("test dd reference", "pay plan reference")(fakeRequest)
+
+        status(result)        shouldBe INTERNAL_SERVER_ERROR
+        contentAsString(result) should include("Failed to retrieve advance notice details")
+      }
+    }
   }
 
   private class SetUp {
