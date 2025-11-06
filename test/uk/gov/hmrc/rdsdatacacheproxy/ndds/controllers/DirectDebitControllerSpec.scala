@@ -194,12 +194,13 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
 
     "isAdvanceNoticePresent" - {
       "return 200 and a successful response when DB returns records" in new SetUp {
+        val currentTime = LocalDateTime.now().withNano(0)
         when(mockDirectDebitService.isAdvanceNoticePresent(any[String], any[String]))
           .thenReturn(
             Future.successful(
               AdvanceNoticeResponse(
-                totalAmount = Some("500"),
-                dueDate     = Some("03-11-2026")
+                totalAmount = Some(500),
+                dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
               )
             )
           )
@@ -209,8 +210,8 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         contentType(result) shouldBe Some("application/json")
         contentAsJson(result) shouldBe Json.toJson(
           AdvanceNoticeResponse(
-            totalAmount = Some("500"),
-            dueDate     = Some("03-11-2026")
+            totalAmount = Some(500),
+            dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
           )
         )
       }

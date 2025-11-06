@@ -414,11 +414,13 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
   }
 
   "return advance notice details and credId ending with 08" in {
-    val result = connector.isAdvanceNoticePresent("0000000009000208", "payment reference").futureValue
+    val currentTime = LocalDateTime.now().withNano(0)
+
+    val result = connector.isAdvanceNoticePresent("payment reference", "0000000009000208").futureValue
 
     result shouldBe AdvanceNoticeResponse(
-      totalAmount = Some("500"),
-      dueDate     = Some("03-11-2026")
+      totalAmount = Some(500),
+      dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
     )
   }
 

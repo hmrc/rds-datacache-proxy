@@ -439,8 +439,8 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Return AdvanceNoticeResponse
         AdvanceNoticeResponse(
-          Option(storedProcedure.getString("p_total_amount")),
-          Option(storedProcedure.getString("p_due_date"))
+          Option(storedProcedure.getBigDecimal("p_total_amount")),
+          Option(storedProcedure.getDate("p_due_date")).map(_.toLocalDate)
         )
 
       }

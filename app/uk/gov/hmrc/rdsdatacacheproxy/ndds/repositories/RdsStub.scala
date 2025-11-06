@@ -128,14 +128,15 @@ class RdsStub @Inject() () extends RdsDataSource:
   }
 
   def isAdvanceNoticePresent(
-    credId: String,
-    paymentPlanReference: String
+    paymentPlanReference: String,
+    credId: String
   ): Future[AdvanceNoticeResponse] = {
+    val currentTime = LocalDateTime.now().withNano(0)
 
     val advanceNoticeResponse = Map(
       "0000000009000208" -> AdvanceNoticeResponse(
-        totalAmount = Some("500"),
-        dueDate     = Some("03-11-2026")
+        totalAmount = Some(500),
+        dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
       ),
       "0000000009000209" -> AdvanceNoticeResponse(
         totalAmount = None,
@@ -145,6 +146,6 @@ class RdsStub @Inject() () extends RdsDataSource:
       credId,
       AdvanceNoticeResponse(None, None)
     )
-
+    println("Advance notice " + advanceNoticeResponse.dueDate + " amount is " + advanceNoticeResponse.totalAmount)
     Future.successful(advanceNoticeResponse)
   }

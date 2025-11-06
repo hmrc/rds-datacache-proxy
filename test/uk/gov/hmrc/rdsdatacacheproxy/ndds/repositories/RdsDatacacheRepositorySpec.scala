@@ -390,15 +390,16 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
   "isAdvanceNoticeDetails" should "return Advance notice details when present" in {
     val id = "test-cred-id"
     val paymentPlanReference = "test payment reference"
+    val currentTime = LocalDateTime.now().withNano(0)
 
-    when(mockCallableStatement.getString("p_total_amount")).thenReturn("500")
-    when(mockCallableStatement.getString("p_due_date")).thenReturn("03-11-2026")
+    when(mockCallableStatement.getBigDecimal("p_total_amount")).thenReturn(scala.math.BigDecimal(500).bigDecimal)
+    when(mockCallableStatement.getDate("p_due_date")).thenReturn(Date.valueOf(currentTime.toLocalDate.plusMonths(1)))
 
     val result = repository.isAdvanceNoticePresent(paymentPlanReference, id).futureValue
 
     result shouldBe AdvanceNoticeResponse(
-      totalAmount = Some("500"),
-      dueDate     = Some("03-11-2026")
+      totalAmount = Some(500),
+      dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
     )
   }
 

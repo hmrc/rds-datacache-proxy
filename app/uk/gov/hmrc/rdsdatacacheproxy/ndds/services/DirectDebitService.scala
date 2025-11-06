@@ -52,4 +52,4 @@ class DirectDebitService @Inject() (rdsDatacache: RdsDataSource) extends Logging
     rdsDatacache.isDuplicatePaymentPlan(directDebitReference, credId, request)
 
   def isAdvanceNoticePresent(paymentPlanReference: String, credId: String): Future[AdvanceNoticeResponse] =
-    rdsDatacache.isAdvanceNoticePresent(credId, paymentPlanReference)
+    rdsDatacache.isAdvanceNoticePresent(paymentPlanReference, credId)

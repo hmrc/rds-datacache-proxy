@@ -124,7 +124,7 @@ class DirectDebitController @Inject() (
     authorise.async:
       implicit request =>
         directDebitService
-          .isAdvanceNoticePresent(request.credentialId, paymentPlanReference)
+          .isAdvanceNoticePresent(paymentPlanReference, request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
             logger.error("Error while retrieving advance notice details", ex)

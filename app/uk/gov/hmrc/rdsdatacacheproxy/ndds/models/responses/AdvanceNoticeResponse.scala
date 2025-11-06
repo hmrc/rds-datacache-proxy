@@ -18,7 +18,9 @@ package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
 import play.api.libs.json.{Json, OFormat}
 
-case class AdvanceNoticeResponse(totalAmount: Option[String], dueDate: Option[String])
+import java.time.LocalDate
+
+case class AdvanceNoticeResponse(totalAmount: Option[BigDecimal], dueDate: Option[LocalDate])
 
 object AdvanceNoticeResponse {
   implicit val format: OFormat[AdvanceNoticeResponse] = Json.format
