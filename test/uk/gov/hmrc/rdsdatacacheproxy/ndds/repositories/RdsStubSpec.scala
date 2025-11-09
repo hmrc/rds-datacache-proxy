@@ -117,6 +117,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
+    "return a Single Payment Plan Details when credId ends with 1a5" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "01",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = Some(2),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090001a5", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
     "return a Single Payment Plan Details and credId is 0000000009000205" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
@@ -183,6 +218,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Budget Payment Plan Details when credId ends with 2b6" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
+          scheduledPaymentFrequency = Some(5),
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090002b6", "payment reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -257,6 +327,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
+    "return a Budget Payment Plan Details when credId ends with 4d8" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
+          scheduledPaymentFrequency = Some(5),
+          suspensionStartDate       = Some(currentTime.toLocalDate.plusMonths(1)),
+          suspensionEndDate         = Some(currentTime.toLocalDate.plusMonths(2)),
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090004d8", "payment plan reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
     "return a Tax Credit Repayment Plan Details" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
@@ -292,6 +397,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe paymentPlanDetails
     }
 
+    "return a Tax Credit Repayment Plan Details credId ends with 5e9" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "03",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090005e9", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
     "return a VPP Payment Plan Details" in {
       val currentTime = LocalDateTime.now().withNano(0)
 
@@ -323,6 +463,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a VPP Payment Plan Details when credId ends with 3c7" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "04",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "1233c7", "payment reference").futureValue
 
       result shouldBe paymentPlanDetails
     }

@@ -61,22 +61,62 @@ class RdsStub @Inject() () extends RdsDataSource:
 
     val currentTime = LocalDateTime.now().withNano(0)
 
-    val (playType, frequency, scheduledPaymentStartDate, scheduledPaymentEndDate, suspensionStartDate, suspensionEndDate) = Map(
-      "0000000009000201" -> ("01", Some(2), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-      "0000000009000202" -> ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None),
-      "0000000009000204" -> ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None),
-      "0000000009000205" -> ("01", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-      "0000000009000203" -> ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-      "0000000009000206" -> ("02",
-                             Some(5),
-                             Some(currentTime.toLocalDate.plusDays(5)),
-                             Some(currentTime.toLocalDate.plusMonths(12)),
-                             Some(currentTime.toLocalDate.plusMonths(1)),
-                             Some(currentTime.toLocalDate.plusMonths(2))
-                            ),
-      "0000000009000208" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-      "0000000009000209" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
-    ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
+    val (playType, frequency, scheduledPaymentStartDate, scheduledPaymentEndDate, suspensionStartDate, suspensionEndDate) =
+      credId.takeRight(3) match {
+        case "1a5" => // single payment plan - which can be amended or canceled
+          ("01", Some(2), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+        case "2b6" => // budge payment plan - which can be amended or canceled or suspended
+          ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None)
+        case "3c7" => // variable payment plan - which can be canceled
+          ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+        case "4d8" => // budge payment plan - which can be change or remove suspend
+          ("02",
+           Some(5),
+           Some(currentTime.toLocalDate.plusDays(5)),
+           Some(currentTime.toLocalDate.plusMonths(12)),
+           Some(currentTime.toLocalDate.plusMonths(1)),
+           Some(currentTime.toLocalDate.plusMonths(2))
+          )
+
+        case "5e9" => // tax credit payment plan - which does not have any actions
+          ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+
+        case _ =>
+          Map(
+            "0000000009000201" -> ("01",
+                                   Some(2),
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None
+                                  ),
+            "0000000009000202" -> ("02",
+                                   Some(5),
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(12)),
+                                   None,
+                                   None
+                                  ),
+            "0000000009000204" -> ("02",
+                                   Some(5),
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(12)),
+                                   None,
+                                   None
+                                  ),
+            "0000000009000205" -> ("01", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+            "0000000009000203" -> ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+            "0000000009000206" -> ("02",
+                                   Some(5),
+                                   Some(currentTime.toLocalDate.plusDays(5)),
+                                   Some(currentTime.toLocalDate.plusMonths(12)),
+                                   Some(currentTime.toLocalDate.plusMonths(1)),
+                                   Some(currentTime.toLocalDate.plusMonths(2))
+                                  ),
+            "0000000009000208" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+            "0000000009000209" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+          ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
+      }
 
     val paymentPlanDetails = PaymentPlanDetails(
       directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
