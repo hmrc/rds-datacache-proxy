@@ -186,6 +186,5 @@ class RdsStub @Inject() () extends RdsDataSource:
       credId,
       AdvanceNoticeResponse(None, None)
     )
-    println("Advance notice " + advanceNoticeResponse.dueDate + " amount is " + advanceNoticeResponse.totalAmount)
     Future.successful(advanceNoticeResponse)
   }
