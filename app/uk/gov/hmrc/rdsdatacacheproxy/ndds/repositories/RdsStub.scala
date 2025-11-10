@@ -33,7 +33,7 @@ class RdsStub @Inject() () extends RdsDataSource:
   private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
 
   def getDirectDebits(id: String): Future[UserDebits] = {
-    if (id == "0000000009000200") {
+    if (id.endsWith("7g0")) {
       Future.successful(UserDebits(0, Seq.empty))
     } else {
       Future.successful(UserDebits(debits.size, debits))
@@ -69,7 +69,7 @@ class RdsStub @Inject() () extends RdsDataSource:
           ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None)
         case "3c7" => // variable payment plan - which can be canceled
           ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
-        case "4d8" => // budge payment plan - which can be change or remove suspend
+        case "4d8" | "6f0" => // budge payment plan - which can be change or remove suspend
           ("02",
            Some(5),
            Some(currentTime.toLocalDate.plusDays(5)),

@@ -51,8 +51,8 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
       result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
-    "return a DirectDebit without data" in:
-      val result = connector.getDirectDebits("0000000009000200").futureValue
+    "return a DirectDebit without data when credId ends with 7g0" in:
+      val result = connector.getDirectDebits("00000000090007g0").futureValue
 
       result shouldBe UserDebits(0, Seq.empty)
 
@@ -358,6 +358,41 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "00000000090004d8", "payment plan reference").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Budget Payment Plan Details when credId ends with 6f0" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "02",
+          paymentReference          = "4558540144K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(12)),
+          scheduledPaymentFrequency = Some(5),
+          suspensionStartDate       = Some(currentTime.toLocalDate.plusMonths(1)),
+          suspensionEndDate         = Some(currentTime.toLocalDate.plusMonths(2)),
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090006f0", "payment plan reference").futureValue
 
       result shouldBe paymentPlanDetails
     }
