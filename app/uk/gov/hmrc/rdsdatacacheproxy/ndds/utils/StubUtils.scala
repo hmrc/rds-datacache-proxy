@@ -34,7 +34,7 @@ class StubUtils {
     val paymentPlanCount = if (hasPagination) {
       Random.nextInt(15)
     } else {
-      Random.nextInt(3)
+      Random.nextInt(3) + 1
     }
 
     val date = s"${Random.nextInt(5) + 2022}" +
