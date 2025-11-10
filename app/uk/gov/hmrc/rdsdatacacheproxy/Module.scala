@@ -22,7 +22,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
-import uk.gov.hmrc.rdsdatacacheproxy.cis.utils.CisRdsStub
+import uk.gov.hmrc.rdsdatacacheproxy.cis.utils.{CisRdsStub, StubUtils}
 
 class Module extends AppModule:
 
@@ -40,5 +40,6 @@ class Module extends AppModule:
       bind[AuthAction].to(classOf[DefaultAuthAction]),
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
-      bind[CisMonthlyReturnSource].to(cisDatasource)
+      bind[CisMonthlyReturnSource].to(cisDatasource),
+      bind[StubUtils].toSelf
     )
