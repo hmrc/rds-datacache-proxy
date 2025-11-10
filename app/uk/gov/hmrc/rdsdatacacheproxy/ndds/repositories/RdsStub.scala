@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories
 
+import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests.PaymentPlanDuplicateCheckRequest
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.utils.StubUtils
@@ -25,7 +26,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class RdsStub @Inject() () extends RdsDataSource:
+class RdsStub @Inject() () extends RdsDataSource with Logging:
 
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
@@ -36,7 +37,9 @@ class RdsStub @Inject() () extends RdsDataSource:
     if (credId == "0000000009000215") {
       debitsCache.getOrElseUpdate(credId, (1 to 92).map(i => stubData.randomDirectDebit(i, true)))
     } else {
-      debitsCache.getOrElseUpdate(credId, (1 to 5).map(i => stubData.randomDirectDebit(i, false)))
+      val dd = debitsCache.getOrElseUpdate(credId, (1 to 5).map(i => stubData.randomDirectDebit(i, false)))
+      logger.info(s"Stub created for $credId ddListCache: $dd")
+      dd
     }
   }
 
@@ -57,10 +60,16 @@ class RdsStub @Inject() () extends RdsDataSource:
 
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val ddList = getDebitsFor(credId)
+
+    logger.info(s"Stub for credId $credId ddListCache: $ddList ")
     val filteredDebit = ddList.find(_.ddiRefNumber == directDebitReference)
+    logger.info(s"Stub for credId $credId directDebitReference: $directDebitReference")
+    logger.info(s"Stub for credId $credId filteredDebit: $filteredDebit")
     filteredDebit match {
       case Some(debit) =>
+        logger.info(s"Stub for credId $credId debit: $debit")
         val plans: Seq[PaymentPlan] = for (i <- 1 to debit.numberOfPayPlans) yield stubData.randomPaymentPlan(i)
+        logger.info(s"Stub for credId $credId paymentPlans: $plans")
         Future.successful(DDPaymentPlans(debit.bankSortCode, debit.bankAccountNumber, debit.bankAccountName, "dd", plans.size, plans))
       case None =>
         Future.failed(new NoSuchElementException(s"No DirectDebit found with ddiRefNumber: $directDebitReference"))
