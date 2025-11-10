@@ -30,13 +30,22 @@ class RdsStub @Inject() () extends RdsDataSource:
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
-  private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
+  private val debitsCache = scala.collection.mutable.Map[String, Seq[DirectDebit]]()
+
+  private def getDebitsFor(credId: String): Seq[DirectDebit] = {
+    if (credId == "0000000009000215") {
+      debitsCache.getOrElseUpdate(credId, (1 to 25).map(i => stubData.randomDirectDebit(i, true)))
+    } else {
+      debitsCache.getOrElseUpdate(credId, (1 to 5).map(i => stubData.randomDirectDebit(i, false)))
+    }
+  }
 
   def getDirectDebits(id: String): Future[UserDebits] = {
     if (id.endsWith("7g0")) {
       Future.successful(UserDebits(0, Seq.empty))
     } else {
-      Future.successful(UserDebits(debits.size, debits))
+      val ddList = getDebitsFor(id)
+      Future.successful(UserDebits(ddList.size, ddList))
     }
   }
 
@@ -47,7 +56,8 @@ class RdsStub @Inject() () extends RdsDataSource:
     Future.successful(DDIReference(paymentReference))
 
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
-    val filteredDebit = debits.find(_.ddiRefNumber == directDebitReference)
+    val ddList = getDebitsFor(credId)
+    val filteredDebit = ddList.find(_.ddiRefNumber == directDebitReference)
     filteredDebit match {
       case Some(debit) =>
         val plans: Seq[PaymentPlan] = for (i <- 1 to debit.numberOfPayPlans) yield stubData.randomPaymentPlan(i)

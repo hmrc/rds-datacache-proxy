@@ -29,7 +29,14 @@ class StubUtils {
     prepend + random
   }
 
-  def randomDirectDebit(i: Int): DirectDebit = {
+  def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit = {
+
+    val paymentPlanCount = if (hasPagination) {
+      Random.nextInt(15)
+    } else {
+      Random.nextInt(3)
+    }
+
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
@@ -40,7 +47,7 @@ class StubUtils {
       Seq.fill(8)(Random.nextInt(10)).mkString,
       "BankLtd",
       Random.nextBoolean(),
-      Random.nextInt(3) + 1
+      paymentPlanCount
     )
   }
 
