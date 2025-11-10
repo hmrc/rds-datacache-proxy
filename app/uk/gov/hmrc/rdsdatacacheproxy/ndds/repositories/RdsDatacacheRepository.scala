@@ -430,8 +430,8 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         storedProcedure.execute()
 
         // Retrieve output parameters
-        val responseTotalAmount = storedProcedure.getString("p_total_amount") // p_total_amount
-        val responseDueDate = storedProcedure.getString("p_due_date") // p_due_date
+        val responseTotalAmount = storedProcedure.getBigDecimal("p_total_amount") // p_total_amount
+        val responseDueDate = storedProcedure.getDate("p_due_date") // p_due_date
         logger.info(s"DB Response for total amount : $responseTotalAmount and due date: $responseDueDate")
 
         storedProcedure.close()
@@ -439,8 +439,8 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Return AdvanceNoticeResponse
         AdvanceNoticeResponse(
-          Option(storedProcedure.getBigDecimal("p_total_amount")),
-          Option(storedProcedure.getDate("p_due_date")).map(_.toLocalDate)
+          Option(responseTotalAmount),
+          Option(responseDueDate).map(_.toLocalDate)
         )
 
       }

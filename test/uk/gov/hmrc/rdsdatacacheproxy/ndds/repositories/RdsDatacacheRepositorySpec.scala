@@ -407,8 +407,8 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val id = "test-cred-id"
     val paymentPlanReference = "test payment reference"
 
-    when(mockCallableStatement.getString("p_total_amount")).thenReturn(null)
-    when(mockCallableStatement.getString("p_due_date")).thenReturn(null)
+    when(mockCallableStatement.getBigDecimal("p_total_amount")).thenReturn(null)
+    when(mockCallableStatement.getDate("p_due_date")).thenReturn(null)
 
     val result = repository.isAdvanceNoticePresent(paymentPlanReference, id).futureValue
 
