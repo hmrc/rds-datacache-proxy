@@ -33,7 +33,7 @@ class RdsStub @Inject() () extends RdsDataSource:
   private lazy val debits: Seq[DirectDebit] = (1 to 5).map(stubData.randomDirectDebit)
 
   def getDirectDebits(id: String): Future[UserDebits] = {
-    if (id.endsWith("7g0") || id == "0000000009000200") {
+    if (id.endsWith("7g0")) {
       Future.successful(UserDebits(0, Seq.empty))
     } else {
       Future.successful(UserDebits(debits.size, debits))

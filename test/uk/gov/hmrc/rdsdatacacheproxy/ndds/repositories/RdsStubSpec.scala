@@ -51,11 +51,6 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
       result shouldBe UserDebits(5, Seq(expected(1), expected(2), expected(3), expected(4), expected(5)))
 
-    "return a DirectDebit without data when credId is 0000000009000200" in:
-      val result = connector.getDirectDebits("0000000009000200").futureValue
-
-      result shouldBe UserDebits(0, Seq.empty)
-
     "return a DirectDebit without data when credId ends with 7g0" in:
       val result = connector.getDirectDebits("00000000090007g0").futureValue
 
