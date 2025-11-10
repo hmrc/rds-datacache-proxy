@@ -34,7 +34,7 @@ class RdsStub @Inject() () extends RdsDataSource:
 
   private def getDebitsFor(credId: String): Seq[DirectDebit] = {
     if (credId == "0000000009000215") {
-      debitsCache.getOrElseUpdate(credId, (1 to 25).map(i => stubData.randomDirectDebit(i, true)))
+      debitsCache.getOrElseUpdate(credId, (1 to 92).map(i => stubData.randomDirectDebit(i, true)))
     } else {
       debitsCache.getOrElseUpdate(credId, (1 to 5).map(i => stubData.randomDirectDebit(i, false)))
     }
