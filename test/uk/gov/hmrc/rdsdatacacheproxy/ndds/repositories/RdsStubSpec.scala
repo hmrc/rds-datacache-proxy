@@ -31,7 +31,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
 
   val connector: RdsStub = new RdsStub() {
     override val stubData: StubUtils = new StubUtils {
-      override def randomDirectDebit(i: Int): DirectDebit =
+      override def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit =
         DirectDebit.apply(
           ddiRefNumber = s"defaultRef$i",
           LocalDateTime.parse("2020-02-02T22:22:22"),
@@ -43,7 +43,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
     }
   }
-  def expected(i: Int): DirectDebit = connector.stubData.randomDirectDebit(i)
+  def expected(i: Int): DirectDebit = connector.stubData.randomDirectDebit(i, false)
 
   "RDSStub" should:
     "return a DirectDebit" in:
