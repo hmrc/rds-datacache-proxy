@@ -51,4 +51,40 @@ final class CisRdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures {
       stub.getCisTaxpayerByTaxRef(null, null).futureValue mustBe None
     }
   }
+
+  "CisRdsStub#getClientListDownloadStatus" should {
+
+    "return 1 (Succeeded) when credentialId and serviceName are non-empty" in {
+      val result = stub.getClientListDownloadStatus("cred-123", "service-xyz").futureValue
+      result mustBe 1
+    }
+
+    "return 1 (Succeeded) when credentialId and serviceName have whitespace but are not blank" in {
+      val result = stub.getClientListDownloadStatus("  cred-123  ", "  service-xyz  ").futureValue
+      result mustBe 1
+    }
+
+    "return 2 (Failed) when credentialId is blank" in {
+      val result = stub.getClientListDownloadStatus("   ", "service-xyz").futureValue
+      result mustBe 2
+    }
+
+    "return 2 (Failed) when serviceName is blank" in {
+      val result = stub.getClientListDownloadStatus("cred-123", "   ").futureValue
+      result mustBe 2
+    }
+
+    "return 2 (Failed) when both credentialId and serviceName are blank" in {
+      val result = stub.getClientListDownloadStatus("   ", "   ").futureValue
+      result mustBe 2
+    }
+
+    "handle different grace period values correctly" in {
+      val result1 = stub.getClientListDownloadStatus("cred-123", "service-xyz", 7200).futureValue
+      result1 mustBe 1
+
+      val result2 = stub.getClientListDownloadStatus("cred-123", "service-xyz", 0).futureValue
+      result2 mustBe 1
+    }
+  }
 }

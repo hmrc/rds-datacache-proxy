@@ -12,3 +12,4 @@ POST       /direct-debit-reference                                              
 
 #CIS routes
 POST       /cis-taxpayer                            uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
+GET        /client-list-status                      uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400)
