@@ -31,7 +31,7 @@ class StubUtils {
 
   def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit = {
 
-    val ddiRefNumber = s"99055002$i"
+    val ddiRefNumber = s"9905502$i"
 
     val paymentPlanCount = getPaymentCount(ddiRefNumber, hasPagination)
 
