@@ -37,6 +37,7 @@ trait RdsDataSource {
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails]
   def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock]
   def isDuplicatePaymentPlan(directDebitReference: String, credId: String, request: PaymentPlanDuplicateCheckRequest): Future[DuplicateCheckResponse]
+  def isAdvanceNoticePresent(paymentPlanReference: String, credId: String): Future[AdvanceNoticeResponse]
 }
 
 class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
@@ -406,6 +407,42 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Return DuplicateCheckResponse
         DuplicateCheckResponse(isDuplicate == 1)
+      }
+    }
+  }
+
+  def isAdvanceNoticePresent(paymentPlanReference: String, credId: String): Future[AdvanceNoticeResponse] = {
+    logger.info(s"**** Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
+
+    Future {
+      db.withConnection { connection =>
+        val storedProcedure = connection.prepareCall(
+          "{call RTI_ENDDS_PCK.get_advance_notice(?, ?, ?)}"
+        )
+
+        // Set input parameters
+        storedProcedure.setString("p_payment_plan_reference", paymentPlanReference) // p_payment_plan_reference
+
+        // Register output parameters
+        storedProcedure.registerOutParameter("p_total_amount", Types.NUMERIC) // p_total_amount
+        storedProcedure.registerOutParameter("p_due_date", java.sql.Types.DATE) // p_due_date
+        // Execute the stored procedure
+        storedProcedure.execute()
+
+        // Retrieve output parameters
+        val responseTotalAmount = storedProcedure.getBigDecimal("p_total_amount") // p_total_amount
+        val responseDueDate = storedProcedure.getDate("p_due_date") // p_due_date
+        logger.info(s"DB Response for total amount : $responseTotalAmount and due date: $responseDueDate")
+
+        storedProcedure.close()
+        connection.close()
+
+        // Return AdvanceNoticeResponse
+        AdvanceNoticeResponse(
+          Option(responseTotalAmount),
+          Option(responseDueDate).map(_.toLocalDate)
+        )
+
       }
     }
   }

@@ -175,6 +175,43 @@ class DirectDebitServiceSpec extends AnyWordSpec with Matchers with ScalaFutures
         result shouldBe DuplicateCheckResponse(false)
       }
 
+      "return advance notice details when exist" in {
+        val currentTime = LocalDateTime.now().withNano(0)
+        when(mockConnector.isAdvanceNoticePresent(any(), any()))
+          .thenReturn(
+            Future.successful(
+              AdvanceNoticeResponse(
+                totalAmount = Some(500),
+                dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
+              )
+            )
+          )
+
+        val result = service.isAdvanceNoticePresent("payment Reference", "testId").futureValue
+        result shouldBe AdvanceNoticeResponse(
+          totalAmount = Some(500),
+          dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
+        )
+      }
+
+      "return None advance notice details when does not exist" in {
+        when(mockConnector.isAdvanceNoticePresent(any(), any()))
+          .thenReturn(
+            Future.successful(
+              AdvanceNoticeResponse(
+                totalAmount = None,
+                dueDate     = None
+              )
+            )
+          )
+
+        val result = service.isAdvanceNoticePresent("payment Reference", "testId").futureValue
+        result shouldBe AdvanceNoticeResponse(
+          totalAmount = None,
+          dueDate     = None
+        )
+      }
+
     "fail" when:
       "retrieving Direct Debits" in:
         when(mockConnector.getDirectDebits(any()))
