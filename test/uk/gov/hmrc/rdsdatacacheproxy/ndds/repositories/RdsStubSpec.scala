@@ -88,7 +88,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "01",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -105,7 +105,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000201", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000201", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -123,7 +123,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "01",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -140,7 +140,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "00000000090001a5", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090001a5", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -158,7 +158,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "01",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -175,7 +175,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "payment plan reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -193,7 +193,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -210,7 +210,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000202", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -228,7 +228,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -245,7 +245,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "00000000090002b6", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090002b6", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -263,7 +263,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -280,7 +280,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "payment plan reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000204", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -298,7 +298,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
@@ -315,7 +315,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000206", "payment plan reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000206", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -333,7 +333,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
@@ -350,7 +350,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "00000000090004d8", "payment plan reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090004d8", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -368,7 +368,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "02",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(5)),
@@ -385,7 +385,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "00000000090006f0", "payment plan reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090006f0", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -403,7 +403,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "03",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -420,7 +420,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000203", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000203", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -438,7 +438,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "03",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -455,7 +455,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "00000000090005e9", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "00000000090005e9", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -473,7 +473,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "04",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -490,7 +490,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "123", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "123", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -508,7 +508,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         paymentPlanDetails = PaymentPlanDetail(
           hodService                = "CESA",
           planType                  = "04",
-          paymentReference          = "4558540144K",
+          paymentReference          = "0400256374K",
           submissionDateTime        = currentTime.minusDays(5),
           scheduledPaymentAmount    = Some(100),
           scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
@@ -525,7 +525,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
         )
       )
 
-      val result = connector.getPaymentPlanDetails("dd reference", "1233c7", "payment reference").futureValue
+      val result = connector.getPaymentPlanDetails("dd reference", "1233c7", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }

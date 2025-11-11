@@ -139,7 +139,7 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
       paymentPlanDetails = PaymentPlanDetail(
         hodService                = "CESA",
         planType                  = playType,
-        paymentReference          = "4558540144K",
+        paymentReference          = stubData.getPaymentReference(paymentPlanReference),
         submissionDateTime        = currentTime.minusDays(5),
         scheduledPaymentAmount    = Some(100),
         scheduledPaymentStartDate = scheduledPaymentStartDate,

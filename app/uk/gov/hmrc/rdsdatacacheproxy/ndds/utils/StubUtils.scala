@@ -63,11 +63,13 @@ class StubUtils {
 
     val randomHodService = hodServices(Random.nextInt(hodServices.length))
 
+    val planRefNumber = s"20000080$i"
+
     PaymentPlan.apply(
       scheduledPaymentAmount = i * 100.0,
-      planRefNumber          = s"20000080$i",
+      planRefNumber          = planRefNumber,
       planType               = randomPlanType,
-      paymentReference       = s"{$i}400256374K",
+      paymentReference       = getPaymentReference(planRefNumber),
       hodService             = randomHodService,
       submissionDateTime     = LocalDateTime.parse(s"${date}T00:00:00")
     )
@@ -96,5 +98,11 @@ class StubUtils {
     } else {
       ("76894567", "286517", bankName)
     }
+  }
+
+  def getPaymentReference(paymentPlanReference: String): String = {
+    val pRef = paymentPlanReference.toInt
+    val modularValue = pRef % 5
+    s"${modularValue}400256374K"
   }
 }
