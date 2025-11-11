@@ -67,7 +67,7 @@ class StubUtils {
       scheduledPaymentAmount = i * 100.0,
       planRefNumber          = s"20000080$i",
       planType               = randomPlanType,
-      paymentReference       = s"{$i}400256374K",
+      paymentReference       = s"400256374K",
       hodService             = randomHodService,
       submissionDateTime     = LocalDateTime.parse(s"${date}T00:00:00")
     )
