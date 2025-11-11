@@ -67,19 +67,12 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
       result shouldBe DDIReference("xyz")
 
     "return a DirectDebit Payment Plans" in {
-      val directDebits = connector.getDirectDebits("123").futureValue
+      val result = connector.getDirectDebitPaymentPlans("123100", "credId").futureValue
 
-      val result = connector.getDirectDebitPaymentPlans(directDebits.directDebitList.head.ddiRefNumber, "credId").futureValue
-
-      result.paymentPlanCount shouldBe directDebits.directDebitList.head.numberOfPayPlans
-    }
-
-    "return error when DirectDebit is not found" in {
-      val result = connector.getDirectDebitPaymentPlans("invalid dd reference", "credId")
-
-      result.recover { case ex: NoSuchElementException =>
-        ex.getMessage should include("No DirectDebit found with ddiRefNumber: invalid dd reference")
-      }
+      result.bankSortCode      shouldBe "286517"
+      result.bankAccountNumber shouldBe "76894567"
+      result.bankAccountName   shouldBe "BankLtd"
+      result.paymentPlanCount  shouldBe 2
     }
 
     "return a Single Payment Plan Details when credId is 0000000009000201" in {

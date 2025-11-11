@@ -60,9 +60,11 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
 
     val paymentPlanCount = stubData.getPaymentCount(directDebitReference, hasPagination)
 
+    val (accountNumber, sortCode, bankName) = stubData.getBankDetails(directDebitReference)
+
     val plans: Seq[PaymentPlan] = for (i <- 1 to paymentPlanCount) yield stubData.randomPaymentPlan(i)
 
-    Future.successful(DDPaymentPlans("debit.bankSortCode", "debit.bankAccountNumber", "debit.bankAccountName", "dd", plans.size, plans))
+    Future.successful(DDPaymentPlans(sortCode, accountNumber, bankName, "dd", plans.size, plans))
   }
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
