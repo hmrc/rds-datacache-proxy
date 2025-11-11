@@ -131,7 +131,9 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
                                    Some(currentTime.toLocalDate.plusMonths(12)),
                                    Some(currentTime.toLocalDate.plusMonths(1)),
                                    Some(currentTime.toLocalDate.plusMonths(2))
-                                  )
+                                  ),
+            "0000000009000208" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+            "0000000009000209" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
           ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
       }
 
@@ -182,4 +184,26 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
     ).getOrElse(credId, false)
 
     Future.successful(DuplicateCheckResponse(flag))
+  }
+
+  def isAdvanceNoticePresent(
+    paymentPlanReference: String,
+    credId: String
+  ): Future[AdvanceNoticeResponse] = {
+    val currentTime = LocalDateTime.now().withNano(0)
+
+    val advanceNoticeResponse = Map(
+      "0000000009000208" -> AdvanceNoticeResponse(
+        totalAmount = Some(500),
+        dueDate     = Some(currentTime.toLocalDate.plusMonths(1))
+      ),
+      "0000000009000209" -> AdvanceNoticeResponse(
+        totalAmount = None,
+        dueDate     = None
+      )
+    ).getOrElse(
+      credId,
+      AdvanceNoticeResponse(None, None)
+    )
+    Future.successful(advanceNoticeResponse)
   }

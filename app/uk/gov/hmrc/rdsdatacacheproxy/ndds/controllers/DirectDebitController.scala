@@ -119,3 +119,14 @@ class DirectDebitController @Inject() (
             logger.error("Error while retrieving duplicate payment plan", ex)
             InternalServerError("Failed to retrieve duplicate payment plan")
           }
+
+  def isAdvanceNoticePresent(directDebitReference: String, paymentPlanReference: String): Action[AnyContent] =
+    authorise.async:
+      implicit request =>
+        directDebitService
+          .isAdvanceNoticePresent(paymentPlanReference, request.credentialId)
+          .map(result => Ok(Json.toJson(result)))
+          .recover { case ex: Exception =>
+            logger.error("Error while retrieving advance notice details", ex)
+            InternalServerError("Failed to retrieve advance notice details")
+          }
