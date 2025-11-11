@@ -31,17 +31,15 @@ class StubUtils {
 
   def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit = {
 
-    val paymentPlanCount = if (hasPagination) {
-      Random.nextInt(15)
-    } else {
-      Random.nextInt(3) + 1
-    }
+    val ddiRefNumber = s"99055002$i"
+
+    val paymentPlanCount = getPaymentCount(ddiRefNumber, hasPagination)
 
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
-      ddiRefNumber = s"99055002$i",
+      ddiRefNumber = ddiRefNumber,
       LocalDateTime.parse(s"${date}T00:00:00"),
       s"${r(99)}-${r(99)}-${r(99)}",
       Seq.fill(8)(Random.nextInt(10)).mkString,
@@ -73,4 +71,12 @@ class StubUtils {
     )
   }
 
+  def getPaymentCount(ddiRefNumber: String, hasPagination: Boolean): Int = {
+    val ddRef = ddiRefNumber.toInt
+    if (hasPagination) {
+      ddRef % 16
+    } else {
+      (ddRef % 3) + 1 // making sure there will at least one
+    }
+  }
 }

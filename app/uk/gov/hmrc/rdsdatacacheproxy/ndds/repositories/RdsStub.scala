@@ -31,15 +31,11 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
   // Remove this once real stubbing exists
   private[repositories] val stubData = new StubUtils()
 
-  private val debitsCache = scala.collection.mutable.Map[String, Seq[DirectDebit]]()
-
   private def getDebitsFor(credId: String): Seq[DirectDebit] = {
-    if (credId == "0000000009000215") {
-      debitsCache.getOrElseUpdate(credId, (1 to 92).map(i => stubData.randomDirectDebit(i, true)))
+    if (isPaginationEnabled(credId)) {
+      (1 to 92).map(i => stubData.randomDirectDebit(i, true))
     } else {
-      val dd = debitsCache.getOrElseUpdate(credId, (1 to 5).map(i => stubData.randomDirectDebit(i, false)))
-      logger.info(s"Stub created for $credId ddListCache: $dd")
-      dd
+      (1 to 5).map(i => stubData.randomDirectDebit(i, false))
     }
   }
 
@@ -59,21 +55,14 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
     Future.successful(DDIReference(paymentReference))
 
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
-    val ddList = getDebitsFor(credId)
 
-    logger.info(s"Stub for credId $credId ddListCache: $ddList ")
-    val filteredDebit = ddList.find(_.ddiRefNumber == directDebitReference)
-    logger.info(s"Stub for credId $credId directDebitReference: $directDebitReference")
-    logger.info(s"Stub for credId $credId filteredDebit: $filteredDebit")
-    filteredDebit match {
-      case Some(debit) =>
-        logger.info(s"Stub for credId $credId debit: $debit")
-        val plans: Seq[PaymentPlan] = for (i <- 1 to debit.numberOfPayPlans) yield stubData.randomPaymentPlan(i)
-        logger.info(s"Stub for credId $credId paymentPlans: $plans")
-        Future.successful(DDPaymentPlans(debit.bankSortCode, debit.bankAccountNumber, debit.bankAccountName, "dd", plans.size, plans))
-      case None =>
-        Future.failed(new NoSuchElementException(s"No DirectDebit found with ddiRefNumber: $directDebitReference"))
-    }
+    val hasPagination = isPaginationEnabled(credId)
+
+    val paymentPlanCount = stubData.getPaymentCount(directDebitReference, hasPagination)
+
+    val plans: Seq[PaymentPlan] = for (i <- 1 to paymentPlanCount) yield stubData.randomPaymentPlan(i)
+
+    Future.successful(DDPaymentPlans("debit.bankSortCode", "debit.bankAccountNumber", "debit.bankAccountName", "dd", plans.size, plans))
   }
 
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
@@ -184,6 +173,10 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
     ).getOrElse(credId, false)
 
     Future.successful(DuplicateCheckResponse(flag))
+  }
+
+  private def isPaginationEnabled(credId: String): Boolean = {
+    credId == "0000000009000215"
   }
 
   def isAdvanceNoticePresent(
