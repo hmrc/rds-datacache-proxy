@@ -64,7 +64,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
     "return ddi reference number" in:
       val result = connector.getDirectDebitReference("xyz", "000123", "session-123").futureValue
 
-      result shouldBe DDIReference("xyz")
+      result.ddiRefNumber.length shouldBe 10
 
     "return a DirectDebit Payment Plans" in {
       val directDebits = connector.getDirectDebits("123").futureValue

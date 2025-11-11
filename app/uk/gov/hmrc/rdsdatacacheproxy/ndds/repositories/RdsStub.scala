@@ -24,6 +24,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ndds.utils.StubUtils
 import java.time.{LocalDate, LocalDateTime}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
+import scala.util.Random
 
 @Singleton
 class RdsStub @Inject() () extends RdsDataSource with Logging:
@@ -56,7 +57,7 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
     Future.successful(EarliestPaymentDate(baseDate.plusDays(offsetWorkingDays)))
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] =
-    Future.successful(DDIReference(paymentReference))
+    Future.successful(DDIReference(Random.alphanumeric.take(10).mkString))
 
   def getDirectDebitPaymentPlans(directDebitReference: String, credId: String): Future[DDPaymentPlans] = {
     val ddList = getDebitsFor(credId)
