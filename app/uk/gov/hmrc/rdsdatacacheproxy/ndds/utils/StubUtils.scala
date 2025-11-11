@@ -31,21 +31,21 @@ class StubUtils {
 
   def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit = {
 
-    val paymentPlanCount = if (hasPagination) {
-      Random.nextInt(15)
-    } else {
-      Random.nextInt(3) + 1
-    }
+    val ddiRefNumber = s"9905502$i"
+
+    val paymentPlanCount = getPaymentCount(ddiRefNumber, hasPagination)
+
+    val (accountNumber, sortCode, bankName) = getBankDetails(ddiRefNumber)
 
     val date = s"${Random.nextInt(5) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
-      ddiRefNumber = s"99055002$i",
+      ddiRefNumber = ddiRefNumber,
       LocalDateTime.parse(s"${date}T00:00:00"),
-      s"${r(99)}-${r(99)}-${r(99)}",
-      Seq.fill(8)(Random.nextInt(10)).mkString,
-      "BankLtd",
+      sortCode,
+      accountNumber,
+      bankName,
       Random.nextBoolean(),
       paymentPlanCount
     )
@@ -73,4 +73,28 @@ class StubUtils {
     )
   }
 
+  def getPaymentCount(ddiRefNumber: String, hasPagination: Boolean): Int = {
+    val ddRef = ddiRefNumber.toInt
+    if (hasPagination) {
+      ddRef % 16
+    } else {
+      (ddRef % 3) + 1 // making sure that there will be at least one
+    }
+  }
+
+  def getBankDetails(ddiRefNumber: String): (String, String, String) = {
+    val ddRef = ddiRefNumber.toInt
+    val bankName = "BankLtd"
+    if (ddRef % 5 == 1) {
+      ("12344321", "001003", bankName)
+    } else if (ddRef % 5 == 2) {
+      ("12349876", "235678", bankName)
+    } else if (ddRef % 5 == 3) {
+      ("45671235", "983427", bankName)
+    } else if (ddRef % 5 == 4) {
+      ("98051256", "872537", bankName)
+    } else {
+      ("76894567", "286517", bankName)
+    }
+  }
 }
