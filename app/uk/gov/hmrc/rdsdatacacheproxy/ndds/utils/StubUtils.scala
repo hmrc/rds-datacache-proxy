@@ -78,7 +78,7 @@ class StubUtils {
     if (hasPagination) {
       ddRef % 16
     } else {
-      (ddRef % 3) + 1 // making sure there that will be at least one
+      (ddRef % 3) + 1 // making sure that there will be at least one
     }
   }
 
