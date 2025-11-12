@@ -179,7 +179,7 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
   }
 
   private def isPaginationEnabled(credId: String): Boolean = {
-    credId == "0000000009000215"
+    credId == "0000000009000215" || credId.takeRight(3) == "8h1"
   }
 
   def isAdvanceNoticePresent(
