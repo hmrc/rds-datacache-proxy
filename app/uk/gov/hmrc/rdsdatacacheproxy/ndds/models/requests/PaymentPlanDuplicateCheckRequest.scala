@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.LocalDate
 
@@ -33,5 +34,15 @@ case class PaymentPlanDuplicateCheckRequest(
 )
 
 object PaymentPlanDuplicateCheckRequest {
-  implicit val format: OFormat[PaymentPlanDuplicateCheckRequest] = Json.format[PaymentPlanDuplicateCheckRequest]
+  implicit val format: Format[PaymentPlanDuplicateCheckRequest] = (
+    (__ \ "directDebitReference").format[String] and
+      (__ \ "paymentPlanReference").format[String] and
+      (__ \ "planType").format[String] and
+      (__ \ "paymentService").format[String] and
+      (__ \ "paymentReference").format[String] and
+      (__ \ "paymentAmount").formatNullable[BigDecimal] and
+      (__ \ "totalLiability").formatNullable[BigDecimal] and
+      (__ \ "paymentFrequency").formatNullable[Int] and
+      (__ \ "paymentStartDate").format[LocalDate]
+  )(PaymentPlanDuplicateCheckRequest.apply, o => Tuple.fromProductTyped(o))
 }

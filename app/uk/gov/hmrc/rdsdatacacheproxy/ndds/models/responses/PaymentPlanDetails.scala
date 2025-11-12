@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.{LocalDate, LocalDateTime}
 
@@ -28,7 +29,13 @@ case class DirectDebitDetail(bankSortCode: Option[String],
                             )
 
 object DirectDebitDetail:
-  implicit val format: OFormat[DirectDebitDetail] = Json.format[DirectDebitDetail]
+  implicit val format: Format[DirectDebitDetail] = (
+    (__ \ "bankSortCode").formatNullable[String] and
+      (__ \ "bankAccountNumber").formatNullable[String] and
+      (__ \ "bankAccountName").formatNullable[String] and
+      (__ \ "auDdisFlag").format[Boolean] and
+      (__ \ "submissionDateTime").format[LocalDateTime]
+  )(DirectDebitDetail.apply, o => Tuple.fromProductTyped(o))
 
 case class PaymentPlanDetail(hodService: String,
                              planType: String,
@@ -49,9 +56,30 @@ case class PaymentPlanDetail(hodService: String,
                             )
 
 object PaymentPlanDetail:
-  implicit val format: OFormat[PaymentPlanDetail] = Json.format[PaymentPlanDetail]
+  implicit val format: Format[PaymentPlanDetail] = (
+    (__ \ "hodService").format[String] and
+      (__ \ "planType").format[String] and
+      (__ \ "paymentReference").format[String] and
+      (__ \ "submissionDateTime").format[LocalDateTime] and
+      (__ \ "scheduledPaymentAmount").formatNullable[BigDecimal] and
+      (__ \ "scheduledPaymentStartDate").formatNullable[LocalDate] and
+      (__ \ "initialPaymentStartDate").formatNullable[LocalDate] and
+      (__ \ "initialPaymentAmount").formatNullable[BigDecimal] and
+      (__ \ "scheduledPaymentEndDate").formatNullable[LocalDate] and
+      (__ \ "scheduledPaymentFrequency").formatNullable[Int] and
+      (__ \ "suspensionStartDate").formatNullable[LocalDate] and
+      (__ \ "suspensionEndDate").formatNullable[LocalDate] and
+      (__ \ "balancingPaymentAmount").formatNullable[BigDecimal] and
+      (__ \ "balancingPaymentDate").formatNullable[LocalDate] and
+      (__ \ "totalLiability").formatNullable[BigDecimal] and
+      (__ \ "paymentPlanEditable").format[Boolean]
+  )(PaymentPlanDetail.apply, o => Tuple.fromProductTyped(o))
 
 case class PaymentPlanDetails(directDebitDetails: DirectDebitDetail, paymentPlanDetails: PaymentPlanDetail)
 
 object PaymentPlanDetails:
-  implicit val format: OFormat[PaymentPlanDetails] = Json.format[PaymentPlanDetails]
+
+  implicit val format: Format[PaymentPlanDetails] = (
+    (__ \ "directDebitDetails").format[DirectDebitDetail] and
+      (__ \ "paymentPlanDetails").format[PaymentPlanDetail]
+  )(PaymentPlanDetails.apply, o => Tuple.fromProductTyped(o))

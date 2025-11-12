@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.requests
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 case class GenerateDdiRefRequest(paymentReference: String)
 
 object GenerateDdiRefRequest {
-  implicit val format: OFormat[GenerateDdiRefRequest] = Json.format[GenerateDdiRefRequest]
+  implicit val format: Format[GenerateDdiRefRequest] =
+    (__ \ "paymentReference").format[String].inmap(GenerateDdiRefRequest.apply, _.paymentReference)
 }

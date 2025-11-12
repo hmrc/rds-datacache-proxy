@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 import java.time.LocalDateTime
 
@@ -30,11 +31,25 @@ case class DirectDebit(ddiRefNumber: String,
                       )
 
 object DirectDebit:
-  implicit val format: OFormat[DirectDebit] = Json.format[DirectDebit]
+  implicit val format: Format[DirectDebit] =
+    (
+      (__ \ "ddiRefNumber").format[String] and
+        (__ \ "submissionDateTime").format[LocalDateTime] and
+        (__ \ "bankSortCode").format[String] and
+        (__ \ "bankAccountNumber").format[String] and
+        (__ \ "bankAccountName").format[String] and
+        (__ \ "auDdisFlag").format[Boolean] and
+        (__ \ "numberOfPayPlans").format[Int]
+    )(DirectDebit.apply, o => Tuple.fromProductTyped(o))
 
 case class UserDebits(directDebitCount: Int, directDebitList: Seq[DirectDebit])
 
 object UserDebits:
   import DirectDebit.format
-  implicit val format: OFormat[UserDebits] = Json.format[UserDebits]
+  implicit val format: Format[UserDebits] =
+    (
+      (__ \ "directDebitCount").format[Int] and
+        (__ \ "directDebitList").format[Seq[DirectDebit]]
+    )(UserDebits.apply, o => Tuple.fromProductTyped(o))
+
   val empty: UserDebits = UserDebits(0, Seq())

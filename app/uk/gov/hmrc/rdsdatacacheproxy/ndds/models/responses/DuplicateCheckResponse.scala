@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Format, __}
 
 case class DuplicateCheckResponse(isDuplicate: Boolean)
 
 object DuplicateCheckResponse {
-  implicit val format: OFormat[DuplicateCheckResponse] = Json.format
+  implicit val format: Format[DuplicateCheckResponse] =
+    (__ \ "isDuplicate").format[Boolean].inmap(DuplicateCheckResponse.apply, _.isDuplicate)
 }
