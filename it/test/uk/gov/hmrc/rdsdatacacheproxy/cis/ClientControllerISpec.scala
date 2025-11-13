@@ -30,7 +30,7 @@ class ClientControllerISpec
     with IntegrationPatience
     with ApplicationWithWiremock {
 
-  private val endpoint = "/client-list-status"
+  private val endpoint = "/cis/client-list-status"
 
   private def getClientListStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400): WSResponse =
     get(s"$endpoint?credentialId=$credentialId&serviceName=$serviceName&gracePeriod=$gracePeriod").futureValue

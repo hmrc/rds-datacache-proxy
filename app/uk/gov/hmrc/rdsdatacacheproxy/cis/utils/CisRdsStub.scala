@@ -52,7 +52,6 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
     val serviceNameExists = Option(serviceName).exists(_.trim.nonEmpty)
 
     if (credentialIdExists && serviceNameExists) {
-      val taxpayer = stubUtils.createCisTaxpayer()
       logger.info(
         s"[CIS-STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} => status=1"
       )
