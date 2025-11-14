@@ -101,7 +101,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -136,7 +136,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -171,11 +171,46 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
       val result = connector.getPaymentPlanDetails("dd reference", "0000000009000205", "100").futureValue
+
+      result shouldBe paymentPlanDetails
+    }
+
+    "return a Single Payment Plan Details when credId is 0000000009000123 with plan not editable" in {
+      val currentTime = LocalDateTime.now().withNano(0)
+
+      val paymentPlanDetails = PaymentPlanDetails(
+        directDebitDetails = DirectDebitDetail(bankSortCode = Some("123456"),
+                                               bankAccountNumber  = Some("12345678"),
+                                               bankAccountName    = Some("Bank Ltd"),
+                                               auDdisFlag         = true,
+                                               submissionDateTime = currentTime
+                                              ),
+        paymentPlanDetails = PaymentPlanDetail(
+          hodService                = "CESA",
+          planType                  = "01",
+          paymentReference          = "0400256374K",
+          submissionDateTime        = currentTime.minusDays(5),
+          scheduledPaymentAmount    = Some(100),
+          scheduledPaymentStartDate = Some(currentTime.toLocalDate.plusDays(4)),
+          initialPaymentStartDate   = Some(currentTime.toLocalDate),
+          initialPaymentAmount      = Some(100),
+          scheduledPaymentEndDate   = Some(currentTime.toLocalDate.plusMonths(10)),
+          scheduledPaymentFrequency = None,
+          suspensionStartDate       = None,
+          suspensionEndDate         = None,
+          balancingPaymentAmount    = Some(100),
+          balancingPaymentDate      = Some(currentTime.toLocalDate),
+          totalLiability            = Some(1200),
+          paymentPlanEditable       = false
+        )
+      )
+
+      val result = connector.getPaymentPlanDetails("dd reference", "0000000009000123", "100").futureValue
 
       result shouldBe paymentPlanDetails
     }
@@ -206,7 +241,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -241,7 +276,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -276,7 +311,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -311,7 +346,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -346,7 +381,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -381,7 +416,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -416,7 +451,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -451,7 +486,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -486,7 +521,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 
@@ -521,7 +556,7 @@ class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with Integ
           balancingPaymentAmount    = Some(100),
           balancingPaymentDate      = Some(currentTime.toLocalDate),
           totalLiability            = Some(1200),
-          paymentPlanEditable       = false
+          paymentPlanEditable       = true
         )
       )
 

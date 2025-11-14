@@ -72,25 +72,26 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
 
     val currentTime = LocalDateTime.now().withNano(0)
 
-    val (playType, frequency, scheduledPaymentStartDate, scheduledPaymentEndDate, suspensionStartDate, suspensionEndDate) =
+    val (playType, frequency, scheduledPaymentStartDate, scheduledPaymentEndDate, suspensionStartDate, suspensionEndDate, paymentPlanEditable) =
       credId.takeRight(3) match {
         case "1a5" => // single payment plan - which can be amended or canceled
-          ("01", Some(2), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+          ("01", Some(2), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None, true)
         case "2b6" => // budge payment plan - which can be amended or canceled or suspended
-          ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None)
+          ("02", Some(5), Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(12)), None, None, true)
         case "3c7" => // variable payment plan - which can be canceled
-          ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+          ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None, true)
         case "4d8" | "6f0" => // budge payment plan - which can be change or remove suspend
           ("02",
            Some(5),
            Some(currentTime.toLocalDate.plusDays(5)),
            Some(currentTime.toLocalDate.plusMonths(12)),
            Some(currentTime.toLocalDate.plusMonths(1)),
-           Some(currentTime.toLocalDate.plusMonths(2))
+           Some(currentTime.toLocalDate.plusMonths(2)),
+           true
           )
 
         case "5e9" => // tax credit payment plan - which does not have any actions
-          ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
+          ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None, true)
 
         case _ =>
           Map(
@@ -99,34 +100,74 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
                                    Some(currentTime.toLocalDate.plusDays(4)),
                                    Some(currentTime.toLocalDate.plusMonths(10)),
                                    None,
-                                   None
+                                   None,
+                                   true
                                   ),
             "0000000009000202" -> ("02",
                                    Some(5),
                                    Some(currentTime.toLocalDate.plusDays(4)),
                                    Some(currentTime.toLocalDate.plusMonths(12)),
                                    None,
-                                   None
+                                   None,
+                                   true
                                   ),
             "0000000009000204" -> ("02",
                                    Some(5),
                                    Some(currentTime.toLocalDate.plusDays(4)),
                                    Some(currentTime.toLocalDate.plusMonths(12)),
                                    None,
-                                   None
+                                   None,
+                                   true
                                   ),
-            "0000000009000205" -> ("01", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-            "0000000009000203" -> ("03", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
+            "0000000009000205" -> ("01",
+                                   None,
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None,
+                                   true
+                                  ),
+            "0000000009000203" -> ("03",
+                                   None,
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None,
+                                   true
+                                  ),
             "0000000009000206" -> ("02",
                                    Some(5),
                                    Some(currentTime.toLocalDate.plusDays(5)),
                                    Some(currentTime.toLocalDate.plusMonths(12)),
                                    Some(currentTime.toLocalDate.plusMonths(1)),
-                                   Some(currentTime.toLocalDate.plusMonths(2))
+                                   Some(currentTime.toLocalDate.plusMonths(2)),
+                                   true
                                   ),
-            "0000000009000208" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None),
-            "0000000009000209" -> ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None)
-          ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None))
+            "0000000009000208" -> ("04",
+                                   None,
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None,
+                                   true
+                                  ),
+            "0000000009000209" -> ("04",
+                                   None,
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None,
+                                   true
+                                  ),
+            "0000000009000123" -> ("01",
+                                   None,
+                                   Some(currentTime.toLocalDate.plusDays(4)),
+                                   Some(currentTime.toLocalDate.plusMonths(10)),
+                                   None,
+                                   None,
+                                   false
+                                  )
+          ).getOrElse(credId, ("04", None, Some(currentTime.toLocalDate.plusDays(4)), Some(currentTime.toLocalDate.plusMonths(10)), None, None, true))
       }
 
     val paymentPlanDetails = PaymentPlanDetails(
@@ -152,7 +193,7 @@ class RdsStub @Inject() () extends RdsDataSource with Logging:
         balancingPaymentAmount    = Some(100),
         balancingPaymentDate      = Some(currentTime.toLocalDate),
         totalLiability            = Some(1200),
-        paymentPlanEditable       = false
+        paymentPlanEditable       = paymentPlanEditable
       )
     )
     Future.successful(paymentPlanDetails)
