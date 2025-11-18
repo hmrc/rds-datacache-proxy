@@ -21,6 +21,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status.*
 import play.api.libs.ws.WSResponse
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisClientSearchResult
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 class ClientControllerISpec
@@ -153,6 +154,203 @@ class ClientControllerISpec
 
       res.status mustBe BAD_REQUEST
       (res.json \ "error").as[String] mustBe "credentialId and serviceName must be provided"
+    }
+  }
+
+  private val clientListEndpoint = "/cis/client-list"
+
+  private def getClientList(
+    irAgentId: String,
+    credentialId: String,
+    start: Int = 0,
+    count: Int = -1,
+    sort: Int = 0,
+    ascending: Boolean = true
+  ): WSResponse = {
+    val url = s"$clientListEndpoint?irAgentId=$irAgentId&credentialId=$credentialId&start=$start&count=$count&sort=$sort&ascending=$ascending"
+    get(url).futureValue
+  }
+
+  "GET /client-list (stubbed repo, no DB)" should {
+
+    "return 200 with client list when authorised and parameters are valid" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "CRED-ABC-123")
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+      result.clients must not be empty
+      result.clients.length mustBe 3
+      result.totalCount mustBe 3
+      result.clientNameStartingCharacters must contain allOf ("A", "B", "X")
+    }
+
+    "return 200 with correct client structure" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "CRED-ABC-123")
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+
+      val firstClient = result.clients.head
+      firstClient.uniqueId mustBe "1"
+      firstClient.taxOfficeNumber mustBe "123"
+      firstClient.taxOfficeRef mustBe "AB001"
+      firstClient.employerName1 mustBe Some("ABC Construction Ltd")
+    }
+
+    "return 200 when using default parameters" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?irAgentId=IR123456&credentialId=CRED-ABC-123").futureValue
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+      result.clients must not be empty
+    }
+
+    "handle pagination parameters correctly" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "CRED-ABC-123", start = 0, count = 10)
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+      result.clients.length mustBe 3
+      result.totalCount mustBe 3
+    }
+
+    "handle sort parameter correctly" in {
+      AuthStub.authorised()
+      val res1 = getClientList("IR123456", "CRED-ABC-123", sort = 0)
+      res1.status mustBe OK
+
+      val res2 = getClientList("IR123456", "CRED-ABC-123", sort = 1)
+      res2.status mustBe OK
+
+      val res3 = getClientList("IR123456", "CRED-ABC-123", sort = 2)
+      res3.status mustBe OK
+    }
+
+    "handle ascending parameter correctly" in {
+      AuthStub.authorised()
+      val resAsc = getClientList("IR123456", "CRED-ABC-123", ascending = true)
+      resAsc.status mustBe OK
+
+      val resDesc = getClientList("IR123456", "CRED-ABC-123", ascending = false)
+      resDesc.status mustBe OK
+    }
+
+    "return 400 when irAgentId is empty" in {
+      AuthStub.authorised()
+      val res = getClientList("", "CRED-ABC-123")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe "credentialId and irAgentId must be provided"
+    }
+
+    "return 400 when credentialId is empty" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe "credentialId and irAgentId must be provided"
+    }
+
+    "return 400 when both irAgentId and credentialId are empty" in {
+      AuthStub.authorised()
+      val res = getClientList("", "")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe "credentialId and irAgentId must be provided"
+    }
+
+    "return 400 when irAgentId contains only whitespace" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?irAgentId=%20%20%20&credentialId=CRED-ABC-123").futureValue
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe "credentialId and irAgentId must be provided"
+    }
+
+    "return 400 when credentialId contains only whitespace" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?irAgentId=IR123456&credentialId=%20%20%20").futureValue
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe "credentialId and irAgentId must be provided"
+    }
+
+    "return 401 when there is no active session" in {
+      AuthStub.unauthorised()
+      val res = getClientList("IR123456", "CRED-ABC-123")
+
+      res.status mustBe UNAUTHORIZED
+    }
+
+    "return 400 when irAgentId parameter is missing" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?credentialId=CRED-ABC-123").futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "return 400 when credentialId parameter is missing" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?irAgentId=IR123456").futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "return 400 when all parameters are missing" in {
+      AuthStub.authorised()
+      val res = get(clientListEndpoint).futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "handle special characters in irAgentId and credentialId" in {
+      AuthStub.authorised()
+      val res = get(s"$clientListEndpoint?irAgentId=IR-123%2F456&credentialId=CRED-ABC-123%2Bspecial").futureValue
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+      result.clients must not be empty
+    }
+
+    "return consistent results across multiple calls" in {
+      AuthStub.authorised()
+      val res1 = getClientList("IR123456", "CRED-ABC-123")
+      val result1 = res1.json.as[CisClientSearchResult]
+
+      val res2 = getClientList("IR123456", "CRED-ABC-123")
+      val result2 = res2.json.as[CisClientSearchResult]
+
+      result1.clients.length mustBe result2.clients.length
+      result1.totalCount mustBe result2.totalCount
+      result1.clientNameStartingCharacters mustBe result2.clientNameStartingCharacters
+    }
+
+    "return all required fields in response" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "CRED-ABC-123")
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+
+      result.clients.foreach { client =>
+        client.uniqueId must not be empty
+        client.taxOfficeNumber must not be empty
+        client.taxOfficeRef must not be empty
+      }
+    }
+
+    "return distinct client name starting characters" in {
+      AuthStub.authorised()
+      val res = getClientList("IR123456", "CRED-ABC-123")
+
+      res.status mustBe OK
+      val result = res.json.as[CisClientSearchResult]
+
+      result.clientNameStartingCharacters.distinct mustBe result.clientNameStartingCharacters
     }
   }
 }

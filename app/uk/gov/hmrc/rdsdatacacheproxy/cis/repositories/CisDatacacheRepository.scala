@@ -23,11 +23,19 @@ import play.api.db.{Database, NamedDatabase}
 import scala.concurrent.{ExecutionContext, Future}
 import java.sql.{CallableStatement, ResultSet}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult}
 
 trait CisMonthlyReturnSource {
   def getCisTaxpayerByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[CisTaxpayer]]
   def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400): Future[Int]
+  def getAllClients(
+    irAgentId: String,
+    credentialId: String,
+    start: Int = 0,
+    count: Int = -1,
+    sort: Int = 0,
+    order: String = "ASC"
+  ): Future[CisClientSearchResult]
 }
 
 @Singleton
@@ -58,6 +66,24 @@ class CisDatacacheRepository @Inject() (
       schemeName        = str(rs, "SCHEME_NAME"),
       utr               = str(rs, "UTR"),
       enrolledSig       = str(rs, "ENROLLED_SIG")
+    )
+
+  private def toCisTaxpayerSearchResult(rs: ResultSet): CisTaxpayerSearchResult =
+    CisTaxpayerSearchResult(
+      uniqueId          = str(rs, "UNIQUE_ID").getOrElse(""),
+      taxOfficeNumber   = str(rs, "TAX_OFFICE_NUMBER").getOrElse(""),
+      taxOfficeRef      = str(rs, "TAX_OFFICE_REF").getOrElse(""),
+      aoDistrict        = str(rs, "AO_DISTRICT"),
+      aoPayType         = str(rs, "AO_PAY_TYPE"),
+      aoCheckCode       = str(rs, "AO_CHECK_CODE"),
+      aoReference       = str(rs, "AO_REFERENCE"),
+      validBusinessAddr = str(rs, "VALID_BUSINESS_ADDR"),
+      correlation       = str(rs, "CORRELATION"),
+      ggAgentId         = str(rs, "GG_AGENT_ID"),
+      employerName1     = str(rs, "EMPLOYER_NAME1"),
+      employerName2     = str(rs, "EMPLOYER_NAME2"),
+      agentOwnRef       = str(rs, "AGENT_OWN_REF"),
+      schemeName        = str(rs, "SCHEME_NAME")
     )
 
   override def getCisTaxpayerByTaxRef(
@@ -117,6 +143,76 @@ class CisDatacacheRepository @Inject() (
 
           getDownloadStatusSql.getInt(4)
         } finally getDownloadStatusSql.close()
+      }
+    }
+  }
+
+  private def readClientList(rs: ResultSet): List[CisTaxpayerSearchResult] = {
+    val buffer = scala.collection.mutable.ListBuffer[CisTaxpayerSearchResult]()
+    while (rs.next()) {
+      buffer += toCisTaxpayerSearchResult(rs)
+    }
+    buffer.toList
+  }
+
+  private def readClientNameChars(rs: ResultSet): List[String] = {
+    val buffer = scala.collection.mutable.ListBuffer[String]()
+    while (rs.next()) {
+      Option(rs.getString("CLIENTNAMESTARTINGCHARACTER"))
+        .map(_.trim)
+        .filter(_.nonEmpty)
+        .foreach(buffer += _)
+    }
+    buffer.toList
+  }
+
+  override def getAllClients(
+    irAgentId: String,
+    credentialId: String,
+    start: Int,
+    count: Int,
+    sort: Int,
+    order: String
+  ): Future[CisClientSearchResult] = {
+    logger.info(
+      s"[CIS] getAllClients(IR_AGENT_ID=$irAgentId, CREDENTIAL_ID=$credentialId, START=$start, COUNT=$count, SORT=$sort, ORDER=$order)"
+    )
+
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call CIS_FILE_DATA.CIS_CLIENT_SEARCH.getAllClients(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, irAgentId)
+          cs.setString(2, credentialId)
+          cs.setInt(3, start)
+          cs.setInt(4, count)
+          cs.setInt(5, sort)
+          cs.setString(6, order)
+          cs.registerOutParameter(7, OracleTypes.INTEGER)
+          cs.registerOutParameter(8, OracleTypes.CURSOR)
+          cs.registerOutParameter(9, OracleTypes.CURSOR)
+          cs.execute()
+
+          val clientCount = cs.getInt(7)
+          val clientListRs = cs.getObject(8, classOf[ResultSet])
+          val clientNameCharsRs = cs.getObject(9, classOf[ResultSet])
+
+          try {
+            val clients = Option(clientListRs).map(readClientList).getOrElse(List.empty)
+            val nameChars = Option(clientNameCharsRs).map(readClientNameChars).getOrElse(List.empty)
+
+            CisClientSearchResult(
+              clients                      = clients,
+              totalCount                   = clientCount,
+              clientNameStartingCharacters = nameChars
+            )
+          } finally {
+            if (clientListRs != null) clientListRs.close()
+            if (clientNameCharsRs != null) clientNameCharsRs.close()
+          }
+        } finally cs.close()
       }
     }
   }
