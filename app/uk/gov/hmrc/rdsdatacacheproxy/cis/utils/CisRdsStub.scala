@@ -46,4 +46,21 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
         Future.successful(None)
     }
   }
+
+  override def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
+    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
+    val serviceNameExists = Option(serviceName).exists(_.trim.nonEmpty)
+
+    if (credentialIdExists && serviceNameExists) {
+      logger.info(
+        s"[CIS-STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} => status=1"
+      )
+      Future.successful(1)
+    } else {
+      logger.warn(
+        s"[CIS-STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID/SERVICE_NAME: CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} "
+      )
+      Future.successful(2)
+    }
+  }
 }

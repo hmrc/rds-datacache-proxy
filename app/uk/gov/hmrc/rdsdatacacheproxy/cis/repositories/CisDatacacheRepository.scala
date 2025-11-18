@@ -27,6 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
 
 trait CisMonthlyReturnSource {
   def getCisTaxpayerByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[CisTaxpayer]]
+  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400): Future[Int]
 }
 
 @Singleton
@@ -94,4 +95,30 @@ class CisDatacacheRepository @Inject() (
       }
     }
   }
+
+  override def getClientListDownloadStatus(
+    credentialId: String,
+    serviceName: String,
+    gracePeriod: Int
+  ): Future[Int] = {
+    logger.info(s"[CIS] getCisTaxpayerByTaxRef(CREDENTIAL_ID=$credentialId, SERVICE_NAME=$serviceName, GRACE_PERIOD=$gracePeriod)")
+
+    Future {
+      db.withConnection { conn =>
+        val getDownloadStatusSql: CallableStatement =
+          conn.prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+
+        try {
+          getDownloadStatusSql.setString(1, credentialId)
+          getDownloadStatusSql.setString(2, serviceName)
+          getDownloadStatusSql.setInt(3, gracePeriod)
+          getDownloadStatusSql.registerOutParameter(4, OracleTypes.INTEGER)
+          getDownloadStatusSql.execute()
+
+          getDownloadStatusSql.getInt(4)
+        } finally getDownloadStatusSql.close()
+      }
+    }
+  }
+
 }

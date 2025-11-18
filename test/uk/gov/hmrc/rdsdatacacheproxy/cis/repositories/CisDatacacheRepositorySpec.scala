@@ -135,4 +135,80 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
     verify(rs).close()
     verify(cs).close()
   }
+
+  "getClientListDownloadStatus" should {
+    "return 1 status code when stored procedure executes successfully" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+      val cs = mock(classOf[CallableStatement])
+
+      when(db.withConnection(anyArg())).thenAnswer { inv =>
+        val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+        f(conn)
+      }
+      when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+      when(cs.getInt(4)).thenReturn(1)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val result = repo.getClientListDownloadStatus("cred123", "cis", 14400).futureValue
+      result mustBe 1
+
+      verify(conn).prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+      verify(cs).setString(1, "cred123")
+      verify(cs).setString(2, "cis")
+      verify(cs).setInt(3, 14400)
+      verify(cs).registerOutParameter(4, oracle.jdbc.OracleTypes.INTEGER)
+      verify(cs).execute()
+      verify(cs).close()
+    }
+
+    "return 0 status code when stored procedure executes successfully" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+      val cs = mock(classOf[CallableStatement])
+
+      when(db.withConnection(anyArg())).thenAnswer { inv =>
+        val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+        f(conn)
+      }
+      when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+      when(cs.getInt(4)).thenReturn(0)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val result = repo.getClientListDownloadStatus("cred456", "cis", 7200).futureValue
+      result mustBe 0
+
+      verify(conn).prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+      verify(cs).setString(1, "cred456")
+      verify(cs).setString(2, "cis")
+      verify(cs).setInt(3, 7200)
+      verify(cs).registerOutParameter(4, oracle.jdbc.OracleTypes.INTEGER)
+      verify(cs).execute()
+      verify(cs).close()
+    }
+
+    "use custom grace period when provided" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+      val cs = mock(classOf[CallableStatement])
+
+      when(db.withConnection(anyArg())).thenAnswer { inv =>
+        val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+        f(conn)
+      }
+      when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+      when(cs.getInt(4)).thenReturn(2)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val customGracePeriod = 3600
+      val result = repo.getClientListDownloadStatus("cred789", "cis", customGracePeriod).futureValue
+      result mustBe 2
+
+      verify(cs).setInt(3, customGracePeriod)
+      verify(cs).close()
+    }
+  }
 }
