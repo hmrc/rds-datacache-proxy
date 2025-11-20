@@ -262,7 +262,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
         0,
         Seq(
           PaymentPlan(
-            150.0,
+            Some(150.0),
             "plan reference",
             "singlePaymentPlan",
             "payment reference",

@@ -21,7 +21,7 @@ import play.api.libs.json.{Format, __}
 
 import java.time.LocalDateTime
 
-case class PaymentPlan(scheduledPaymentAmount: BigDecimal,
+case class PaymentPlan(scheduledPaymentAmount: Option[BigDecimal],
                        planRefNumber: String,
                        planType: String,
                        paymentReference: String,
@@ -31,7 +31,7 @@ case class PaymentPlan(scheduledPaymentAmount: BigDecimal,
 
 object PaymentPlan:
   implicit val format: Format[PaymentPlan] = (
-    (__ \ "scheduledPaymentAmount").format[BigDecimal] and
+    (__ \ "scheduledPaymentAmount").formatNullable[BigDecimal] and
       (__ \ "planRefNumber").format[String] and
       (__ \ "planType").format[String] and
       (__ \ "paymentReference").format[String] and
