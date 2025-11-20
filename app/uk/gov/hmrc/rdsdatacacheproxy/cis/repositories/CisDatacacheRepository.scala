@@ -132,7 +132,7 @@ class CisDatacacheRepository @Inject() (
     Future {
       db.withConnection { conn =>
         val getDownloadStatusSql: CallableStatement =
-          conn.prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+          conn.prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
 
         try {
           getDownloadStatusSql.setString(1, credentialId)
@@ -181,7 +181,7 @@ class CisDatacacheRepository @Inject() (
     Future {
       db.withConnection { conn =>
         val cs: CallableStatement =
-          conn.prepareCall("{ call CIS_FILE_DATA.CIS_CLIENT_SEARCH.getAllClients(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+          conn.prepareCall("{ call CIS_CLIENT_SEARCH.getAllClients(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, irAgentId)
