@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.cis.utils
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
@@ -61,6 +61,57 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
         s"[CIS-STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID/SERVICE_NAME: CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} "
       )
       Future.successful(2)
+    }
+  }
+
+  override def getAllClients(
+    irAgentId: String,
+    credentialId: String,
+    start: Int,
+    count: Int,
+    sort: Int,
+    order: String
+  ): Future[CisClientSearchResult] = {
+    val irAgentIdExists = Option(irAgentId).exists(_.trim.nonEmpty)
+    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
+
+    if (irAgentIdExists && credentialIdExists) {
+      val clients = List(
+        stubUtils.createCisTaxpayerSearchResult(uniqueId        = "1",
+                                                taxOfficeNumber = "123",
+                                                taxOfficeRef    = "AB001",
+                                                employerName1   = Some("ABC Construction Ltd")
+                                               ),
+        stubUtils
+          .createCisTaxpayerSearchResult(uniqueId = "2", taxOfficeNumber = "456", taxOfficeRef = "CD002", employerName1 = Some("XYZ Builders")),
+        stubUtils
+          .createCisTaxpayerSearchResult(uniqueId = "3", taxOfficeNumber = "789", taxOfficeRef = "EF003", employerName1 = Some("Best Contractors"))
+      )
+
+      val nameChars = List("A", "B", "X")
+
+      logger.info(
+        s"[CIS-STUB] getAllClients -> IR_AGENT_ID=${irAgentId.trim}, CREDENTIAL_ID=${credentialId.trim}, START=$start, COUNT=$count => ${clients.length} clients"
+      )
+
+      Future.successful(
+        CisClientSearchResult(
+          clients                      = clients,
+          totalCount                   = clients.length,
+          clientNameStartingCharacters = nameChars
+        )
+      )
+    } else {
+      logger.warn(
+        s"[CIS-STUB] getAllClients -> missing/blank IR_AGENT_ID/CREDENTIAL_ID: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}"
+      )
+      Future.successful(
+        CisClientSearchResult(
+          clients                      = List.empty,
+          totalCount                   = 0,
+          clientNameStartingCharacters = List.empty
+        )
+      )
     }
   }
 }

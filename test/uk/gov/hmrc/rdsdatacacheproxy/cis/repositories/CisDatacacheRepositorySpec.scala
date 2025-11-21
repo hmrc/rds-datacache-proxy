@@ -154,7 +154,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.getClientListDownloadStatus("cred123", "cis", 14400).futureValue
       result mustBe 1
 
-      verify(conn).prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+      verify(conn).prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
       verify(cs).setString(1, "cred123")
       verify(cs).setString(2, "cis")
       verify(cs).setInt(3, 14400)
@@ -180,7 +180,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.getClientListDownloadStatus("cred456", "cis", 7200).futureValue
       result mustBe 0
 
-      verify(conn).prepareCall("{ call CIS_FILE_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+      verify(conn).prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
       verify(cs).setString(1, "cred456")
       verify(cs).setString(2, "cis")
       verify(cs).setInt(3, 7200)

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisTaxpayer, CisTaxpayerSearchResult}
 
 class StubUtils {
 
@@ -44,4 +44,29 @@ class StubUtils {
       utr               = Some("1234567890"),
       enrolledSig       = Some("Y")
     )
+
+  def createCisTaxpayerSearchResult(
+    uniqueId: String = "1",
+    taxOfficeNumber: String = "123",
+    taxOfficeRef: String = "AB456",
+    employerName1: Option[String] = Some("TEST LTD")
+  ): CisTaxpayerSearchResult = {
+    val taxpayer = createCisTaxpayer(uniqueId, taxOfficeNumber, taxOfficeRef, employerName1)
+    CisTaxpayerSearchResult(
+      taxpayer.uniqueId,
+      taxpayer.taxOfficeNumber,
+      taxpayer.taxOfficeRef,
+      taxpayer.aoDistrict,
+      taxpayer.aoPayType,
+      taxpayer.aoCheckCode,
+      taxpayer.aoReference,
+      taxpayer.validBusinessAddr,
+      taxpayer.correlation,
+      taxpayer.ggAgentId,
+      taxpayer.employerName1,
+      taxpayer.employerName2,
+      taxpayer.agentOwnRef,
+      taxpayer.schemeName
+    )
+  }
 }

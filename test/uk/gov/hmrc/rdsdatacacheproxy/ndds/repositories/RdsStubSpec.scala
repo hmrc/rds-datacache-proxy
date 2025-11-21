@@ -25,7 +25,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
 
 import java.time.{LocalDate, LocalDateTime}
 import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RdsStubSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience:
 
