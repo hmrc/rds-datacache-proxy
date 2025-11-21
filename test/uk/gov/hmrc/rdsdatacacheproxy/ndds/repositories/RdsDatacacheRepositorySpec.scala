@@ -141,7 +141,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     val paymentPlans = Seq(
       PaymentPlan(
-        scheduledPaymentAmount = 100,
+        scheduledPaymentAmount = Some(100),
         planRefNumber          = ddReference,
         planType               = "01",
         paymentReference       = "plan ref number",

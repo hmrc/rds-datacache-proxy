@@ -66,7 +66,7 @@ class StubUtils {
     val planRefNumber = s"20000080$i"
 
     PaymentPlan.apply(
-      scheduledPaymentAmount = i * 100.0,
+      scheduledPaymentAmount = Some(BigDecimal(i * 100.0)),
       planRefNumber          = planRefNumber,
       planType               = randomPlanType,
       paymentReference       = getPaymentReference(planRefNumber),
