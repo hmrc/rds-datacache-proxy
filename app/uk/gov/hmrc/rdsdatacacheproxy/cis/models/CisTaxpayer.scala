@@ -40,3 +40,24 @@ case class CisTaxpayer(
 object CisTaxpayer {
   implicit val format: OFormat[CisTaxpayer] = Json.format[CisTaxpayer]
 }
+
+case class CisTaxpayerSearchResult(
+  uniqueId: String,
+  taxOfficeNumber: String,
+  taxOfficeRef: String,
+  aoDistrict: Option[String],
+  aoPayType: Option[String],
+  aoCheckCode: Option[String],
+  aoReference: Option[String],
+  validBusinessAddr: Option[String],
+  correlation: Option[String],
+  ggAgentId: Option[String],
+  employerName1: Option[String],
+  employerName2: Option[String],
+  agentOwnRef: Option[String],
+  schemeName: Option[String]
+)
+
+object CisTaxpayerSearchResult {
+  implicit val format: OFormat[CisTaxpayerSearchResult] = Json.format[CisTaxpayerSearchResult]
+}

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.ClientListDownloadStatus
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.Inject
@@ -30,6 +30,18 @@ class ClientService @Inject() (repository: CisMonthlyReturnSource) {
     repository
       .getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
       .map(ClientListDownloadStatus.fromInt)
+  }
+
+  def getClientList(
+    irAgentId: String,
+    credentialId: String,
+    start: Int,
+    count: Int,
+    sort: Int,
+    ascending: Boolean
+  ): Future[CisClientSearchResult] = {
+    val order = if (ascending) "ASC" else "DESC"
+    repository.getAllClients(irAgentId, credentialId, start, count, sort, order)
   }
 
 }

@@ -50,4 +50,21 @@ class ClientController @Inject() (
         }
     }
   }
+
+  def getClientList(
+    irAgentId: String,
+    credentialId: String,
+    start: Int = 0,
+    count: Int = -1,
+    sort: Int = 0,
+    ascending: Boolean = true
+  ): Action[AnyContent] = authorise.async { implicit request =>
+    if (irAgentId.trim().isEmpty || credentialId.trim().isEmpty) {
+      Future.successful(BadRequest(Json.obj("error" -> "credentialId and irAgentId must be provided")))
+    } else {
+      clientService
+        .getClientList(irAgentId, credentialId, start, count, sort, ascending)
+        .map(result => Ok(Json.toJson(result)))
+    }
+  }
 }
