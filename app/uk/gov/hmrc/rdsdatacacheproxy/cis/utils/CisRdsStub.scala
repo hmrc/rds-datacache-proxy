@@ -114,4 +114,36 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
       )
     }
   }
+
+  override def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[Boolean] = {
+    val irAgentIdExists = Option(irAgentId).exists(_.trim.nonEmpty)
+    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
+    val taxOfficeNumberExists = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
+    val taxOfficeRefExists = Option(taxOfficeReference).exists(_.trim.nonEmpty)
+
+    if (irAgentIdExists && credentialIdExists && taxOfficeNumberExists && taxOfficeRefExists) {
+      val clientExists = (taxOfficeNumber.trim, taxOfficeReference.trim) match {
+        case ("123", "AB001") => true
+        case ("456", "CD002") => true
+        case ("789", "EF003") => true
+        case _                => false
+      }
+
+      logger.info(
+        s"[CIS-STUB] hasClient -> IR_AGENT_ID=${irAgentId.trim}, CREDENTIAL_ID=${credentialId.trim}, TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim} => exists=$clientExists"
+      )
+
+      Future.successful(clientExists)
+    } else {
+      logger.warn(
+        s"[CIS-STUB] hasClient -> missing/blank parameters: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, TON=${Option(taxOfficeNumber).map(_.trim).getOrElse("")}, TOR=${Option(taxOfficeReference).map(_.trim).getOrElse("")}"
+      )
+      Future.successful(false)
+    }
+  }
 }

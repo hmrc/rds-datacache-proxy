@@ -245,4 +245,223 @@ class CisDatacacheRepositoryISpec
       result.clientNameStartingCharacters.distinct mustBe result.clientNameStartingCharacters
     }
   }
+
+  "hasClient (stubbed repository)" should {
+
+    "return true when client exists with valid parameters" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe true
+    }
+
+    "return false when client does not exist" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "999",
+        taxOfficeReference = "ZZ999"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return false when irAgentId is empty" in {
+      val result = repository.hasClient(
+        irAgentId = "",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return false when credentialId is empty" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return false when taxOfficeNumber is empty" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return false when taxOfficeReference is empty" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = ""
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return false when multiple parameters are empty" in {
+      val result = repository.hasClient(
+        irAgentId = "",
+        credentialId = "",
+        taxOfficeNumber = "",
+        taxOfficeReference = ""
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "handle whitespace-only irAgentId" in {
+      val result = repository.hasClient(
+        irAgentId = "   ",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "handle whitespace-only credentialId" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "   ",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "handle whitespace-only taxOfficeNumber" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "   ",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "handle whitespace-only taxOfficeReference" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "   "
+      ).futureValue
+
+      result mustBe false
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      val result2 = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle special characters in irAgentId" in {
+      val result = repository.hasClient(
+        irAgentId = "IR-123/456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe a[Boolean]
+    }
+
+    "handle special characters in credentialId" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123/XYZ",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe a[Boolean]
+    }
+
+    "handle special characters in taxOfficeNumber" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "12/3",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe a[Boolean]
+    }
+
+    "handle special characters in taxOfficeReference" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB/001"
+      ).futureValue
+
+      result mustBe a[Boolean]
+    }
+
+    "find another existing client (second client)" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "456",
+        taxOfficeReference = "CD002"
+      ).futureValue
+
+      result mustBe true
+    }
+
+    "find another existing client (third client)" in {
+      val result = repository.hasClient(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        taxOfficeNumber = "789",
+        taxOfficeReference = "EF003"
+      ).futureValue
+
+      result mustBe true
+    }
+
+    "work with different irAgentId and credentialId combination" in {
+      val result = repository.hasClient(
+        irAgentId = "IR654321",
+        credentialId = "CRED-XYZ-999",
+        taxOfficeNumber = "123",
+        taxOfficeReference = "AB001"
+      ).futureValue
+
+      result mustBe a[Boolean]
+    }
+  }
 }

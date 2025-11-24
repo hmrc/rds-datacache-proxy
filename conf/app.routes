@@ -14,3 +14,4 @@ GET        /direct-debits/:directDebitReference/payment-plans/:paymentPlanRefere
 POST       /cis-taxpayer                uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
 GET        /cis/client-list-status      uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400)
 GET        /cis/client-list             uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.getClientList(irAgentId: String, credentialId: String, start: Int = 0, count: Int = -1, sort: Int = 0, ascending: Boolean = true)
+GET        /cis/has-client              uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String)
