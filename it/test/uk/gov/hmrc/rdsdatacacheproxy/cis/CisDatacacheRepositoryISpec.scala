@@ -21,6 +21,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
@@ -31,9 +32,11 @@ class CisDatacacheRepositoryISpec
     with IntegrationPatience
     with GuiceOneAppPerSuite {
 
+  val cisRdsStub: CisRdsStub = new CisRdsStub(new StubUtils())
+
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .configure(
-      "feature-switch.cis-rds-stubbed" -> true
+    .overrides(
+      bind[CisMonthlyReturnSource].toInstance(cisRdsStub)
     )
     .build()
 

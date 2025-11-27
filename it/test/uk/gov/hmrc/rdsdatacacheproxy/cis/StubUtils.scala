@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.cis.utils
+package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisTaxpayer, CisTaxpayerSearchResult}
 
