@@ -44,4 +44,13 @@ class ClientService @Inject() (repository: CisMonthlyReturnSource) {
     repository.getAllClients(irAgentId, credentialId, start, count, sort, order)
   }
 
+  def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[Boolean] = {
+    repository.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference)
+  }
+
 }

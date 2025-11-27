@@ -22,7 +22,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
-import uk.gov.hmrc.rdsdatacacheproxy.cis.utils.{CisRdsStub, StubUtils}
 
 class Module extends AppModule:
 
@@ -31,15 +30,11 @@ class Module extends AppModule:
     configuration: Configuration
   ): Seq[Binding[_]] =
     lazy val rdsStubbed = configuration.get[Boolean]("feature-switch.rds-stubbed")
-    lazy val cisRdsStubbed = configuration.get[Boolean]("feature-switch.cis-rds-stubbed")
-
     lazy val datasource = if (rdsStubbed) classOf[RdsStub] else classOf[RdsDatacacheRepository]
-    lazy val cisDatasource = if (cisRdsStubbed) classOf[CisRdsStub] else classOf[CisDatacacheRepository]
 
     List(
       bind[AuthAction].to(classOf[DefaultAuthAction]),
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
-      bind[CisMonthlyReturnSource].to(cisDatasource),
-      bind[StubUtils].toSelf
+      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository])
     )

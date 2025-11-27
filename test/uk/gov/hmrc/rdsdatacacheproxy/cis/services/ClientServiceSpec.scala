@@ -360,4 +360,101 @@ final class ClientServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
   }
+
+  "ClientService#hasClient" - {
+
+    val irAgentId = "IR123456"
+    val credentialId = "CRED-ABC-123"
+    val taxOfficeNumber = "123"
+    val taxOfficeReference = "AB001"
+
+    "return true when repository returns true" in {
+      when(
+        repository.hasClient(
+          eqTo(irAgentId),
+          eqTo(credentialId),
+          eqTo(taxOfficeNumber),
+          eqTo(taxOfficeReference)
+        )
+      ).thenReturn(Future.successful(true))
+
+      val result = service.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference).futureValue
+
+      result mustBe true
+      verify(repository).hasClient(
+        eqTo(irAgentId),
+        eqTo(credentialId),
+        eqTo(taxOfficeNumber),
+        eqTo(taxOfficeReference)
+      )
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return false when repository returns false" in {
+      when(
+        repository.hasClient(
+          eqTo(irAgentId),
+          eqTo(credentialId),
+          eqTo(taxOfficeNumber),
+          eqTo(taxOfficeReference)
+        )
+      ).thenReturn(Future.successful(false))
+
+      val result = service.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference).futureValue
+
+      result mustBe false
+      verify(repository).hasClient(
+        eqTo(irAgentId),
+        eqTo(credentialId),
+        eqTo(taxOfficeNumber),
+        eqTo(taxOfficeReference)
+      )
+      verifyNoMoreInteractions(repository)
+    }
+
+    "propagate exceptions from repository" in {
+      val exception = new RuntimeException("Database error")
+      when(
+        repository.hasClient(
+          eqTo(irAgentId),
+          eqTo(credentialId),
+          eqTo(taxOfficeNumber),
+          eqTo(taxOfficeReference)
+        )
+      ).thenReturn(Future.failed(exception))
+
+      val result = service.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference).failed.futureValue
+
+      result mustBe exception
+      verify(repository).hasClient(
+        eqTo(irAgentId),
+        eqTo(credentialId),
+        eqTo(taxOfficeNumber),
+        eqTo(taxOfficeReference)
+      )
+      verifyNoMoreInteractions(repository)
+    }
+
+    "handle different parameter values" in {
+      when(
+        repository.hasClient(
+          eqTo("IR-DIFFERENT"),
+          eqTo("CRED-DIFFERENT"),
+          eqTo("456"),
+          eqTo("CD002")
+        )
+      ).thenReturn(Future.successful(true))
+
+      val result = service.hasClient("IR-DIFFERENT", "CRED-DIFFERENT", "456", "CD002").futureValue
+
+      result mustBe true
+      verify(repository).hasClient(
+        eqTo("IR-DIFFERENT"),
+        eqTo("CRED-DIFFERENT"),
+        eqTo("456"),
+        eqTo("CD002")
+      )
+      verifyNoMoreInteractions(repository)
+    }
+  }
 }

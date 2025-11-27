@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.cis.utils
+package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer}
@@ -112,6 +112,40 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
           clientNameStartingCharacters = List.empty
         )
       )
+    }
+  }
+
+  override def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String
+  ): Future[Boolean] = {
+    val allPresent = List(
+      irAgentId,
+      credentialId,
+      taxOfficeNumber,
+      taxOfficeReference
+    ).forall(_.trim.nonEmpty)
+
+    if (allPresent) {
+      val clientExists = (taxOfficeNumber.trim, taxOfficeReference.trim) match {
+        case ("123", "AB001") => true
+        case ("456", "CD002") => true
+        case ("789", "EF003") => true
+        case _                => false
+      }
+
+      logger.info(
+        s"[CIS-STUB] hasClient -> IR_AGENT_ID=${irAgentId.trim}, CREDENTIAL_ID=${credentialId.trim}, TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim} => exists=$clientExists"
+      )
+
+      Future.successful(clientExists)
+    } else {
+      logger.warn(
+        s"[CIS-STUB] hasClient -> missing/blank parameters: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, TON=${Option(taxOfficeNumber).map(_.trim).getOrElse("")}, TOR=${Option(taxOfficeReference).map(_.trim).getOrElse("")}"
+      )
+      Future.successful(false)
     }
   }
 }
