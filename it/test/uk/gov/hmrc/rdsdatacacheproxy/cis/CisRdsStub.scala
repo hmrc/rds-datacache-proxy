@@ -121,12 +121,14 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
     taxOfficeNumber: String,
     taxOfficeReference: String
   ): Future[Boolean] = {
-    val irAgentIdExists = Option(irAgentId).exists(_.trim.nonEmpty)
-    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
-    val taxOfficeNumberExists = Option(taxOfficeNumber).exists(_.trim.nonEmpty)
-    val taxOfficeRefExists = Option(taxOfficeReference).exists(_.trim.nonEmpty)
+    val allPresent = List(
+      irAgentId,
+      credentialId,
+      taxOfficeNumber,
+      taxOfficeReference
+    ).forall(_.trim.nonEmpty)
 
-    if (irAgentIdExists && credentialIdExists && taxOfficeNumberExists && taxOfficeRefExists) {
+    if (allPresent) {
       val clientExists = (taxOfficeNumber.trim, taxOfficeReference.trim) match {
         case ("123", "AB001") => true
         case ("456", "CD002") => true
