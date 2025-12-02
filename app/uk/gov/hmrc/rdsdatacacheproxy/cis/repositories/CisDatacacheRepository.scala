@@ -36,6 +36,8 @@ trait CisMonthlyReturnSource {
     sort: Int = 0,
     order: String = "ASC"
   ): Future[CisClientSearchResult]
+
+  def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean]
 }
 
 @Singleton
@@ -175,7 +177,7 @@ class CisDatacacheRepository @Inject() (
     order: String
   ): Future[CisClientSearchResult] = {
     logger.info(
-      s"[CIS] getAllClients(IR_AGENT_ID=$irAgentId, CREDENTIAL_ID=$credentialId, START=$start, COUNT=$count, SORT=$sort, ORDER=$order)"
+      s"[CIS] getAllClients(IR_AGENT_ID=$irAgentId, START=$start, COUNT=$count, SORT=$sort, ORDER=$order)"
     )
 
     Future {
@@ -217,4 +219,25 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
+  override def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean] = {
+    logger.info(s"[CIS] hasClient(TON=$taxOfficeNumber, TOR=$taxOfficeReference, agentId=$irAgentId)")
+
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call CIS_CLIENT_SEARCH.hasClient(?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, taxOfficeNumber)
+          cs.setString(2, taxOfficeReference)
+          cs.setString(3, irAgentId)
+          cs.setString(4, credentialId)
+          cs.registerOutParameter(5, OracleTypes.INTEGER)
+          cs.execute()
+
+          cs.getBoolean(5)
+        } finally cs.close()
+      }
+    }
+  }
 }

@@ -21,11 +21,14 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.http.HeaderNames as PlayHeaders
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.http.HeaderNames
+import uk.gov.hmrc.rdsdatacacheproxy.cis.{CisRdsStub, StubUtils}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import scala.concurrent.Future
 
@@ -41,13 +44,15 @@ trait ApplicationWithWiremock
   val extraConfig: Map[String, Any] = {
     Map[String, Any](
       "microservice.services.auth.host" -> WireMockConstants.stubHost,
-      "microservice.services.auth.port" -> WireMockConstants.stubPort,
-      "feature-switch.cis-rds-stubbed"  -> true
+      "microservice.services.auth.port" -> WireMockConstants.stubPort
     )
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(extraConfig)
+    .overrides(
+      bind[CisMonthlyReturnSource].toInstance(new CisRdsStub(new StubUtils))
+    )
     .build()
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
