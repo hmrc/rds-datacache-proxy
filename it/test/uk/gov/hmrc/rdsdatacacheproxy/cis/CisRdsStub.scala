@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
@@ -146,6 +146,49 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
         s"[CIS-STUB] hasClient -> missing/blank parameters: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, TON=${Option(taxOfficeNumber).map(_.trim).getOrElse("")}, TOR=${Option(taxOfficeReference).map(_.trim).getOrElse("")}"
       )
       Future.successful(false)
+    }
+  }
+
+
+  override def getSchemePrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[Option[SchemePrepop]] = {
+    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && agentOwnReference.trim.nonEmpty) {
+      val scheme = SchemePrepop(
+        taxOfficeNumber    = taxOfficeNumber.trim,
+        taxOfficeReference = taxOfficeReference.trim,
+        agentOwnReference  = agentOwnReference.trim,
+        utr                = Some("1123456789"),
+        schemeName         = "PAL-355 Scheme"
+      )
+      Future.successful(Some(scheme))
+    } else {
+      Future.successful(None)
+    }
+  }
+
+  override def getSubcontractorPrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[Seq[SubcontractorPrepopRecord]] = {
+    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && agentOwnReference.trim.nonEmpty) {
+      val subcontractor = SubcontractorPrepopRecord(
+        subcontractorType  = "I",
+        subcontractorUtr   = "1234567890",
+        verificationNumber = "12345678901",
+        verificationSuffix = Some("AB"),
+        title              = Some("Mr"),
+        firstName          = Some("Test"),
+        secondName         = None,
+        surname            = Some("Company"),
+        tradingName        = Some("Test Company Ltd")
+      )
+      Future.successful(Seq(subcontractor))
+    } else {
+      Future.successful(Seq.empty)
     }
   }
 }

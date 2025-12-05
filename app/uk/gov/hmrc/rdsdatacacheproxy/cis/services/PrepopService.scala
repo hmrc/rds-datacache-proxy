@@ -1,0 +1,65 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.rdsdatacacheproxy.cis.services
+
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
+
+class PrepopService @Inject() (
+  cisSource: CisMonthlyReturnSource
+)(implicit ec: ExecutionContext)
+    extends Logging {
+
+  def getSchemePrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[SchemePrepop] = {
+
+    cisSource
+      .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+      .map {
+        case Some(scheme) => scheme
+        case None =>
+          val msg =
+            s"[CIS] No scheme pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference"
+          logger.warn(msg)
+          throw new NoSuchElementException(msg)
+      }
+  }
+
+  def getSubcontractorPrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[Seq[SubcontractorPrepopRecord]] =
+    cisSource
+      .getSubcontractorPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+      .map { subcontractors =>
+        if (subcontractors.nonEmpty) subcontractors
+        else {
+          val msg =
+            s"[CIS] No subcontractor pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference"
+          logger.warn(msg)
+          throw new NoSuchElementException(msg)
+        }
+      }
+
+}
