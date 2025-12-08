@@ -169,7 +169,7 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
     }
   }
 
-  override def getSubcontractorPrepopByKnownFacts(
+  override def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
     agentOwnReference: String

@@ -16,4 +16,4 @@ GET        /cis/client-list-status      uk.gov.hmrc.rdsdatacacheproxy.cis.contro
 GET        /cis/client-list             uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.getClientList(irAgentId: String, credentialId: String, start: Int = 0, count: Int = -1, sort: Int = 0, ascending: Boolean = true)
 GET        /cis/has-client              uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String)
 POST       /cis/prepop-contractor       uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSchemePrepopByKnownFacts
-POST       /cis/prepop-subcontractor    uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSubcontractorPrepopByKnownFacts
+POST       /cis/prepop-subcontractor    uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSubcontractorsPrepopByKnownFacts

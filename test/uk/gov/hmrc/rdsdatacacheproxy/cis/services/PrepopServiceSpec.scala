@@ -130,7 +130,7 @@ final class PrepopServiceSpec extends SpecBase {
     }
   }
 
-  "PrepopService.getSubcontractorPrepopByKnownFacts" - {
+  "PrepopService.getSubcontractorsPrepopByKnownFacts" - {
 
     "return a non-empty Seq[SubcontractorPrepopRecord] when the repository returns data" in {
       val sub = SubcontractorPrepopRecord(
@@ -146,7 +146,7 @@ final class PrepopServiceSpec extends SpecBase {
       )
 
       when(
-        source.getSubcontractorPrepopByKnownFacts(
+        source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
           eqTo(agentOwnReference)
@@ -155,12 +155,12 @@ final class PrepopServiceSpec extends SpecBase {
 
       val out =
         service
-          .getSubcontractorPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
           .futureValue
 
       out mustBe Seq(sub)
 
-      verify(source).getSubcontractorPrepopByKnownFacts(
+      verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
         eqTo(agentOwnReference)
@@ -170,7 +170,7 @@ final class PrepopServiceSpec extends SpecBase {
 
     "fail with NoSuchElementException (including TON/TOR/AO) when the repository returns an empty Seq" in {
       when(
-        source.getSubcontractorPrepopByKnownFacts(
+        source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
           eqTo(agentOwnReference)
@@ -179,7 +179,7 @@ final class PrepopServiceSpec extends SpecBase {
 
       val ex =
         service
-          .getSubcontractorPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
           .failed
           .futureValue
 
@@ -188,7 +188,7 @@ final class PrepopServiceSpec extends SpecBase {
       ex.getMessage must include("TOR=AB456")
       ex.getMessage must include("AO=123PA12345678")
 
-      verify(source).getSubcontractorPrepopByKnownFacts(
+      verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
         eqTo(agentOwnReference)
@@ -200,7 +200,7 @@ final class PrepopServiceSpec extends SpecBase {
       val boom = UpstreamErrorResponse("db exploded", 502)
 
       when(
-        source.getSubcontractorPrepopByKnownFacts(
+        source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
           eqTo(agentOwnReference)
@@ -209,13 +209,13 @@ final class PrepopServiceSpec extends SpecBase {
 
       val ex =
         service
-          .getSubcontractorPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
           .failed
           .futureValue
 
       ex mustBe boom
 
-      verify(source).getSubcontractorPrepopByKnownFacts(
+      verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
         eqTo(agentOwnReference)

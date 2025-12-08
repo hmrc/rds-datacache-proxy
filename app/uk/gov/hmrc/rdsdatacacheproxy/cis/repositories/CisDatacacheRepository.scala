@@ -25,6 +25,7 @@ import scala.collection.mutable.ListBuffer
 import java.sql.{CallableStatement, ResultSet}
 import oracle.jdbc.OracleTypes
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
   def getCisTaxpayerByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[CisTaxpayer]]
@@ -40,10 +41,10 @@ trait CisMonthlyReturnSource {
 
   def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean]
   def getSchemePrepopByKnownFacts(taxOfficeNumber: String, taxOfficeReference: String, agentOwnReference: String): Future[Option[SchemePrepop]]
-  def getSubcontractorPrepopByKnownFacts(taxOfficeNumber: String,
-                                         taxOfficeReference: String,
-                                         agentOwnReference: String
-                                        ): Future[Seq[SubcontractorPrepopRecord]]
+  def getSubcontractorsPrepopByKnownFacts(taxOfficeNumber: String,
+                                          taxOfficeReference: String,
+                                          agentOwnReference: String
+                                         ): Future[Seq[SubcontractorPrepopRecord]]
 }
 
 @Singleton
@@ -279,19 +280,12 @@ class CisDatacacheRepository @Inject() (
             val rs = cs.getObject(5, classOf[ResultSet])
             try {
               if (rs != null && rs.next) {
-
-                def trimOpt(col: String): Option[String] =
-                  Option(rs.getString(col)).map(_.trim)
-
-                def trimOrNull(col: String): String =
-                  Option(rs.getString(col)).map(_.trim).orNull
-
                 val first = SchemePrepop(
-                  taxOfficeNumber    = trimOrNull("TAX_OFFICE_NUMBER"),
-                  taxOfficeReference = trimOrNull("TAX_OFFICE_REF"),
-                  agentOwnReference  = trimOrNull("AO_REF"),
-                  utr                = trimOpt("UTR"),
-                  schemeName         = trimOrNull("SCHEME_NAME")
+                  taxOfficeNumber    = rs.getTrimmedOrNull("TAX_OFFICE_NUMBER"),
+                  taxOfficeReference = rs.getTrimmedOrNull("TAX_OFFICE_REF"),
+                  agentOwnReference  = rs.getTrimmedOrNull("AO_REF"),
+                  utr                = rs.getTrimmedOpt("UTR"),
+                  schemeName         = rs.getTrimmedOrNull("SCHEME_NAME")
                 )
 
                 if (rs.next()) {
@@ -311,13 +305,13 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
-  override def getSubcontractorPrepopByKnownFacts(
+  override def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
     agentOwnReference: String
   ): Future[Seq[SubcontractorPrepopRecord]] = {
     logger.info(
-      s"[CIS] getSubcontractorPrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
+      s"[CIS] getSubcontractorsPrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
     )
 
     Future {
@@ -345,23 +339,17 @@ class CisDatacacheRepository @Inject() (
             val buffer = ListBuffer.empty[SubcontractorPrepopRecord]
 
             try {
-              def trimOpt(col: String): Option[String] =
-                Option(rs.getString(col)).map(_.trim)
-
-              def trimOrNull(col: String): String =
-                Option(rs.getString(col)).map(_.trim).orNull
-
               while (rs != null && rs.next()) {
                 buffer += SubcontractorPrepopRecord(
-                  subcontractorType  = trimOrNull("SUBCONTRACTOR_TYPE"),
-                  subcontractorUtr   = trimOrNull("SUBCONTRACTOR_UTR"),
-                  verificationNumber = trimOrNull("VERIFICATION_NUMBER"),
-                  verificationSuffix = trimOpt("VERIFICATION_SUFFIX"),
-                  title              = trimOpt("TITLE"),
-                  firstName          = trimOpt("FIRST_NAME"),
-                  secondName         = trimOpt("SECOND_NAME"),
-                  surname            = trimOpt("SURNAME"),
-                  tradingName        = trimOpt("TRADING_NAME")
+                  subcontractorType  = rs.getTrimmedOrNull("SUBCONTRACTOR_TYPE"),
+                  subcontractorUtr   = rs.getTrimmedOrNull("SUBCONTRACTOR_UTR"),
+                  verificationNumber = rs.getTrimmedOrNull("VERIFICATION_NUMBER"),
+                  verificationSuffix = rs.getTrimmedOpt("VERIFICATION_SUFFIX"),
+                  title              = rs.getTrimmedOpt("TITLE"),
+                  firstName          = rs.getTrimmedOpt("FIRST_NAME"),
+                  secondName         = rs.getTrimmedOpt("SECOND_NAME"),
+                  surname            = rs.getTrimmedOpt("SURNAME"),
+                  tradingName        = rs.getTrimmedOpt("TRADING_NAME")
                 )
               }
             } finally if (rs != null) rs.close()

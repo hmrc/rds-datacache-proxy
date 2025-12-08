@@ -179,7 +179,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-  "PrepopController.getSubcontractorPrepopByKnownFacts" - {
+  "PrepopController.getSubcontractorsPrepopByKnownFacts" - {
 
     "returns 200 and wrapped subcontractor pre-pop details when service succeeds" in new Setup {
       val sub = SubcontractorPrepopRecord(
@@ -195,7 +195,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       )
 
       when(
-        mockService.getSubcontractorPrepopByKnownFacts(
+        mockService.getSubcontractorsPrepopByKnownFacts(
           eqTo("123"),
           eqTo("AB456"),
           eqTo("123PA12345678")
@@ -205,7 +205,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       val req: FakeRequest[JsValue] =
         requestWithKnownFactsJson("123", "AB456", "123PA12345678")
 
-      val res: Future[Result] = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res: Future[Result] = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -229,7 +229,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       (subJson \ "secondName").as[String] mustBe ""
       (subJson \ "surname").as[String] mustBe "Builder"
 
-      verify(mockService).getSubcontractorPrepopByKnownFacts(
+      verify(mockService).getSubcontractorsPrepopByKnownFacts(
         eqTo("123"),
         eqTo("AB456"),
         eqTo("123PA12345678")
@@ -238,11 +238,11 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "returns 404 with NOT FOUND message when service throws NoSuchElementException" in new Setup {
-      when(mockService.getSubcontractorPrepopByKnownFacts(anyString(), anyString(), anyString()))
+      when(mockService.getSubcontractorsPrepopByKnownFacts(anyString(), anyString(), anyString()))
         .thenReturn(Future.failed(new NoSuchElementException("not found")))
 
       val req = requestWithKnownFactsJson()
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe NOT_FOUND
       (contentAsJson(res) \ "message").as[String] mustBe
@@ -251,7 +251,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 400 when JSON is an empty object" in new Setup {
       val req = makeSubcontractorJsonRequest(Json.obj())
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
@@ -265,7 +265,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
           "agentOwnReference"  -> "123PA12345678"
         )
       )
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
@@ -279,7 +279,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
           "agentOwnReference" -> "123PA12345678"
         )
       )
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
@@ -293,7 +293,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
           "taxOfficeReference" -> "AB456"
         )
       )
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe BAD_REQUEST
       (contentAsJson(res) \ "message").as[String] mustBe "Invalid JSON body"
@@ -301,11 +301,11 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "returns 500 with generic message on unexpected exceptions" in new Setup {
-      when(mockService.getSubcontractorPrepopByKnownFacts(anyString(), anyString(), anyString()))
+      when(mockService.getSubcontractorsPrepopByKnownFacts(anyString(), anyString(), anyString()))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val req = requestWithKnownFactsJson()
-      val res = controller.getSubcontractorPrepopByKnownFacts(req)
+      val res = controller.getSubcontractorsPrepopByKnownFacts(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       (contentAsJson(res) \ "message").as[String] mustBe "Unexpected error"

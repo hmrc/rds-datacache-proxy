@@ -45,13 +45,13 @@ class PrepopService @Inject() (
       }
   }
 
-  def getSubcontractorPrepopByKnownFacts(
+  def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
     agentOwnReference: String
   ): Future[Seq[SubcontractorPrepopRecord]] =
     cisSource
-      .getSubcontractorPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+      .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
       .map { subcontractors =>
         if (subcontractors.nonEmpty) subcontractors
         else {

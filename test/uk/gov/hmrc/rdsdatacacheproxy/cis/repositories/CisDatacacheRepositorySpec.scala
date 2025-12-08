@@ -322,7 +322,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
     }
   }
 
-  "getSubcontractorPrepopByKnownFacts" should {
+  "getSubcontractorsPrepopByKnownFacts" should {
 
     "return empty Seq when p_response is non-zero" in {
       val db = mock(classOf[Database])
@@ -340,7 +340,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val repo = new CisDatacacheRepository(db)
 
       val out = repo
-        .getSubcontractorPrepopByKnownFacts("123", "AB456", "123PA12345678")
+        .getSubcontractorsPrepopByKnownFacts("123", "AB456", "123PA12345678")
         .futureValue
 
       out mustBe empty
@@ -382,7 +382,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val repo = new CisDatacacheRepository(db)
 
       val out = repo
-        .getSubcontractorPrepopByKnownFacts("123", "AB456", "123PA12345678")
+        .getSubcontractorsPrepopByKnownFacts("123", "AB456", "123PA12345678")
         .futureValue
 
       out must have size 1
@@ -437,7 +437,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       val out =
         repo
-          .getSubcontractorPrepopByKnownFacts("123", "AB456", "123PA12345678")
+          .getSubcontractorsPrepopByKnownFacts("123", "AB456", "123PA12345678")
           .futureValue
 
       out must have size 2

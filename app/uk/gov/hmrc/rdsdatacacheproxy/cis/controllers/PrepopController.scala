@@ -86,7 +86,7 @@ class PrepopController @Inject() (
         )
     }
 
-  def getSubcontractorPrepopByKnownFacts: Action[JsValue] =
+  def getSubcontractorsPrepopByKnownFacts: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body
         .validate[PrepopKnownFacts]
@@ -96,7 +96,7 @@ class PrepopController @Inject() (
             val ctx = context(knownFacts)
 
             service
-              .getSubcontractorPrepopByKnownFacts(
+              .getSubcontractorsPrepopByKnownFacts(
                 knownFacts.taxOfficeNumber,
                 knownFacts.taxOfficeReference,
                 knownFacts.agentOwnReference
@@ -134,7 +134,7 @@ class PrepopController @Inject() (
                   NotFound(Json.obj("message" -> s"No CIS subcontractor pre-pop data found for $ctx"))
 
                 case NonFatal(t) =>
-                  logger.error(s"[getSubcontractorPrepopByKnownFacts] failed for $ctx", t)
+                  logger.error(s"[getSubcontractorsPrepopByKnownFacts] failed for $ctx", t)
                   InternalServerError(Json.obj("message" -> "Unexpected error"))
               }
           }
