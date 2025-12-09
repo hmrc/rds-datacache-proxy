@@ -21,9 +21,11 @@ import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.collection.mutable.ListBuffer
 import java.sql.{CallableStatement, ResultSet}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
   def getCisTaxpayerByTaxRef(taxOfficeNumber: String, taxOfficeReference: String): Future[Option[CisTaxpayer]]
@@ -38,6 +40,11 @@ trait CisMonthlyReturnSource {
   ): Future[CisClientSearchResult]
 
   def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean]
+  def getSchemePrepopByKnownFacts(taxOfficeNumber: String, taxOfficeReference: String, agentOwnReference: String): Future[Option[SchemePrepop]]
+  def getSubcontractorsPrepopByKnownFacts(taxOfficeNumber: String,
+                                          taxOfficeReference: String,
+                                          agentOwnReference: String
+                                         ): Future[Seq[SubcontractorPrepopRecord]]
 }
 
 @Singleton
@@ -240,4 +247,118 @@ class CisDatacacheRepository @Inject() (
       }
     }
   }
+
+  override def getSchemePrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[Option[SchemePrepop]] = {
+    logger.info(
+      s"[CIS] getSchemePrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
+    )
+
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call CISR_PREPOP_PORTAL_PK.getSchemePrepopByKnownFacts(?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, taxOfficeNumber)
+          cs.setString(2, taxOfficeReference)
+          cs.setString(3, agentOwnReference)
+
+          cs.registerOutParameter(4, OracleTypes.NUMBER)
+          cs.registerOutParameter(5, OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val responseCode = cs.getInt(4)
+
+          if (responseCode != 0) {
+            None
+          } else {
+            val rs = cs.getObject(5, classOf[ResultSet])
+            try {
+              if (rs != null && rs.next) {
+                val first = SchemePrepop(
+                  taxOfficeNumber    = rs.getTrimmedOrNull("TAX_OFFICE_NUMBER"),
+                  taxOfficeReference = rs.getTrimmedOrNull("TAX_OFFICE_REF"),
+                  agentOwnReference  = rs.getTrimmedOrNull("AO_REF"),
+                  utr                = rs.getTrimmedOpt("UTR"),
+                  schemeName         = rs.getTrimmedOrNull("SCHEME_NAME")
+                )
+
+                if (rs.next()) {
+                  val msg =
+                    s"[CIS] getSchemePrepopByKnownFacts: multiple rows returned for " +
+                      s"TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference; this should be unique"
+                  logger.error(msg)
+                  throw new IllegalStateException(msg)
+                }
+
+                Some(first)
+              } else None
+            } finally if (rs != null) rs.close()
+          }
+        } finally cs.close()
+      }
+    }
+  }
+
+  override def getSubcontractorsPrepopByKnownFacts(
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    agentOwnReference: String
+  ): Future[Seq[SubcontractorPrepopRecord]] = {
+    logger.info(
+      s"[CIS] getSubcontractorsPrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
+    )
+
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call CISR_PREPOP_PORTAL_PK.getSubcontrsPrepopByKnownFacts(?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, taxOfficeNumber)
+          cs.setString(2, taxOfficeReference)
+          cs.setString(3, agentOwnReference)
+
+          cs.registerOutParameter(4, OracleTypes.NUMBER)
+          cs.registerOutParameter(5, OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val responseCode = cs.getInt(4)
+
+          if (responseCode != 0) {
+            Seq.empty
+          } else {
+            val rs = cs.getObject(5, classOf[ResultSet])
+
+            val buffer = ListBuffer.empty[SubcontractorPrepopRecord]
+
+            try {
+              while (rs != null && rs.next()) {
+                buffer += SubcontractorPrepopRecord(
+                  subcontractorType  = rs.getTrimmedOrNull("SUBCONTRACTOR_TYPE"),
+                  subcontractorUtr   = rs.getTrimmedOrNull("SUBCONTRACTOR_UTR"),
+                  verificationNumber = rs.getTrimmedOrNull("VERIFICATION_NUMBER"),
+                  verificationSuffix = rs.getTrimmedOpt("VERIFICATION_SUFFIX"),
+                  title              = rs.getTrimmedOpt("TITLE"),
+                  firstName          = rs.getTrimmedOpt("FIRST_NAME"),
+                  secondName         = rs.getTrimmedOpt("SECOND_NAME"),
+                  surname            = rs.getTrimmedOpt("SURNAME"),
+                  tradingName        = rs.getTrimmedOpt("TRADING_NAME")
+                )
+              }
+            } finally if (rs != null) rs.close()
+
+            buffer.toList
+          }
+        } finally cs.close()
+      }
+    }
+  }
+
 }
