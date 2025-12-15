@@ -17,3 +17,7 @@ GET        /cis/client-list             uk.gov.hmrc.rdsdatacacheproxy.cis.contro
 GET        /cis/has-client              uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String)
 POST       /cis/prepop-contractor       uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSchemePrepopByKnownFacts
 POST       /cis/prepop-subcontractor    uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSubcontractorsPrepopByKnownFacts
+
+#Charities routes
+GET        /charities/agents/:agentRef                    uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getAgentName(agentRef: String)
+GET        /charities/organisations/:charityRef           uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getOrganisationName(charityRef: String)
