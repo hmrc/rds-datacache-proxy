@@ -45,7 +45,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   def getDirectDebits(id: String): Future[UserDebits] = {
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
-    logger.info(s"Input request Credential ID: $id, firstRecordIndex: $pFirstRecord, maxRecords: $pMaxRecords")
+    logger.info(s"getDirectDebits - Credential ID: $id, firstRecordIndex: $pFirstRecord, maxRecords: $pMaxRecords")
 
     Future {
       db.withConnection { connection =>
@@ -69,7 +69,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         val directDebitSet = storedProcedure.getObject("pDDSummary", classOf[ResultSet]) // pDDSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
         logger.info(s"DD count from SQL stored procedure: $debitTotal")
-        logger.info(s"DB Response status from SQL stored procedure: $responseStatus")
+        logger.info(s"DD DB response status from SQL stored procedure: $responseStatus")
 
         def collectDirectDebits(rs: java.sql.ResultSet): List[DirectDebit] = {
           Iterator
@@ -101,7 +101,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   }
 
   def addFutureWorkingDays(baseDate: LocalDate, offsetWorkingDays: Int): Future[EarliestPaymentDate] = {
-    logger.info(s"Input request payment date. Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
+    logger.info(s"addFutureWorkingDays - Base date: <${Date.valueOf(baseDate)}>, Working days offset: <$offsetWorkingDays>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
@@ -124,7 +124,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   }
 
   def getDirectDebitReference(paymentReference: String, credId: String, sessionId: String): Future[DDIReference] = {
-    logger.info(s"Input request, pPayReference: <$paymentReference>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
+    logger.info(s"getDirectDebitReference - pPayReference: <$paymentReference>, pCredentialID: <$credId>, pSessionID: <$sessionId>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call DD_PK.GETDDIRefNumber(?, ?, ?, ?)}")
@@ -151,7 +151,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
     val pFirstRecord = appConfig.firstRecord
     val pMaxRecords = appConfig.maxRecords
     logger.info(
-      s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+      s"**** getDirectDebitPaymentPlans - Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
         s"FirstRecordNumber: $pFirstRecord, Max Records: $pMaxRecords"
     )
 
@@ -187,7 +187,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         val paymentPlans = storedProcedure.getObject("pPayPlanSummary", classOf[ResultSet]) // pPayPlanSummary (REF CURSOR)
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
         logger.info(s"***** Payment plans count: $paymentPlansCount")
-        logger.info(s"DB Response status: $responseStatus")
+        logger.info(s"DD payment plans DB response status: $responseStatus")
 
         // Tail-recursive function to collect payment plans
         @tailrec
@@ -220,7 +220,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   def getPaymentPlanDetails(directDebitReference: String, credId: String, paymentPlanReference: String): Future[PaymentPlanDetails] = {
 
     logger.info(
-      s"**** Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
+      s"**** getPaymentPlanDetails - Cred ID: $credId, Direct Debit Reference: $directDebitReference " +
         s"Payment Plan Reference: $paymentPlanReference"
     )
 
@@ -294,7 +294,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         val paymentPlanEditable = storedProcedure.getInt("pPayPlanEditFlag") // PayPlanEditFlag
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
 
-        logger.info(s"DB Response status: $responseStatus")
+        logger.info(s"Payment plan details DB response status: $responseStatus")
 
         storedProcedure.close()
         connection.close()
@@ -332,7 +332,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   }
 
   def lockPaymentPlan(paymentPlanReference: String, credId: String): Future[PaymentPlanLock] = {
-    logger.info(s"**** Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
+    logger.info(s"**** lockPaymentPlan - Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
 
     Future {
       db.withConnection { connection =>
@@ -351,7 +351,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
 
         // Retrieve output parameters
         val responseStatus = storedProcedure.getString("pResponseStatus") // pResponseStatus
-        logger.info(s"DB Response status: $responseStatus")
+        logger.info(s"Lock payment plan DB response status: $responseStatus")
 
         storedProcedure.close()
         connection.close()
@@ -366,7 +366,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
                              credId: String,
                              request: PaymentPlanDuplicateCheckRequest
                             ): Future[DuplicateCheckResponse] = {
-    logger.info(s"**** Direct Debit Reference: $directDebitReference")
+    logger.info(s"**** isDuplicatePaymentPlan - CredId: $credId, Direct Debit Reference: $directDebitReference")
 
     Future {
       db.withConnection { connection =>
@@ -412,7 +412,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
   }
 
   def isAdvanceNoticePresent(paymentPlanReference: String, credId: String): Future[AdvanceNoticeResponse] = {
-    logger.info(s"**** Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
+    logger.info(s"**** isAdvanceNoticePresent - Cred ID: $credId, Payment Plan Reference: $paymentPlanReference")
 
     Future {
       db.withConnection { connection =>
@@ -432,7 +432,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         // Retrieve output parameters
         val responseTotalAmount = storedProcedure.getBigDecimal("p_total_amount") // p_total_amount
         val responseDueDate = storedProcedure.getDate("p_due_date") // p_due_date
-        logger.info(s"DB Response for total amount : $responseTotalAmount and due date: $responseDueDate")
+        logger.info(s"Advance Notice DB response for total amount : $responseTotalAmount and due date: $responseDueDate")
 
         storedProcedure.close()
         connection.close()
