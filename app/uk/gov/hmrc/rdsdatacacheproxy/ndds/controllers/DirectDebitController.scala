@@ -44,7 +44,7 @@ class DirectDebitController @Inject() (
           .retrieveDirectDebits(request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving data from oracle database", ex)
+            logger.error("Error while retrieving direct debit data from oracle database", ex)
             InternalServerError("Failed to retrieve direct debits")
           }
 

@@ -31,7 +31,7 @@ class StubUtils {
 
   def randomDirectDebit(i: Int, hasPagination: Boolean): DirectDebit = {
 
-    val ddiRefNumber = s"9905502$i"
+    val ddiRefNumber = if (i > 98) s"990550$i" else s"9905502$i"
 
     val paymentPlanCount = getPaymentCount(ddiRefNumber, hasPagination)
 
@@ -63,7 +63,7 @@ class StubUtils {
 
     val randomHodService = hodServices(Random.nextInt(hodServices.length))
 
-    val planRefNumber = s"20000080$i"
+    val planRefNumber = if (i > 99) s"2000008$i" else s"20000080$i"
 
     PaymentPlan.apply(
       scheduledPaymentAmount = Some(BigDecimal(i * 100.0)),
@@ -78,7 +78,8 @@ class StubUtils {
   def getPaymentCount(ddiRefNumber: String, hasPagination: Boolean): Int = {
     val ddRef = ddiRefNumber.toInt
     if (hasPagination) {
-      ddRef % 16
+      99
+//      ddRef % 16
     } else {
       (ddRef % 3) + 1 // making sure that there will be at least one
     }
