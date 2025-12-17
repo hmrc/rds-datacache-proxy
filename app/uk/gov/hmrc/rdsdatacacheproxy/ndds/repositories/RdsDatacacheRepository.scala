@@ -194,8 +194,13 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         def collectPaymentPlans(pp: List[PaymentPlan] = Nil): List[PaymentPlan] = {
           if (!paymentPlans.next()) pp.reverse
           else {
+            val rawAmount = paymentPlans.getBigDecimal("ScheduledPayAmount")
+
+            val scheduledAmount =
+              if (rawAmount == null) None
+              else Some(BigDecimal(rawAmount))
             val paymentPlan = PaymentPlan(
-              scheduledPaymentAmount = paymentPlans.getBigDecimal("ScheduledPayAmount"),
+              scheduledPaymentAmount = scheduledAmount,
               planRefNumber          = paymentPlans.getString("PPRefNumber"),
               planType               = paymentPlans.getString("PayPlanType"),
               paymentReference       = paymentPlans.getString("PayReference"),
