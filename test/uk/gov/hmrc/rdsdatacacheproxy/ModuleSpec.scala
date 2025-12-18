@@ -19,9 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.{Configuration, Environment}
-import play.api.inject.Binding
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.RdsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 
 class ModuleSpec extends AnyWordSpec with Matchers {
