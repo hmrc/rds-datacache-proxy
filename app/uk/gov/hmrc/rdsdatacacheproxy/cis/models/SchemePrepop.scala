@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 final case class SchemePrepop(
   taxOfficeNumber: String,
   taxOfficeReference: String,
-  agentOwnReference: String,
+  accountOfficeReference: String,
   utr: Option[String],
   schemeName: String
 )

@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 final case class PrepopKnownFacts(
   taxOfficeNumber: String,
   taxOfficeReference: String,
-  agentOwnReference: String
+  accountOfficeReference: String
 )
 
 object PrepopKnownFacts {

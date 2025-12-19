@@ -26,11 +26,11 @@ class SchemePrepopSpec extends AnyWordSpec with Matchers {
 
     "serialise and deserialise with utr present" in {
       val model = SchemePrepop(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB123",
-        agentOwnReference  = "AOREF1",
-        utr                = Some("1234567890"),
-        schemeName         = "Test Scheme"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB123",
+        accountOfficeReference = "AOREF1",
+        utr                    = Some("1234567890"),
+        schemeName             = "Test Scheme"
       )
 
       val json = Json.toJson(model)
@@ -39,11 +39,11 @@ class SchemePrepopSpec extends AnyWordSpec with Matchers {
 
     "serialise and deserialise with utr absent" in {
       val model = SchemePrepop(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB123",
-        agentOwnReference  = "AOREF1",
-        utr                = None,
-        schemeName         = "Test Scheme"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB123",
+        accountOfficeReference = "AOREF1",
+        utr                    = None,
+        schemeName             = "Test Scheme"
       )
 
       val json = Json.toJson(model)
@@ -69,9 +69,9 @@ class SchemePrepopSpec extends AnyWordSpec with Matchers {
 
     "serialise and deserialise correctly" in {
       val known = PrepopKnownFacts(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB456",
-        agentOwnReference  = "AOREF1"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB456",
+        accountOfficeReference = "AOREF1"
       )
 
       val body = PrePopContractorBody(

@@ -269,7 +269,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       scheme.taxOfficeNumber mustBe "123"
       scheme.taxOfficeReference mustBe "AB456"
-      scheme.agentOwnReference mustBe "123PA12345678"
+      scheme.accountOfficeReference mustBe "123PA12345678"
       scheme.utr mustBe Some("1123456789")
       scheme.schemeName mustBe "PAL-355 Scheme"
 
