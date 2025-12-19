@@ -103,9 +103,9 @@ class SubcontractorPrepopSpec extends AnyWordSpec with Matchers {
 
     "serialise and deserialise correctly" in {
       val known = PrepopKnownFacts(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB456",
-        agentOwnReference  = "123PA12345678"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB456",
+        accountOfficeReference = "123PA12345678"
       )
 
       val sub = PrePopSubcontractor(

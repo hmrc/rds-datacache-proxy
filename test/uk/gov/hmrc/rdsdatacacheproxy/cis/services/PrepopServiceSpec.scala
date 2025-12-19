@@ -38,30 +38,30 @@ final class PrepopServiceSpec extends SpecBase {
 
   private val taxOfficeNumber = "123"
   private val taxOfficeReference = "AB456"
-  private val agentOwnReference = "123PA12345678"
+  private val accountOfficeReference = "123PA12345678"
 
   "PrepopService.getSchemePrepopByKnownFacts" - {
 
     "return SchemePrepop when the repository returns Some(SchemePrepop)" in {
       val scheme = SchemePrepop(
-        taxOfficeNumber    = taxOfficeNumber,
-        taxOfficeReference = taxOfficeReference,
-        agentOwnReference  = agentOwnReference,
-        utr                = Some("1123456789"),
-        schemeName         = "Test Scheme"
+        taxOfficeNumber        = taxOfficeNumber,
+        taxOfficeReference     = taxOfficeReference,
+        accountOfficeReference = accountOfficeReference,
+        utr                    = Some("1123456789"),
+        schemeName             = "Test Scheme"
       )
 
       when(
         source.getSchemePrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.successful(Some(scheme)))
 
       val out =
         service
-          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .futureValue
 
       out mustBe scheme
@@ -69,7 +69,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSchemePrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
@@ -79,13 +79,13 @@ final class PrepopServiceSpec extends SpecBase {
         source.getSchemePrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.successful(None))
 
       val ex =
         service
-          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .failed
           .futureValue
 
@@ -97,7 +97,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSchemePrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
@@ -109,13 +109,13 @@ final class PrepopServiceSpec extends SpecBase {
         source.getSchemePrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.failed(boom))
 
       val ex =
         service
-          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .failed
           .futureValue
 
@@ -124,7 +124,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSchemePrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
@@ -149,13 +149,13 @@ final class PrepopServiceSpec extends SpecBase {
         source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.successful(Seq(sub)))
 
       val out =
         service
-          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .futureValue
 
       out mustBe Seq(sub)
@@ -163,7 +163,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
@@ -173,13 +173,13 @@ final class PrepopServiceSpec extends SpecBase {
         source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.successful(Seq.empty))
 
       val ex =
         service
-          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .failed
           .futureValue
 
@@ -191,7 +191,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
@@ -203,13 +203,13 @@ final class PrepopServiceSpec extends SpecBase {
         source.getSubcontractorsPrepopByKnownFacts(
           eqTo(taxOfficeNumber),
           eqTo(taxOfficeReference),
-          eqTo(agentOwnReference)
+          eqTo(accountOfficeReference)
         )
       ).thenReturn(Future.failed(boom))
 
       val ex =
         service
-          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+          .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
           .failed
           .futureValue
 
@@ -218,7 +218,7 @@ final class PrepopServiceSpec extends SpecBase {
       verify(source).getSubcontractorsPrepopByKnownFacts(
         eqTo(taxOfficeNumber),
         eqTo(taxOfficeReference),
-        eqTo(agentOwnReference)
+        eqTo(accountOfficeReference)
       )
       verifyNoMoreInteractions(source)
     }
