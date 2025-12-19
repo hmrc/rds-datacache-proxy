@@ -30,16 +30,16 @@ class PrepopService @Inject() (
   def getSchemePrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[SchemePrepop] = {
 
     cisSource
-      .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+      .getSchemePrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
       .map {
         case Some(scheme) => scheme
         case None =>
           val msg =
-            s"[CIS] No scheme pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference"
+            s"[CIS] No scheme pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$accountOfficeReference"
           logger.warn(msg)
           throw new NoSuchElementException(msg)
       }
@@ -48,15 +48,15 @@ class PrepopService @Inject() (
   def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[Seq[SubcontractorPrepopRecord]] =
     cisSource
-      .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, agentOwnReference)
+      .getSubcontractorsPrepopByKnownFacts(taxOfficeNumber, taxOfficeReference, accountOfficeReference)
       .map { subcontractors =>
         if (subcontractors.nonEmpty) subcontractors
         else {
           val msg =
-            s"[CIS] No subcontractor pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference"
+            s"[CIS] No subcontractor pre-pop data found for TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$accountOfficeReference"
           logger.warn(msg)
           throw new NoSuchElementException(msg)
         }

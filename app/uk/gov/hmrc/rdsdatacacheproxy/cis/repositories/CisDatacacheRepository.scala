@@ -40,10 +40,10 @@ trait CisMonthlyReturnSource {
   ): Future[CisClientSearchResult]
 
   def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean]
-  def getSchemePrepopByKnownFacts(taxOfficeNumber: String, taxOfficeReference: String, agentOwnReference: String): Future[Option[SchemePrepop]]
+  def getSchemePrepopByKnownFacts(taxOfficeNumber: String, taxOfficeReference: String, accountOfficeReference: String): Future[Option[SchemePrepop]]
   def getSubcontractorsPrepopByKnownFacts(taxOfficeNumber: String,
                                           taxOfficeReference: String,
-                                          agentOwnReference: String
+                                          accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
 }
 
@@ -251,10 +251,10 @@ class CisDatacacheRepository @Inject() (
   override def getSchemePrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[Option[SchemePrepop]] = {
     logger.info(
-      s"[CIS] getSchemePrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
+      s"[CIS] getSchemePrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$accountOfficeReference)"
     )
 
     Future {
@@ -265,7 +265,7 @@ class CisDatacacheRepository @Inject() (
         try {
           cs.setString(1, taxOfficeNumber)
           cs.setString(2, taxOfficeReference)
-          cs.setString(3, agentOwnReference)
+          cs.setString(3, accountOfficeReference)
 
           cs.registerOutParameter(4, OracleTypes.NUMBER)
           cs.registerOutParameter(5, OracleTypes.CURSOR)
@@ -281,17 +281,17 @@ class CisDatacacheRepository @Inject() (
             try {
               if (rs != null && rs.next) {
                 val first = SchemePrepop(
-                  taxOfficeNumber    = rs.getTrimmedOrNull("TAX_OFFICE_NUMBER"),
-                  taxOfficeReference = rs.getTrimmedOrNull("TAX_OFFICE_REF"),
-                  agentOwnReference  = rs.getTrimmedOrNull("AO_REF"),
-                  utr                = rs.getTrimmedOpt("UTR"),
-                  schemeName         = rs.getTrimmedOrNull("SCHEME_NAME")
+                  taxOfficeNumber        = rs.getTrimmedOrNull("TAX_OFFICE_NUMBER"),
+                  taxOfficeReference     = rs.getTrimmedOrNull("TAX_OFFICE_REF"),
+                  accountOfficeReference = rs.getTrimmedOrNull("AO_REF"),
+                  utr                    = rs.getTrimmedOpt("UTR"),
+                  schemeName             = rs.getTrimmedOrNull("SCHEME_NAME")
                 )
 
                 if (rs.next()) {
                   val msg =
                     s"[CIS] getSchemePrepopByKnownFacts: multiple rows returned for " +
-                      s"TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference; this should be unique"
+                      s"TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$accountOfficeReference; this should be unique"
                   logger.error(msg)
                   throw new IllegalStateException(msg)
                 }
@@ -308,10 +308,10 @@ class CisDatacacheRepository @Inject() (
   override def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[Seq[SubcontractorPrepopRecord]] = {
     logger.info(
-      s"[CIS] getSubcontractorsPrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$agentOwnReference)"
+      s"[CIS] getSubcontractorsPrepopByKnownFacts(TON=$taxOfficeNumber, TOR=$taxOfficeReference, AO=$accountOfficeReference)"
     )
 
     Future {
@@ -322,7 +322,7 @@ class CisDatacacheRepository @Inject() (
         try {
           cs.setString(1, taxOfficeNumber)
           cs.setString(2, taxOfficeReference)
-          cs.setString(3, agentOwnReference)
+          cs.setString(3, accountOfficeReference)
 
           cs.registerOutParameter(4, OracleTypes.NUMBER)
           cs.registerOutParameter(5, OracleTypes.CURSOR)
