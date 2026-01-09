@@ -48,7 +48,7 @@ class PrepopController @Inject() (
     )
 
   private def context(kf: PrepopKnownFacts): String =
-    s"TON=${kf.taxOfficeNumber}, TOR=${kf.taxOfficeReference}, AO=${kf.agentOwnReference}"
+    s"TON=${kf.taxOfficeNumber}, TOR=${kf.taxOfficeReference}, AO=${kf.accountOfficeReference}"
 
   def getSchemePrepopByKnownFacts: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
@@ -63,7 +63,7 @@ class PrepopController @Inject() (
               .getSchemePrepopByKnownFacts(
                 knownFacts.taxOfficeNumber,
                 knownFacts.taxOfficeReference,
-                knownFacts.agentOwnReference
+                knownFacts.accountOfficeReference
               )
               .map { scheme =>
                 val body = PrePopContractorBody(
@@ -99,7 +99,7 @@ class PrepopController @Inject() (
               .getSubcontractorsPrepopByKnownFacts(
                 knownFacts.taxOfficeNumber,
                 knownFacts.taxOfficeReference,
-                knownFacts.agentOwnReference
+                knownFacts.accountOfficeReference
               )
               .map { subcontractors =>
                 val subs = subcontractors.map { r =>

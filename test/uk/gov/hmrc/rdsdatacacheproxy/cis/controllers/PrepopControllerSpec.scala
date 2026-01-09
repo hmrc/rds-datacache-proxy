@@ -37,11 +37,11 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 and wrapped contractor pre-pop details when service succeeds" in new Setup {
       val scheme = SchemePrepop(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB456",
-        agentOwnReference  = "123PA12345678",
-        utr                = Some("1123456789"),
-        schemeName         = "PAL-355 Scheme"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB456",
+        accountOfficeReference = "123PA12345678",
+        utr                    = Some("1123456789"),
+        schemeName             = "PAL-355 Scheme"
       )
 
       when(
@@ -64,7 +64,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
 
       (json \ "knownfacts" \ "taxOfficeNumber").as[String] mustBe "123"
       (json \ "knownfacts" \ "taxOfficeReference").as[String] mustBe "AB456"
-      (json \ "knownfacts" \ "agentOwnReference").as[String] mustBe "123PA12345678"
+      (json \ "knownfacts" \ "accountOfficeReference").as[String] mustBe "123PA12345678"
 
       (json \ "prePopContractor" \ "schemeName").as[String] mustBe "PAL-355 Scheme"
       (json \ "prePopContractor" \ "utr").as[String] mustBe "1123456789"
@@ -80,11 +80,11 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
 
     "uses empty string when utr is None" in new Setup {
       val scheme = SchemePrepop(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB456",
-        agentOwnReference  = "123PA12345678",
-        utr                = None,
-        schemeName         = "PAL-355 Scheme"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB456",
+        accountOfficeReference = "123PA12345678",
+        utr                    = None,
+        schemeName             = "PAL-355 Scheme"
       )
 
       when(
@@ -128,8 +128,8 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     "returns 400 when taxOfficeNumber is missing" in new Setup {
       val req = makeSchemeJsonRequest(
         Json.obj(
-          "taxOfficeReference" -> "AB456",
-          "agentOwnReference"  -> "123PA12345678"
+          "taxOfficeReference"     -> "AB456",
+          "accountOfficeReference" -> "123PA12345678"
         )
       )
       val res = controller.getSchemePrepopByKnownFacts(req)
@@ -142,8 +142,8 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     "returns 400 when taxOfficeReference is missing" in new Setup {
       val req = makeSchemeJsonRequest(
         Json.obj(
-          "taxOfficeNumber"   -> "123",
-          "agentOwnReference" -> "123PA12345678"
+          "taxOfficeNumber"        -> "123",
+          "accountOfficeReference" -> "123PA12345678"
         )
       )
       val res = controller.getSchemePrepopByKnownFacts(req)
@@ -153,7 +153,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       verifyNoInteractions(mockService)
     }
 
-    "returns 400 when agentOwnReference is missing" in new Setup {
+    "returns 400 when accountOfficeReference is missing" in new Setup {
       val req = makeSchemeJsonRequest(
         Json.obj(
           "taxOfficeNumber"    -> "123",
@@ -214,7 +214,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
 
       (json \ "knownfacts" \ "taxOfficeNumber").as[String] mustBe "123"
       (json \ "knownfacts" \ "taxOfficeReference").as[String] mustBe "AB456"
-      (json \ "knownfacts" \ "agentOwnReference").as[String] mustBe "123PA12345678"
+      (json \ "knownfacts" \ "accountOfficeReference").as[String] mustBe "123PA12345678"
 
       (json \ "prePopSubcontractors" \ "response").as[Int] mustBe 0
 
@@ -261,8 +261,8 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     "returns 400 when taxOfficeNumber is missing" in new Setup {
       val req = makeSubcontractorJsonRequest(
         Json.obj(
-          "taxOfficeReference" -> "AB456",
-          "agentOwnReference"  -> "123PA12345678"
+          "taxOfficeReference"     -> "AB456",
+          "accountOfficeReference" -> "123PA12345678"
         )
       )
       val res = controller.getSubcontractorsPrepopByKnownFacts(req)
@@ -275,8 +275,8 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     "returns 400 when taxOfficeReference is missing" in new Setup {
       val req = makeSubcontractorJsonRequest(
         Json.obj(
-          "taxOfficeNumber"   -> "123",
-          "agentOwnReference" -> "123PA12345678"
+          "taxOfficeNumber"        -> "123",
+          "accountOfficeReference" -> "123PA12345678"
         )
       )
       val res = controller.getSubcontractorsPrepopByKnownFacts(req)
@@ -286,7 +286,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       verifyNoInteractions(mockService)
     }
 
-    "returns 400 when agentOwnReference is missing" in new Setup {
+    "returns 400 when accountOfficeReference is missing" in new Setup {
       val req = makeSubcontractorJsonRequest(
         Json.obj(
           "taxOfficeNumber"    -> "123",
@@ -332,13 +332,13 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
     def requestWithKnownFactsJson(
       taxOfficeNumber: String = "123",
       taxOfficeReference: String = "AB456",
-      agentOwnReference: String = "123PA12345678"
+      accountOfficeReference: String = "123PA12345678"
     ): FakeRequest[JsValue] =
       makeSchemeJsonRequest(
         Json.obj(
-          "taxOfficeNumber"    -> taxOfficeNumber,
-          "taxOfficeReference" -> taxOfficeReference,
-          "agentOwnReference"  -> agentOwnReference
+          "taxOfficeNumber"        -> taxOfficeNumber,
+          "taxOfficeReference"     -> taxOfficeReference,
+          "accountOfficeReference" -> accountOfficeReference
         )
       )
   }

@@ -26,17 +26,17 @@ class PrepopKnownFactsSpec extends AnyWordSpec with Matchers {
 
     "serialise and deserialise correctly" in {
       val model = PrepopKnownFacts(
-        taxOfficeNumber    = "123",
-        taxOfficeReference = "AB456",
-        agentOwnReference  = "123PA12345678"
+        taxOfficeNumber        = "123",
+        taxOfficeReference     = "AB456",
+        accountOfficeReference = "123PA12345678"
       )
 
       val json = Json.toJson(model)
 
       json mustBe Json.obj(
-        "taxOfficeNumber"    -> "123",
-        "taxOfficeReference" -> "AB456",
-        "agentOwnReference"  -> "123PA12345678"
+        "taxOfficeNumber"        -> "123",
+        "taxOfficeReference"     -> "AB456",
+        "accountOfficeReference" -> "123PA12345678"
       )
 
       json.as[PrepopKnownFacts] mustBe model

@@ -153,13 +153,13 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
   override def getSchemePrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[Option[SchemePrepop]] = {
-    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && agentOwnReference.trim.nonEmpty) {
+    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && accountOfficeReference.trim.nonEmpty) {
       val scheme = SchemePrepop(
         taxOfficeNumber    = taxOfficeNumber.trim,
         taxOfficeReference = taxOfficeReference.trim,
-        agentOwnReference  = agentOwnReference.trim,
+        accountOfficeReference  = accountOfficeReference.trim,
         utr                = Some("1123456789"),
         schemeName         = "PAL-355 Scheme"
       )
@@ -172,9 +172,9 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
   override def getSubcontractorsPrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
-    agentOwnReference: String
+    accountOfficeReference: String
   ): Future[Seq[SubcontractorPrepopRecord]] = {
-    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && agentOwnReference.trim.nonEmpty) {
+    if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && accountOfficeReference.trim.nonEmpty) {
       val subcontractor = SubcontractorPrepopRecord(
         subcontractorType  = "I",
         subcontractorUtr   = "1234567890",
