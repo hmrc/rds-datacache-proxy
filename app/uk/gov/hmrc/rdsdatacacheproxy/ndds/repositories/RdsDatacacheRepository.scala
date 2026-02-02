@@ -107,8 +107,7 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
         val storedProcedure = connection.prepareCall("{call DD_PK.AddWorkingDays(?, ?, ?)}")
 
         storedProcedure.setDate("pInputDate", Date.valueOf(baseDate))
-        storedProcedure.setInt("pNumberofWorkingDays", 4)
-//        storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
+        storedProcedure.setInt("pNumberofWorkingDays", offsetWorkingDays)
 
         storedProcedure.registerOutParameter("pOutputDate", Types.DATE)
         storedProcedure.execute()
