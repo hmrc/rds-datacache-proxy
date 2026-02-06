@@ -37,7 +37,7 @@ class StubUtils {
 
     val (accountNumber, sortCode, bankName) = getBankDetails(ddiRefNumber)
 
-    val date = s"${Random.nextInt(5) + 2022}" +
+    val date = s"${Random.nextInt(2) + 2022}" +
       s"-${r(12)}" +
       s"-${r(28)}"
     DirectDebit.apply(
