@@ -38,6 +38,7 @@ class CisTaxpayerController @Inject() (
     with Logging {
   def getCisTaxpayerByTaxReference: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
+      println("Testing Get Taxpayer")
       request.body
         .validate[EmployerReference]
         .fold(
