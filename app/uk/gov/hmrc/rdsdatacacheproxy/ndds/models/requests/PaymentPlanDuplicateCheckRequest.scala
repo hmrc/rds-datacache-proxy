@@ -30,7 +30,7 @@ case class PaymentPlanDuplicateCheckRequest(
   paymentAmount: Option[BigDecimal],
   totalLiability: Option[BigDecimal],
   paymentFrequency: Option[Int],
-  paymentStartDate: LocalDate
+  paymentStartDate: Option[LocalDate]
 )
 
 object PaymentPlanDuplicateCheckRequest {
@@ -43,6 +43,6 @@ object PaymentPlanDuplicateCheckRequest {
       (__ \ "paymentAmount").formatNullable[BigDecimal] and
       (__ \ "totalLiability").formatNullable[BigDecimal] and
       (__ \ "paymentFrequency").formatNullable[Int] and
-      (__ \ "paymentStartDate").format[LocalDate]
+      (__ \ "paymentStartDate").formatNullable[LocalDate]
   )(PaymentPlanDuplicateCheckRequest.apply, o => Tuple.fromProductTyped(o))
 }

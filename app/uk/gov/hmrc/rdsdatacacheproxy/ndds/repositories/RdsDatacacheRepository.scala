@@ -396,7 +396,11 @@ class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(impl
           case Some(freq) => storedProcedure.setInt("pScheduledPayFreq", freq)
           case None       => storedProcedure.setNull("pScheduledPayFreq", java.sql.Types.INTEGER)
         }
-        storedProcedure.setDate("pScheduledPayStartDate", Date.valueOf(request.paymentStartDate)) // pScheduledPayStartDate
+        // storedProcedure.setDate("pScheduledPayStartDate", Date.valueOf(request.paymentStartDate)) // pScheduledPayStartDate
+        request.paymentStartDate match { // pScheduledPayFreq
+          case Some(date) => storedProcedure.setDate("pScheduledPayStartDate", Date.valueOf(date))
+          case None       => storedProcedure.setNull("pScheduledPayStartDate", java.sql.Types.DATE)
+        }
 
         // Register output parameters
         storedProcedure.registerOutParameter("pDuplicatePayPlan", Types.NUMERIC) // pDuplicatePayPlan

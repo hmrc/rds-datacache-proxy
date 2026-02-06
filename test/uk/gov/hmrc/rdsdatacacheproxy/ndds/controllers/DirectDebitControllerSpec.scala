@@ -316,7 +316,7 @@ class DirectDebitControllerSpec extends SpecBase with MockitoSugar {
       paymentAmount        = Some(120.00),
       totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
-      paymentStartDate     = currentDate
+      paymentStartDate     = Some(currentDate)
     )
   }
 }
