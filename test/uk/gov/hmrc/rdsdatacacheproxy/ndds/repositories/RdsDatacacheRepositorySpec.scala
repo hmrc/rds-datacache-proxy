@@ -347,7 +347,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentAmount        = Some(120.00),
       totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
-      paymentStartDate     = currentDate
+      paymentStartDate     = Some(currentDate)
     )
 
     // Mocking stored procedure behavior
@@ -374,7 +374,7 @@ class RdsDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
       paymentAmount        = Some(120.00),
       totalLiability       = Some(780.00),
       paymentFrequency     = Some(1),
-      paymentStartDate     = currentDate
+      paymentStartDate     = Some(currentDate)
     )
 
     // Mocking stored procedure behavior
