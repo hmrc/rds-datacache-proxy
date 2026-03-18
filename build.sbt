@@ -11,9 +11,10 @@ lazy val microservice = Project("rds-datacache-proxy", file("."))
   .settings(
     PlayKeys.playDefaultPort := 6992,
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
-    // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
-    // suppress warnings in generated routes files
-    scalacOptions += "-Wconf:src=routes/.*:s"
+    scalacOptions ++= Seq(
+      "-Werror",                // or -Xfatal-warnings for Scala 2
+      "-Wconf:src=routes/.*:s"
+    )
   )
   .settings(CodeCoverageSettings.settings: _*)
 

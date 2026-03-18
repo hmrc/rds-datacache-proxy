@@ -44,7 +44,7 @@ class DirectDebitController @Inject() (
           .retrieveDirectDebits(request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving direct debit data from oracle database", ex)
+            logger.warn("Error while retrieving direct debit data from oracle database", ex)
             InternalServerError("Failed to retrieve direct debits")
           }
 
@@ -57,7 +57,7 @@ class DirectDebitController @Inject() (
             Ok(Json.toJson(result))
           }
           .recover { case ex: Exception =>
-            logger.error("Error while calculating future working days", ex)
+            logger.warn("Error while calculating future working days", ex)
             InternalServerError("Failed to retrieve future working days")
           }
 
@@ -71,7 +71,7 @@ class DirectDebitController @Inject() (
         )
         .map(ddiReference => Ok(Json.toJson(ddiReference)))
         .recover { case ex: Exception =>
-          logger.error("Error while generating DDI Reference", ex)
+          logger.warn("Error while generating DDI Reference", ex)
           InternalServerError("Failed to generate DDI Reference.")
         }
     }
@@ -83,7 +83,7 @@ class DirectDebitController @Inject() (
           .getDirectDebitPaymentPlans(directDebitReference, request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving direct debit payment plans", ex)
+            logger.warn("Error while retrieving direct debit payment plans", ex)
             InternalServerError("Failed to retrieve direct debit payment plans")
           }
 
@@ -94,7 +94,7 @@ class DirectDebitController @Inject() (
           .getPaymentPlanDetails(directDebitReference, request.credentialId, paymentPlanReference)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving payment plan details", ex)
+            logger.warn("Error while retrieving payment plan details", ex)
             InternalServerError("Failed to retrieve payment plan details")
           }
 
@@ -105,7 +105,7 @@ class DirectDebitController @Inject() (
           .lockPaymentPlan(request.credentialId, paymentPlanReference)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving lock payment plan", ex)
+            logger.warn("Error while retrieving lock payment plan", ex)
             InternalServerError("Failed to retrieve lock payment plan")
           }
 
@@ -116,7 +116,7 @@ class DirectDebitController @Inject() (
           .isDuplicatePaymentPlan(directDebitReference, request.credentialId, request.body)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving duplicate payment plan", ex)
+            logger.warn("Error while retrieving duplicate payment plan", ex)
             InternalServerError("Failed to retrieve duplicate payment plan")
           }
 
@@ -127,6 +127,6 @@ class DirectDebitController @Inject() (
           .isAdvanceNoticePresent(paymentPlanReference, request.credentialId)
           .map(result => Ok(Json.toJson(result)))
           .recover { case ex: Exception =>
-            logger.error("Error while retrieving advance notice details", ex)
+            logger.warn("Error while retrieving advance notice details", ex)
             InternalServerError("Failed to retrieve advance notice details")
           }
