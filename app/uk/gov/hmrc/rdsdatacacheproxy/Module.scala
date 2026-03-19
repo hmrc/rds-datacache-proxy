@@ -25,6 +25,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.{MgdDataSource, MgdDatacac
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.stub.MgdStubRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
+import uk.gov.hmrc.rdsdatacacheproxy.nova.repositories.{NovaDataSource, NovaDatacacheRepository}
 
 class Module extends AppModule:
 
@@ -45,5 +46,9 @@ class Module extends AppModule:
       bind[RdsDataSource].to(datasource),
       bind[CharitiesDataSource].to(charitiesDatasource),
       bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
+<<<<<<< HEAD
       bind[MgdDataSource].to(mgdDatasource)
+=======
+      bind[NovaDataSource].to(classOf[NovaDatacacheRepository])
+>>>>>>> 7fac4ad (DTR-4069 - Implement and add stored procedures for NoVA)
     )
