@@ -37,9 +37,6 @@ class Module extends AppModule:
     lazy val datasource = if (rdsStubbed) classOf[RdsStub] else classOf[RdsDatacacheRepository]
     lazy val charitiesDatasource = if (rdsStubbed) classOf[CharitiesStub] else classOf[CharitiesDatacacheRepository]
 
-    lazy val mgdStubbed = configuration.get[Boolean]("feature-switch.mgd-stubbed")
-    lazy val mgdDatasource = if (mgdStubbed) classOf[MgdStubRepository] else classOf[MgdDatacacheRepository]
-
     List(
       bind[AuthAction].to(classOf[DefaultAuthAction]),
       bind[DirectDebitController].toSelf,
@@ -47,5 +44,7 @@ class Module extends AppModule:
       bind[CharitiesDataSource].to(charitiesDatasource),
       bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
       bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
-      bind[MgdDataSource].to(mgdDatasource)
+      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
+      bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
+      bind[MgdDataSource].to(classOf[MgdDatacacheRepository)
     )
