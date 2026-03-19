@@ -23,6 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
+import uk.gov.hmrc.rdsdatacacheproxy.nova.repositories.{NovaDataSource, NovaDatacacheRepository}
 
 class Module extends AppModule:
 
@@ -39,5 +40,6 @@ class Module extends AppModule:
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
       bind[CharitiesDataSource].to(charitiesDatasource),
-      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository])
+      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
+      bind[NovaDataSource].to(classOf[NovaDatacacheRepository])
     )
