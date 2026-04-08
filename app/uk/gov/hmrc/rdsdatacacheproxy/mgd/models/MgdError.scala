@@ -16,15 +16,25 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.mgd.models
 
-import play.api.libs.json.{Json, OFormat}
+sealed trait MgdError {
+  def message: String
+}
 
-case class ReturnSummary(
-  mgdRegNumber: String,
-  returnsDue: Int,
-  returnsOverdue: Int
-)
+object MgdError {
 
-object ReturnSummary {
+  case object InvalidMgdRegNumber extends MgdError {
+    val message: String = "mgdRegNumber must be provided"
+  }
 
-  implicit val format: OFormat[ReturnSummary] = Json.format[ReturnSummary]
+  case object ReturnSummaryNotFound extends MgdError {
+    val message: String = "Return summary not found"
+  }
+
+  case class UpstreamError(status: Int) extends MgdError {
+    val message: String = s"Upstream error with status $status"
+  }
+
+  case object UnexpectedError extends MgdError {
+    val message: String = "Unexpected error occurred"
+  }
 }
