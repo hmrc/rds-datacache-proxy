@@ -21,3 +21,6 @@ POST       /cis/prepop-subcontractor    uk.gov.hmrc.rdsdatacacheproxy.cis.contro
 #Charities routes
 GET        /charities/agents/:agentRef                    uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getAgentName(agentRef: String)
 GET        /charities/organisations/:charityRef           uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getOrganisationName(charityRef: String)
+
+#MGD routes
+GET        /mgd/reg-number                 uk.gov.hmrc.rdsdatacacheproxy.mgd.controllers.MgdController.getReturnSummary(mgdRegNumber: String)

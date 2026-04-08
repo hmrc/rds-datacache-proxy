@@ -26,14 +26,6 @@ object MgdError {
     val message: String = "mgdRegNumber must be provided"
   }
 
-  case object ReturnSummaryNotFound extends MgdError {
-    val message: String = "Return summary not found"
-  }
-
-  case class UpstreamError(status: Int) extends MgdError {
-    val message: String = s"Upstream error with status $status"
-  }
-
   case object UnexpectedError extends MgdError {
     val message: String = "Unexpected error occurred"
   }

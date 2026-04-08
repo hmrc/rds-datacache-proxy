@@ -27,32 +27,25 @@ import uk.gov.hmrc.rdsdatacacheproxy.mgd.services.MgdService
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class MgdController @Inject() (
-  authorise: AuthAction,
-  service: MgdService,
-  cc: ControllerComponents
-)(implicit ec: ExecutionContext)
+class MgdController @Inject() (authorise: AuthAction, service: MgdService, cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
-  def getReturnSummary(mgdRegNumber: String): Action[AnyContent] =
-    authorise.async { implicit request =>
+  def getReturnSummary(mgdRegNumber: String): Action[AnyContent] = authorise.async { implicit request =>
 
-      service.getReturnSummary(mgdRegNumber.trim).map {
-        case Right(summary) =>
-          Ok(Json.toJson(summary))
-
-        case Left(InvalidMgdRegNumber) =>
-          BadRequest(Json.obj("error" -> InvalidMgdRegNumber.message))
-
-        case Left(NotFound) =>
-          NotFound(Json.obj("error" -> ReturnSummaryNotFound.message))
-
-        case Left(UpstreamError(status)) =>
-          BadGateway(Json.obj("error" -> s"Upstream error: $status"))
-
-        case Left(UnexpectedError) =>
-          InternalServerError(Json.obj("error" -> UnexpectedError.message))
-      }
+    service.getReturnSummary(mgdRegNumber).map {
+      case Right(summary) => Ok(Json.toJson(summary))
+      case Left(error) =>
+        val errorType = error.getClass.getSimpleName
+        val message = error.message
+        error match {
+          case InvalidMgdRegNumber =>
+            logger.warn(s"[MgdController][getReturnSummary] errorType=$errorType mgdRegNumber=$mgdRegNumber")
+            BadRequest(Json.obj("code" -> "INVALID_MGD_REG_NUMBER", "message" -> message))
+          case UnexpectedError =>
+            logger.error(s"[MgdController][getReturnSummary] errorType=$errorType mgdRegNumber=$mgdRegNumber")
+            InternalServerError(Json.obj("code" -> "UNEXPECTED_ERROR", "message" -> message))
+        }
     }
+  }
 }

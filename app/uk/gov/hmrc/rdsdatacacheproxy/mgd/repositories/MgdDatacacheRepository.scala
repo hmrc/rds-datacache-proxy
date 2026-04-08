@@ -16,33 +16,46 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories
 
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
-import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import oracle.jdbc.OracleTypes
-import java.sql.{CallableStatement, Date, ResultSet, Types}
-import java.time.LocalDate
-import scala.collection.mutable.ListBuffer
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.Future
-
 trait MgdDataSource {
-  def getReturnSummary(mgdRegNumber: String): Future[Option[ReturnSummary]]
+  def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
 }
 
 @Singleton
 class MgdDatacacheRepository @Inject() (@NamedDatabase("Mgd") db: Database)(implicit ec: ExecutionContext) extends MgdDataSource with Logging {
 
-  override def getReturnSummary(mgdRegNumber: String): Future[Option[ReturnSummary]] = {
-    logger.info(s"[Mgd] getReturnSummary(mgd_reg_number=$mgdRegNumber")
+  override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] = {
 
+    logger.info(s"[Mgd] getReturnSummary(mgd_reg_number=$mgdRegNumber")
     Future {
       db.withConnection { conn =>
-        val cs: CallableStatement =
-          conn.prepareCall("{ call MGD_DC_RTN_PCK.GET_RETURN_SUMMARY(?) }")
-        try {} finally cs.close()
+
+        val cs = conn.prepareCall("{ call MGD_DC_RTN_PCK.GET_RETURN_SUMMARY(?, ?) }")
+
+        try {
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.execute()
+
+          val rs = cs.getObject(2, classOf[java.sql.ResultSet])
+          try {
+            rs.next()
+            ReturnSummary(
+              mgdRegNumber   = rs.getString("MGD_REG_NUMBER"),
+              returnsDue     = rs.getInt("RETURNS_DUE"),
+              returnsOverdue = rs.getInt("RETURNS_OVERDUE")
+            )
+          } finally {
+            if (rs != null) rs.close()
+          }
+        } finally {
+          cs.close()
+        }
       }
     }
   }

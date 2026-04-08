@@ -25,23 +25,20 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class MgdService @Inject() (
-  mgdDataSourceRepository: MgdDataSource
+  repository: MgdDataSource
 )(implicit ec: ExecutionContext) {
 
-  def getReturnSummary(
-    mgdRegNumber: String
-  )(implicit hc: HeaderCarrier): Future[Either[MgdError, ReturnSummary]] = {
+  def getReturnSummary(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[MgdError, ReturnSummary]] = {
+
+    val mgdRegNumber = rawMgdRegNumber.trim
 
     if (mgdRegNumber.isEmpty) {
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
 
-      mgdDataSourceRepository
+      repository
         .getReturnSummary(mgdRegNumber)
-        .map {
-          case Some(summary) => Right(summary)
-          case None          => Left(ReturnSummaryNotFound)
-        }
+        .map(Right(_))
         .recover { case ex =>
           Left(UnexpectedError)
         }
