@@ -19,7 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
-import javax.inject.{Inject, Singleton}
+
+import javax.inject.{Inject, Named, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait MgdDataSource {
@@ -27,11 +28,16 @@ trait MgdDataSource {
 }
 
 @Singleton
-class MgdDatacacheRepository @Inject() (@NamedDatabase("Mgd") db: Database)(implicit ec: ExecutionContext) extends MgdDataSource with Logging {
+class MgdDatacacheRepository @Inject() (
+  @NamedDatabase("Mgd") db: Database,
+  @Named("jdbc-execution-context") jdbcEc: ExecutionContext
+) extends MgdDataSource
+    with Logging {
 
   override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] = {
 
-    logger.info(s"[Mgd] getReturnSummary(mgd_reg_number=$mgdRegNumber")
+    logger.info(s"[MgdRepository][getReturnSummary] mgdRegNumber=$mgdRegNumber")
+
     Future {
       db.withConnection { conn =>
 
@@ -42,21 +48,33 @@ class MgdDatacacheRepository @Inject() (@NamedDatabase("Mgd") db: Database)(impl
           cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
           cs.execute()
 
-          val rs = cs.getObject(2, classOf[java.sql.ResultSet])
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+            val msg = s"Null cursor returned for mgdRegNumber=$mgdRegNumber"
+            logger.error(s"[MgdRepository] $msg")
+            throw new RuntimeException(msg)
+          }
+
           try {
-            rs.next()
-            ReturnSummary(
-              mgdRegNumber   = rs.getString("MGD_REG_NUMBER"),
-              returnsDue     = rs.getInt("RETURNS_DUE"),
-              returnsOverdue = rs.getInt("RETURNS_OVERDUE")
-            )
+            if (rs.next()) {
+              ReturnSummary(
+                mgdRegNumber   = rs.getString("MGD_REG_NUMBER"),
+                returnsDue     = rs.getInt("RETURNS_DUE"),
+                returnsOverdue = rs.getInt("RETURNS_OVERDUE")
+              )
+            } else {
+              val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
+              logger.error(s"[MgdRepository] $msg")
+              throw new RuntimeException(msg)
+            }
           } finally {
-            if (rs != null) rs.close()
+            rs.close()
           }
         } finally {
           cs.close()
         }
       }
-    }
+    }(jdbcEc)
   }
 }

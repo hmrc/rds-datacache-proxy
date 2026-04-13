@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.mgd.services
 
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError.*
@@ -26,20 +27,24 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MgdService @Inject() (
   repository: MgdDataSource
-)(implicit ec: ExecutionContext) {
+)(implicit ec: ExecutionContext) extends Logging {
+
+  private val mgdRegNumberPattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
 
   def getReturnSummary(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[MgdError, ReturnSummary]] = {
 
-    val mgdRegNumber = rawMgdRegNumber.trim
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (mgdRegNumber.isEmpty) {
+    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+      logger.warn(s"[MgdService][getReturnSummary] Invalid pattern for mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
 
       repository
         .getReturnSummary(mgdRegNumber)
-        .map(Right(_))
-        .recover { case ex =>
+        .map(summary => Right(summary))
+        .recover { case ex: Exception =>
+          logger.error(s"[MgdService][getReturnSummary] Unexpected error mgdRegNumber=$mgdRegNumber", ex)
           Left(UnexpectedError)
         }
     }

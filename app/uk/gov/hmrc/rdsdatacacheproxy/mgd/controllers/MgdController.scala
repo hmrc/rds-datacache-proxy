@@ -21,7 +21,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError.*
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.services.MgdService
 
 import javax.inject.Inject
@@ -36,16 +37,17 @@ class MgdController @Inject() (authorise: AuthAction, service: MgdService, cc: C
     service.getReturnSummary(mgdRegNumber).map {
       case Right(summary) => Ok(Json.toJson(summary))
       case Left(error) =>
-        val errorType = error.getClass.getSimpleName
-        val message = error.message
+        val logMessage = s"[MgdController][getReturnSummary] code=${error.code} mgdRegNumber=$mgdRegNumber"
         error match {
           case InvalidMgdRegNumber =>
-            logger.warn(s"[MgdController][getReturnSummary] errorType=$errorType mgdRegNumber=$mgdRegNumber")
-            BadRequest(Json.obj("code" -> "INVALID_MGD_REG_NUMBER", "message" -> message))
+            logger.warn(logMessage)
+            BadRequest(errorResponse(error))
           case UnexpectedError =>
-            logger.error(s"[MgdController][getReturnSummary] errorType=$errorType mgdRegNumber=$mgdRegNumber")
-            InternalServerError(Json.obj("code" -> "UNEXPECTED_ERROR", "message" -> message))
+            logger.error(logMessage)
+            InternalServerError(errorResponse(error))
         }
     }
   }
+
+  private def errorResponse(error: MgdError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

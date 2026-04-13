@@ -17,16 +17,19 @@
 package uk.gov.hmrc.rdsdatacacheproxy.mgd.models
 
 sealed trait MgdError {
+  def code: String
   def message: String
 }
 
 object MgdError {
-
+  
   case object InvalidMgdRegNumber extends MgdError {
-    val message: String = "mgdRegNumber must be provided"
+      val code = "INVALID_MGD_REG_NUMBER"
+      val message = "mgdRegNumber does not exist"
   }
 
   case object UnexpectedError extends MgdError {
-    val message: String = "Unexpected error occurred"
+      val code = "UNEXPECTED_ERROR"
+      val message = "Unexpected error occurred"
   }
 }
