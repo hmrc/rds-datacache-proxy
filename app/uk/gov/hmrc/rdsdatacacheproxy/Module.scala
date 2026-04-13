@@ -46,9 +46,6 @@ class Module extends AppModule:
       bind[RdsDataSource].to(datasource),
       bind[CharitiesDataSource].to(charitiesDatasource),
       bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
-<<<<<<< HEAD
+      bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
       bind[MgdDataSource].to(mgdDatasource)
-=======
-      bind[NovaDataSource].to(classOf[NovaDatacacheRepository])
->>>>>>> 7fac4ad (DTR-4069 - Implement and add stored procedures for NoVA)
     )

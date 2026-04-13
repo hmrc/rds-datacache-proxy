@@ -20,13 +20,13 @@ import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
 import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.MgdDataSource
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class MgdStubRepository @Inject() extends MgdDataSource {
+class MgdStubRepository @Inject() (implicit ec: ExecutionContext) extends MgdDataSource {
 
   override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] =
-    Future.successful(
+    Future {
       MgdStubData.getReturnSummary(mgdRegNumber)
-    )
+    }
 }
