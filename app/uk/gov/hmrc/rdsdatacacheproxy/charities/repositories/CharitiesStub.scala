@@ -25,8 +25,6 @@ import scala.concurrent.Future
 class CharitiesStub @Inject() () extends CharitiesDataSource with Logging:
 
   def getAgentName(agentRef: String): Future[Option[String]] = {
-    logger.info(s"[CHARITIES-STUB] getAgentName -> agentRef: $agentRef")
-
     val result = agentRef match {
       case "NOT_FOUND" | "" => None
       case _                => Some("John Doe")
@@ -36,8 +34,6 @@ class CharitiesStub @Inject() () extends CharitiesDataSource with Logging:
   }
 
   def getOrganisationName(charityRef: String): Future[Option[String]] = {
-    logger.info(s"[CHARITIES-STUB] getOrganisationName -> charityRef: $charityRef")
-
     val result = charityRef match {
       case "NOT_FOUND" | "" => None
       case _                => Some("ABC Ltd")
