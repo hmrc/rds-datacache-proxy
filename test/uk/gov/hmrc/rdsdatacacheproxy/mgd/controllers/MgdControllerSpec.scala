@@ -46,7 +46,7 @@ class MgdControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getReturnSummary(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(summary)))
 
-      val req = FakeRequest(GET, "/mgd/return/XWM00000001770")
+      val req = FakeRequest(GET, "/mgd/return-summary/XWM00000001770")
       val res = controller.getReturnSummary("XWM00000001770")(req)
 
       status(res) mustBe OK
@@ -63,7 +63,7 @@ class MgdControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getReturnSummary(any())(any()))
         .thenReturn(Future.successful(Right(summary)))
 
-      val req = FakeRequest(GET, "/mgd/return/XWM00000001770")
+      val req = FakeRequest(GET, "/mgd/return-summary/XWM00000001770")
       val res = controller.getReturnSummary("XWM00000001770")(req)
 
       status(res) mustBe OK
@@ -72,36 +72,36 @@ class MgdControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-    "returns 400 when InvalidMgdRegNumber" in new Setup {
-      when(mockService.getReturnSummary(any())(any()))
-        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+  "returns 400 when InvalidMgdRegNumber" in new Setup {
+    when(mockService.getReturnSummary(any())(any()))
+      .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
-      val req = FakeRequest(GET, "/mgd/return/jhrfdshgksdhg")
-      val res = controller.getReturnSummary(" ")(req)
+    val req = FakeRequest(GET, "/mgd/return-summary/jhrfdshgksdhg")
+    val res = controller.getReturnSummary(" ")(req)
 
-      status(res) mustBe BAD_REQUEST
-      contentAsJson(res) mustBe Json.obj(
-          "code"    -> "INVALID_MGD_REG_NUMBER",
-          "message" -> "mgdRegNumber does not exist"
-      )
+    status(res) mustBe BAD_REQUEST
+    contentAsJson(res) mustBe Json.obj(
+      "code"    -> "INVALID_MGD_REG_NUMBER",
+      "message" -> "mgdRegNumber does not exist"
+    )
 
-      verify(mockService).getReturnSummary(eqTo(" "))(any())
-    }
+    verify(mockService).getReturnSummary(eqTo(" "))(any())
+  }
 
-    "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getReturnSummary(any())(any()))
-        .thenReturn(Future.successful(Left(UnexpectedError)))
+  "returns 500 when UnexpectedError" in new Setup {
+    when(mockService.getReturnSummary(any())(any()))
+      .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, "/mgd/return/ERR00001770")
-      val res = controller.getReturnSummary("ERR00001770")(req)
+    val req = FakeRequest(GET, "/mgd/return-summary/ERR00001770")
+    val res = controller.getReturnSummary("ERR00001770")(req)
 
-      status(res) mustBe INTERNAL_SERVER_ERROR
-      contentAsJson(res) mustBe Json.obj(
-            "code"    -> "UNEXPECTED_ERROR",
-            "message" -> "Unexpected error occurred"
-      )
+    status(res) mustBe INTERNAL_SERVER_ERROR
+    contentAsJson(res) mustBe Json.obj(
+      "code"    -> "UNEXPECTED_ERROR",
+      "message" -> "Unexpected error occurred"
+    )
 
-      verify(mockService).getReturnSummary(eqTo("ERR00001770"))(any())
-    }
+    verify(mockService).getReturnSummary(eqTo("ERR00001770"))(any())
+  }
 
 }

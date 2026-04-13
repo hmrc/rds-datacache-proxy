@@ -37,10 +37,10 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
   var mockResultSet: ResultSet = _
 
   before {
-    db = mock(classOf[Database])
-    mockConnection = mock(classOf[java.sql.Connection])
+    db                    = mock(classOf[Database])
+    mockConnection        = mock(classOf[java.sql.Connection])
     mockCallableStatement = mock(classOf[CallableStatement])
-    mockResultSet = mock(classOf[ResultSet])
+    mockResultSet         = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val func = invocation.getArgument(0, classOf[java.sql.Connection => Any])
@@ -79,8 +79,8 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     val result = repository.getReturnSummary(mgdRegNumber).futureValue
 
     result shouldBe ReturnSummary(
-      mgdRegNumber = mgdRegNumber,
-      returnsDue = 5,
+      mgdRegNumber   = mgdRegNumber,
+      returnsDue     = 5,
       returnsOverdue = 2
     )
     verifyDbSetup(mgdRegNumber)
@@ -123,8 +123,8 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     verifyCleanup()
 
     result shouldBe ReturnSummary(
-      mgdRegNumber = mgdRegNumber,
-      returnsDue = 0,
+      mgdRegNumber   = mgdRegNumber,
+      returnsDue     = 0,
       returnsOverdue = 0
     )
   }
@@ -177,7 +177,7 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     val ex = repository.getReturnSummary(mgdRegNumber).failed.futureValue
 
-    ex shouldBe a[RuntimeException]
+    ex          shouldBe a[RuntimeException]
     ex.getMessage should include("RS error")
 
     verify(mockCallableStatement).setString(1, mgdRegNumber)
@@ -209,6 +209,5 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     verify(mockCallableStatement).close()
   }
-
 
 }

@@ -29,7 +29,7 @@ trait MgdDataSource {
 
 @Singleton
 class MgdDatacacheRepository @Inject() (
-  @NamedDatabase("Mgd") db: Database,
+  @NamedDatabase("mgd") db: Database,
   @Named("jdbc-execution-context") jdbcEc: ExecutionContext
 ) extends MgdDataSource
     with Logging {

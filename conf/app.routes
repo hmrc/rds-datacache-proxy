@@ -23,4 +23,4 @@ GET        /charities/agents/:agentRef                    uk.gov.hmrc.rdsdatacac
 GET        /charities/organisations/:charityRef           uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getOrganisationName(charityRef: String)
 
 #MGD routes
-GET        /mgd/return/:mgdRegNumber                 uk.gov.hmrc.rdsdatacacheproxy.mgd.controllers.MgdController.getReturnSummary(mgdRegNumber: String)
+GET        /mgd/return-summary/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.mgd.controllers.MgdController.getReturnSummary(mgdRegNumber: String)

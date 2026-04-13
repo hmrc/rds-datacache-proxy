@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package uk.gov.hmrc.rdsdatacacheproxy.mgd.services
 
 import org.mockito.ArgumentMatchers.eq as eqTo
@@ -29,15 +29,15 @@ import scala.concurrent.Future
 final class MgdServiceSpec extends SpecBase {
 
   private val repository = mock[MgdDataSource]
-  private val service    = new MgdService(repository)
+  private val service = new MgdService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
     reset(repository)
   }
 
-  private val validMgdRegNumber        = "XWM12345678901"
-  private val normalisedMgdRegNumber   = "XWM12345678901"
+  private val validMgdRegNumber = "XWM12345678901"
+  private val normalisedMgdRegNumber = "XWM12345678901"
 
   "MgdService#getReturnSummary" - {
 
@@ -60,8 +60,8 @@ final class MgdServiceSpec extends SpecBase {
       val rawInput = "  xwm12345678901  "
 
       val summary = ReturnSummary(
-        mgdRegNumber = normalisedMgdRegNumber,
-        returnsDue = 2,
+        mgdRegNumber   = normalisedMgdRegNumber,
+        returnsDue     = 2,
         returnsOverdue = 1
       )
 
@@ -82,11 +82,10 @@ final class MgdServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-
     "return UnexpectedError when repository throws exception" in {
 
       when(repository.getReturnSummary(eqTo(validMgdRegNumber)))
-      .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
+        .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
       val result = service.getReturnSummary(validMgdRegNumber).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getReturnSummary(eqTo(validMgdRegNumber))

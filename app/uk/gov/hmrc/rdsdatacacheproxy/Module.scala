@@ -21,6 +21,8 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository, CharitiesStub}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.{MgdDataSource, MgdDatacacheRepository}
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.stub.MgdStubRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 
@@ -34,10 +36,14 @@ class Module extends AppModule:
     lazy val datasource = if (rdsStubbed) classOf[RdsStub] else classOf[RdsDatacacheRepository]
     lazy val charitiesDatasource = if (rdsStubbed) classOf[CharitiesStub] else classOf[CharitiesDatacacheRepository]
 
+    lazy val mgdStubbed = configuration.get[Boolean]("feature-switch.mgd-stubbed")
+    lazy val mgdDatasource = if (mgdStubbed) classOf[MgdStubRepository] else classOf[MgdDatacacheRepository]
+
     List(
       bind[AuthAction].to(classOf[DefaultAuthAction]),
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
       bind[CharitiesDataSource].to(charitiesDatasource),
-      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository])
+      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
+      bind[MgdDataSource].to(mgdDatasource)
     )

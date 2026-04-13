@@ -27,7 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MgdService @Inject() (
   repository: MgdDataSource
-)(implicit ec: ExecutionContext) extends Logging {
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   private val mgdRegNumberPattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
 

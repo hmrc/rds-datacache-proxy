@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.models
+package uk.gov.hmrc.rdsdatacacheproxy.mgd.stub
 
-sealed trait MgdError {
-  def code: String
-  def message: String
-}
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.MgdDataSource
 
-object MgdError {
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future
 
-  case object InvalidMgdRegNumber extends MgdError {
-    val code = "INVALID_MGD_REG_NUMBER"
-    val message = "mgdRegNumber does not exist"
-  }
+@Singleton
+class MgdStubRepository @Inject() extends MgdDataSource {
 
-  case object UnexpectedError extends MgdError {
-    val code = "UNEXPECTED_ERROR"
-    val message = "Unexpected error occurred"
-  }
+  override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] =
+    Future.successful(
+      MgdStubData.getReturnSummary(mgdRegNumber)
+    )
 }
