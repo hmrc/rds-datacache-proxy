@@ -29,10 +29,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
   "Module bindings" should {
 
     "bind AuthAction to DefaultAuthAction" in {
-      val config = Configuration(
-        "feature-switch.rds-stubbed" -> false,
-        "feature-switch.mgd-stubbed" -> false
-      )
+      val config = Configuration("feature-switch.rds-stubbed" -> false)
       val module = new Module()
       val bindings = module.bindings(environment, config)
 
@@ -40,10 +37,7 @@ class ModuleSpec extends AnyWordSpec with Matchers {
     }
 
     "bind DirectDebitController to self" in {
-      val config = Configuration(
-        "feature-switch.rds-stubbed" -> false,
-        "feature-switch.mgd-stubbed" -> false
-      )
+      val config = Configuration("feature-switch.rds-stubbed" -> false)
       val module = new Module()
       val bindings = module.bindings(environment, config)
 

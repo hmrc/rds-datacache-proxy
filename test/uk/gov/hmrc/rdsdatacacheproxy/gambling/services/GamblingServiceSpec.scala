@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.services
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError.{InvalidMgdRegNumber, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.MgdDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
 
-final class MgdServiceSpec extends SpecBase {
+final class GamblingServiceSpec extends SpecBase {
 
-  private val repository = mock[MgdDataSource]
-  private val service = new MgdService(repository)
+  private val repository = mock[GamblingDataSource]
+  private val service = new GamblingService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -39,7 +39,7 @@ final class MgdServiceSpec extends SpecBase {
   private val validMgdRegNumber = "XWM12345678901"
   private val normalisedMgdRegNumber = "XWM12345678901"
 
-  "MgdService#getReturnSummary" - {
+  "GamblingService#getReturnSummary" - {
 
     "return Right(summary) when repository succeeds" in {
 

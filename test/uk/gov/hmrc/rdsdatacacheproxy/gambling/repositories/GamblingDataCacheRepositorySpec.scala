@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
@@ -23,15 +23,15 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
 
 import java.sql.{CallableStatement, Connection, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: MgdDatacacheRepository = _
+  var repository: GamblingDataCacheRepository = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -50,7 +50,7 @@ class MgdDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
     when(mockCallableStatement.getObject(2)).thenReturn(mockResultSet)
 
-    repository = new MgdDatacacheRepository(db, global)
+    repository = new GamblingDataCacheRepository(db)
   }
 
   private def verifyDbSetup(mgdRegNumber: String): Unit = {

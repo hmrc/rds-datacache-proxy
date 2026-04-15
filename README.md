@@ -32,11 +32,11 @@ Data is sourced via Oracle stored procedure:
 
 #### Endpoint
 
-`GET /mgd/return-summary/:mgdRegNumber`
+`GET /gambling/return-summary/:mgdRegNumber`
 
 #### Example
 
-`curl http://localhost:6992/rds-datacache-proxy/mgd/return-summary/XYZ00000000001`
+`curl http://localhost:6992/rds-datacache-proxy/gambling/return-summary/XYZ00000000001`
 
 #### Sample Response
 

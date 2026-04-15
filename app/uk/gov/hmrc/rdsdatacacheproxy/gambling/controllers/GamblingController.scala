@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.MgdError.{InvalidMgdRegNumber, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.services.MgdService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class MgdController @Inject() (authorise: AuthAction, service: MgdService, cc: ControllerComponents)(implicit ec: ExecutionContext)
+class GamblingController @Inject() (authorise: AuthAction, service: GamblingService, cc: ControllerComponents)(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
@@ -37,7 +37,7 @@ class MgdController @Inject() (authorise: AuthAction, service: MgdService, cc: C
     service.getReturnSummary(mgdRegNumber).map {
       case Right(summary) => Ok(Json.toJson(summary))
       case Left(error) =>
-        val logMessage = s"[MgdController][getReturnSummary] code=${error.code} mgdRegNumber=$mgdRegNumber"
+        val logMessage = s"[GamblingController][getReturnSummary] code=${error.code} mgdRegNumber=$mgdRegNumber"
         error match {
           case InvalidMgdRegNumber =>
             logger.warn(logMessage)
@@ -49,5 +49,5 @@ class MgdController @Inject() (authorise: AuthAction, service: MgdService, cc: C
     }
   }
 
-  private def errorResponse(error: MgdError) = Json.obj("code" -> error.code, "message" -> error.message)
+  private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

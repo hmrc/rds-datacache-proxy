@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.models
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
 import play.api.libs.json.{Json, OFormat}
 

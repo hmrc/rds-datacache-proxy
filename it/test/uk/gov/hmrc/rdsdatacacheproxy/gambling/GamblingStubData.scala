@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.stub
+package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
 
-object MgdStubData {
+object GamblingStubData {
   def getReturnSummary(mgdRegNumber: String): ReturnSummary =
     mgdRegNumber match {
       case "XYZ00000000000" =>

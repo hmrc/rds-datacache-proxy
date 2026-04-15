@@ -21,8 +21,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository, CharitiesStub}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories.{MgdDataSource, MgdDatacacheRepository}
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.stub.MgdStubRepository
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{GamblingDataCacheRepository, GamblingDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 import uk.gov.hmrc.rdsdatacacheproxy.nova.repositories.{NovaDataSource, NovaDatacacheRepository}
@@ -44,7 +43,5 @@ class Module extends AppModule:
       bind[CharitiesDataSource].to(charitiesDatasource),
       bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
       bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
-      bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
-      bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
-      bind[MgdDataSource].to(classOf[MgdDatacacheRepository)
+      bind[GamblingDataSource].to(classOf[GamblingDataCacheRepository])
     )

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.models
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-sealed trait MgdError {
+sealed trait GamblingError {
   def code: String
   def message: String
 }
 
-object MgdError {
+object GamblingError {
 
-  case object InvalidMgdRegNumber extends MgdError {
+  case object InvalidMgdRegNumber extends GamblingError {
     val code = "INVALID_MGD_REG_NUMBER"
     val message = "mgdRegNumber does not exist"
   }
 
-  case object UnexpectedError extends MgdError {
+  case object UnexpectedError extends GamblingError {
     val code = "UNEXPECTED_ERROR"
     val message = "Unexpected error occurred"
   }

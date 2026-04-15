@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.mgd.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.mgd.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MgdDataSource {
+trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
 }
 
 @Singleton
-class MgdDatacacheRepository @Inject() (
-  @NamedDatabase("mgd") db: Database,
-  @Named("jdbc-execution-context") jdbcEc: ExecutionContext
-) extends MgdDataSource
+class GamblingDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") db: Database
+)(implicit ec: ExecutionContext)
+    extends GamblingDataSource
     with Logging {
 
   override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] = {
 
-    logger.info(s"[MgdRepository][getReturnSummary] mgdRegNumber=$mgdRegNumber")
+    logger.info(s"[GamblingDataCacheRepository][getReturnSummary] mgdRegNumber=$mgdRegNumber")
 
     Future {
       db.withConnection { conn =>
@@ -52,7 +52,7 @@ class MgdDatacacheRepository @Inject() (
 
           if (rs == null) {
             val msg = s"Null cursor returned for mgdRegNumber=$mgdRegNumber"
-            logger.error(s"[MgdRepository] $msg")
+            logger.error(s"[GamblingDataCacheRepository] $msg")
             throw new RuntimeException(msg)
           }
 
@@ -65,7 +65,7 @@ class MgdDatacacheRepository @Inject() (
               )
             } else {
               val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
-              logger.error(s"[MgdRepository] $msg")
+              logger.error(s"[GamblingDataCacheRepository] $msg")
               throw new RuntimeException(msg)
             }
           } finally {
@@ -75,6 +75,6 @@ class MgdDatacacheRepository @Inject() (
           cs.close()
         }
       }
-    }(jdbcEc)
+    }(ec)
   }
 }
