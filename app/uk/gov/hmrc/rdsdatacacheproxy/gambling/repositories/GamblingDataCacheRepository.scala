@@ -107,12 +107,12 @@ class GamblingDataCacheRepository @Inject() (
             .takeWhile(identity)
             .map { _ =>
               PartnerMember(
-                namesOfPartMems = partRs.getString("names_of_part_mems"),
-                solePropTitle = Option(partRs.getString("sole_prop_title")),
-                solePropFirstName = Option(partRs.getString("sole_prop_first_name")),
+                namesOfPartMems    = partRs.getString("names_of_part_mems"),
+                solePropTitle      = Option(partRs.getString("sole_prop_title")),
+                solePropFirstName  = Option(partRs.getString("sole_prop_first_name")),
                 solePropMiddleName = Option(partRs.getString("sole_prop_middle_name")),
-                solePropLastName = Option(partRs.getString("sole_prop_last_name")),
-                typeOfBusiness = partRs.getInt("type_of_business")
+                solePropLastName   = Option(partRs.getString("sole_prop_last_name")),
+                typeOfBusiness     = partRs.getInt("type_of_business")
               )
             }
             .toList
@@ -132,7 +132,6 @@ class GamblingDataCacheRepository @Inject() (
 
         groupRs.close()
 
-
         // RETURN PERIOD CURSOR
 
         val returnRs =
@@ -150,43 +149,36 @@ class GamblingDataCacheRepository @Inject() (
             .toList
 
         returnRs.close()
-        
+
         // Build final response
         val result = MgdCertificate(
-          mgdRegNumber = storedProcedure.getString("MGD_REG_NUMBER"),
-          registrationDate = optDate("REGISTRATION_DATE"),
-
-          individualName = optString("INDIVIDUAL_NAME"),
-          businessName = optString("BUSINESS_NAME"),
-          tradingName = optString("TRADING_NAME"),
-          repMemName = optString("REP_MEM_NAME"),
-
-          busAddrLine1 = optString("BUS_ADDR_LINE1"),
-          busAddrLine2 = optString("BUS_ADDR_LINE2"),
-          busAddrLine3 = optString("BUS_ADDR_LINE3"),
-          busAddrLine4 = optString("BUS_ADDR_LINE4"),
-          busPostcode = optString("BUS_POSTCODE"),
-          busCountry = optString("BUS_COUNTRY"),
-          busAdi = optString("BUS_ADI"),
-
-          repMemLine1 = optString("REP_MEM_LINE1"),
-          repMemLine2 = optString("REP_MEM_LINE2"),
-          repMemLine3 = optString("REP_MEM_LINE3"),
-          repMemLine4 = optString("REP_MEM_LINE4"),
-          repMemPostcode = optString("REP_MEM_POSTCODE"),
-          repMemAdi = optString("REP_MEM_ADI"),
-
-          typeOfBusiness = optString("TYPE_OF_BUSINESS"),
-          businessTradeClass = optInt("BUSINESS_TRADE_CLASS"),
-
-          noOfPartners = optInt("NO_OF_PARTNERS"),
-          groupReg = storedProcedure.getString("GROUP_REG"),
-          noOfGroupMems = optInt("NO_OF_GROUP_MEMS"),
-
-          dateCertIssued = optDate("DATE_CERT_ISSUED"),
-
-          partMembers = partMembers,
-          groupMembers = groupMembers,
+          mgdRegNumber         = storedProcedure.getString("MGD_REG_NUMBER"),
+          registrationDate     = optDate("REGISTRATION_DATE"),
+          individualName       = optString("INDIVIDUAL_NAME"),
+          businessName         = optString("BUSINESS_NAME"),
+          tradingName          = optString("TRADING_NAME"),
+          repMemName           = optString("REP_MEM_NAME"),
+          busAddrLine1         = optString("BUS_ADDR_LINE1"),
+          busAddrLine2         = optString("BUS_ADDR_LINE2"),
+          busAddrLine3         = optString("BUS_ADDR_LINE3"),
+          busAddrLine4         = optString("BUS_ADDR_LINE4"),
+          busPostcode          = optString("BUS_POSTCODE"),
+          busCountry           = optString("BUS_COUNTRY"),
+          busAdi               = optString("BUS_ADI"),
+          repMemLine1          = optString("REP_MEM_LINE1"),
+          repMemLine2          = optString("REP_MEM_LINE2"),
+          repMemLine3          = optString("REP_MEM_LINE3"),
+          repMemLine4          = optString("REP_MEM_LINE4"),
+          repMemPostcode       = optString("REP_MEM_POSTCODE"),
+          repMemAdi            = optString("REP_MEM_ADI"),
+          typeOfBusiness       = optString("TYPE_OF_BUSINESS"),
+          businessTradeClass   = optInt("BUSINESS_TRADE_CLASS"),
+          noOfPartners         = optInt("NO_OF_PARTNERS"),
+          groupReg             = storedProcedure.getString("GROUP_REG"),
+          noOfGroupMems        = optInt("NO_OF_GROUP_MEMS"),
+          dateCertIssued       = optDate("DATE_CERT_ISSUED"),
+          partMembers          = partMembers,
+          groupMembers         = groupMembers,
           returnPeriodEndDates = returnPeriods
         )
 
