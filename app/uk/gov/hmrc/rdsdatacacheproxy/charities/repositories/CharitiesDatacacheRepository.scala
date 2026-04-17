@@ -23,6 +23,7 @@ import play.api.db.Database
 import java.sql.Types
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.db.NamedDatabase
 
 @ImplementedBy(classOf[CharitiesDatacacheRepository])
 trait CharitiesDataSource {
@@ -30,7 +31,11 @@ trait CharitiesDataSource {
   def getOrganisationName(charityRef: String): Future[Option[String]]
 }
 
-class CharitiesDatacacheRepository @Inject() (db: Database)(implicit ec: ExecutionContext) extends CharitiesDataSource with Logging {
+class CharitiesDatacacheRepository @Inject() (
+  @NamedDatabase("charities") db: Database
+)(implicit ec: ExecutionContext)
+    extends CharitiesDataSource
+    with Logging {
 
   def getAgentName(agentRef: String): Future[Option[String]] = {
     logger.info(s"Input request, p_agent_ref: <$agentRef>")
