@@ -33,7 +33,6 @@ trait CharitiesDataSource {
 class CharitiesDatacacheRepository @Inject() (db: Database)(implicit ec: ExecutionContext) extends CharitiesDataSource with Logging {
 
   def getAgentName(agentRef: String): Future[Option[String]] = {
-    logger.info(s"Input request, p_agent_ref: <$agentRef>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CHAR_DC_AGENT_PK.getAgentName(?, ?)}")
@@ -47,15 +46,12 @@ class CharitiesDatacacheRepository @Inject() (db: Database)(implicit ec: Executi
 
         storedProcedure.close()
 
-        val result = Option(agentName)
-        logger.info(s"Agent name from SQL Stored Procedure: ${result.getOrElse("null")}")
-        result
+        Option(agentName)
       }
     }
   }
 
   def getOrganisationName(charityRef: String): Future[Option[String]] = {
-    logger.info(s"Input request, p_charity_ref: <$charityRef>")
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CHAR_DC_PK.getOrgName(?, ?)}")
@@ -69,9 +65,7 @@ class CharitiesDatacacheRepository @Inject() (db: Database)(implicit ec: Executi
 
         storedProcedure.close()
 
-        val result = Option(organisationName)
-        logger.info(s"Organisation name from SQL Stored Procedure: ${result.getOrElse("null")}")
-        result
+        Option(organisationName)
       }
     }
   }
