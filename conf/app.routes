@@ -33,3 +33,6 @@ GET        /nova/nvra-known-facts       uk.gov.hmrc.rdsdatacacheproxy.nova.contr
 #Charities routes
 GET        /charities/agents/:agentRef                    uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getAgentName(agentRef: String)
 GET        /charities/organisations/:charityRef           uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getOrganisationName(charityRef: String)
+
+#MGD routes
+GET        /gambling/return-summary/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnSummary(mgdRegNumber: String)
