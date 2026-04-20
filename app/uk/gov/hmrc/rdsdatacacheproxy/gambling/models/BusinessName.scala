@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 import play.api.libs.json.{Json, OFormat}
-//import java.time.LocalDate
+import java.sql.Date
 
 case class BusinessName(
-                          mgdRegNumber: String,
-                          solePropType: String,
-                          solePropFirstName: String,
-                          solePropMidName: String,
-                          solePropLastName: String,
-                          businessName: String,
-                          businessType: String,
-                          tradingName: String,
-//                          systemDate: LocalDate,
-                       )
+  mgdRegNumber: String,
+  solePropType: String,
+  solePropFirstName: String,
+  solePropMidName: String,
+  solePropLastName: String,
+  businessName: String,
+  businessType: String,
+  tradingName: String,
+  systemDate: Date
+)
 
 object BusinessName {
   implicit val format: OFormat[BusinessName] = Json.format[BusinessName]
