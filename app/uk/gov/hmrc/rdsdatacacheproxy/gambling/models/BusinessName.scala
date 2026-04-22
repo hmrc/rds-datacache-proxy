@@ -20,7 +20,7 @@ import java.sql.Date
 
 case class BusinessName(
   mgdRegNumber: String,
-  solePropType: String,
+  solePropTitle: String,
   solePropFirstName: String,
   solePropMidName: String,
   solePropLastName: String,

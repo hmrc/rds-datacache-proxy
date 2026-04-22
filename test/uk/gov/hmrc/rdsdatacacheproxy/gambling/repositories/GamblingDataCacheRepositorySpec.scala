@@ -23,9 +23,9 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
-import java.sql.{CallableStatement, Connection, ResultSet}
+import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -89,6 +89,50 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockResultSet).getString("MGD_REG_NUMBER")
     verify(mockResultSet).getInt("RETURNS_DUE")
     verify(mockResultSet).getInt("RETURNS_OVERDUE")
+
+    verifyCleanup()
+  }
+
+  "getBusinessName" should "return Business Name when stored procedure returns data" in {
+
+    val mgdRegNumber = "XWM12345678901"
+
+    when(mockResultSet.next()).thenReturn(true)
+    when(mockResultSet.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
+    when(mockResultSet.getString("SOLE_PROP_TITLE")).thenReturn("Mr")
+    when(mockResultSet.getString("SOLE_PROP_FIRST_NAME")).thenReturn("Foo")
+    when(mockResultSet.getString("SOLE_PROP_MIDDLE_NAME")).thenReturn("B")
+    when(mockResultSet.getString("SOLE_PROP_LAST_NAME")).thenReturn("Bar")
+    when(mockResultSet.getString("BUSINESS_NAME")).thenReturn("Foo Bar Co.")
+    when(mockResultSet.getString("BUSINESS_TYPE")).thenReturn("Sole Proprietor")
+    when(mockResultSet.getString("TRADING_NAME")).thenReturn("Foobar")
+    when(mockResultSet.getDate("SYSTEM_DATE")).thenReturn(Date.valueOf("2026-04-20"))
+
+    val result = repository.getBusinessName(mgdRegNumber).futureValue
+
+    result shouldBe BusinessName(
+      mgdRegNumber      = mgdRegNumber,
+      solePropTitle     = "Mr",
+      solePropFirstName = "Foo",
+      solePropMidName   = "B",
+      solePropLastName  = "Bar",
+      businessName      = "Foo Bar Co.",
+      businessType      = "Sole Proprietor",
+      tradingName       = "Foobar",
+      systemDate        = Date.valueOf("2026-04-20")
+    )
+    verifyDbSetup(mgdRegNumber)
+
+    verify(mockResultSet).next()
+    verify(mockResultSet).getString("MGD_REG_NUMBER")
+    verify(mockResultSet).getString("SOLE_PROP_TITLE")
+    verify(mockResultSet).getString("SOLE_PROP_FIRST_NAME")
+    verify(mockResultSet).getString("SOLE_PROP_MIDDLE_NAME")
+    verify(mockResultSet).getString("SOLE_PROP_LAST_NAME")
+    verify(mockResultSet).getString("BUSINESS_NAME")
+    verify(mockResultSet).getString("BUSINESS_TYPE")
+    verify(mockResultSet).getString("TRADING_NAME")
+    verify(mockResultSet).getDate("SYSTEM_DATE")
 
     verifyCleanup()
   }

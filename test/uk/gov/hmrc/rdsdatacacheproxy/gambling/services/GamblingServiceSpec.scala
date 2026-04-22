@@ -20,11 +20,12 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
+import java.sql.Date
 
 final class GamblingServiceSpec extends SpecBase {
 
@@ -78,6 +79,75 @@ final class GamblingServiceSpec extends SpecBase {
 
       val invalidInput = "xwm12345678"
       val result = service.getReturnSummary(invalidInput).futureValue
+      result mustBe Left(InvalidMgdRegNumber)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository throws exception" in {
+
+      when(repository.getReturnSummary(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
+      val result = service.getReturnSummary(validMgdRegNumber).futureValue
+      result mustBe Left(UnexpectedError)
+      verify(repository).getReturnSummary(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+  "GamblingService#getBusinessName" - {
+
+    "return Right(summary) when repository succeeds" in {
+
+      val summary = BusinessName(
+        mgdRegNumber      = validMgdRegNumber,
+        solePropTitle     = "Mr",
+        solePropFirstName = "Foo",
+        solePropMidName   = "B",
+        solePropLastName  = "Bar",
+        businessName      = "FooBar Co.",
+        businessType      = "Sole Proprietor",
+        tradingName       = "Foobar",
+        systemDate        = Date.valueOf("1992-01-01")
+      )
+
+      when(repository.getBusinessName(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(summary))
+
+      val result = service.getBusinessName(validMgdRegNumber).futureValue
+
+      result mustBe Right(summary)
+      verify(repository).getBusinessName(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input (trim + uppercase) before calling repository" in {
+
+      val rawInput = "  xwm12345678901  "
+
+      val summary = BusinessName(
+        mgdRegNumber      = normalisedMgdRegNumber,
+        solePropTitle     = "Mr",
+        solePropFirstName = "John",
+        solePropMidName   = "C",
+        solePropLastName  = "Doe",
+        businessName      = "John Doe Co.",
+        businessType      = "Sole Proprietor",
+        tradingName       = "DoeDoe",
+        systemDate        = Date.valueOf("1992-01-01")
+      )
+
+      when(repository.getBusinessName(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(summary))
+
+      val result = service.getBusinessName(rawInput).futureValue
+      result mustBe Right(summary)
+      verify(repository).getBusinessName(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber and not call repository when input is invalid" in {
+
+      val invalidInput = "xwm12345678"
+      val result = service.getBusinessName(invalidInput).futureValue
       result mustBe Left(InvalidMgdRegNumber)
       verifyNoMoreInteractions(repository)
     }

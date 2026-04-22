@@ -53,7 +53,7 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     service.getBusinessName(mgdRegNumber).map {
       case Right(summary) => Ok(Json.toJson(summary))
       case Left(error) =>
-        val logMessage = s"[GamblingController][getReturnSummary] code=${error.code} mgdRegNumber=$mgdRegNumber"
+        val logMessage = s"[GamblingController][getBusinessName] code=${error.code} mgdRegNumber=$mgdRegNumber"
         error match {
           case InvalidMgdRegNumber =>
             logger.warn(logMessage)

@@ -79,7 +79,7 @@ class GamblingDataCacheRepository @Inject() (
   }
   override def getBusinessName(mgdRegNumber: String): Future[BusinessName] = {
 
-    logger.info(s"[GamblingDataCacheRepository][getReturnSummary] mgdRegNumber=$mgdRegNumber")
+    logger.info(s"[GamblingDataCacheRepository][getBusinessName] mgdRegNumber=$mgdRegNumber")
 
     Future {
       db.withConnection { conn =>
@@ -103,7 +103,7 @@ class GamblingDataCacheRepository @Inject() (
             if (rs.next()) {
               BusinessName(
                 mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
-                solePropType      = rs.getString("SOLE_PROP_TITLE"),
+                solePropTitle     = rs.getString("SOLE_PROP_TITLE"),
                 solePropFirstName = rs.getString("SOLE_PROP_FIRST_NAME"),
                 solePropMidName   = rs.getString("SOLE_PROP_MIDDLE_NAME"),
                 solePropLastName  = rs.getString("SOLE_PROP_LAST_NAME"),

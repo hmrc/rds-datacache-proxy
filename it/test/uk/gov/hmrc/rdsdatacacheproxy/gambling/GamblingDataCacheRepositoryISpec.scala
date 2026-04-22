@@ -23,10 +23,11 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
+import java.sql.Date
 
 class GamblingDataCacheRepositoryISpec
   extends AnyWordSpec
@@ -38,6 +39,8 @@ class GamblingDataCacheRepositoryISpec
   class GamblingRdsStub extends GamblingDataSource {
     override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] =
       Future.successful(GamblingStubData.getReturnSummary(mgdRegNumber))
+    override def getBusinessName(mgdRegNumber: String): Future[BusinessName] =
+      Future.successful(GamblingStubData.getBusinessName(mgdRegNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -55,8 +58,8 @@ class GamblingDataCacheRepositoryISpec
       val result = repository.getReturnSummary("XYZ00000000000").futureValue
 
       result mustBe ReturnSummary(
-        mgdRegNumber   = "XYZ00000000000",
-        returnsDue     = 0,
+        mgdRegNumber = "XYZ00000000000",
+        returnsDue = 0,
         returnsOverdue = 0
       )
     }
@@ -136,4 +139,128 @@ class GamblingDataCacheRepositoryISpec
       result.returnsOverdue must be >= 0
     }
   }
+  "getBusinessName (stubbed repository)" should {
+
+   "return John Doe as Sole Proprietor" in {
+     val result = repository.getBusinessName("XYZ00000000000").futureValue
+
+     result mustBe BusinessName(
+       mgdRegNumber = "XYZ00000000000",
+       solePropTitle = "Mr",
+       solePropFirstName = "John",
+       solePropMidName = "C",
+       solePropLastName = "Doe",
+       businessName = "John Doe Co.",
+       businessType = "Sole Proprietor",
+       tradingName = "DoeDoe",
+       systemDate = Date.valueOf("2026-04-20")
+     )
+   }
+
+   "return Marge Simpson as Sole Proprietor" in {
+     val result = repository.getBusinessName("XYZ00000000010").futureValue
+
+     result mustBe BusinessName(
+       mgdRegNumber = "XYZ00000000010",
+       solePropTitle = "Mrs",
+       solePropFirstName = "Marge",
+       solePropMidName = "Jacqueline",
+       solePropLastName = "Simpson",
+       businessName = "Pretzel Wagon",
+       businessType = "Sole Proprietor",
+       tradingName = "Marge Simpson",
+       systemDate = Date.valueOf("2026-04-20")
+     )
+   }
+
+   "return last name and business name correctly" in {
+     val result = repository.getBusinessName("XYZ00000000001").futureValue
+
+     result.solePropLastName mustBe "Doe"
+     result.businessName mustBe "Jane Doe Co."
+   }
+
+   "return correct middle name and system date" in {
+     val result = repository.getBusinessName("XYZ00000000010").futureValue
+
+     result.solePropMidName mustBe "Jacqueline"
+     result.systemDate mustBe Date.valueOf("2026-04-20")
+   }
+
+   "return correct title and trading name" in {
+     val result = repository.getBusinessName("XYZ00000000012").futureValue
+
+     result.solePropTitle mustBe "Miss"
+     result.tradingName mustBe "Miss Havisham"
+   }
+
+   "return correct business type and first name" in {
+     val result = repository.getBusinessName("XYZ00000000021").futureValue
+
+     result.solePropFirstName mustBe "Eugine"
+     result.businessType mustBe "Sole Proprietor"
+   }
+
+   "return default values for unknown mgdRegNumber" in {
+     val result = repository.getBusinessName("XYZ99999999999").futureValue
+
+     result mustBe BusinessName(
+       mgdRegNumber = "XYZ99999999999",
+       solePropTitle = "Mr",
+       solePropFirstName = "Foo",
+       solePropMidName = "B",
+       solePropLastName = "Bar",
+       businessName = "FooBar Co.",
+       businessType = "Sole Proprietor",
+       tradingName = "Foobar",
+       systemDate = Date.valueOf("2026-04-20")
+     )
+   }
+
+   "return consistent results across multiple calls" in {
+     val result1 = repository.getBusinessName("XYZ00000000012").futureValue
+     val result2 = repository.getBusinessName("XYZ00000000012").futureValue
+
+     result1 mustBe result2
+   }
+
+   "handle different valid mgdRegNumbers independently" in {
+     val result1 = repository.getBusinessName("XYZ00000000010").futureValue
+     val result2 = repository.getBusinessName("XYZ00000000001").futureValue
+
+     result1 must not be result2
+   }
+
+   "propagate downstream failure from stub" in {
+     val exception = intercept[RuntimeException] {
+       repository.getBusinessName("ERR00000000000").futureValue
+     }
+
+     exception.getMessage must include("Simulated downstream failure")
+   }
+
+   "handle special characters in mgdRegNumber" in {
+     val result = repository.getBusinessName("XYZ-123/ABC").futureValue
+
+     result.mgdRegNumber mustBe "XYZ-123/ABC"
+   }
+
+   "handle whitespace mgdRegNumber" in {
+     val result = repository.getBusinessName("   ").futureValue
+
+     result.mgdRegNumber mustBe ("   ")
+   }
+
+   "return populated fields for all required responses" in {
+     val result = repository.getBusinessName("XYZ00000000012").futureValue
+
+     result.mgdRegNumber must not be empty
+     result.solePropTitle must not be empty
+     result.solePropFirstName must not be empty
+     result.solePropLastName must not be empty
+     result.businessName must not be empty
+     result.businessType must not be empty
+     result.tradingName must not be empty
+   }
+ }
 }
