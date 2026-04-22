@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy
 import play.api.inject.{Binding, Module as AppModule}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
-import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository, CharitiesStub}
+import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{GamblingDataCacheRepository, GamblingDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
@@ -34,13 +34,12 @@ class Module extends AppModule:
   ): Seq[Binding[_]] =
     lazy val rdsStubbed = configuration.get[Boolean]("feature-switch.rds-stubbed")
     lazy val datasource = if (rdsStubbed) classOf[RdsStub] else classOf[RdsDatacacheRepository]
-    lazy val charitiesDatasource = if (rdsStubbed) classOf[CharitiesStub] else classOf[CharitiesDatacacheRepository]
 
     List(
       bind[AuthAction].to(classOf[DefaultAuthAction]),
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
-      bind[CharitiesDataSource].to(charitiesDatasource),
+      bind[CharitiesDataSource].to(classOf[CharitiesDatacacheRepository]),
       bind[CisMonthlyReturnSource].to(classOf[CisDatacacheRepository]),
       bind[NovaDataSource].to(classOf[NovaDatacacheRepository]),
       bind[GamblingDataSource].to(classOf[GamblingDataCacheRepository])
