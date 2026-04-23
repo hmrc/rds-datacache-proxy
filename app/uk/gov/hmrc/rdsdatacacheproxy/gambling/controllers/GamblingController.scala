@@ -49,5 +49,27 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     }
   }
 
+  def getMgdCertificate(mgdRegNumber: String): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getMgdCertificate(mgdRegNumber).map {
+      case Right(certificate) =>
+        Ok(Json.toJson(certificate))
+
+      case Left(error) =>
+        val logMessage =
+          s"[GamblingController][getMgdCertificate] code=${error.code} mgdRegNumber=$mgdRegNumber"
+
+        error match {
+          case InvalidMgdRegNumber =>
+            logger.warn(logMessage)
+            BadRequest(errorResponse(error))
+
+          case UnexpectedError =>
+            logger.error(logMessage)
+            InternalServerError(errorResponse(error))
+        }
+    }
+  }
+
   private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

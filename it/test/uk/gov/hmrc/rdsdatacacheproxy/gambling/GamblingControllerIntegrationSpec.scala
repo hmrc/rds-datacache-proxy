@@ -23,24 +23,56 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.MgdCertificate
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
 
-class GamblingControllerIntegrationSpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with ApplicationWithWiremock {
+class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingRdsStub extends GamblingDataSource {
+
     override def getReturnSummary(mgdRegNumber: String) =
       Future {
         GamblingStubData.getReturnSummary(mgdRegNumber)
       }
+
+    override def getMgdCertificate(mgdRegNumber: String) =
+      Future.successful(
+        MgdCertificate(
+          mgdRegNumber         = mgdRegNumber,
+          registrationDate     = None,
+          individualName       = None,
+          businessName         = Some("Test Business"),
+          tradingName          = None,
+          repMemName           = None,
+          busAddrLine1         = None,
+          busAddrLine2         = None,
+          busAddrLine3         = None,
+          busAddrLine4         = None,
+          busPostcode          = None,
+          busCountry           = None,
+          busAdi               = None,
+          repMemLine1          = None,
+          repMemLine2          = None,
+          repMemLine3          = None,
+          repMemLine4          = None,
+          repMemPostcode       = None,
+          repMemAdi            = None,
+          typeOfBusiness       = None,
+          businessTradeClass   = None,
+          noOfPartners         = None,
+          groupReg             = "N",
+          noOfGroupMems        = None,
+          dateCertIssued       = None,
+          partMembers          = Seq.empty,
+          groupMembers         = Seq.empty,
+          returnPeriodEndDates = Seq.empty
+        )
+      )
   }
 
   override lazy val app: Application =
@@ -120,7 +152,6 @@ class GamblingControllerIntegrationSpec
       val response = get(s"$endpoint/XYZ00000000012").futureValue
       response.contentType mustBe "application/json"
     }
-
 
     "return 400 for partially valid mgdRegNumber (wrong length)" in {
       AuthStub.authorised()
