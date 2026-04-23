@@ -27,7 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
-import java.sql.Date
+import java.time.LocalDate
 
 class GamblingDataCacheRepositoryISpec
   extends AnyWordSpec
@@ -153,7 +153,7 @@ class GamblingDataCacheRepositoryISpec
        businessName = "John Doe Co.",
        businessType = "Sole Proprietor",
        tradingName = "DoeDoe",
-       systemDate = Date.valueOf("2026-04-20")
+       systemDate = Some(LocalDate.of(2026, 4, 20))
      )
    }
 
@@ -169,7 +169,7 @@ class GamblingDataCacheRepositoryISpec
        businessName = "Pretzel Wagon",
        businessType = "Sole Proprietor",
        tradingName = "Marge Simpson",
-       systemDate = Date.valueOf("2026-04-20")
+       systemDate = Some(LocalDate.of(2026, 4, 20))
      )
    }
 
@@ -184,7 +184,7 @@ class GamblingDataCacheRepositoryISpec
      val result = repository.getBusinessName("XYZ00000000010").futureValue
 
      result.solePropMidName mustBe "Jacqueline"
-     result.systemDate mustBe Date.valueOf("2026-04-20")
+     result.systemDate mustBe Some(LocalDate.of(2026, 4, 20))
    }
 
    "return correct title and trading name" in {
@@ -213,7 +213,7 @@ class GamblingDataCacheRepositoryISpec
        businessName = "FooBar Co.",
        businessType = "Sole Proprietor",
        tradingName = "Foobar",
-       systemDate = Date.valueOf("2026-04-20")
+       systemDate = Some(LocalDate.of(2026, 4, 20))
      )
    }
 

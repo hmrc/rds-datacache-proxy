@@ -25,7 +25,8 @@ import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
-import java.sql.{CallableStatement, Connection, Date, ResultSet}
+import java.time.LocalDate
+import java.sql.{CallableStatement, Connection, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
@@ -106,7 +107,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockResultSet.getString("BUSINESS_NAME")).thenReturn("Foo Bar Co.")
     when(mockResultSet.getString("BUSINESS_TYPE")).thenReturn("Sole Proprietor")
     when(mockResultSet.getString("TRADING_NAME")).thenReturn("Foobar")
-    when(mockResultSet.getDate("SYSTEM_DATE")).thenReturn(Date.valueOf("2026-04-20"))
+    when(mockResultSet.getDate("SYSTEM_DATE")).thenReturn(java.sql.Date.valueOf("2024-04-21"))
 
     val result = repository.getBusinessName(mgdRegNumber).futureValue
 
@@ -119,7 +120,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       businessName      = "Foo Bar Co.",
       businessType      = "Sole Proprietor",
       tradingName       = "Foobar",
-      systemDate        = Date.valueOf("2026-04-20")
+      systemDate        = Some(LocalDate.of(2024, 4, 21))
     )
     verifyDbSetup(mgdRegNumber)
 
@@ -173,7 +174,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     )
   }
 
-  it should "throw exception when result set is empty" in {
+  it should "throw exception when result set is empty (returnSummary)" in {
 
     val mgdRegNumber = "XWM12345678901"
 
@@ -181,6 +182,22 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val exception = intercept[RuntimeException] {
       repository.getReturnSummary(mgdRegNumber).futureValue
+    }
+
+    exception.getMessage should include("Empty result set")
+
+    verifyDbSetup(mgdRegNumber)
+    verifyCleanup()
+  }
+
+  it should "throw exception when result set is empty (businessName)" in {
+
+    val mgdRegNumber = "XWM12345678901"
+
+    when(mockResultSet.next()).thenReturn(false)
+
+    val exception = intercept[RuntimeException] {
+      repository.getBusinessName(mgdRegNumber).futureValue
     }
 
     exception.getMessage should include("Empty result set")
@@ -234,7 +251,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCallableStatement).close()
   }
 
-  it should "throw exception when cursor is null" in {
+  it should "throw exception when cursor is null (returnSummary)" in {
 
     val mgdRegNumber = "ABC12345678901"
 
@@ -242,6 +259,26 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val exception = intercept[RuntimeException] {
       repository.getReturnSummary(mgdRegNumber).futureValue
+    }
+
+    exception.getMessage should include("Null cursor")
+
+    verify(mockCallableStatement).setString(1, mgdRegNumber)
+    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCallableStatement).execute()
+    verify(mockCallableStatement).getObject(2)
+
+    verify(mockCallableStatement).close()
+  }
+
+  it should "throw exception when cursor is null (businessName)" in {
+
+    val mgdRegNumber = "ABC12345678901"
+
+    when(mockCallableStatement.getObject(2)).thenReturn(null)
+
+    val exception = intercept[RuntimeException] {
+      repository.getBusinessName(mgdRegNumber).futureValue
     }
 
     exception.getMessage should include("Null cursor")

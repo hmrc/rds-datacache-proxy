@@ -38,7 +38,7 @@ import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.libs.json.{JsValue, Json}
-import java.sql.Date
+import java.time.LocalDate
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -125,8 +125,8 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
   "GamblingController#getBusinessName" - {
 
     "returns 200 when service succeeds" in new Setup {
-      val sqlDate: Date = Date.valueOf("2026-04-20")
-      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", sqlDate)
+      val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
+      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", dateTime)
 
       when(mockService.getBusinessName(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(name)))
@@ -143,8 +143,8 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "allows request through AuthAction" in new Setup {
-      val sqlDate: Date = Date.valueOf("2026-04-20")
-      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", sqlDate)
+      val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
+      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", dateTime)
 
       when(mockService.getBusinessName(any())(any()))
         .thenReturn(Future.successful(Right(name)))

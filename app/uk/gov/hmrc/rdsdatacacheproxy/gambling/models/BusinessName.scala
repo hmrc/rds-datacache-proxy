@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 import play.api.libs.json.{Json, OFormat}
-import java.sql.Date
+import java.time.LocalDate
 
 case class BusinessName(
   mgdRegNumber: String,
@@ -27,7 +27,7 @@ case class BusinessName(
   businessName: String,
   businessType: String,
   tradingName: String,
-  systemDate: Date
+  systemDate: Option[LocalDate]
 )
 
 object BusinessName {

@@ -110,7 +110,7 @@ class GamblingDataCacheRepository @Inject() (
                 businessName      = rs.getString("BUSINESS_NAME"),
                 businessType      = rs.getString("BUSINESS_TYPE"),
                 tradingName       = rs.getString("TRADING_NAME"),
-                systemDate        = rs.getDate("SYSTEM_DATE")
+                systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )
             } else {
               val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"

@@ -28,7 +28,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
-import java.sql.Date
+import java.time.LocalDate
 
 class GamblingControllerIntegrationSpec
   extends AnyWordSpec
@@ -202,7 +202,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "businessName").as[String] mustBe "John Doe Co."
       (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
       (response.json \ "tradingName").as[String] mustBe "DoeDoe"
-      (response.json \ "systemDate").as[Date] mustBe Date.valueOf("2026-04-20")
+      (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 20)
     }
 
     "normalise lowercase input" in {
@@ -223,7 +223,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "businessName").as[String] mustBe "FooBar Co."
       (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
       (response.json \ "tradingName").as[String] mustBe "Foobar"
-      (response.json \ "systemDate").as[Date] mustBe Date.valueOf("2026-04-20")
+      (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 20)
     }
 
     "return 200 with correct summary of Miss Catherine Haversham" in {
@@ -239,7 +239,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "businessName").as[String] mustBe "Failed Expectations"
       (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
       (response.json \ "tradingName").as[String] mustBe "Miss Havisham"
-      (response.json \ "systemDate").as[Date] mustBe Date.valueOf("1992-01-01")
+      (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(1991, 1, 1)
     }
 
     "return 200 with correct summary of Mr Eugine H Krabs" in {
@@ -254,7 +254,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "businessName").as[String] mustBe "Krusty Krab"
       (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
       (response.json \ "tradingName").as[String] mustBe "Mr Krabs"
-      (response.json \ "systemDate").as[Date] mustBe Date.valueOf("1992-01-01")
+      (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(1991, 1, 1)
     }
 
     "trim whitespace around mgdRegNumber" in {

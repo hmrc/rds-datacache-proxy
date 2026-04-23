@@ -25,8 +25,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRe
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
-import java.sql.Date
-
+import java.time.LocalDate
 final class GamblingServiceSpec extends SpecBase {
 
   private val repository = mock[GamblingDataSource]
@@ -106,7 +105,7 @@ final class GamblingServiceSpec extends SpecBase {
         businessName      = "FooBar Co.",
         businessType      = "Sole Proprietor",
         tradingName       = "Foobar",
-        systemDate        = Date.valueOf("1992-01-01")
+        systemDate        = Some(LocalDate.of(1991, 1, 1))
       )
 
       when(repository.getBusinessName(eqTo(validMgdRegNumber)))
@@ -132,7 +131,7 @@ final class GamblingServiceSpec extends SpecBase {
         businessName      = "John Doe Co.",
         businessType      = "Sole Proprietor",
         tradingName       = "DoeDoe",
-        systemDate        = Date.valueOf("1992-01-01")
+        systemDate        = Some(LocalDate.of(1991, 1, 1))
       )
 
       when(repository.getBusinessName(eqTo(normalisedMgdRegNumber)))

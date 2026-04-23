@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import java.sql.Date
+import java.time.LocalDate
 
 object GamblingStubData {
   def getReturnSummary(mgdRegNumber: String): ReturnSummary = {
@@ -39,9 +39,9 @@ object GamblingStubData {
       }
     }
     def getBusinessName(mgdRegNumber: String): BusinessName = {
-      val sqlDateOne: Date = Date.valueOf("2026-04-20")
-      val sqlDateTwo: Date = Date.valueOf("2026-01-01")
-      val sqlDateThree: Date = Date.valueOf("1992-01-01")
+      val dateTimeOne: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
+      val dateTimeTwo: Some[LocalDate] = Some(LocalDate.of(2026, 1, 1))
+      val dateTimeThree: Some[LocalDate] = Some(LocalDate.of(1991, 1, 1))
       mgdRegNumber match {
         case "XYZ00000000000" =>
           BusinessName(mgdRegNumber,
@@ -52,7 +52,7 @@ object GamblingStubData {
             businessName = "John Doe Co.",
             businessType = "Sole Proprietor",
             tradingName = "DoeDoe",
-            systemDate = sqlDateOne)
+            systemDate = dateTimeOne)
         case "XYZ00000000001" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mrs",
@@ -62,7 +62,7 @@ object GamblingStubData {
             businessName = "Jane Doe Co.",
             businessType = "Sole Proprietor",
             tradingName = "DoeDoe",
-            systemDate = sqlDateTwo)
+            systemDate = dateTimeTwo)
         case "XYZ00000000010" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mrs",
@@ -72,7 +72,7 @@ object GamblingStubData {
             businessName = "Pretzel Wagon",
             businessType = "Sole Proprietor",
             tradingName = "Marge Simpson",
-            systemDate = sqlDateOne)
+            systemDate = dateTimeOne)
         case "XYZ00000000012" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Miss",
@@ -82,7 +82,7 @@ object GamblingStubData {
             businessName = "Failed Expectations",
             businessType = "Sole Proprietor",
             tradingName = "Miss Havisham",
-            systemDate = sqlDateThree)
+            systemDate = dateTimeThree)
         case "XYZ00000000021" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mr",
@@ -92,7 +92,7 @@ object GamblingStubData {
             businessName = "Krusty Krab",
             businessType = "Sole Proprietor",
             tradingName = "Mr Krabs",
-            systemDate = sqlDateThree)
+            systemDate = dateTimeThree)
         case "ERR00000000000" =>
           throw new RuntimeException("Simulated downstream failure")
         case _ =>
@@ -104,7 +104,7 @@ object GamblingStubData {
             businessName= "FooBar Co.",
             businessType= "Sole Proprietor",
             tradingName= "Foobar",
-            systemDate= sqlDateOne
+            systemDate= dateTimeOne
           )
       }
     }
