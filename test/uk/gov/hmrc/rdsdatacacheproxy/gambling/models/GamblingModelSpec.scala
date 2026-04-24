@@ -20,9 +20,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import java.time.LocalDate
 
-
 class GamblingModelSpec extends AnyWordSpec with Matchers {
-
 
   "ReturnSummaryModel" should {
     "read and write a full-populated object" in {
@@ -35,21 +33,20 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin
 
-
       val json = Json.parse(jsonAsString)
       val model = json.as[ReturnSummary]
 
       model mustBe ReturnSummary(
-        mgdRegNumber  = "XYZ00000000000",
-        returnsDue = 2,
+        mgdRegNumber   = "XYZ00000000000",
+        returnsDue     = 2,
         returnsOverdue = 1
       )
 
       Json.toJson(model) mustBe json
     }
   }
-    "BusinessNameModel" should {
-  val dateBusinessName: LocalDate = LocalDate.of(1991, 1, 1)
+  "BusinessNameModel" should {
+    val dateBusinessName: LocalDate = LocalDate.of(1991, 1, 1)
     "read and write a full-populated object" in {
       val jsonAsString: String =
         s"""
@@ -66,24 +63,55 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin
 
-
       val json = Json.parse(jsonAsString)
       val model = json.as[BusinessName]
 
       model mustBe BusinessName(
-        mgdRegNumber  = "XYZ00000000000",
-        solePropTitle = "Mr",
+        mgdRegNumber      = "XYZ00000000000",
+        solePropTitle     = "Mr",
         solePropFirstName = "John",
-        solePropMidName = "C",
-        solePropLastName = "Doe",
-        businessName = "John Doe Co.",
-        businessType = "Sole Proprietor",
-        tradingName = "DoeDoe",
-        systemDate = Some(dateBusinessName)
+        solePropMidName   = "C",
+        solePropLastName  = "Doe",
+        businessName      = "John Doe Co.",
+        businessType      = "Sole Proprietor",
+        tradingName       = "DoeDoe",
+        systemDate        = Some(dateBusinessName)
+      )
+
+      Json.toJson(model) mustBe json
+    }
+  }
+
+  "BusinessDetailsModel" should {
+    val date: LocalDate = LocalDate.of(2000, 1, 1)
+    "read and write a full-populated object" in {
+      val jsonAsString: String =
+        s"""
+           |{
+           |"mgdRegNumber": "XYZ00000000000",
+           |"businessType": 1,
+           |"currentlyRegistered": 1,
+           |"groupReg": "foo",
+           |"dateOfRegistration": "$date",
+           |"businessPartnerNumber": "bar",
+           |"systemDate": "$date"
+           |}
+      """.stripMargin
+
+      val json = Json.parse(jsonAsString)
+      val model = json.as[BusinessDetails]
+
+      model mustBe BusinessDetails(
+        mgdRegNumber          = "XYZ00000000000",
+        businessType          = 1,
+        currentlyRegistered   = 1,
+        groupReg              = "foo",
+        dateOfRegistration    = Some(LocalDate.of(2000, 1, 1)),
+        businessPartnerNumber = "bar",
+        systemDate            = Some(LocalDate.of(2000, 1, 1))
       )
 
       Json.toJson(model) mustBe json
     }
   }
 }
-

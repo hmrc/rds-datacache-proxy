@@ -23,12 +23,14 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Reads
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-import scala.concurrent.Future
 import java.time.LocalDate
+import scala.concurrent.Future
 
 class GamblingControllerIntegrationSpec
   extends AnyWordSpec
@@ -46,6 +48,11 @@ class GamblingControllerIntegrationSpec
       Future {
         GamblingStubData.getBusinessName(mgdRegNumber)
       }
+
+    override def getBusinessDetails(mgdRegNumber: String) =
+      Future {
+        GamblingStubData.getBusinessDetails(mgdRegNumber)
+      }
   }
 
 
@@ -56,6 +63,14 @@ class GamblingControllerIntegrationSpec
         bind[GamblingDataSource].toInstance(new GamblingRdsStub)
       )
       .build()
+
+  private val businessDetailEndpoint = "/gambling/business-details"
+
+  implicit val localDateReads: Reads[LocalDate] =
+    Reads.localDateReads("yyyy-MM-dd")
+
+  implicit val optLocalDateReads: Reads[Option[LocalDate]] =
+    Reads.optionWithNull[LocalDate]
 
   private val endpointReturnSummary = "/gambling/return-summary"
   private val endpointBusinessName = "/gambling/business-name"
@@ -327,6 +342,150 @@ class GamblingControllerIntegrationSpec
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
       val response = get(s"$endpointBusinessName/ERR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+      (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+  }
+
+  "GET /gambling/business-details (stubbed repo, no DB)" should {
+
+    "return 200 with correct summary (0,0)" in {
+      AuthStub.authorised()
+
+      val response = get(s"$businessDetailEndpoint/XYZ00000000000").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000000"
+      (response.json \ "businessType").as[Int] mustBe 6
+      (response.json \ "currentlyRegistered").as[Int] mustBe 2
+      (response.json \ "groupReg").as[String] mustBe "foo"
+      (response.json \ "dateOfRegistration").as[Option[LocalDate]] mustBe Some(LocalDate.of(2024, 4, 21))
+      (response.json \ "businessPartnerNumber").as[String] mustBe "bar"
+      (response.json \ "systemDate").as[Option[LocalDate]] mustBe Some(LocalDate.of(2024, 4, 21))
+    }
+
+    "normalise lowercase input" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/xyz00000000012 ").futureValue
+      response.status mustBe OK
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+    }
+
+    "return default values for unknown mgdRegNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ99999999999").futureValue
+      response.status mustBe OK
+      (response.json \ "businessType").as[Int] mustBe 0
+      (response.json \ "currentlyRegistered").as[Int] mustBe 0
+      (response.json \ "groupReg").as[String] mustBe "unknown"
+      (response.json \ "dateOfRegistration").as[Option[LocalDate]] mustBe Some(LocalDate.of(2026, 4, 22))
+      (response.json \ "businessPartnerNumber").as[String] mustBe "unknown"
+      (response.json \ "systemDate").as[Option[LocalDate]] mustBe Some(LocalDate.of(2026, 4, 22))
+
+    }
+
+    "return 200 with correct summary (1,2)" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ00000000012").futureValue
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+      (response.json \ "businessType").as[Int] mustBe 1
+      (response.json \ "currentlyRegistered").as[Int] mustBe 2
+      (response.json \ "groupReg").as[String] mustBe "foobar"
+      (response.json \ "dateOfRegistration").as[Option[LocalDate]] mustBe Some(LocalDate.of(2023, 4, 21))
+      (response.json \ "businessPartnerNumber").as[String] mustBe "barfoo"
+      (response.json \ "systemDate").as[Option[LocalDate]] mustBe Some(LocalDate.of(2023, 4, 21))
+
+    }
+
+    "return 200 with correct summary (2,1)" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ00000000021").futureValue
+      response.status mustBe OK
+      (response.json \ "businessType").as[Int] mustBe 5
+      (response.json \ "currentlyRegistered").as[Int] mustBe 2
+      (response.json \ "groupReg").as[String] mustBe "foofoo"
+      (response.json \ "dateOfRegistration").as[Option[LocalDate]] mustBe Some(LocalDate.of(2024, 1, 21))
+      (response.json \ "businessPartnerNumber").as[String] mustBe "barbar"
+      (response.json \ "systemDate").as[Option[LocalDate]] mustBe Some(LocalDate.of(2024, 1, 21))
+
+    }
+
+    "trim whitespace around mgdRegNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/   XYZ00000000010   ").futureValue
+      response.status mustBe OK
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000010"
+    }
+
+    "return consistent results across multiple calls" in {
+      AuthStub.authorised()
+      val res1 = get(s"$businessDetailEndpoint/XYZ00000000012").futureValue
+      val res2 = get(s"$businessDetailEndpoint/XYZ00000000012").futureValue
+      res1.json mustBe res2.json
+    }
+
+    "return JSON content type for valid response" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ00000000012").futureValue
+      response.contentType mustBe "application/json"
+    }
+
+
+    "return 400 for partially valid mgdRegNumber (wrong length)" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ123").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for mgdRegNumber with special characters" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/XYZ00000@00000").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid mgdRegNumber format" in {
+      AuthStub.authorised()
+
+      val response = get(s"$businessDetailEndpoint/INVALID").futureValue
+      response.status mustBe BAD_REQUEST
+      (response.json \ "code").as[String] mustBe "INVALID_MGD_REG_NUMBER"
+      (response.json \ "message").as[String] mustBe "mgdRegNumber does not exist"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$businessDetailEndpoint/XYZ00000000000").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+
+    "return 404 for missing mgdRegNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 404 for whitespace-only mgdRegNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/   ").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 500 when stub simulates failure" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/ERR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return correct error structure for 500 response" in {
+      AuthStub.authorised()
+      val response = get(s"$businessDetailEndpoint/ERR00000000000").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

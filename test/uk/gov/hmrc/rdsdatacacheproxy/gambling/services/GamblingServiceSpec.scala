@@ -24,8 +24,9 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
-import scala.concurrent.Future
 import java.time.LocalDate
+import scala.concurrent.Future
+
 final class GamblingServiceSpec extends SpecBase {
 
   private val repository = mock[GamblingDataSource]
@@ -158,6 +159,71 @@ final class GamblingServiceSpec extends SpecBase {
       val result = service.getReturnSummary(validMgdRegNumber).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getReturnSummary(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
+  "GamblingService#BusinessDetails" - {
+
+    "return Right(summary) when repository succeeds" in {
+
+      val summary = BusinessDetails(
+        mgdRegNumber          = normalisedMgdRegNumber,
+        businessType          = 1,
+        currentlyRegistered   = 2,
+        groupReg              = "foo",
+        dateOfRegistration    = Some(LocalDate.of(2024, 4, 21)),
+        businessPartnerNumber = "bar",
+        systemDate            = Some(LocalDate.of(2024, 4, 21))
+      )
+      when(repository.getBusinessDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(summary))
+
+      val result = service.getBusinessDetails(validMgdRegNumber).futureValue
+
+      result mustBe Right(summary)
+      verify(repository).getBusinessDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input (trim + uppercase) before calling repository" in {
+
+      val rawInput = "  xwm12345678901  "
+
+      val summary = BusinessDetails(
+        mgdRegNumber          = normalisedMgdRegNumber,
+        businessType          = 1,
+        currentlyRegistered   = 2,
+        groupReg              = "foo",
+        dateOfRegistration    = Some(LocalDate.of(2024, 4, 21)),
+        businessPartnerNumber = "bar",
+        systemDate            = Some(LocalDate.of(2024, 4, 21))
+      )
+
+      when(repository.getBusinessDetails(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(summary))
+
+      val result = service.getBusinessDetails(rawInput).futureValue
+      result mustBe Right(summary)
+      verify(repository).getBusinessDetails(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber and not call repository when input is invalid" in {
+
+      val invalidInput = "xwm12345678"
+      val result = service.getBusinessDetails(invalidInput).futureValue
+      result mustBe Left(InvalidMgdRegNumber)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository throws exception" in {
+
+      when(repository.getBusinessDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
+      val result = service.getBusinessDetails(validMgdRegNumber).futureValue
+      result mustBe Left(UnexpectedError)
+      verify(repository).getBusinessDetails(eqTo(validMgdRegNumber))
       verifyNoMoreInteractions(repository)
     }
   }
