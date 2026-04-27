@@ -105,7 +105,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockResultSet.getString("SOLE_PROP_MIDDLE_NAME")).thenReturn("B")
     when(mockResultSet.getString("SOLE_PROP_LAST_NAME")).thenReturn("Bar")
     when(mockResultSet.getString("BUSINESS_NAME")).thenReturn("Foo Bar Co.")
-    when(mockResultSet.getString("BUSINESS_TYPE")).thenReturn("Sole Proprietor")
+    when(mockResultSet.getInt("BUSINESS_TYPE")).thenReturn(1)
     when(mockResultSet.getString("TRADING_NAME")).thenReturn("Foobar")
     when(mockResultSet.getDate("SYSTEM_DATE")).thenReturn(java.sql.Date.valueOf("2024-04-21"))
 
@@ -115,10 +115,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       mgdRegNumber      = mgdRegNumber,
       solePropTitle     = "Mr",
       solePropFirstName = "Foo",
-      solePropMidName   = "B",
+      solePropMidName   = Some("B"),
       solePropLastName  = "Bar",
       businessName      = "Foo Bar Co.",
-      businessType      = "Sole Proprietor",
+      businessType      = 1,
       tradingName       = "Foobar",
       systemDate        = Some(LocalDate.of(2024, 4, 21))
     )
@@ -131,7 +131,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockResultSet).getString("SOLE_PROP_MIDDLE_NAME")
     verify(mockResultSet).getString("SOLE_PROP_LAST_NAME")
     verify(mockResultSet).getString("BUSINESS_NAME")
-    verify(mockResultSet).getString("BUSINESS_TYPE")
+    verify(mockResultSet).getInt("BUSINESS_TYPE")
     verify(mockResultSet).getString("TRADING_NAME")
     verify(mockResultSet).getDate("SYSTEM_DATE")
 

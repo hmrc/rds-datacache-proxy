@@ -151,10 +151,10 @@ class GamblingDataCacheRepositoryISpec
        mgdRegNumber = "XYZ00000000000",
        solePropTitle = "Mr",
        solePropFirstName = "John",
-       solePropMidName = "C",
+       solePropMidName = Some("C"),
        solePropLastName = "Doe",
        businessName = "John Doe Co.",
-       businessType = "Sole Proprietor",
+       businessType = 1,
        tradingName = "DoeDoe",
        systemDate = Some(LocalDate.of(2026, 4, 20))
      )
@@ -167,10 +167,10 @@ class GamblingDataCacheRepositoryISpec
        mgdRegNumber = "XYZ00000000010",
        solePropTitle = "Mrs",
        solePropFirstName = "Marge",
-       solePropMidName = "Jacqueline",
+       solePropMidName = Some("Jacqueline"),
        solePropLastName = "Simpson",
        businessName = "Pretzel Wagon",
-       businessType = "Sole Proprietor",
+       businessType = 1,
        tradingName = "Marge Simpson",
        systemDate = Some(LocalDate.of(2026, 4, 20))
      )
@@ -186,7 +186,7 @@ class GamblingDataCacheRepositoryISpec
    "return correct middle name and system date" in {
      val result = repository.getBusinessName("XYZ00000000010").futureValue
 
-     result.solePropMidName mustBe "Jacqueline"
+     result.solePropMidName mustBe Some("Jacqueline")
      result.systemDate mustBe Some(LocalDate.of(2026, 4, 20))
    }
 
@@ -201,7 +201,7 @@ class GamblingDataCacheRepositoryISpec
      val result = repository.getBusinessName("XYZ00000000021").futureValue
 
      result.solePropFirstName mustBe "Eugine"
-     result.businessType mustBe "Sole Proprietor"
+     result.businessType mustBe 1
    }
 
    "return default values for unknown mgdRegNumber" in {
@@ -211,10 +211,10 @@ class GamblingDataCacheRepositoryISpec
        mgdRegNumber = "XYZ99999999999",
        solePropTitle = "Mr",
        solePropFirstName = "Foo",
-       solePropMidName = "B",
+       solePropMidName = Some("B"),
        solePropLastName = "Bar",
        businessName = "FooBar Co.",
-       businessType = "Sole Proprietor",
+       businessType = 1,
        tradingName = "Foobar",
        systemDate = Some(LocalDate.of(2026, 4, 20))
      )
@@ -262,7 +262,8 @@ class GamblingDataCacheRepositoryISpec
      result.solePropFirstName must not be empty
      result.solePropLastName must not be empty
      result.businessName must not be empty
-     result.businessType must not be empty
+     result.businessType must be > 0
+     result.businessType must be <= 5
      result.tradingName must not be empty
    }
  }

@@ -22,10 +22,10 @@ case class BusinessName(
   mgdRegNumber: String,
   solePropTitle: String,
   solePropFirstName: String,
-  solePropMidName: String,
+  solePropMidName: Option[String],
   solePropLastName: String,
   businessName: String,
-  businessType: String,
+  businessType: Int,
   tradingName: String,
   systemDate: Option[LocalDate]
 )

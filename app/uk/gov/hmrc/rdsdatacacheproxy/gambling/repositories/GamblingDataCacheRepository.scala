@@ -106,10 +106,10 @@ class GamblingDataCacheRepository @Inject() (
                 mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
                 solePropTitle     = rs.getString("SOLE_PROP_TITLE"),
                 solePropFirstName = rs.getString("SOLE_PROP_FIRST_NAME"),
-                solePropMidName   = rs.getString("SOLE_PROP_MIDDLE_NAME"),
+                solePropMidName   = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
                 solePropLastName  = rs.getString("SOLE_PROP_LAST_NAME"),
                 businessName      = rs.getString("BUSINESS_NAME"),
-                businessType      = rs.getString("BUSINESS_TYPE"),
+                businessType      = rs.getInt("BUSINESS_TYPE"),
                 tradingName       = rs.getString("TRADING_NAME"),
                 systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )

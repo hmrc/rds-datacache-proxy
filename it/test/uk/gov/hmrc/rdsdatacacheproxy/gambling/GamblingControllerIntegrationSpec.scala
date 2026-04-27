@@ -215,7 +215,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "solePropMidName").as[String] mustBe "C"
       (response.json \ "solePropLastName").as[String] mustBe "Doe"
       (response.json \ "businessName").as[String] mustBe "John Doe Co."
-      (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
+      (response.json \ "businessType").as[Int] mustBe 1
       (response.json \ "tradingName").as[String] mustBe "DoeDoe"
       (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 20)
     }
@@ -236,7 +236,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "solePropMidName").as[String] mustBe "B"
       (response.json \ "solePropLastName").as[String] mustBe "Bar"
       (response.json \ "businessName").as[String] mustBe "FooBar Co."
-      (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
+      (response.json \ "businessType").as[Int] mustBe 1
       (response.json \ "tradingName").as[String] mustBe "Foobar"
       (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 20)
     }
@@ -249,10 +249,10 @@ class GamblingControllerIntegrationSpec
       (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
       (response.json \ "solePropTitle").as[String] mustBe "Miss"
       (response.json \ "solePropFirstName").as[String] mustBe "Catherine"
-      (response.json \ "solePropMidName").as[String] mustBe ""
+      (response.json \ "solePropMidName").asOpt[String] mustBe None
       (response.json \ "solePropLastName").as[String] mustBe "Havisham"
       (response.json \ "businessName").as[String] mustBe "Failed Expectations"
-      (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
+      (response.json \ "businessType").as[Int] mustBe 1
       (response.json \ "tradingName").as[String] mustBe "Miss Havisham"
       (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(1991, 1, 1)
     }
@@ -267,7 +267,7 @@ class GamblingControllerIntegrationSpec
       (response.json \ "solePropMidName").as[String] mustBe "H"
       (response.json \ "solePropLastName").as[String] mustBe "Krabs"
       (response.json \ "businessName").as[String] mustBe "Krusty Krab"
-      (response.json \ "businessType").as[String] mustBe "Sole Proprietor"
+      (response.json \ "businessType").as[Int] mustBe 1
       (response.json \ "tradingName").as[String] mustBe "Mr Krabs"
       (response.json \ "systemDate").as[LocalDate] mustBe LocalDate.of(1991, 1, 1)
     }

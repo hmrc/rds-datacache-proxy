@@ -57,7 +57,7 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
           |"solePropMidName": "C",
           |"solePropLastName": "Doe",
           |"businessName": "John Doe Co.",
-          |"businessType": "Sole Proprietor",
+          |"businessType": 1,
           |"tradingName": "DoeDoe",
           |"systemDate": "$dateBusinessName"
           |}
@@ -70,10 +70,10 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
         mgdRegNumber      = "XYZ00000000000",
         solePropTitle     = "Mr",
         solePropFirstName = "John",
-        solePropMidName   = "C",
+        solePropMidName   = Some("C"),
         solePropLastName  = "Doe",
         businessName      = "John Doe Co.",
-        businessType      = "Sole Proprietor",
+        businessType      = 1,
         tradingName       = "DoeDoe",
         systemDate        = Some(dateBusinessName)
       )

@@ -101,10 +101,10 @@ final class GamblingServiceSpec extends SpecBase {
         mgdRegNumber      = validMgdRegNumber,
         solePropTitle     = "Mr",
         solePropFirstName = "Foo",
-        solePropMidName   = "B",
+        solePropMidName   = Some("B"),
         solePropLastName  = "Bar",
         businessName      = "FooBar Co.",
-        businessType      = "Sole Proprietor",
+        businessType      = 1,
         tradingName       = "Foobar",
         systemDate        = Some(LocalDate.of(1991, 1, 1))
       )
@@ -127,10 +127,10 @@ final class GamblingServiceSpec extends SpecBase {
         mgdRegNumber      = normalisedMgdRegNumber,
         solePropTitle     = "Mr",
         solePropFirstName = "John",
-        solePropMidName   = "C",
+        solePropMidName   = Some("C"),
         solePropLastName  = "Doe",
         businessName      = "John Doe Co.",
-        businessType      = "Sole Proprietor",
+        businessType      = 1,
         tradingName       = "DoeDoe",
         systemDate        = Some(LocalDate.of(1991, 1, 1))
       )

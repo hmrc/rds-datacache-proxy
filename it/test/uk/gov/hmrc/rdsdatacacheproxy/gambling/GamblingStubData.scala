@@ -47,50 +47,50 @@ object GamblingStubData {
           BusinessName(mgdRegNumber,
             solePropTitle = "Mr",
             solePropFirstName = "John",
-            solePropMidName = "C",
+            solePropMidName = Some("C"),
             solePropLastName = "Doe",
             businessName = "John Doe Co.",
-            businessType = "Sole Proprietor",
+            businessType = 1,
             tradingName = "DoeDoe",
             systemDate = dateTimeOne)
         case "XYZ00000000001" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mrs",
             solePropFirstName = "Jane",
-            solePropMidName = "C",
+            solePropMidName = Some("C"),
             solePropLastName = "Doe",
             businessName = "Jane Doe Co.",
-            businessType = "Sole Proprietor",
+            businessType = 1,
             tradingName = "DoeDoe",
             systemDate = dateTimeTwo)
         case "XYZ00000000010" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mrs",
             solePropFirstName = "Marge",
-            solePropMidName = "Jacqueline",
+            solePropMidName = Some("Jacqueline"),
             solePropLastName = "Simpson",
             businessName = "Pretzel Wagon",
-            businessType = "Sole Proprietor",
+            businessType = 1,
             tradingName = "Marge Simpson",
             systemDate = dateTimeOne)
         case "XYZ00000000012" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Miss",
             solePropFirstName = "Catherine",
-            solePropMidName = "",
+            solePropMidName = None,
             solePropLastName = "Havisham",
             businessName = "Failed Expectations",
-            businessType = "Sole Proprietor",
+            businessType = 1,
             tradingName = "Miss Havisham",
             systemDate = dateTimeThree)
         case "XYZ00000000021" =>
           BusinessName(mgdRegNumber,
             solePropTitle = "Mr",
             solePropFirstName = "Eugine",
-            solePropMidName = "H",
+            solePropMidName = Some("H"),
             solePropLastName = "Krabs",
             businessName = "Krusty Krab",
-            businessType = "Sole Proprietor",
+            businessType = 1,
             tradingName = "Mr Krabs",
             systemDate = dateTimeThree)
         case "ERR00000000000" =>
@@ -99,16 +99,16 @@ object GamblingStubData {
           BusinessName(mgdRegNumber,
             solePropTitle= "Mr",
             solePropFirstName= "Foo",
-            solePropMidName= "B",
+            solePropMidName= Some("B"),
             solePropLastName= "Bar",
             businessName= "FooBar Co.",
-            businessType= "Sole Proprietor",
+            businessType= 1,
             tradingName= "Foobar",
             systemDate= dateTimeOne
           )
       }
     }
-  }
+
 
 
   def getBusinessDetails(mgdRegNumber: String): BusinessDetails =

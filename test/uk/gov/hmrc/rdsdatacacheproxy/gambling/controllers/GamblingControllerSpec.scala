@@ -125,7 +125,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
       val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
-      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", dateTime)
+      val name = BusinessName("XWM00000001770", "fooBar", "foobar", Some("fooBar"), "fooBar", "fooBar", 1, "fooBar", dateTime)
 
       when(mockService.getBusinessName(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(name)))
@@ -143,7 +143,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "allows request through AuthAction" in new Setup {
       val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
-      val name = BusinessName("XWM00000001770", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", "fooBar", dateTime)
+      val name = BusinessName("XWM00000001770", "fooBar", "foobar", Some("fooBar"), "fooBar", "fooBar", 1, "fooBar", dateTime)
 
       when(mockService.getBusinessName(any())(any()))
         .thenReturn(Future.successful(Right(name)))
