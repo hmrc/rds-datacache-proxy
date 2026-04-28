@@ -37,6 +37,7 @@ class GamblingDataCacheRepositoryISpec
     with GuiceOneAppPerSuite {
 
   class GamblingRdsStub extends GamblingDataSource {
+
     override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] =
       Future.successful(GamblingStubData.getReturnSummary(mgdRegNumber))
     override def getBusinessName(mgdRegNumber: String): Future[BusinessName] =
@@ -44,6 +45,9 @@ class GamblingDataCacheRepositoryISpec
 
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
       Future.successful(GamblingStubData.getBusinessDetails(mgdRegNumber))
+
+    override def getMgdCertificate(mgdRegNumber: String) =
+      Future.failed(new NotImplementedError("Not needed for this test"))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()

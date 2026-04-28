@@ -88,4 +88,29 @@ class GamblingService @Inject() (
         }
     }
   }
+
+  def getMgdCertificate(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, MgdCertificate]] = {
+
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+
+    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+      logger.warn(s"[GamblingService][getMgdCertificate] Invalid pattern mgdRegNumber=$mgdRegNumber")
+      Future.successful(Left(InvalidMgdRegNumber))
+    } else {
+
+      repository
+        .getMgdCertificate(mgdRegNumber)
+        .map { certificate =>
+          Right(certificate)
+        }
+        .recover { case ex: Exception =>
+          logger.error(
+            s"[GamblingService][getMgdCertificate] Unexpected error mgdRegNumber=$mgdRegNumber",
+            ex
+          )
+          Left(UnexpectedError)
+        }
+    }
+  }
+
 }
