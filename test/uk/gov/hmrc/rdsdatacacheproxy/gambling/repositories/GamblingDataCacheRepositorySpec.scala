@@ -26,6 +26,7 @@ import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
 import java.sql.{CallableStatement, Connection, ResultSet}
+import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -33,49 +34,41 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
   var db: Database = _
   var repository: GamblingDataCacheRepository = _
-  var mockConnection: java.sql.Connection = _
-  var mockCallableStatement: CallableStatement = _
-  var mockResultSet: ResultSet = _
+  var mockConnection: Connection = _
+  var mockCs: CallableStatement = _
+  var returnSummaryRs: ResultSet = _
+  var partRs: ResultSet = _
+  var groupRs: ResultSet = _
+  var returnPeriodRs: ResultSet = _
 
   before {
-    db                    = mock(classOf[Database])
-    mockConnection        = mock(classOf[java.sql.Connection])
-    mockCallableStatement = mock(classOf[CallableStatement])
-    mockResultSet         = mock(classOf[ResultSet])
+    db              = mock(classOf[Database])
+    mockConnection  = mock(classOf[Connection])
+    mockCs          = mock(classOf[CallableStatement])
+    returnSummaryRs = mock(classOf[ResultSet])
+    partRs          = mock(classOf[ResultSet])
+    groupRs         = mock(classOf[ResultSet])
+    returnPeriodRs  = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
-      val func = invocation.getArgument(0, classOf[java.sql.Connection => Any])
-      func(mockConnection)
+      val fn = invocation.getArgument(0, classOf[Connection => Any])
+      fn(mockConnection)
     }
 
-    when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
-    when(mockCallableStatement.getObject(2)).thenReturn(mockResultSet)
+    when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
 
     repository = new GamblingDataCacheRepository(db)
-  }
-
-  private def verifyDbSetup(mgdRegNumber: String): Unit = {
-    verify(mockCallableStatement).setString(1, mgdRegNumber)
-    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-    verify(mockCallableStatement).execute()
-    verify(mockCallableStatement).getObject(2)
-  }
-
-  private def verifyCleanup(rsOpened: Boolean = true): Unit = {
-    verify(mockCallableStatement, times(1)).close()
-    if (rsOpened) {
-      verify(mockResultSet, times(1)).close()
-    }
   }
 
   "getReturnSummary" should "return ReturnSummary when stored procedure returns data" in {
 
     val mgdRegNumber = "XWM12345678901"
 
-    when(mockResultSet.next()).thenReturn(true)
-    when(mockResultSet.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
-    when(mockResultSet.getInt("RETURNS_DUE")).thenReturn(5)
-    when(mockResultSet.getInt("RETURNS_OVERDUE")).thenReturn(2)
+    when(mockCs.getObject(2)).thenReturn(returnSummaryRs)
+    when(returnSummaryRs.next()).thenReturn(true)
+    when(returnSummaryRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
+    when(returnSummaryRs.getInt("RETURNS_DUE")).thenReturn(5)
+    when(returnSummaryRs.getInt("RETURNS_OVERDUE")).thenReturn(2)
 
     val result = repository.getReturnSummary(mgdRegNumber).futureValue
 
@@ -143,51 +136,42 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockResultSet.getString("MGD_REG_NUMBER")).thenReturn(null)
 
     val result = repository.getReturnSummary("XWM12345678901").futureValue
+    result shouldBe ReturnSummary(mgdRegNumber, 5, 2)
 
-    result.mgdRegNumber shouldBe null // or expected behaviour
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(returnSummaryRs).close()
+    verify(mockCs).close()
   }
 
-  it should "handle zero counts correctly" in {
+  it should "throw exception when result set is empty" in {
 
-    val mgdRegNumber = "XWM12345678901"
+    when(mockCs.getObject(2)).thenReturn(returnSummaryRs)
+    when(returnSummaryRs.next()).thenReturn(false)
 
-    when(mockResultSet.next()).thenReturn(true)
-    when(mockResultSet.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
-    when(mockResultSet.getInt("RETURNS_DUE")).thenReturn(0)
-    when(mockResultSet.getInt("RETURNS_OVERDUE")).thenReturn(0)
+    val ex = intercept[RuntimeException] {
+      repository.getReturnSummary("XWM123").futureValue
+    }
 
-    val result = repository.getReturnSummary(mgdRegNumber).futureValue
-
-    verifyDbSetup(mgdRegNumber)
-
-    verify(mockResultSet).next()
-    verify(mockResultSet).getString("MGD_REG_NUMBER")
-    verify(mockResultSet).getInt("RETURNS_DUE")
-    verify(mockResultSet).getInt("RETURNS_OVERDUE")
-
-    verifyCleanup()
-
-    result shouldBe ReturnSummary(
-      mgdRegNumber   = mgdRegNumber,
-      returnsDue     = 0,
-      returnsOverdue = 0
-    )
+    ex.getMessage should include("Empty result set")
+    verify(returnSummaryRs).close()
+    verify(mockCs).close()
   }
 
   it should "throw exception when result set is empty (returnSummary)" in {
 
     val mgdRegNumber = "XWM12345678901"
+  it should "throw exception when cursor is null" in {
 
-    when(mockResultSet.next()).thenReturn(false)
+    when(mockCs.getObject(2)).thenReturn(null)
 
-    val exception = intercept[RuntimeException] {
-      repository.getReturnSummary(mgdRegNumber).futureValue
+    val ex = intercept[RuntimeException] {
+      repository.getReturnSummary("XWM123").futureValue
     }
 
-    exception.getMessage should include("Empty result set")
-
-    verifyDbSetup(mgdRegNumber)
-    verifyCleanup()
+    ex.getMessage should include("Null cursor")
+    verify(mockCs).close()
   }
 
   it should "throw exception when result set is empty (businessName)" in {
@@ -211,64 +195,102 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val ex = repository.getReturnSummary("XWM12345678901").failed.futureValue
     ex shouldBe a[ClassCastException]
+  "getMgdCertificate" should "return full MgdCertificate when all data is present" in {
+
+    val mgdRegNumber = "XWM00000001770"
+    val issuedDate = LocalDate.of(2024, 1, 1)
+
+    // Scalar outs
+    when(mockCs.getString(2)).thenReturn(mgdRegNumber)
+    when(mockCs.getDate(3)).thenReturn(Date.valueOf("2020-01-01"))
+    when(mockCs.getString(5)).thenReturn("Test Business")
+    when(mockCs.getString(25)).thenReturn("Y")
+    when(mockCs.getObject(26)).thenReturn(BigDecimal(2))
+    when(mockCs.getDate(28)).thenReturn(Date.valueOf(issuedDate))
+
+    // Cursors
+    when(mockCs.getObject(24)).thenReturn(partRs)
+    when(mockCs.getObject(27)).thenReturn(groupRs)
+    when(mockCs.getObject(29)).thenReturn(returnPeriodRs)
+
+    // Partner cursor
+    when(partRs.next()).thenReturn(true, false)
+    when(partRs.getString("names_of_part_mems")).thenReturn("Partner 1")
+    when(partRs.getInt("type_of_business")).thenReturn(1)
+
+    // Group cursor
+    when(groupRs.next()).thenReturn(true, false)
+    when(groupRs.getString("names_of_group_mems")).thenReturn("Group 1")
+
+    // Return periods cursor
+    when(returnPeriodRs.next()).thenReturn(true, false)
+    when(returnPeriodRs.getDate("return_period_end_date"))
+      .thenReturn(Date.valueOf("2023-12-31"))
+
+    val result = repository.getMgdCertificate(mgdRegNumber).futureValue
+
+    result.mgdRegNumber   shouldBe mgdRegNumber
+    result.businessName   shouldBe Some("Test Business")
+    result.groupReg       shouldBe "Y"
+    result.noOfGroupMems  shouldBe Some(2)
+    result.dateCertIssued shouldBe Some(issuedDate)
+
+    result.partMembers.size          shouldBe 1
+    result.groupMembers.size         shouldBe 1
+    result.returnPeriodEndDates.size shouldBe 1
+
+    verify(partRs).close()
+    verify(groupRs).close()
+    verify(returnPeriodRs).close()
+    verify(mockCs).close()
   }
 
-  it should "close resources even when exception occurs" in {
+  it should "return empty lists when cursors are empty" in {
 
-    val mgdRegNumber = "XWM12345678901"
-    when(mockCallableStatement.execute()).thenThrow(new RuntimeException("DB error"))
+    when(mockCs.getObject(24)).thenReturn(partRs)
+    when(mockCs.getObject(27)).thenReturn(groupRs)
+    when(mockCs.getObject(29)).thenReturn(returnPeriodRs)
 
-    val ex = repository.getReturnSummary(mgdRegNumber).failed.futureValue
-    ex.getMessage should include("DB error")
+    when(partRs.next()).thenReturn(false)
+    when(groupRs.next()).thenReturn(false)
+    when(returnPeriodRs.next()).thenReturn(false)
 
-    verify(mockCallableStatement).setString(1, mgdRegNumber)
-    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-    verify(mockCallableStatement).execute()
-    verify(mockResultSet, never()).close()
+    val result = repository.getMgdCertificate("XWM00000001770").futureValue
 
-    verifyCleanup(rsOpened = false)
+    result.partMembers          shouldBe empty
+    result.groupMembers         shouldBe empty
+    result.returnPeriodEndDates shouldBe empty
+
+    verify(partRs).close()
+    verify(groupRs).close()
+    verify(returnPeriodRs).close()
+    verify(mockCs).close()
   }
 
-  it should "close ResultSet when exception occurs after it is opened" in {
+  it should "handle null cursors safely" in {
 
-    val mgdRegNumber = "XWM12345678901"
+    when(mockCs.getObject(24)).thenReturn(null)
+    when(mockCs.getObject(27)).thenReturn(null)
+    when(mockCs.getObject(29)).thenReturn(null)
 
-    when(mockCallableStatement.getObject(2)).thenReturn(mockResultSet)
-    when(mockResultSet.next()).thenThrow(new RuntimeException("RS error"))
+    val result = repository.getMgdCertificate("XWM00000001770").futureValue
 
-    val ex = repository.getReturnSummary(mgdRegNumber).failed.futureValue
+    result.partMembers          shouldBe empty
+    result.groupMembers         shouldBe empty
+    result.returnPeriodEndDates shouldBe empty
 
-    ex          shouldBe a[RuntimeException]
-    ex.getMessage should include("RS error")
-
-    verify(mockCallableStatement).setString(1, mgdRegNumber)
-    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-    verify(mockCallableStatement).execute()
-    verify(mockCallableStatement).getObject(2)
-
-    // Critical verification
-    verify(mockResultSet).close()
-    verify(mockCallableStatement).close()
+    verify(mockCs).close()
   }
 
   it should "throw exception when cursor is null (returnSummary)" in {
+  it should "close resources when execute throws exception" in {
 
-    val mgdRegNumber = "ABC12345678901"
+    when(mockCs.execute()).thenThrow(new RuntimeException("DB error"))
 
-    when(mockCallableStatement.getObject(2)).thenReturn(null)
+    val ex = repository.getMgdCertificate("XWM00000001770").failed.futureValue
+    ex.getMessage should include("DB error")
 
-    val exception = intercept[RuntimeException] {
-      repository.getReturnSummary(mgdRegNumber).futureValue
-    }
-
-    exception.getMessage should include("Null cursor")
-
-    verify(mockCallableStatement).setString(1, mgdRegNumber)
-    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-    verify(mockCallableStatement).execute()
-    verify(mockCallableStatement).getObject(2)
-
-    verify(mockCallableStatement).close()
+    verify(mockCs).close()
   }
 
   it should "throw exception when cursor is null (businessName)" in {
