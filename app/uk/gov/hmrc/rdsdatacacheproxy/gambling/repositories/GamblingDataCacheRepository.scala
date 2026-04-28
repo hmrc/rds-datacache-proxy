@@ -20,7 +20,6 @@ import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future, blocking}
 
