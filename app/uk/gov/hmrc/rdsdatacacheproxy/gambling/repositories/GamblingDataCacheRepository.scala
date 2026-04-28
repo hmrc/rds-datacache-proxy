@@ -25,6 +25,8 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
+  def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
+  def getBusinessName(mgdRegNumber: String): Future[BusinessName]
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
 }
 
@@ -221,6 +223,103 @@ class GamblingDataCacheRepository @Inject() (
                 mgdRegNumber   = rs.getString("MGD_REG_NUMBER"),
                 returnsDue     = rs.getInt("RETURNS_DUE"),
                 returnsOverdue = rs.getInt("RETURNS_OVERDUE")
+              )
+            } else {
+              val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
+              logger.error(s"[GamblingDataCacheRepository] $msg")
+              throw new RuntimeException(msg)
+            }
+          } finally {
+            rs.close()
+          }
+        } finally {
+          cs.close()
+        }
+      }
+    }(ec)
+  }
+  override def getBusinessName(mgdRegNumber: String): Future[BusinessName] = {
+
+    logger.info(s"[GamblingDataCacheRepository][getBusinessName] mgdRegNumber=$mgdRegNumber")
+
+    Future {
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_BUSINESS_NAME(?, ?) }")
+
+        try {
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.execute()
+
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+            val msg = s"Null cursor returned for mgdRegNumber=$mgdRegNumber"
+            logger.error(s"[GamblingDataCacheRepository] $msg")
+            throw new RuntimeException(msg)
+          }
+
+          try {
+            if (rs.next()) {
+              BusinessName(
+                mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
+                solePropTitle     = rs.getString("SOLE_PROP_TITLE"),
+                solePropFirstName = rs.getString("SOLE_PROP_FIRST_NAME"),
+                solePropMidName   = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                solePropLastName  = rs.getString("SOLE_PROP_LAST_NAME"),
+                businessName      = rs.getString("BUSINESS_NAME"),
+                businessType      = rs.getInt("BUSINESS_TYPE"),
+                tradingName       = rs.getString("TRADING_NAME"),
+                systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+              )
+            } else {
+              val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
+              logger.error(s"[GamblingDataCacheRepository] $msg")
+              throw new RuntimeException(msg)
+            }
+          } finally {
+            rs.close()
+          }
+        } finally {
+          cs.close()
+        }
+      }
+    }(ec)
+  }
+
+  override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] = {
+
+    logger.info(s"[GamblingDataCacheRepository][getBusinessDetails] mgdRegNumber=$mgdRegNumber")
+
+    Future {
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_BUSINESS_DETAILS(?, ?) }")
+
+        try {
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.execute()
+
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+            val msg = s"Null cursor returned for mgdRegNumber=$mgdRegNumber"
+            logger.error(s"[GamblingDataCacheRepository] $msg")
+            throw new RuntimeException(msg)
+          }
+
+          try {
+            if (rs.next()) {
+              BusinessDetails(
+                mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
+                businessType          = rs.getInt("BUSINESS_TYPE"),
+                currentlyRegistered   = rs.getInt("CURRENTLY_REGISTERED"),
+                groupReg              = rs.getString("GROUP_REG"),
+                dateOfRegistration    = Option(rs.getDate("DATE_OF_REGISTRATION")).map(_.toLocalDate),
+                businessPartnerNumber = rs.getString("BUSINESS_PARTNER_NUMBER"),
+                systemDate            = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )
             } else {
               val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"

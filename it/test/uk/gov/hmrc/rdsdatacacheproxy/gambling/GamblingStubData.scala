@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import java.time.LocalDate
 
 object GamblingStubData {
-  def getReturnSummary(mgdRegNumber: String): ReturnSummary =
+  def getReturnSummary(mgdRegNumber: String): ReturnSummary = {
     mgdRegNumber match {
       case "XYZ00000000000" =>
         ReturnSummary(mgdRegNumber, returnsDue = 0, returnsOverdue = 0)
@@ -35,5 +36,132 @@ object GamblingStubData {
         throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReturnSummary(mgdRegNumber, returnsDue = 3, returnsOverdue = 4)
+      }
     }
+    def getBusinessName(mgdRegNumber: String): BusinessName = {
+      val dateTimeOne: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
+      val dateTimeTwo: Some[LocalDate] = Some(LocalDate.of(2026, 1, 1))
+      val dateTimeThree: Some[LocalDate] = Some(LocalDate.of(1991, 1, 1))
+      mgdRegNumber match {
+        case "XYZ00000000000" =>
+          BusinessName(mgdRegNumber,
+            solePropTitle = "Mr",
+            solePropFirstName = "John",
+            solePropMidName = Some("C"),
+            solePropLastName = "Doe",
+            businessName = "John Doe Co.",
+            businessType = 1,
+            tradingName = "DoeDoe",
+            systemDate = dateTimeOne)
+        case "XYZ00000000001" =>
+          BusinessName(mgdRegNumber,
+            solePropTitle = "Mrs",
+            solePropFirstName = "Jane",
+            solePropMidName = Some("C"),
+            solePropLastName = "Doe",
+            businessName = "Jane Doe Co.",
+            businessType = 1,
+            tradingName = "DoeDoe",
+            systemDate = dateTimeTwo)
+        case "XYZ00000000010" =>
+          BusinessName(mgdRegNumber,
+            solePropTitle = "Mrs",
+            solePropFirstName = "Marge",
+            solePropMidName = Some("Jacqueline"),
+            solePropLastName = "Simpson",
+            businessName = "Pretzel Wagon",
+            businessType = 1,
+            tradingName = "Marge Simpson",
+            systemDate = dateTimeOne)
+        case "XYZ00000000012" =>
+          BusinessName(mgdRegNumber,
+            solePropTitle = "Miss",
+            solePropFirstName = "Catherine",
+            solePropMidName = None,
+            solePropLastName = "Havisham",
+            businessName = "Failed Expectations",
+            businessType = 1,
+            tradingName = "Miss Havisham",
+            systemDate = dateTimeThree)
+        case "XYZ00000000021" =>
+          BusinessName(mgdRegNumber,
+            solePropTitle = "Mr",
+            solePropFirstName = "Eugine",
+            solePropMidName = Some("H"),
+            solePropLastName = "Krabs",
+            businessName = "Krusty Krab",
+            businessType = 1,
+            tradingName = "Mr Krabs",
+            systemDate = dateTimeThree)
+        case "ERR00000000000" =>
+          throw new RuntimeException("Simulated downstream failure")
+        case _ =>
+          BusinessName(mgdRegNumber,
+            solePropTitle= "Mr",
+            solePropFirstName= "Foo",
+            solePropMidName= Some("B"),
+            solePropLastName= "Bar",
+            businessName= "FooBar Co.",
+            businessType= 1,
+            tradingName= "Foobar",
+            systemDate= dateTimeOne
+          )
+      }
+    }
+
+
+
+  def getBusinessDetails(mgdRegNumber: String): BusinessDetails =
+      mgdRegNumber match {
+        case "XYZ00000000000" =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 6,
+            currentlyRegistered = 2,
+            groupReg = "foo",
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+          )
+        case "XYZ00000000001" =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 1,
+            currentlyRegistered = 1,
+            groupReg = "foofoo",
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+          )
+        case "XYZ00000000010" =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 3,
+            currentlyRegistered = 2,
+            groupReg = "foo",
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+          )
+        case "XYZ00000000012" =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 1,
+            currentlyRegistered = 2,
+            groupReg = "foobar",
+            dateOfRegistration = Some(LocalDate.of(2023, 4, 21)), businessPartnerNumber = "barfoo", systemDate = Some(LocalDate.of(2023, 4, 21))
+          )
+        case "XYZ00000000021" =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 5,
+            currentlyRegistered = 2,
+            groupReg = "foofoo",
+            dateOfRegistration = Some(LocalDate.of(2024, 1, 21)), businessPartnerNumber = "barbar", systemDate = Some(LocalDate.of(2024, 1, 21))
+          )
+        case "ERR00000000000" =>
+          throw new RuntimeException("Simulated downstream failure")
+        case _ =>
+          BusinessDetails(
+            mgdRegNumber = mgdRegNumber,
+            businessType = 0,
+            currentlyRegistered = 0,
+            groupReg = "unknown",
+            dateOfRegistration = Some(LocalDate.of(2026, 4, 22)), businessPartnerNumber = "unknown", systemDate = Some(LocalDate.of(2026, 4, 22))
+          )
+      }
 }

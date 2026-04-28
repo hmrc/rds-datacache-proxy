@@ -36,4 +36,6 @@ GET        /charities/organisations/:charityRef           uk.gov.hmrc.rdsdatacac
 
 #MGD routes
 GET        /gambling/return-summary/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnSummary(mgdRegNumber: String)
+GET        /gambling/business-details/:mgdRegNumber        uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessDetails(mgdRegNumber: String)
+GET        /gambling/business-name/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessName(mgdRegNumber: String)
 GET        /gambling/get-mgd-certificate/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getMgdCertificate(mgdRegNumber: String)
