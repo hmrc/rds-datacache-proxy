@@ -39,6 +39,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var partRs: ResultSet = _
   var groupRs: ResultSet = _
   var returnPeriodRs: ResultSet = _
+  var businessRs: ResultSet = _
+  var operatorRs: ResultSet = _
 
   before {
     db              = mock(classOf[Database])
@@ -48,6 +50,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     partRs          = mock(classOf[ResultSet])
     groupRs         = mock(classOf[ResultSet])
     returnPeriodRs  = mock(classOf[ResultSet])
+    businessRs      = mock(classOf[ResultSet])
+    operatorRs      = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -57,6 +61,160 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
 
     repository = new GamblingDataCacheRepository(db)
+  }
+
+  "getOperatorDetails" should "return operator details when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(operatorRs)
+
+    when(operatorRs.next()).thenReturn(true)
+
+    when(operatorRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+
+    when(operatorRs.getString("sole_prop_name")).thenReturn("John Trading")
+    when(operatorRs.getString("business_name")).thenReturn("Test Business")
+    when(operatorRs.getString("trading_name")).thenReturn("Trading Ltd")
+    when(operatorRs.getObject("business_type")).thenReturn(BigDecimal(2))
+
+    when(operatorRs.getString("address_1")).thenReturn("Line 1")
+    when(operatorRs.getString("postcode")).thenReturn("AB12 3CD")
+
+    val result = repository.getOperatorDetails(mgdRegNumber).futureValue
+
+    result.mgdRegNumber shouldBe mgdRegNumber
+    result.solePropName shouldBe Some("John Trading")
+    result.businessName shouldBe Some("Test Business")
+    result.tradingName  shouldBe Some("Trading Ltd")
+    result.businessType shouldBe Some(2)
+    result.address1     shouldBe Some("Line 1")
+    result.postcode     shouldBe Some("AB12 3CD")
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when operator cursor is empty" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(operatorRs)
+    when(operatorRs.next()).thenReturn(false)
+
+    val ex = intercept[RuntimeException] {
+      repository.getOperatorDetails(mgdRegNumber).futureValue
+    }
+
+    ex.getMessage should include("No data")
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when operator cursor is null" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val ex = intercept[RuntimeException] {
+      repository.getOperatorDetails(mgdRegNumber).futureValue
+    }
+
+    ex.getMessage should include("Null cursor")
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  "getBusinessDetails" should "return BusinessDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(businessRs)
+
+    when(businessRs.next()).thenReturn(true)
+
+    when(businessRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(businessRs.getObject("business_type")).thenReturn(BigDecimal(1))
+    when(businessRs.getInt("currently_registered")).thenReturn(1)
+    when(businessRs.getString("group_reg")).thenReturn("Y")
+    when(businessRs.getDate("date_of_registration")).thenReturn(Date.valueOf("2020-01-01"))
+    when(businessRs.getString("business_partner_number")).thenReturn("BP123")
+
+    val result = repository.getBusinessDetails(mgdRegNumber).futureValue
+
+    result.mgdRegNumber          shouldBe mgdRegNumber
+    result.currentlyRegistered   shouldBe 1
+    result.isGroupMember         shouldBe true
+    result.businessPartnerNumber shouldBe Some("BP123")
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when business details cursor is empty" in {
+
+    when(mockCs.getObject(2)).thenReturn(businessRs)
+    when(businessRs.next()).thenReturn(false)
+
+    val ex = intercept[RuntimeException] {
+      repository.getBusinessDetails("XWM00000001770").futureValue
+    }
+
+    ex.getMessage should include("No business details found")
+
+    verify(mockCs).setString(1, "XWM00000001770")
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when business cursor is null" in {
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val ex = intercept[RuntimeException] {
+      repository.getBusinessDetails("XWM00000001770").futureValue
+    }
+
+    ex.getMessage should include("No business details found")
+
+    verify(mockCs).setString(1, "XWM00000001770")
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when operator cursor is empty" in {
+
+    when(mockCs.getObject(2)).thenReturn(operatorRs)
+    when(operatorRs.next()).thenReturn(false)
+
+    val ex = intercept[RuntimeException] {
+      repository.getOperatorDetails("XWM00000001770").futureValue
+    }
+
+    ex.getMessage should include("No data")
+
+    verify(operatorRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "throw exception when operator cursor is null" in {
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val ex = intercept[RuntimeException] {
+      repository.getOperatorDetails("XWM00000001770").futureValue
+    }
+
+    ex.getMessage should include("Null cursor")
+
+    verify(mockCs).close()
   }
 
   "getReturnSummary" should "return ReturnSummary when stored procedure returns data" in {
@@ -202,4 +360,5 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     verify(mockCs).close()
   }
+
 }
