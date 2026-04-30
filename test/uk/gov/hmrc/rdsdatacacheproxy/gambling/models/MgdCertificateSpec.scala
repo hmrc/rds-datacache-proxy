@@ -52,7 +52,7 @@ class MgdCertificateSpec extends AnyWordSpec with Matchers {
     dateCertIssued     = Some(LocalDate.of(2024, 2, 1)),
     partMembers = Seq(
       PartnerMember(
-        namesOfPartMems    = "Partner A",
+        namesOfPartMems    = Some("Partner A"),
         solePropTitle      = Some("Mr"),
         solePropFirstName  = Some("A"),
         solePropMiddleName = None,
