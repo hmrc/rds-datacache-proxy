@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 final case class PartnerMember(
-  namesOfPartMems: String,
+  namesOfPartMems: Option[String],
   solePropTitle: Option[String],
   solePropFirstName: Option[String],
   solePropMiddleName: Option[String],
