@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
-  def getOperatorDetails(mgdRegNumber: String): Future[GetOperatorDetails]
+  def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
   def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
 }
 
@@ -112,7 +112,7 @@ class GamblingDataCacheRepository @Inject() (
     })(ec)
   }
 
-  override def getOperatorDetails(mgdRegNumber: String): Future[GetOperatorDetails] = {
+  override def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails] = {
 
     logger.info(s"getOperatorDetails - MGD Reg Number: $mgdRegNumber")
 
@@ -158,7 +158,7 @@ class GamblingDataCacheRepository @Inject() (
               def optDate(col: String): Option[java.time.LocalDate] =
                 Option(rs.getDate(col)).map(_.toLocalDate)
 
-              GetOperatorDetails(
+              OperatorDetails(
                 mgdRegNumber       = rs.getString("mgd_reg_number"),
                 solePropName       = optString("sole_prop_name"),
                 solePropTitle      = optString("sole_prop_title"),

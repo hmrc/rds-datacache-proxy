@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, GetOperatorDetails, MgdCertificate, ReturnSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, OperatorDetails, MgdCertificate, ReturnSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future
@@ -38,7 +38,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate] =
       Future.successful(GamblingStubData.getMgdCertificate(mgdRegNumber))
 
-    override def getOperatorDetails(mgdRegNumber: String): Future[GetOperatorDetails] =
+    override def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails] =
       Future.successful(GamblingStubData.getOperatorDetails(mgdRegNumber))
 
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =

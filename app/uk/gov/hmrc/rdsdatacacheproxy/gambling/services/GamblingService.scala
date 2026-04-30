@@ -75,7 +75,7 @@ class GamblingService @Inject() (
     }
   }
 
-  def getOperatorDetails(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, GetOperatorDetails]] = {
+  def getOperatorDetails(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, OperatorDetails]] = {
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 

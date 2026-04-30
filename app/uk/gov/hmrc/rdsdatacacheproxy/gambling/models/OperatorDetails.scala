@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat, Writes}
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-final case class GetOperatorDetails(
+final case class OperatorDetails(
   mgdRegNumber: String,
   solePropName: Option[String],
   solePropTitle: Option[String],
@@ -43,13 +43,13 @@ final case class GetOperatorDetails(
   systemDate: Option[LocalDate]
 )
 
-object GetOperatorDetails {
+object OperatorDetails {
 
   private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
 
   implicit val localDateWrites: Writes[LocalDate] =
     Writes.temporalWrites[LocalDate, DateTimeFormatter](fmt)
 
-  implicit val format: OFormat[GetOperatorDetails] =
-    Json.format[GetOperatorDetails]
+  implicit val format: OFormat[OperatorDetails] =
+    Json.format[OperatorDetails]
 }

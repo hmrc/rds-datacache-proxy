@@ -42,7 +42,7 @@ object GamblingStubData {
   // -------------------------
   // OperatorDetails
   // -------------------------
-  def getOperatorDetails(mgdRegNumber: String): GetOperatorDetails =
+  def getOperatorDetails(mgdRegNumber: String): OperatorDetails =
     mgdRegNumber match {
 
       case "ERR00000000000" =>
@@ -55,7 +55,7 @@ object GamblingStubData {
         throw new RuntimeException("Null cursor")
 
       case _ =>
-        GetOperatorDetails(
+        OperatorDetails(
           mgdRegNumber       = mgdRegNumber,
           solePropName       = Some("John Smith"),
           solePropTitle      = Some("Mr"),

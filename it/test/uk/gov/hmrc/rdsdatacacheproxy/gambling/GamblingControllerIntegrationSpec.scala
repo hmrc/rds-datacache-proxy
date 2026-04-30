@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, GetOperatorDetails, MgdCertificate}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, OperatorDetails, MgdCertificate}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
@@ -48,9 +48,9 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
         )
       )
 
-    override def getOperatorDetails(mgdRegNumber: String): Future[GetOperatorDetails] =
+    override def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails] =
       Future.successful(
-        uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GetOperatorDetails(
+        uk.gov.hmrc.rdsdatacacheproxy.gambling.models.OperatorDetails(
           mgdRegNumber       = mgdRegNumber,
           solePropName       = None,
           solePropTitle      = None,
