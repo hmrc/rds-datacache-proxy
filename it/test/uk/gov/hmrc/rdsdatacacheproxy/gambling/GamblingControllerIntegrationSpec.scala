@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.MgdCertificate
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, GetOperatorDetails, MgdCertificate}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
@@ -35,12 +35,50 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
 
   class GamblingRdsStub extends GamblingDataSource {
 
+    override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
+      Future.successful(
+        uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessDetails(
+          mgdRegNumber          = mgdRegNumber,
+          businessType          = None,
+          currentlyRegistered   = 1,
+          isGroupMember         = true,
+          dateOfRegistration    = None,
+          businessPartnerNumber = Some("BP123"),
+          systemDate            = java.time.LocalDate.now()
+        )
+      )
+
+    override def getOperatorDetails(mgdRegNumber: String): Future[GetOperatorDetails] =
+      Future.successful(
+        uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GetOperatorDetails(
+          mgdRegNumber       = mgdRegNumber,
+          solePropName       = None,
+          solePropTitle      = None,
+          solePropFirstName  = None,
+          solePropMiddleName = None,
+          solePropLastName   = None,
+          tradingName        = Some("Trading Ltd"),
+          businessName       = Some("Test Business"),
+          businessType       = Some(2),
+          adi                = None,
+          address1           = None,
+          address2           = None,
+          address3           = None,
+          address4           = None,
+          postcode           = None,
+          country            = None,
+          abroadSig          = None,
+          agentOwnRef        = None,
+          systemDate         = None
+        )
+      )
+
     override def getReturnSummary(mgdRegNumber: String) =
       Future {
         GamblingStubData.getReturnSummary(mgdRegNumber)
       }
 
-    override def getMgdCertificate(mgdRegNumber: String) =
+    override def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate] =
       Future.successful(
         MgdCertificate(
           mgdRegNumber         = mgdRegNumber,
@@ -205,6 +243,59 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+    "GET /gambling/business-details/:mgdRegNumber" should {
+
+      val endpoint = "/gambling/business-details"
+
+      "return 200 with business details" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe OK
+        response.contentType mustBe "application/json"
+
+        (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+        (response.json \ "currentlyRegistered").as[Int] mustBe 1
+        (response.json \ "isGroupMember").as[Boolean] mustBe true
+        (response.json \ "businessPartnerNumber").as[String] mustBe "BP123"
+      }
+
+      "return 401 when unauthorised" in {
+        AuthStub.unauthorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe UNAUTHORIZED
+      }
+    }
+
+    "GET /gambling/operator-details/:mgdRegNumber" should {
+
+      val endpoint = "/gambling/operator-details"
+
+      "return 200 with operator details" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe OK
+        response.contentType mustBe "application/json"
+
+        (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+        (response.json \ "businessName").as[String] mustBe "Test Business"
+        (response.json \ "tradingName").as[String] mustBe "Trading Ltd"
+      }
+
+      "return 401 when unauthorised" in {
+        AuthStub.unauthorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe UNAUTHORIZED
+      }
     }
 
   }
