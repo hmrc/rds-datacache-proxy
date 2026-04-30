@@ -113,7 +113,7 @@ class GamblingDataCacheRepository @Inject() (
                 val b = List.newBuilder[PartnerMember]
                 while (rs.next()) {
                   b += PartnerMember(
-                    namesOfPartMems    = rs.getString("names_of_part_mems"),
+                    namesOfPartMems    = Option(rs.getString("names_of_part_mems")),
                     solePropTitle      = Option(rs.getString("sole_prop_title")),
                     solePropFirstName  = Option(rs.getString("sole_prop_first_name")),
                     solePropMiddleName = Option(rs.getString("sole_prop_middle_name")),
