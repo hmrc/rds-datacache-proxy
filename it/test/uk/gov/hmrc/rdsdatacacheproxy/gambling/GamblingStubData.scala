@@ -45,65 +45,65 @@ object GamblingStubData {
       mgdRegNumber match {
         case "XYZ00000000000" =>
           BusinessName(mgdRegNumber,
-            solePropTitle = "Mr",
-            solePropFirstName = "John",
+            solePropTitle = Some("Mr"),
+            solePropFirstName = Some("John"),
             solePropMidName = Some("C"),
-            solePropLastName = "Doe",
-            businessName = "John Doe Co.",
-            businessType = 1,
-            tradingName = "DoeDoe",
+            solePropLastName = Some("Doe"),
+            businessName = Some("John Doe Co."),
+            businessType = Some(1),
+            tradingName = Some("DoeDoe"),
             systemDate = dateTimeOne)
         case "XYZ00000000001" =>
           BusinessName(mgdRegNumber,
-            solePropTitle = "Mrs",
-            solePropFirstName = "Jane",
+            solePropTitle = Some("Mrs"),
+            solePropFirstName = Some("Jane"),
             solePropMidName = Some("C"),
-            solePropLastName = "Doe",
-            businessName = "Jane Doe Co.",
-            businessType = 1,
-            tradingName = "DoeDoe",
+            solePropLastName = Some("Doe"),
+            businessName = Some("Jane Doe Co."),
+            businessType = Some(1),
+            tradingName = Some("DoeDoe"),
             systemDate = dateTimeTwo)
         case "XYZ00000000010" =>
           BusinessName(mgdRegNumber,
-            solePropTitle = "Mrs",
-            solePropFirstName = "Marge",
+            solePropTitle = Some("Mrs"),
+            solePropFirstName = Some("Marge"),
             solePropMidName = Some("Jacqueline"),
-            solePropLastName = "Simpson",
-            businessName = "Pretzel Wagon",
-            businessType = 1,
-            tradingName = "Marge Simpson",
+            solePropLastName = Some("Simpson"),
+            businessName = Some("Pretzel Wagon"),
+            businessType = Some(1),
+            tradingName = Some("Marge Simpson"),
             systemDate = dateTimeOne)
         case "XYZ00000000012" =>
           BusinessName(mgdRegNumber,
-            solePropTitle = "Miss",
-            solePropFirstName = "Catherine",
+            solePropTitle = Some("Miss"),
+            solePropFirstName = Some("Catherine"),
             solePropMidName = None,
-            solePropLastName = "Havisham",
-            businessName = "Failed Expectations",
-            businessType = 1,
-            tradingName = "Miss Havisham",
+            solePropLastName = Some("Havisham"),
+            businessName = Some("Failed Expectations"),
+            businessType = Some(1),
+            tradingName = Some("Miss Havisham"),
             systemDate = dateTimeThree)
         case "XYZ00000000021" =>
           BusinessName(mgdRegNumber,
-            solePropTitle = "Mr",
-            solePropFirstName = "Eugine",
+            solePropTitle = Some("Mr"),
+            solePropFirstName = Some("Eugine"),
             solePropMidName = Some("H"),
-            solePropLastName = "Krabs",
-            businessName = "Krusty Krab",
-            businessType = 1,
-            tradingName = "Mr Krabs",
+            solePropLastName = Some("Krabs"),
+            businessName = Some("Krusty Krab"),
+            businessType = Some(1),
+            tradingName = Some("Mr Krabs"),
             systemDate = dateTimeThree)
         case "ERR00000000000" =>
           throw new RuntimeException("Simulated downstream failure")
         case _ =>
           BusinessName(mgdRegNumber,
-            solePropTitle= "Mr",
-            solePropFirstName= "Foo",
+            solePropTitle= Some("Mr"),
+            solePropFirstName= Some("Foo"),
             solePropMidName= Some("B"),
-            solePropLastName= "Bar",
-            businessName= "FooBar Co.",
-            businessType= 1,
-            tradingName= "Foobar",
+            solePropLastName= Some("Bar"),
+            businessName= Some("FooBar Co."),
+            businessType= Some(1),
+            tradingName= Some("Foobar"),
             systemDate= dateTimeOne
           )
       }
@@ -116,52 +116,52 @@ object GamblingStubData {
         case "XYZ00000000000" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 6,
-            currentlyRegistered = 2,
-            groupReg = "foo",
-            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+            businessType = Some(6),
+            currentlyRegistered = Some(2),
+            groupReg = Some("foo"),
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = Some(LocalDate.of(2024, 4, 21))
           )
         case "XYZ00000000001" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 1,
-            currentlyRegistered = 1,
-            groupReg = "foofoo",
-            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+            businessType = Some(1),
+            currentlyRegistered = Some(1),
+            groupReg = Some("foofoo"),
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = Some(LocalDate.of(2024, 4, 21))
           )
         case "XYZ00000000010" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 3,
-            currentlyRegistered = 2,
-            groupReg = "foo",
-            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = "bar", systemDate = Some(LocalDate.of(2024, 4, 21))
+            businessType = Some(3),
+            currentlyRegistered = Some(2),
+            groupReg = Some("foo"),
+            dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = Some(LocalDate.of(2024, 4, 21))
           )
         case "XYZ00000000012" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 1,
-            currentlyRegistered = 2,
-            groupReg = "foobar",
-            dateOfRegistration = Some(LocalDate.of(2023, 4, 21)), businessPartnerNumber = "barfoo", systemDate = Some(LocalDate.of(2023, 4, 21))
+            businessType = Some(1),
+            currentlyRegistered = Some(2),
+            groupReg = Some("foobar"),
+            dateOfRegistration = Some(LocalDate.of(2023, 4, 21)), businessPartnerNumber = Some("barfoo"), systemDate = Some(LocalDate.of(2023, 4, 21))
           )
         case "XYZ00000000021" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 5,
-            currentlyRegistered = 2,
-            groupReg = "foofoo",
-            dateOfRegistration = Some(LocalDate.of(2024, 1, 21)), businessPartnerNumber = "barbar", systemDate = Some(LocalDate.of(2024, 1, 21))
+            businessType = Some(5),
+            currentlyRegistered = Some(2),
+            groupReg = Some("foofoo"),
+            dateOfRegistration = Some(LocalDate.of(2024, 1, 21)), businessPartnerNumber = Some("barbar"), systemDate = Some(LocalDate.of(2024, 1, 21))
           )
         case "ERR00000000000" =>
           throw new RuntimeException("Simulated downstream failure")
         case _ =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = 0,
-            currentlyRegistered = 0,
-            groupReg = "unknown",
-            dateOfRegistration = Some(LocalDate.of(2026, 4, 22)), businessPartnerNumber = "unknown", systemDate = Some(LocalDate.of(2026, 4, 22))
+            businessType = Some(0),
+            currentlyRegistered = Some(0),
+            groupReg = Some("unknown"),
+            dateOfRegistration = Some(LocalDate.of(2026, 4, 22)), businessPartnerNumber = Some("unknown"), systemDate = Some(LocalDate.of(2026, 4, 22))
           )
       }
 }

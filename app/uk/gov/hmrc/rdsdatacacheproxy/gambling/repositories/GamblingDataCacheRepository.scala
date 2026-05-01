@@ -264,13 +264,13 @@ class GamblingDataCacheRepository @Inject() (
             if (rs.next()) {
               BusinessName(
                 mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
-                solePropTitle     = rs.getString("SOLE_PROP_TITLE"),
-                solePropFirstName = rs.getString("SOLE_PROP_FIRST_NAME"),
+                solePropTitle     = Option(rs.getString("SOLE_PROP_TITLE")),
+                solePropFirstName = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
                 solePropMidName   = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
-                solePropLastName  = rs.getString("SOLE_PROP_LAST_NAME"),
-                businessName      = rs.getString("BUSINESS_NAME"),
-                businessType      = rs.getInt("BUSINESS_TYPE"),
-                tradingName       = rs.getString("TRADING_NAME"),
+                solePropLastName  = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                businessName      = Option(rs.getString("BUSINESS_NAME")),
+                businessType      = Option(rs.getInt("BUSINESS_TYPE")),
+                tradingName       = Option(rs.getString("TRADING_NAME")),
                 systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )
             } else {
@@ -314,11 +314,11 @@ class GamblingDataCacheRepository @Inject() (
             if (rs.next()) {
               BusinessDetails(
                 mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
-                businessType          = rs.getInt("BUSINESS_TYPE"),
-                currentlyRegistered   = rs.getInt("CURRENTLY_REGISTERED"),
-                groupReg              = rs.getString("GROUP_REG"),
+                businessType          = Option(rs.getInt("BUSINESS_TYPE")),
+                currentlyRegistered   = Option(rs.getInt("CURRENTLY_REGISTERED")),
+                groupReg              = Option(rs.getString("GROUP_REG")),
                 dateOfRegistration    = Option(rs.getDate("DATE_OF_REGISTRATION")).map(_.toLocalDate),
-                businessPartnerNumber = rs.getString("BUSINESS_PARTNER_NUMBER"),
+                businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
                 systemDate            = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )
             } else {

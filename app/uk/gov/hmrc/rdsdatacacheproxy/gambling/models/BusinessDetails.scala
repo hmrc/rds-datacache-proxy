@@ -21,11 +21,11 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 case class BusinessDetails(mgdRegNumber: String,
-                           businessType: Int,
-                           currentlyRegistered: Int,
-                           groupReg: String,
+                           businessType: Option[Int],
+                           currentlyRegistered: Option[Int],
+                           groupReg: Option[String],
                            dateOfRegistration: Option[LocalDate],
-                           businessPartnerNumber: String,
+                           businessPartnerNumber: Option[String],
                            systemDate: Option[LocalDate]
                           )
 

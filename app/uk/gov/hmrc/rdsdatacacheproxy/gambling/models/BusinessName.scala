@@ -20,13 +20,13 @@ import java.time.LocalDate
 
 case class BusinessName(
   mgdRegNumber: String,
-  solePropTitle: String,
-  solePropFirstName: String,
+  solePropTitle: Option[String],
+  solePropFirstName: Option[String],
   solePropMidName: Option[String],
-  solePropLastName: String,
-  businessName: String,
-  businessType: Int,
-  tradingName: String,
+  solePropLastName: Option[String],
+  businessName: Option[String],
+  businessType: Option[Int],
+  tradingName: Option[String],
   systemDate: Option[LocalDate]
 )
 

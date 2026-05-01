@@ -99,13 +99,13 @@ final class GamblingServiceSpec extends SpecBase {
 
       val summary = BusinessName(
         mgdRegNumber      = validMgdRegNumber,
-        solePropTitle     = "Mr",
-        solePropFirstName = "Foo",
+        solePropTitle     = Some("Mr"),
+        solePropFirstName = Some("Foo"),
         solePropMidName   = Some("B"),
-        solePropLastName  = "Bar",
-        businessName      = "FooBar Co.",
-        businessType      = 1,
-        tradingName       = "Foobar",
+        solePropLastName  = Some("Bar"),
+        businessName      = Some("FooBar Co."),
+        businessType      = Some(1),
+        tradingName       = Some("Foobar"),
         systemDate        = Some(LocalDate.of(1991, 1, 1))
       )
 
@@ -125,13 +125,13 @@ final class GamblingServiceSpec extends SpecBase {
 
       val summary = BusinessName(
         mgdRegNumber      = normalisedMgdRegNumber,
-        solePropTitle     = "Mr",
-        solePropFirstName = "John",
+        solePropTitle     = Some("Mr"),
+        solePropFirstName = Some("John"),
         solePropMidName   = Some("C"),
-        solePropLastName  = "Doe",
-        businessName      = "John Doe Co.",
-        businessType      = 1,
-        tradingName       = "DoeDoe",
+        solePropLastName  = Some("Doe"),
+        businessName      = Some("John Doe Co."),
+        businessType      = Some(1),
+        tradingName       = Some("DoeDoe"),
         systemDate        = Some(LocalDate.of(1991, 1, 1))
       )
 
@@ -169,11 +169,11 @@ final class GamblingServiceSpec extends SpecBase {
 
       val summary = BusinessDetails(
         mgdRegNumber          = normalisedMgdRegNumber,
-        businessType          = 1,
-        currentlyRegistered   = 2,
-        groupReg              = "foo",
+        businessType          = Some(1),
+        currentlyRegistered   = Some(2),
+        groupReg              = Some("foo"),
         dateOfRegistration    = Some(LocalDate.of(2024, 4, 21)),
-        businessPartnerNumber = "bar",
+        businessPartnerNumber = Some("bar"),
         systemDate            = Some(LocalDate.of(2024, 4, 21))
       )
       when(repository.getBusinessDetails(eqTo(validMgdRegNumber)))
@@ -192,11 +192,11 @@ final class GamblingServiceSpec extends SpecBase {
 
       val summary = BusinessDetails(
         mgdRegNumber          = normalisedMgdRegNumber,
-        businessType          = 1,
-        currentlyRegistered   = 2,
-        groupReg              = "foo",
+        businessType          = Some(1),
+        currentlyRegistered   = Some(2),
+        groupReg              = Some("foo"),
         dateOfRegistration    = Some(LocalDate.of(2024, 4, 21)),
-        businessPartnerNumber = "bar",
+        businessPartnerNumber = Some("bar"),
         systemDate            = Some(LocalDate.of(2024, 4, 21))
       )
 

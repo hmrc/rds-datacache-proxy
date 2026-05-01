@@ -68,13 +68,13 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
 
       model mustBe BusinessName(
         mgdRegNumber      = "XYZ00000000000",
-        solePropTitle     = "Mr",
-        solePropFirstName = "John",
+        solePropTitle     = Some("Mr"),
+        solePropFirstName = Some("John"),
         solePropMidName   = Some("C"),
-        solePropLastName  = "Doe",
-        businessName      = "John Doe Co.",
-        businessType      = 1,
-        tradingName       = "DoeDoe",
+        solePropLastName  = Some("Doe"),
+        businessName      = Some("John Doe Co."),
+        businessType      = Some(1),
+        tradingName       = Some("DoeDoe"),
         systemDate        = Some(dateBusinessName)
       )
 
@@ -103,11 +103,11 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
 
       model mustBe BusinessDetails(
         mgdRegNumber          = "XYZ00000000000",
-        businessType          = 1,
-        currentlyRegistered   = 1,
-        groupReg              = "foo",
+        businessType          = Some(1),
+        currentlyRegistered   = Some(1),
+        groupReg              = Some("foo"),
         dateOfRegistration    = Some(LocalDate.of(2000, 1, 1)),
-        businessPartnerNumber = "bar",
+        businessPartnerNumber = Some("bar"),
         systemDate            = Some(LocalDate.of(2000, 1, 1))
       )
 
