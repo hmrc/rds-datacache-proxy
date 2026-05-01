@@ -125,7 +125,16 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
       val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
-      val name = BusinessName("XWM00000001770", Some("fooBar"), Some("foobar"), Some("fooBar"), Some("fooBar"), Some("fooBar"), Some(1), Some("fooBar"), dateTime)
+      val name = BusinessName("XWM00000001770",
+                              Some("fooBar"),
+                              Some("foobar"),
+                              Some("fooBar"),
+                              Some("fooBar"),
+                              Some("fooBar"),
+                              Some(1),
+                              Some("fooBar"),
+                              dateTime
+                             )
 
       when(mockService.getBusinessName(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(name)))
@@ -143,7 +152,16 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "allows request through AuthAction" in new Setup {
       val dateTime: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
-      val name = BusinessName("XWM00000001770", Some("fooBar"), Some("foobar"), Some("fooBar"), Some("fooBar"), Some("fooBar"), Some(1), Some("fooBar"), dateTime)
+      val name = BusinessName("XWM00000001770",
+                              Some("fooBar"),
+                              Some("foobar"),
+                              Some("fooBar"),
+                              Some("fooBar"),
+                              Some("fooBar"),
+                              Some(1),
+                              Some("fooBar"),
+                              dateTime
+                             )
 
       when(mockService.getBusinessName(any())(any()))
         .thenReturn(Future.successful(Right(name)))
@@ -191,7 +209,14 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
   "GamblingController#getBusinessDetails" - {
 
     "returns 200 when service succeeds for BusinessDetails" in new Setup {
-      val summary = BusinessDetails("XWM00000001770", Some(2), Some(1), Some("foo"), Some(LocalDate.of(2024, 4, 21)), Some("bar"), Some(LocalDate.of(2024, 4, 21)))
+      val summary = BusinessDetails("XWM00000001770",
+                                    Some(2),
+                                    Some(1),
+                                    Some("foo"),
+                                    Some(LocalDate.of(2024, 4, 21)),
+                                    Some("bar"),
+                                    Some(LocalDate.of(2024, 4, 21))
+                                   )
 
       when(mockService.getBusinessDetails(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(summary)))
@@ -208,7 +233,14 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "allows request through AuthAction for BusinessDetails" in new Setup {
-      val summary = BusinessDetails("XWM00000001770", Some(2), Some(1), Some("foo"), Some(LocalDate.of(2024, 4, 21)), Some("bar"), Some(LocalDate.of(2024, 4, 21)))
+      val summary = BusinessDetails("XWM00000001770",
+                                    Some(2),
+                                    Some(1),
+                                    Some("foo"),
+                                    Some(LocalDate.of(2024, 4, 21)),
+                                    Some("bar"),
+                                    Some(LocalDate.of(2024, 4, 21))
+                                   )
 
       when(mockService.getBusinessDetails(any())(any()))
         .thenReturn(Future.successful(Right(summary)))
