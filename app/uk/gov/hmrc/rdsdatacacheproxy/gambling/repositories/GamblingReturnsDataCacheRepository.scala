@@ -41,49 +41,16 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
     Future(blocking {
       db.withConnection { connection =>
 
-        val cs =
-          connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?) }")
-
-        def closeQuietly(c: AutoCloseable): Unit =
-          if (c != null)
-            try c.close()
-            catch {
-              case _: Throwable => ()
-            }
+        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber)
-          cs.registerOutParameter(2, java.sql.Types.DATE) // P_GTR_PERIOD_START_DATE
-          cs.registerOutParameter(3, java.sql.Types.DATE) // P_GTR_PERIOD_END_DATE
-          cs.registerOutParameter(4, java.sql.Types.DECIMAL) // P_TOTAL (NUMBER)
-          cs.registerOutParameter(5, java.sql.Types.NUMERIC) // P_TOTAL_RECORDS (NUMBER)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.DATE) // P_GTR_PERIOD_START_DATE
+          cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // P_GTR_PERIOD_END_DATE
+          cs.registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL) // P_TOTAL (NUMBER)
+          cs.registerOutParameter(5, oracle.jdbc.OracleTypes.NUMERIC) // P_TOTAL_RECORDS (NUMBER)
           cs.registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR) // C_AMOUNT_DECLARED (REF CURSOR)
           cs.execute()
-
-          def optDate(i: Int): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
-
-          def optInt(i: Int): Option[Int] =
-            Option(cs.getObject(i)).map {
-              case bd: java.math.BigDecimal => bd.intValue()
-              case n: java.lang.Number      => n.intValue()
-              case other                    => other.toString.toInt
-            }
-
-          def optDecimalFromIndex(i: Int): Option[BigDecimal] = {
-            def alternativeMethodForMockito(x: Int) = BigDecimal.decimal(cs.getObject(x).toString.toDouble)
-            Option(cs.getBigDecimal(i)) match {
-              case Some(v1) => Option(v1)
-              case _ => Option(alternativeMethodForMockito(i))
-            }
-          }
-
-          def optDecimalFromLabel(rs: java.sql.ResultSet, s: String): Option[BigDecimal] = {
-            def alternativeMethodForMockito(x: String) = BigDecimal.decimal(rs.getObject(x).toString.toDouble)
-            Option(rs.getBigDecimal(s)) match {
-              case Some(v1) => Option(v1)
-              case _ => Option(alternativeMethodForMockito(s))
-            }
-          }
 
           val amountDeclared: List[AmountDeclared] = {
             val rs = cs.getObject(6).asInstanceOf[java.sql.ResultSet]
@@ -96,7 +63,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
                     descriptionCode = Option(rs.getInt("p_desc_code")),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
-                    amount          = optDecimalFromLabel(rs, "p_amount")
+                    amount = optDecimalFromLabel("p_amount", rs)
                   )
                 }
                 b.result()
@@ -105,10 +72,10 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           }
 
           ReturnsSubmitted(
-            periodStartDate    = optDate(2),
-            periodEndDate      = optDate(3),
-            total              = optDecimalFromIndex(4),
-            totalPeriodRecords = optInt(5),
+            periodStartDate = optDate(2, cs),
+            periodEndDate = optDate(3, cs),
+            total = optDecimalFromIndex(4, cs),
+            totalPeriodRecords = optInt(5, cs),
             amountDeclared     = amountDeclared
           )
 
@@ -118,4 +85,44 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
       }
     })(ec)
   }
+
+  def optDate(i: Int, cs: java.sql.CallableStatement): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
+
+  def optInt(i: Int, cs: java.sql.CallableStatement): Option[Int] =
+    Option(cs.getObject(i)).map {
+      case bd: java.math.BigDecimal => bd.intValue()
+      case n: java.lang.Number => n.intValue()
+      case other => other.toString.toInt
+    }
+
+  def optDecimalFromIndex(i: Int, cs: java.sql.CallableStatement): Option[BigDecimal] = {
+    def alternativeMethodForMockito(idx: Int): Option[BigDecimal] = cs.getObject(idx) match {
+      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
+      case null => None
+    }
+
+    Option(cs.getBigDecimal(i)) match {
+      case Some(v1) => Option(v1)
+      case _ => alternativeMethodForMockito(i)
+    }
+  }
+
+  def optDecimalFromLabel(s: String, rs: java.sql.ResultSet): Option[BigDecimal] = {
+    def alternativeMethodForMockito(idx: String): Option[BigDecimal] = rs.getObject(idx) match {
+      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
+      case null => None
+    }
+
+    Option(rs.getBigDecimal(s)) match {
+      case Some(v1) => Option(v1)
+      case _ => alternativeMethodForMockito(s)
+    }
+  }
+
+  def closeQuietly(c: AutoCloseable): Unit =
+    if (c != null)
+      try c.close()
+      catch {
+        case _: Throwable => ()
+      }
 }
