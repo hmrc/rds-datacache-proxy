@@ -58,11 +58,11 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
 
     val regNumber = "XWM12345678901"
 
-    when(mockCs.getDate(2)).thenReturn(Date.valueOf("2016-2-29"))
-    when(mockCs.getDate(3)).thenReturn(Date.valueOf("2017-6-15"))
-    when(mockCs.getObject(4)).thenReturn(BigDecimal.valueOf(-301.56))
-    when(mockCs.getObject(5)).thenReturn(1)
-    when(mockCs.getObject(6)).thenReturn(amountDeclaredRs)
+    when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+    when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+    when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+    when(mockCs.getObject(7)).thenReturn(1)
+    when(mockCs.getObject(8)).thenReturn(amountDeclaredRs)
     when(amountDeclaredRs.next()).thenReturn(true, false)
 
     when(amountDeclaredRs.getInt("p_desc_code")).thenReturn(4455)
@@ -76,16 +76,18 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
     result.amountDeclared.size shouldBe 1
 
     verify(mockCs).setString(1, regNumber)
-    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).setInt(2, 1)
+    verify(mockCs).setInt(3, 10)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).execute()
 
-    verify(mockCs).getDate(2)
-    verify(mockCs).getDate(3)
-    verify(mockCs).getBigDecimal(4)
-    verify(mockCs).getObject(5)
-    verify(mockCs).getObject(6)
+    verify(mockCs).getDate(4)
+    verify(mockCs).getDate(5)
+    verify(mockCs).getBigDecimal(6)
+    verify(mockCs).getObject(7)
+    verify(mockCs).getObject(8)
     verify(amountDeclaredRs, times(2)).next()
     verify(amountDeclaredRs).getInt("p_desc_code")
     verify(amountDeclaredRs).getDate("p_period_start")
@@ -105,16 +107,18 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
     result.amountDeclared shouldBe empty
 
     verify(mockCs).setString(1, regNumber)
-    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).setInt(2, 1)
+    verify(mockCs).setInt(3, 10)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).execute()
 
-    verify(mockCs).getDate(2)
-    verify(mockCs).getDate(3)
-    verify(mockCs).getBigDecimal(4)
-    verify(mockCs).getObject(5)
-    verify(mockCs).getObject(6)
+    verify(mockCs).getDate(4)
+    verify(mockCs).getDate(5)
+    verify(mockCs).getBigDecimal(6)
+    verify(mockCs).getObject(7)
+    verify(mockCs).getObject(8)
     verify(amountDeclaredRs, times(0)).next()
     verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
     verify(amountDeclaredRs, times(0)).close()
@@ -123,10 +127,10 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
 
   "getReturnsSubmitted" should "return Empty List when AmountDeclared result set is empty" in {
     val regNumber = "XWM00000001770"
-    when(mockCs.getDate(2)).thenReturn(Date.valueOf("2016-2-29"))
-    when(mockCs.getDate(3)).thenReturn(Date.valueOf("2017-6-15"))
-    when(mockCs.getObject(4)).thenReturn(BigDecimal.valueOf(-301.56))
-    when(mockCs.getObject(5)).thenReturn(0)
+    when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+    when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+    when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+    when(mockCs.getObject(7)).thenReturn(0)
     when(amountDeclaredRs.next()).thenReturn(false)
 
     val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
@@ -134,16 +138,18 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
     result shouldBe ReturnsSubmitted(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
 
     verify(mockCs).setString(1, regNumber)
-    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).setInt(2, 1)
+    verify(mockCs).setInt(3, 10)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).execute()
 
-    verify(mockCs).getDate(2)
-    verify(mockCs).getDate(3)
-    verify(mockCs).getBigDecimal(4)
-    verify(mockCs).getObject(5)
-    verify(mockCs).getObject(6)
+    verify(mockCs).getDate(4)
+    verify(mockCs).getDate(5)
+    verify(mockCs).getBigDecimal(6)
+    verify(mockCs).getObject(7)
+    verify(mockCs).getObject(8)
     verify(amountDeclaredRs, times(0)).next()
     verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
     verify(amountDeclaredRs, times(0)).close()

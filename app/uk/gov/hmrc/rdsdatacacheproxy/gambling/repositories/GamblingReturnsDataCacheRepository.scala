@@ -21,7 +21,7 @@ import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future, blocking}
+import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReturnsDataSource {
   def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted]
@@ -38,22 +38,24 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
       s"[GamblingReturnsDataCacheRepository][getReturnsSubmitted] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
     )
 
-    Future(blocking {
+    Future {
       db.withConnection { connection =>
 
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?) }")
+        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
-          cs.setString(1, regNumber)
-          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.DATE) // P_GTR_PERIOD_START_DATE
-          cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // P_GTR_PERIOD_END_DATE
-          cs.registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL) // P_TOTAL (NUMBER)
-          cs.registerOutParameter(5, oracle.jdbc.OracleTypes.NUMERIC) // P_TOTAL_RECORDS (NUMBER)
-          cs.registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR) // C_AMOUNT_DECLARED (REF CURSOR)
+          cs.setString(1, regNumber) // IN  P_REG_NUMBER
+          cs.setInt(2, paginationStart) // IN  P_PAGINATION_START
+          cs.setInt(3, paginationMaxRows) // IN  P_PAGINATION_MAX_ROWS
+          cs.registerOutParameter(4, java.sql.Types.DATE) // OUT P_GTR_PERIOD_START_DATE
+          cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
+          cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
+          cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_AMOUNT_DECLARED (REF CURSOR)
           cs.execute()
 
           val amountDeclared: List[AmountDeclared] = {
-            val rs = cs.getObject(6).asInstanceOf[java.sql.ResultSet]
+            val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
@@ -72,10 +74,10 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           }
 
           ReturnsSubmitted(
-            periodStartDate = optDate(2, cs),
-            periodEndDate = optDate(3, cs),
-            total = optDecimalFromIndex(4, cs),
-            totalPeriodRecords = optInt(5, cs),
+            periodStartDate = optDate(4, cs),
+            periodEndDate = optDate(5, cs),
+            total = optDecimalFromIndex(6, cs),
+            totalPeriodRecords = optInt(7, cs),
             amountDeclared     = amountDeclared
           )
 
@@ -83,7 +85,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           closeQuietly(cs)
         }
       }
-    })(ec)
+    }(ec)
   }
 
   def optDate(i: Int, cs: java.sql.CallableStatement): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
