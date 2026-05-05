@@ -23,8 +23,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, GamblingReturnsError, ReturnsSubmitted}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReturnsStubData.getReturnsSubmittedData
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -33,7 +35,7 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
 
   class GamblingReturnsRdsStub extends GamblingReturnsDataSource {
     override def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
-      Future.successful(GamblingReturnsStubData.getReturnsSubmitted(regNumber, paginationStart, paginationMaxRows))
+      Future.successful(getReturnsSubmittedData(regNumber, paginationStart, paginationMaxRows))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -44,72 +46,18 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
 
   "getReturnsSubmitted (stubbed repository)" should {
 
-    "return zero counts when paginationStart is 1" in {
+    "return correct ReturnsSubmittedData" in {
       val result = repository.getReturnsSubmitted("XYZ00000000000", 1, 10).futureValue
 
-      result mustBe ReturnsSubmitted(
-        periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
-        periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-        total              = Some(0.00),
-        totalPeriodRecords = Some(0),
-        amountDeclared     = Seq()
-      )
+      result mustBe getReturnsSubmittedData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
       val result = repository.getReturnsSubmitted("XYZ00000000001", 1, 10).futureValue
-      result mustBe ReturnsSubmitted(
-        periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
-        periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-        total              = Some(-24500.00),
-        totalPeriodRecords = Some(3),
-        amountDeclared = Seq(
-          AmountDeclared(descriptionCode = Some(2650),
-                         periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-                         periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
-                         amount          = Some(-9500.00)
-                        ),
-          AmountDeclared(descriptionCode = Some(2650),
-                         periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-                         periodEndDate   = Some(LocalDate.of(2014, 3, 31)),
-                         amount          = Some(-8000.00)
-                        ),
-          AmountDeclared(descriptionCode = Some(2650),
-                         periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-                         periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
-                         amount          = Some(-7000.00)
-                        )
-            )
-        )
+      result mustBe getReturnsSubmittedData("XYZ00000000001")
     }
-//
-//    "return due count correctly" in {
-//      val result = repository.getReturnsSubmitted("XYZ00000000010",1,10).futureValue
-//
-//      result.returnsDue mustBe 1
-//      result.returnsOverdue mustBe 0
-//    }
-//
-//    "return both due and overdue counts correctly" in {
-//      val result = repository.getReturnsSubmitted("XYZ00000000012",1,10).futureValue
-//
-//      result mustBe ReturnsSubmitted("XYZ00000000012", 1, 2)
-//    }
-//
-//    "handle multiple due and overdue values" in {
-//      val result = repository.getReturnsSubmitted("XYZ00000000021",1,10).futureValue
-//
-//      result.returnsDue mustBe 2
-//      result.returnsOverdue mustBe 1
-//    }
-//
-//    "return default values for unknown regNumber" in {
-//      val result = repository.getReturnsSubmitted("XYZ99999999999",1,10).futureValue
-//
-//      result mustBe ReturnsSubmitted("XYZ99999999999", 3, 4)
-//    }
 
-    "return consistent results across multiple calls" in {
+     "return consistent results across multiple calls" in {
       val result1 = repository.getReturnsSubmitted("XYZ00000000012", 1, 10).futureValue
       val result2 = repository.getReturnsSubmitted("XYZ00000000012", 1, 10).futureValue
 
@@ -130,25 +78,5 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
 
       exception.getMessage must include("Simulated downstream failure")
     }
-
-//    "handle special characters in regNumber" in {
-//      val result = repository.getReturnsSubmitted("XYZ-123/ABC",1,10).futureValue
-//
-//      result mustBe ReturnsSubmitted("XYZ-123/ABC", 3, 4)
-//    }
-//
-//    "handle whitespace regNumber" in {
-//      val result = repository.getReturnsSubmitted("   ",1,10).futureValue
-//
-//      result mustBe ReturnsSubmitted("   ", 3, 4)
-//    }
-//
-//    "return populated fields for all responses" in {
-//      val result = repository.getReturnsSubmitted("XYZ00000000012",1,10).futureValue
-//
-//      result.regNumber must not be empty
-//      result.returnsDue must be >= 0
-//      result.returnsOverdue must be >= 0
-//    }
   }
 }

@@ -36,17 +36,16 @@ final class GamblingReturnsServiceSpec extends SpecBase {
     reset(repository)
   }
 
-  private val validRegNumber = "xwm12345678901 "
+  private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
   "GamblingReturnsService#getReturnsSubmitted" - {
 
-    "return Right(validResponseReturnsSubmitted) when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-
+    "return validResponseReturnsSubmitted when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.successful(validResponseReturnsSubmitted))
 
-      val result = service.getReturnsSubmitted(validRegime, validRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted(validRegime, lowercaseRegNumber, 1, 10).futureValue
 
       result mustBe Right(validResponseReturnsSubmitted)
       verify(repository).getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
@@ -54,26 +53,22 @@ final class GamblingReturnsServiceSpec extends SpecBase {
     }
 
     "return InvalidRegimeError and not call repository when Regime input is invalid" in {
-
-      val invalidRegimeInput = "xyz"
-      val result = service.getReturnsSubmitted(invalidRegimeInput, validRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted("INVALID", lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
-
-      val invalidRegNumberInput = "xwm12345678"
-      val result = service.getReturnsSubmitted(validRegime, invalidRegNumberInput, 1, 10).futureValue
+      val invalidRegNumber = "xwm12345678"
+      val result = service.getReturnsSubmitted(validRegime, invalidRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-
       when(repository.getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getReturnsSubmitted(validRegime, validRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted(validRegime, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)

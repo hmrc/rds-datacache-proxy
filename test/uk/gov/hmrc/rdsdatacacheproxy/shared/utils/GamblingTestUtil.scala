@@ -47,4 +47,18 @@ object GamblingTestUtil {
                     )
     )
   )
+
+  val validResponseReturnsSubmittedSmall = ReturnsSubmitted(
+    periodStartDate    = Some(LocalDate.of(2016, 2, 29)),
+    periodEndDate      = Some(LocalDate.of(2017, 6, 15)),
+    total              = Some(-301.56),
+    totalPeriodRecords = Some(1),
+    amountDeclared = Seq(
+      AmountDeclared(descriptionCode = Some(4455),
+                     periodStartDate = Some(LocalDate.of(2016, 3, 9)),
+                     periodEndDate   = Some(LocalDate.of(2016, 5, 20)),
+                     amount          = Some(-943.21)
+                    )
+    )
+  )
 }

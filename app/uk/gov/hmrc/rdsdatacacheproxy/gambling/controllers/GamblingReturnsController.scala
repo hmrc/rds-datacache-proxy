@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReturnsService
 
 import javax.inject.Inject
@@ -41,10 +41,7 @@ class GamblingReturnsController @Inject() (authorise: AuthAction, service: Gambl
           val logMessage =
             s"[GamblingReturnsController][getReturnsSubmitted] code=${error.code} regime=$regime regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
           error match {
-            case InvalidRegimeCode =>
-              logger.warn(logMessage)
-              BadRequest(errorResponse(error))
-            case InvalidRegNumber =>
+            case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound =>
               logger.warn(logMessage)
               BadRequest(errorResponse(error))
             case UnexpectedError =>
@@ -53,6 +50,4 @@ class GamblingReturnsController @Inject() (authorise: AuthAction, service: Gambl
           }
       }
     }
-
-  private def errorResponse(error: GamblingReturnsError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

@@ -15,6 +15,7 @@
  */
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
+import play.api.libs.json.{JsObject, Json}
 
 sealed trait GamblingReturnsError {
   def code: String
@@ -25,6 +26,11 @@ object GamblingReturnsError {
 
   case object InvalidRegNumber extends GamblingReturnsError {
     val code = "INVALID_REG_NUMBER"
+    val message = "regNumber has invalid format"
+  }
+
+  case object RegNumberNotFound extends GamblingReturnsError {
+    val code = "REG_NUMBER_NOT_FOUND"
     val message = "regNumber does not exist"
   }
 
@@ -37,4 +43,7 @@ object GamblingReturnsError {
     val code = "INVALID_REGIME_CODE"
     val message = "Invalid Regime Code"
   }
+
+  def errorResponse(error: GamblingReturnsError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
+
 }

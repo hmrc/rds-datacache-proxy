@@ -21,7 +21,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSub
 import java.time.LocalDate
 
 object GamblingReturnsStubData {
-  def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): ReturnsSubmitted =
+  def getReturnsSubmittedData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): ReturnsSubmitted =
     regNumber match {
       case "XYZ00000000000" =>
         ReturnsSubmitted(
@@ -130,8 +130,7 @@ object GamblingReturnsStubData {
           totalPeriodRecords = Some(99),
           amountDeclared     = Seq()
         )
-      case "ERR00000000000" =>
-        throw new RuntimeException("Simulated downstream failure")
+      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReturnsSubmitted(
           periodStartDate    = Some(LocalDate.of(2023, 3, 1)),

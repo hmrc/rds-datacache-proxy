@@ -21,46 +21,38 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-private final val Regimes = List("mgd", "gbd", "pbd", "rgd")
+private final val ValidRegimes = List("mgd", "gbd", "pbd", "rgd")
 
 class GamblingReturnsService @Inject() (
   repository: GamblingReturnsDataSource
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private val regNumberPattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
-
   def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[GamblingReturnsError, ReturnsSubmitted]] = {
 
+    lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (Regimes.contains(regime.trim.toLowerCase())) {
-      if (!regNumberPattern.matcher(regNumber).matches()) {
-        logger.warn(s"[GamblingReturnsService][getReturnsSubmitted] Invalid pattern for regNumber=$regNumber")
-        Future.successful(Left(InvalidRegNumber))
-      } else {
-        repository
-          .getReturnsSubmitted(regNumber, paginationStart, paginationMaxRows)
-          .map(summary => Right(summary))
-          .recover { case ex: Exception =>
-            logger.error(
-              s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error regNumber=$regNumber paginationStart=$paginationStart  paginationMaxRows=$paginationMaxRows",
-              ex
-            )
-            Left(UnexpectedError)
-          }
-      }
-    } else {
-      logger.error(
-        s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code regime=$regime regNumber=$regNumber paginationStart=$paginationStart  paginationMaxRows=$paginationMaxRows"
-      )
-      Future(Left(InvalidRegimeCode))
-    }
+    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
+      logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $reqText")
+      Future.successful(Left(InvalidRegimeCode))
+    else if (!regNumberPattern.matcher(regNumber).matches())
+      logger.warn(s"[GamblingReturnsService][getReturnsSubmitted] Invalid pattern for regNumber=$regNumber")
+      Future.successful(Left(InvalidRegNumber))
+    else
+      repository
+        .getReturnsSubmitted(regNumber, paginationStart, paginationMaxRows)
+        .map(summary => Right(summary))
+        .recover { case ex: Exception =>
+          logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
+          Left(UnexpectedError)
+        }
   }
 }

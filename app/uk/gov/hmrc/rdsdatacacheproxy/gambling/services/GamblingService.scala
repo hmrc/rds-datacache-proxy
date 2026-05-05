@@ -21,6 +21,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,13 +31,11 @@ class GamblingService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  private val mgdRegNumberPattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
-
   def getReturnSummary(rawMgdRegNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, ReturnSummary]] = {
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getReturnSummary] Invalid pattern for mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -55,7 +54,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getMgdCertificate] Invalid pattern mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {

@@ -69,6 +69,22 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
               case other                    => other.toString.toInt
             }
 
+          def optDecimalFromIndex(i: Int): Option[BigDecimal] = {
+            def alternativeMethodForMockito(x: Int) = BigDecimal.decimal(cs.getObject(x).toString.toDouble)
+            Option(cs.getBigDecimal(i)) match {
+              case Some(v1) => Option(v1)
+              case _ => Option(alternativeMethodForMockito(i))
+            }
+          }
+
+          def optDecimalFromLabel(rs: java.sql.ResultSet, s: String): Option[BigDecimal] = {
+            def alternativeMethodForMockito(x: String) = BigDecimal.decimal(rs.getObject(x).toString.toDouble)
+            Option(rs.getBigDecimal(s)) match {
+              case Some(v1) => Option(v1)
+              case _ => Option(alternativeMethodForMockito(s))
+            }
+          }
+
           val amountDeclared: List[AmountDeclared] = {
             val rs = cs.getObject(6).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
@@ -80,7 +96,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
                     descriptionCode = Option(rs.getInt("p_desc_code")),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
-                    amount          = Option(rs.getBigDecimal("p_amount"))
+                    amount          = optDecimalFromLabel(rs, "p_amount")
                   )
                 }
                 b.result()
@@ -91,7 +107,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           ReturnsSubmitted(
             periodStartDate    = optDate(2),
             periodEndDate      = optDate(3),
-            total              = Some(cs.getBigDecimal(4)),
+            total              = optDecimalFromIndex(4),
             totalPeriodRecords = optInt(5),
             amountDeclared     = amountDeclared
           )
