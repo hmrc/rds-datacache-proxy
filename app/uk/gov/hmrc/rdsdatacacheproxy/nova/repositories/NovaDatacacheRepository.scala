@@ -70,6 +70,33 @@ class NovaDatacacheRepository @Inject() (
   private def isYes(rs: ResultSet, col: String): Boolean =
     str(rs, col).exists(v => v.equalsIgnoreCase("Y") || v == "1")
 
+  private def emptyTraderResponseForZeroVrn: TraderResponse =
+    TraderResponse(
+      vrn                   = "0",
+      status                = None,
+      traderName            = None,
+      tradingName           = None,
+      addressLine1          = None,
+      addressLine2          = None,
+      addressLine3          = None,
+      addressLine4          = None,
+      postcode              = None,
+      email                 = None,
+      phoneNumber           = None,
+      mobileNumber          = None,
+      tradeClass            = None,
+      tradeClassDescription = None,
+      organisationType      = None,
+      effectiveRegDate      = None,
+      ceasedDate            = None,
+      certIssuedDate        = None,
+      nextReturnPeDate      = None,
+      returnStagger         = None,
+      redundant             = None,
+      insolvent             = None,
+      missingTrader         = None
+    )
+
   private def toTraderResponse(
     vrn: String,
     infoRs: ResultSet,
@@ -94,12 +121,12 @@ class NovaDatacacheRepository @Inject() (
     val nextReturnPeDate = dateStr(infoRs, "NEXT_RETURN_PE_DATE")
     val returnStagger = str(infoRs, "RETURN_STAGGER")
 
-    val redundant = isYes(addrRs, "REDUNDANT_TRADER")
-    val insolvent = Option(addrRs.getInt("INSOLVENCY_STATUS")).exists(_ != 0)
+    val redundant = Some(isYes(addrRs, "REDUNDANT_TRADER"))
+    val insolvent = Some(Option(addrRs.getInt("INSOLVENCY_STATUS")).exists(_ != 0))
     val phoneNumber = str(addrRs, "DAYTIME_PHONE")
     val mobileNumber = str(addrRs, "MOBILE_PHONE")
 
-    val missingTrader = isYes(detailsRs, "MISSING_TRADER_IND")
+    val missingTrader = Some(isYes(detailsRs, "MISSING_TRADER_IND"))
 
     TraderResponse(
       vrn                   = vrn,
@@ -159,7 +186,20 @@ class NovaDatacacheRepository @Inject() (
 
           try {
             if (userInfoRs == null || !userInfoRs.next()) {
-              None
+              if (userVrn.trim == "0") {
+                val clientTrader = clientVrn.flatMap { vrn =>
+                  if (clientInfoRs != null && clientInfoRs.next()) {
+                    clientAddrRs.next()
+                    clientDetailRs.next()
+                    Some(toTraderResponse(vrn, clientInfoRs, clientAddrRs, clientDetailRs))
+                  } else {
+                    None
+                  }
+                }
+                Some(TraderDetailsResponse(emptyTraderResponseForZeroVrn, clientTrader))
+              } else {
+                None
+              }
             } else {
               userAddrRs.next()
               userDetailRs.next()

@@ -39,9 +39,9 @@ case class TraderResponse(
   certIssuedDate: Option[String],
   nextReturnPeDate: Option[String],
   returnStagger: Option[String],
-  redundant: Boolean,
-  insolvent: Boolean,
-  missingTrader: Boolean
+  redundant: Option[Boolean],
+  insolvent: Option[Boolean],
+  missingTrader: Option[Boolean]
 )
 
 object TraderResponse {
