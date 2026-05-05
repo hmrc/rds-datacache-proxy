@@ -50,9 +50,9 @@ class NovaTraderControllerSpec extends SpecBase {
     certIssuedDate        = Some("2000-01-10"),
     nextReturnPeDate      = Some("2026-03-31"),
     returnStagger         = Some("MAR"),
-    redundant             = false,
-    insolvent             = false,
-    missingTrader         = false
+    redundant             = Some(false),
+    insolvent             = Some(false),
+    missingTrader         = Some(false)
   )
 
   private val testDetailsNoClient = TraderDetailsResponse(userTrader = testTrader, clientTrader = None)
@@ -141,6 +141,47 @@ class NovaTraderControllerSpec extends SpecBase {
       controller.getTraderDetails("123456789", Some("   "))(fakeRequest).futureValue
 
       verify(mockNovaDataSource).getTraderDetails("123456789", None)
+    }
+
+    "return 200 with a userTrader of only vrn='0' when userVrn is '0' and a clientVrn is provided" in new SetUp {
+      val userTraderForZeroVrn: TraderResponse = TraderResponse(
+        vrn                   = "0",
+        status                = None,
+        traderName            = None,
+        tradingName           = None,
+        addressLine1          = None,
+        addressLine2          = None,
+        addressLine3          = None,
+        addressLine4          = None,
+        postcode              = None,
+        email                 = None,
+        phoneNumber           = None,
+        mobileNumber          = None,
+        tradeClass            = None,
+        tradeClassDescription = None,
+        organisationType      = None,
+        effectiveRegDate      = None,
+        ceasedDate            = None,
+        certIssuedDate        = None,
+        nextReturnPeDate      = None,
+        returnStagger         = None,
+        redundant             = None,
+        insolvent             = None,
+        missingTrader         = None
+      )
+      val detailsForZeroUserVrn: TraderDetailsResponse =
+        TraderDetailsResponse(userTrader = userTraderForZeroVrn, clientTrader = Some(testClientTrader))
+
+      when(mockNovaDataSource.getTraderDetails(any[String], any[Option[String]]))
+        .thenReturn(Future.successful(Some(detailsForZeroUserVrn)))
+
+      val result: Future[Result] = controller.getTraderDetails("0", Some("987654321"))(fakeRequest)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(detailsForZeroUserVrn)
+
+      verify(mockNovaDataSource).getTraderDetails("0", Some("987654321"))
     }
   }
 
