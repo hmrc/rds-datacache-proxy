@@ -28,6 +28,8 @@ trait GamblingDataSource {
   def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
   def getBusinessName(mgdRegNumber: String): Future[BusinessName]
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
+  def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
+  def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
 }
 
 @Singleton
@@ -36,6 +38,161 @@ class GamblingDataCacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
     with Logging {
+
+  override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] = {
+
+    logger.info(s"[GamblingDataCacheRepository][getBusinessDetails] mgdRegNumber=$mgdRegNumber")
+
+    Future(blocking {
+      db.withConnection { connection =>
+
+        val cs =
+          connection.prepareCall(
+            "{call MGD_DC_VARIATION_PK.GET_BUSINESS_DETAILS(?, ?)}"
+          )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          // INPUT
+          cs.setString(1, mgdRegNumber)
+
+          // OUT CURSOR
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val rs =
+            cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null || !rs.next()) {
+            throw new RuntimeException(
+              s"No business details found for mgdRegNumber=$mgdRegNumber"
+            )
+          }
+
+          def optString(col: String): Option[String] =
+            Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
+
+          def optDate(col: String): Option[java.time.LocalDate] =
+            Option(rs.getDate(col)).map(_.toLocalDate)
+
+          def optInt(col: String): Option[Int] =
+            Option(rs.getObject(col)).map {
+              case bd: java.math.BigDecimal => bd.intValue()
+              case n: java.lang.Number      => n.intValue()
+              case other                    => other.toString.toInt
+            }
+
+          val businessType: Option[BusinessType] =
+            optInt("business_type").flatMap(BusinessType.fromCode)
+
+          val groupReg: Boolean =
+            Option(rs.getString("group_reg"))
+              .exists(_.trim.equalsIgnoreCase("Y"))
+
+          BusinessDetails(
+            mgdRegNumber          = rs.getString("mgd_reg_number"),
+            businessType          = businessType,
+            currentlyRegistered   = rs.getInt("currently_registered"),
+            isGroupMember         = groupReg,
+            dateOfRegistration    = optDate("date_of_registration"),
+            businessPartnerNumber = optString("business_partner_number"),
+            systemDate            = java.time.LocalDate.now()
+          )
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    })(ec)
+  }
+
+  override def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails] = {
+
+    logger.info(s"getOperatorDetails - MGD Reg Number: $mgdRegNumber")
+
+    Future(blocking {
+      db.withConnection { connection =>
+
+        val cs = connection.prepareCall(
+          "{ call MGD_DC_RTN_PCK.GET_OPERATOR_DETAILS(?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+            throw new RuntimeException(s"Null cursor for $mgdRegNumber")
+          }
+
+          try {
+            if (rs.next()) {
+
+              def optString(col: String): Option[String] =
+                Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
+
+              def optInt(col: String): Option[Int] =
+                Option(rs.getObject(col)).flatMap {
+                  case bd: java.math.BigDecimal => Some(bd.intValue())
+                  case n: java.lang.Number      => Some(n.intValue())
+                  case _                        => None
+                }
+
+              def optDate(col: String): Option[java.time.LocalDate] =
+                Option(rs.getDate(col)).map(_.toLocalDate)
+
+              OperatorDetails(
+                mgdRegNumber       = rs.getString("mgd_reg_number"),
+                solePropName       = optString("sole_prop_name"),
+                solePropTitle      = optString("sole_prop_title"),
+                solePropFirstName  = optString("sole_prop_first_name"),
+                solePropMiddleName = optString("sole_prop_middle_name"),
+                solePropLastName   = optString("sole_prop_last_name"),
+                tradingName        = optString("trading_name"),
+                businessName       = optString("business_name"),
+                businessType       = optInt("business_type"),
+                adi                = optString("adi"),
+                address1           = optString("address_1"),
+                address2           = optString("address_2"),
+                address3           = optString("address_3"),
+                address4           = optString("address_4"),
+                postcode           = optString("postcode"),
+                country            = optString("country"),
+                abroadSig          = optString("abroad_sig"),
+                agentOwnRef        = optString("agent_own_ref"),
+                systemDate         = optDate("system_date")
+              )
+
+            } else {
+              throw new RuntimeException(s"No data for $mgdRegNumber")
+            }
+          } finally closeQuietly(rs)
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    })(ec)
+  }
 
   override def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate] = {
     logger.info(s"getMgdCertificate - MGD Reg Number: $mgdRegNumber")
@@ -115,7 +272,7 @@ class GamblingDataCacheRepository @Inject() (
                 val b = List.newBuilder[PartnerMember]
                 while (rs.next()) {
                   b += PartnerMember(
-                    namesOfPartMems    = rs.getString("names_of_part_mems"),
+                    namesOfPartMems    = Option(rs.getString("names_of_part_mems")),
                     solePropTitle      = Option(rs.getString("sole_prop_title")),
                     solePropFirstName  = Option(rs.getString("sole_prop_first_name")),
                     solePropMiddleName = Option(rs.getString("sole_prop_middle_name")),

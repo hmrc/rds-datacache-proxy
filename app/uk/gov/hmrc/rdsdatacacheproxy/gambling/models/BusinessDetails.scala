@@ -20,14 +20,15 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class BusinessDetails(mgdRegNumber: String,
-                           businessType: Option[Int],
-                           currentlyRegistered: Option[Int],
-                           groupReg: Option[String],
-                           dateOfRegistration: Option[LocalDate],
-                           businessPartnerNumber: Option[String],
-                           systemDate: Option[LocalDate]
-                          )
+final case class BusinessDetails(
+                                  mgdRegNumber: String,
+                                  businessType: Option[BusinessType],
+                                  currentlyRegistered: Int,
+                                  isGroupMember: Boolean,
+                                  dateOfRegistration: Option[LocalDate],
+                                  businessPartnerNumber: Option[String],
+                                  systemDate: LocalDate
+                                )
 
 object BusinessDetails {
   implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]

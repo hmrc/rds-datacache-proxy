@@ -84,9 +84,9 @@ class NovaDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     result.get.userTrader.vrn           shouldBe "123456789"
     result.get.userTrader.traderName    shouldBe Some("Test Trader Ltd")
     result.get.userTrader.postcode      shouldBe Some("TE1 1ST")
-    result.get.userTrader.redundant     shouldBe false
-    result.get.userTrader.insolvent     shouldBe false
-    result.get.userTrader.missingTrader shouldBe false
+    result.get.userTrader.redundant     shouldBe Some(false)
+    result.get.userTrader.insolvent     shouldBe Some(false)
+    result.get.userTrader.missingTrader shouldBe Some(false)
     result.get.clientTrader             shouldBe None
 
     verify(mockCs).setString(1, "123456789")
@@ -154,6 +154,56 @@ class NovaDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
 
     val result = repository.getTraderDetails("000000000", None).futureValue
     result shouldBe None
+  }
+
+  "getTraderDetails" should "return the client's details with empty user details for userTrader when userVrn is '0'" in {
+    val emptyUserInfoRs = mock(classOf[ResultSet])
+    val emptyUserAddrRs = mock(classOf[ResultSet])
+    val emptyUserDetailRs = mock(classOf[ResultSet])
+    val clientInfoRs = mock(classOf[ResultSet])
+    val clientAddrRs = mock(classOf[ResultSet])
+    val clientDetailRs = mock(classOf[ResultSet])
+
+    when(mockCs.getObject(3, classOf[ResultSet])).thenReturn(emptyUserInfoRs)
+    when(mockCs.getObject(4, classOf[ResultSet])).thenReturn(emptyUserAddrRs)
+    when(mockCs.getObject(5, classOf[ResultSet])).thenReturn(clientInfoRs)
+    when(mockCs.getObject(6, classOf[ResultSet])).thenReturn(clientAddrRs)
+    when(mockCs.getObject(7, classOf[ResultSet])).thenReturn(emptyUserDetailRs)
+    when(mockCs.getObject(8, classOf[ResultSet])).thenReturn(clientDetailRs)
+
+    when(emptyUserInfoRs.next()).thenReturn(false)
+    when(clientInfoRs.next()).thenReturn(true)
+    when(clientAddrRs.next()).thenReturn(true)
+    when(clientDetailRs.next()).thenReturn(true)
+
+    stubTraderInfoRs(clientInfoRs, traderName = "Client Ltd")
+    stubAddrContactRs(clientAddrRs)
+    stubTraderDetailsRs(clientDetailRs)
+
+    val result = repository.getTraderDetails("0", Some("987654321")).futureValue
+
+    result                                 shouldBe defined
+    result.get.userTrader.vrn              shouldBe "0"
+    result.get.userTrader.traderName       shouldBe None
+    result.get.userTrader.postcode         shouldBe None
+    result.get.userTrader.redundant        shouldBe None
+    result.get.userTrader.insolvent        shouldBe None
+    result.get.userTrader.missingTrader    shouldBe None
+    result.get.clientTrader                shouldBe defined
+    result.get.clientTrader.get.vrn        shouldBe "987654321"
+    result.get.clientTrader.get.traderName shouldBe Some("Client Ltd")
+  }
+
+  "getTraderDetails" should "trim whitespace around userVrn '0' before applying the empty-user rule" in {
+    val emptyRs = mock(classOf[ResultSet])
+    when(mockCs.getObject(any[Int], org.mockito.ArgumentMatchers.eq(classOf[ResultSet]))).thenReturn(emptyRs)
+    when(emptyRs.next()).thenReturn(false)
+
+    val result = repository.getTraderDetails(" 0 ", None).futureValue
+
+    result                    shouldBe defined
+    result.get.userTrader.vrn shouldBe "0"
+    result.get.clientTrader   shouldBe None
   }
 
   // ─── getClientListDownloadStatus ─────────────────────────────────────────────
