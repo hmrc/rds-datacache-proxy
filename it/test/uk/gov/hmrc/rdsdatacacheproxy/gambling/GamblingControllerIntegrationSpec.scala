@@ -26,8 +26,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, OperatorDetails, MgdCertificate}
 import play.api.libs.json.Reads
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.MgdCertificate
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -45,7 +43,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
           mgdRegNumber          = mgdRegNumber,
           businessType          = None,
           currentlyRegistered   = 1,
-          groupReg         = true,
+          groupReg              = true,
           dateOfRegistration    = None,
           businessPartnerNumber = Some("BP123"),
           systemDate            = java.time.LocalDate.now()
@@ -121,7 +119,6 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
         )
       )
   }
-
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
