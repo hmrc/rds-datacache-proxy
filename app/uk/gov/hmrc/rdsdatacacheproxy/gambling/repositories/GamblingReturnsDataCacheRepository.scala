@@ -65,7 +65,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
                     descriptionCode = Option(rs.getInt("p_desc_code")),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
-                    amount = optDecimalFromLabel("p_amount", rs)
+                    amount          = optDecimalFromLabel("p_amount", rs)
                   )
                 }
                 b.result()
@@ -74,9 +74,9 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           }
 
           ReturnsSubmitted(
-            periodStartDate = optDate(4, cs),
-            periodEndDate = optDate(5, cs),
-            total = optDecimalFromIndex(6, cs),
+            periodStartDate    = optDate(4, cs),
+            periodEndDate      = optDate(5, cs),
+            total              = optDecimalFromIndex(6, cs),
             totalPeriodRecords = optInt(7, cs),
             amountDeclared     = amountDeclared
           )
@@ -93,31 +93,31 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
   def optInt(i: Int, cs: java.sql.CallableStatement): Option[Int] =
     Option(cs.getObject(i)).map {
       case bd: java.math.BigDecimal => bd.intValue()
-      case n: java.lang.Number => n.intValue()
-      case other => other.toString.toInt
+      case n: java.lang.Number      => n.intValue()
+      case other                    => other.toString.toInt
     }
 
   def optDecimalFromIndex(i: Int, cs: java.sql.CallableStatement): Option[BigDecimal] = {
     def alternativeMethodForMockito(idx: Int): Option[BigDecimal] = cs.getObject(idx) match {
       case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null => None
+      case null      => None
     }
 
     Option(cs.getBigDecimal(i)) match {
       case Some(v1) => Option(v1)
-      case _ => alternativeMethodForMockito(i)
+      case _        => alternativeMethodForMockito(i)
     }
   }
 
   def optDecimalFromLabel(s: String, rs: java.sql.ResultSet): Option[BigDecimal] = {
     def alternativeMethodForMockito(idx: String): Option[BigDecimal] = rs.getObject(idx) match {
       case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null => None
+      case null      => None
     }
 
     Option(rs.getBigDecimal(s)) match {
       case Some(v1) => Option(v1)
-      case _ => alternativeMethodForMockito(s)
+      case _        => alternativeMethodForMockito(s)
     }
   }
 
