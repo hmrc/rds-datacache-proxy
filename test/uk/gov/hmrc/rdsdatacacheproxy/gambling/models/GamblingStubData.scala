@@ -95,10 +95,33 @@ object GamblingStubData {
           mgdRegNumber          = mgdRegNumber,
           businessType          = None,
           currentlyRegistered   = 1,
-          isGroupMember         = false,
+          groupReg              = false,
           dateOfRegistration    = Some(LocalDate.now().minusYears(1)),
           businessPartnerNumber = Some("BPN123456"),
           systemDate            = LocalDate.now()
+        )
+    }
+
+  def getBusinessName(mgdRegNumber: String): BusinessName =
+    mgdRegNumber match {
+
+      case "ERR00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case "EMPTY000000000" =>
+        throw new RuntimeException("No business details found")
+
+      case _ =>
+        BusinessName(
+          mgdRegNumber      = mgdRegNumber,
+          solePropTitle     = Some("abc"),
+          solePropFirstName = Some("abc"),
+          solePropMidName   = Some("abc"),
+          solePropLastName  = Some("abc"),
+          businessName      = Some("abc"),
+          businessType      = None,
+          tradingName       = Some("abc"),
+          systemDate        = Some(LocalDate.now())
         )
     }
 

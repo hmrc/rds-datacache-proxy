@@ -45,7 +45,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
           mgdRegNumber          = mgdRegNumber,
           businessType          = None,
           currentlyRegistered   = 1,
-          isGroupMember         = true,
+          groupReg         = true,
           dateOfRegistration    = None,
           businessPartnerNumber = Some("BP123"),
           systemDate            = java.time.LocalDate.now()
@@ -131,7 +131,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
       )
       .build()
 
-  private val businessDetailEndpoint = "/gambling/business-details"
+  private val endpoint = "/gambling/return-summary"
 
   implicit val localDateReads: Reads[LocalDate] =
     Reads.localDateReads("yyyy-MM-dd")
@@ -276,7 +276,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
 
         (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
         (response.json \ "currentlyRegistered").as[Int] mustBe 1
-        (response.json \ "isGroupMember").as[Boolean] mustBe true
+        (response.json \ "groupReg").as[Boolean] mustBe true
         (response.json \ "businessPartnerNumber").as[String] mustBe "BP123"
       }
 

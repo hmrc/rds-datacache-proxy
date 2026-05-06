@@ -42,8 +42,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, ReturnSummary}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessName
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, BusinessName, BusinessType, ReturnSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import java.time.LocalDate
@@ -131,7 +130,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
                               Some("fooBar"),
                               Some("fooBar"),
                               Some("fooBar"),
-                              Some(1),
+                              Some(BusinessType.Partnership),
                               Some("fooBar"),
                               dateTime
                              )
@@ -158,7 +157,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
                               Some("fooBar"),
                               Some("fooBar"),
                               Some("fooBar"),
-                              Some(1),
+                              Some(BusinessType.Partnership),
                               Some("fooBar"),
                               dateTime
                              )
@@ -210,12 +209,12 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds for BusinessDetails" in new Setup {
       val summary = BusinessDetails("XWM00000001770",
-                                    Some(2),
-                                    Some(1),
-                                    Some("foo"),
+                                    Some(BusinessType.SoleProprietor),
+                                    1,
+                                    true,
                                     Some(LocalDate.of(2024, 4, 21)),
                                     Some("bar"),
-                                    Some(LocalDate.of(2024, 4, 21))
+                                    LocalDate.of(2024, 4, 21)
                                    )
 
       when(mockService.getBusinessDetails(eqTo("XWM00000001770"))(any()))
@@ -233,14 +232,15 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "allows request through AuthAction for BusinessDetails" in new Setup {
-      val summary = BusinessDetails("XWM00000001770",
-                                    Some(2),
-                                    Some(1),
-                                    Some("foo"),
-                                    Some(LocalDate.of(2024, 4, 21)),
-                                    Some("bar"),
-                                    Some(LocalDate.of(2024, 4, 21))
-                                   )
+      val summary =
+        BusinessDetails("XWM00000001770",
+                        Some(BusinessType.SoleProprietor),
+                        1,
+                        true,
+                        Some(LocalDate.of(2024, 4, 21)),
+                        Some("bar"),
+                        LocalDate.of(2024, 4, 21)
+                       )
 
       when(mockService.getBusinessDetails(any())(any()))
         .thenReturn(Future.successful(Right(summary)))

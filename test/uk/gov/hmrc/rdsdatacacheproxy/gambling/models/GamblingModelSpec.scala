@@ -73,7 +73,7 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
         solePropMidName   = Some("C"),
         solePropLastName  = Some("Doe"),
         businessName      = Some("John Doe Co."),
-        businessType      = Some(1),
+        businessType      = Some(BusinessType.SoleProprietor),
         tradingName       = Some("DoeDoe"),
         systemDate        = Some(dateBusinessName)
       )
@@ -91,7 +91,7 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
            |"mgdRegNumber": "XYZ00000000000",
            |"businessType": 1,
            |"currentlyRegistered": 1,
-           |"groupReg": "foo",
+           |"groupReg": true,
            |"dateOfRegistration": "$date",
            |"businessPartnerNumber": "bar",
            |"systemDate": "$date"
@@ -103,12 +103,12 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
 
       model mustBe BusinessDetails(
         mgdRegNumber          = "XYZ00000000000",
-        businessType          = Some(1),
-        currentlyRegistered   = Some(1),
-        groupReg              = Some("foo"),
+        businessType          = Some(BusinessType.SoleProprietor),
+        currentlyRegistered   = 1,
+        groupReg              = true,
         dateOfRegistration    = Some(LocalDate.of(2000, 1, 1)),
         businessPartnerNumber = Some("bar"),
-        systemDate            = Some(LocalDate.of(2000, 1, 1))
+        systemDate            = LocalDate.of(2000, 1, 1)
       )
 
       Json.toJson(model) mustBe json
