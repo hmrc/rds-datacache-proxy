@@ -32,12 +32,7 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
     extends GamblingReturnsDataSource
     with Logging {
 
-  override def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] = {
-
-    logger.info(
-      s"[GamblingReturnsDataCacheRepository][getReturnsSubmitted] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
-    )
-
+  override def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
     Future {
       db.withConnection { connection =>
 
@@ -86,7 +81,6 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
         }
       }
     }(ec)
-  }
 
   def optDate(i: Int, cs: java.sql.CallableStatement): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
 

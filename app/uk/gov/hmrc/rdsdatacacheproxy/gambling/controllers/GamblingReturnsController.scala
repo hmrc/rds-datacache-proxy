@@ -38,14 +38,10 @@ class GamblingReturnsController @Inject() (authorise: AuthAction, service: Gambl
       service.getReturnsSubmitted(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(returns) => Ok(Json.toJson(returns))
         case Left(error) =>
-          val logMessage =
-            s"[GamblingReturnsController][getReturnsSubmitted] code=${error.code} regime=$regime regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
           error match {
             case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound =>
-              logger.warn(logMessage)
               BadRequest(errorResponse(error))
             case UnexpectedError =>
-              logger.error(logMessage)
               InternalServerError(errorResponse(error))
           }
       }

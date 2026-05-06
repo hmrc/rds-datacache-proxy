@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -23,6 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReturnsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReturnsStubData.getReturnsSubmittedData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnsSubmitted
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
@@ -31,12 +32,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class GamblingReturnsControllerIntegrationSpec
-    extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with ApplicationWithWiremock {
+class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingReturnsRdsStub extends GamblingReturnsDataSource {
     override def getReturnsSubmitted(regNumber: String, pageNo: Int, pageSize: Int) =

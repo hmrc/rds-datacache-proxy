@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -23,12 +23,9 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, GamblingReturnsError, ReturnsSubmitted}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReturnsStubData.getReturnsSubmittedData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnsSubmitted
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
 class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
@@ -57,7 +54,7 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
       result mustBe getReturnsSubmittedData("XYZ00000000001")
     }
 
-     "return consistent results across multiple calls" in {
+    "return consistent results across multiple calls" in {
       val result1 = repository.getReturnsSubmitted("XYZ00000000012", 1, 10).futureValue
       val result2 = repository.getReturnsSubmitted("XYZ00000000012", 1, 10).futureValue
 

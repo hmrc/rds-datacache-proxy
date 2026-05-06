@@ -38,6 +38,7 @@ class GamblingReturnsService @Inject() (
   ): Future[Either[GamblingReturnsError, ReturnsSubmitted]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    logger.info(s"[GamblingReturnsController][getReturnsSubmitted] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
     if (!ValidRegimes.contains(regime.trim.toLowerCase()))
