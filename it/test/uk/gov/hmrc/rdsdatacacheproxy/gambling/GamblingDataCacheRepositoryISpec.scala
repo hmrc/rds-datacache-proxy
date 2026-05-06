@@ -119,7 +119,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       val result = repository.getBusinessDetails("XYZ00000000001").futureValue
 
       result.businessType mustBe None
-      result.businessPartnerNumber mustBe Some("BPN123456")
+      result.businessPartnerNumber mustBe Some("bar")
     }
 
     "return consistent results across multiple calls" in {
@@ -377,9 +377,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       result mustBe BusinessDetails(
         mgdRegNumber = "XYZ00000000000",
-        businessType = Some(BusinessType.LimitedLiabilityPartnership),
-        currentlyRegistered = 1,
-        groupReg = true,
+        businessType = Some(BusinessType.CorporateBody),
+        currentlyRegistered = 2,
+        groupReg = false,
         dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = LocalDate.of(2024, 4, 21)
       )
     }
@@ -387,9 +387,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "return business type correctly" in {
       val result = repository.getBusinessDetails("XYZ00000000001").futureValue
 
-      result.businessType mustBe Some(BusinessType.LimitedLiabilityPartnership)
+      result.businessType mustBe None
       result.currentlyRegistered mustBe 1
-      result.groupReg mustBe true
+      result.groupReg mustBe false
       result.dateOfRegistration mustBe Some(LocalDate.of(2024, 4, 21))
       result.businessPartnerNumber mustBe Some("bar")
       result.systemDate mustBe LocalDate.of(2024, 4, 21)
@@ -409,7 +409,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "return both date values correctly" in {
       val result = repository.getBusinessDetails("XYZ00000000012").futureValue
 
-      result mustBe BusinessDetails("XYZ00000000012", Some(BusinessType.UnincorporatedBody), 2, true, Some(LocalDate.of(2023, 4, 21)), Some("barfoo"), LocalDate.of(2023, 4, 21))
+      result mustBe BusinessDetails("XYZ00000000012", Some(BusinessType.SoleProprietor), 2, true, Some(LocalDate.of(2023, 4, 21)), Some("barfoo"), LocalDate.of(2023, 4, 21))
     }
 
     "handle multiple values" in {
@@ -444,7 +444,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "handle whitespace mgdRegNumber" in {
       val result = repository.getBusinessDetails("   ").futureValue
 
-      result mustBe BusinessDetails("   ", Some(BusinessType.SoleProprietor), 0,  true, Some(LocalDate.of(2026, 4, 22)), Some("unknown"), LocalDate.of(2026, 4, 22))
+      result mustBe BusinessDetails("   ", Some(BusinessType.Partnership), 0,  false, Some(LocalDate.of(2026, 4, 22)), Some("unknown"), LocalDate.of(2026, 4, 22))
     }
   }
 }

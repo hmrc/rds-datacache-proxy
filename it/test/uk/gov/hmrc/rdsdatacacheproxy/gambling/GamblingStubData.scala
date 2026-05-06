@@ -124,7 +124,7 @@ object GamblingStubData {
         case "XYZ00000000001" =>
           BusinessDetails(
             mgdRegNumber = mgdRegNumber,
-            businessType = Some(BusinessType.LimitedLiabilityPartnership),
+            businessType = None,
             currentlyRegistered = 1,
             groupReg = false,
             dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = LocalDate.of(2024, 4, 21)
