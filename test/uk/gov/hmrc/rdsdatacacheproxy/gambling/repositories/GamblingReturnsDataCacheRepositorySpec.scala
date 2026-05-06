@@ -72,7 +72,7 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
 
     val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
 
-    result shouldBe validResponseReturnsSubmittedSmall
+    result                     shouldBe validResponseReturnsSubmittedSmall
     result.amountDeclared.size shouldBe 1
 
     verify(mockCs).setString(1, regNumber)
@@ -103,7 +103,7 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyFlatSpec with Matchers w
     when(mockCs.getDate(2)).thenReturn(null)
     val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
 
-    result shouldBe ReturnsSubmitted(None, None, None, None, List())
+    result                shouldBe ReturnsSubmitted(None, None, None, None, List())
     result.amountDeclared shouldBe empty
 
     verify(mockCs).setString(1, regNumber)

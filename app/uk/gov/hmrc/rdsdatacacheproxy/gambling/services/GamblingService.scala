@@ -78,7 +78,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getOperatorDetails] Invalid pattern mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -102,7 +102,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!mgdRegNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getBusinessDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
