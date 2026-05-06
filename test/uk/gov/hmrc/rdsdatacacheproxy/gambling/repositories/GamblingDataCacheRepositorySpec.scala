@@ -150,7 +150,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result.mgdRegNumber          shouldBe mgdRegNumber
     result.currentlyRegistered   shouldBe 1
-    result.isGroupMember         shouldBe true
+    result.groupReg              shouldBe true
     result.businessPartnerNumber shouldBe Some("BP123")
 
     verify(mockCs).setString(1, mgdRegNumber)

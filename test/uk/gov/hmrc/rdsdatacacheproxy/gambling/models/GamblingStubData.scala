@@ -95,7 +95,7 @@ object GamblingStubData {
           mgdRegNumber          = mgdRegNumber,
           businessType          = None,
           currentlyRegistered   = 1,
-          isGroupMember         = false,
+          groupReg              = false,
           dateOfRegistration    = Some(LocalDate.now().minusYears(1)),
           businessPartnerNumber = Some("BPN123456"),
           systemDate            = LocalDate.now()
