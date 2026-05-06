@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -30,10 +30,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingRdsStub extends GamblingDataSource {
 
