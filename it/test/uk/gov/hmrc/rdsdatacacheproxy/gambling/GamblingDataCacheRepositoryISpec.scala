@@ -165,8 +165,8 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       val result = repository.getReturnSummary("XYZ00000000000").futureValue
 
       result mustBe ReturnSummary(
-        mgdRegNumber = "XYZ00000000000",
-        returnsDue = 0,
+        mgdRegNumber   = "XYZ00000000000",
+        returnsDue     = 0,
         returnsOverdue = 0
       )
     }
