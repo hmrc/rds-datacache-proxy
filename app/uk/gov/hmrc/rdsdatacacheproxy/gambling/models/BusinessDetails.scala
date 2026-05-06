@@ -23,7 +23,7 @@ final case class BusinessDetails(
   mgdRegNumber: String,
   businessType: Option[BusinessType],
   currentlyRegistered: Int,
-  isGroupMember: Boolean,
+  groupReg: Boolean,
   dateOfRegistration: Option[LocalDate],
   businessPartnerNumber: Option[String],
   systemDate: LocalDate

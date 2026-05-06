@@ -99,7 +99,7 @@ class GamblingDataCacheRepository @Inject() (
             mgdRegNumber          = rs.getString("mgd_reg_number"),
             businessType          = businessType,
             currentlyRegistered   = rs.getInt("currently_registered"),
-            isGroupMember         = groupReg,
+            groupReg              = groupReg,
             dateOfRegistration    = optDate("date_of_registration"),
             businessPartnerNumber = optString("business_partner_number"),
             systemDate            = java.time.LocalDate.now()

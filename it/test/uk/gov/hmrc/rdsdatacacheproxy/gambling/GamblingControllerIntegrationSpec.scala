@@ -24,6 +24,8 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, MgdCertificate, OperatorDetails}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
@@ -40,7 +42,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
           mgdRegNumber          = mgdRegNumber,
           businessType          = None,
           currentlyRegistered   = 1,
-          isGroupMember         = true,
+          groupReg              = true,
           dateOfRegistration    = None,
           businessPartnerNumber = Some("BP123"),
           systemDate            = java.time.LocalDate.now()
@@ -258,7 +260,7 @@ class GamblingControllerIntegrationSpec extends AnyWordSpec with Matchers with S
 
         (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
         (response.json \ "currentlyRegistered").as[Int] mustBe 1
-        (response.json \ "isGroupMember").as[Boolean] mustBe true
+        (response.json \ "groupReg").as[Boolean] mustBe true
         (response.json \ "businessPartnerNumber").as[String] mustBe "BP123"
       }
 
