@@ -25,9 +25,10 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
+  def getBusinessName(mgdRegNumber: String): Future[BusinessName]
+  def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
   def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
-  def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
 }
 
 @Singleton
@@ -348,6 +349,66 @@ class GamblingDataCacheRepository @Inject() (
         }
       }
     })(ec)
+  }
+  override def getBusinessName(mgdRegNumber: String): Future[BusinessName] = {
+
+    logger.info(s"[GamblingDataCacheRepository][getBusinessName] mgdRegNumber=$mgdRegNumber")
+
+    Future {
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_BUSINESS_NAME(?, ?) }")
+
+        try {
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.execute()
+
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+            val msg = s"Null cursor returned for mgdRegNumber=$mgdRegNumber"
+            logger.error(s"[GamblingDataCacheRepository] $msg")
+            throw new RuntimeException(msg)
+          }
+
+          try {
+            if (rs.next()) {
+
+              def optInt(col: String): Option[Int] =
+                Option(rs.getObject(col)).map {
+                  case bd: java.math.BigDecimal => bd.intValue()
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
+                }
+
+              val businessType: Option[BusinessType] =
+                optInt("business_type").flatMap(BusinessType.fromCode)
+
+              BusinessName(
+                mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
+                solePropTitle     = Option(rs.getString("SOLE_PROP_TITLE")),
+                solePropFirstName = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
+                solePropMidName   = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                solePropLastName  = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                businessName      = Option(rs.getString("BUSINESS_NAME")),
+                businessType      = businessType,
+                tradingName       = Option(rs.getString("TRADING_NAME")),
+                systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+              )
+            } else {
+              val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
+              logger.error(s"[GamblingDataCacheRepository] $msg")
+              throw new RuntimeException(msg)
+            }
+          } finally {
+            rs.close()
+          }
+        } finally {
+          cs.close()
+        }
+      }
+    }(ec)
   }
 
   override def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary] = {
