@@ -23,12 +23,12 @@ import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import play.api.test.Helpers.*
 import play.api.test.FakeRequest
+import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.{InvalidRegNumber, InvalidRegimeCode, RegNumberNotFound, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReturnsService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseOtherAssessments, validResponseReturnsSubmitted}
 
 import scala.concurrent.Future
 
@@ -56,70 +56,152 @@ class GamblingReturnsControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getReturnsSubmitted(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/returns-submitted/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when InvalidRegNumber" in new Setup {
+      when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REG_NUMBER",
+        "message" -> "regNumber has invalid format"
+      )
+
+      verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when RegNumberNotFound" in new Setup {
+      when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(RegNumberNotFound)))
+
+      val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/XWM12345678912")
+      val res: Future[Result] = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "REG_NUMBER_NOT_FOUND",
+        "message" -> "regNumber does not exist"
+      )
+
+      verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getReturnsSubmitted(validRegime, "ERR00001770", 1, 10)(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getReturnsSubmitted(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+    }
   }
 
-  "returns 400 when InvalidRegimeError" in new Setup {
-    when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+  "GamblingReturnsController#getOtherAssessments" - {
 
-    val req = FakeRequest(GET, "/gambling/returns-submitted/INVALID_REGIME/XWM00000001770")
-    val res = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
+    "returns 200 when service succeeds" in new Setup {
 
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "INVALID_REGIME_CODE",
-      "message" -> "Invalid Regime Code"
-    )
+      when(mockService.getOtherAssessments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
+        .thenReturn(Future.successful(Right(validResponseOtherAssessments)))
 
-    verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      val req = FakeRequest(GET, s"/gambling/other-assessments/$validRegime/XWM00000001770?pageNo=1&pageSize=10")
+      val res: Future[Result] = controller.getOtherAssessments(validRegime, "XWM00000001770", 1, 10)(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(validResponseOtherAssessments)
+
+      verify(mockService).getOtherAssessments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getOtherAssessments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/other-assessments/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getOtherAssessments(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getOtherAssessments(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when InvalidRegNumber" in new Setup {
+      when(mockService.getOtherAssessments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/other-assessments/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getOtherAssessments(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REG_NUMBER",
+        "message" -> "regNumber has invalid format"
+      )
+
+      verify(mockService).getOtherAssessments(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when RegNumberNotFound" in new Setup {
+      when(mockService.getOtherAssessments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(RegNumberNotFound)))
+
+      val req = FakeRequest(GET, s"/gambling/other-assessments/$validRegime/XWM12345678912")
+      val res: Future[Result] = controller.getOtherAssessments(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "REG_NUMBER_NOT_FOUND",
+        "message" -> "regNumber does not exist"
+      )
+
+      verify(mockService).getOtherAssessments(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getOtherAssessments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/other-assessments/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getOtherAssessments(validRegime, "ERR00001770", 1, 10)(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getOtherAssessments(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+    }
   }
-
-  "returns 400 when InvalidRegNumber" in new Setup {
-    when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(InvalidRegNumber)))
-
-    val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/InvalidRegNo")
-    val res: Future[Result] = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
-
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "INVALID_REG_NUMBER",
-      "message" -> "regNumber has invalid format"
-    )
-
-    verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
-  }
-
-  "returns 400 when RegNumberNotFound" in new Setup {
-    when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(RegNumberNotFound)))
-
-    val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/XWM12345678912")
-    val res: Future[Result] = controller.getReturnsSubmitted(" ", " ", 1, 10)(req)
-
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "REG_NUMBER_NOT_FOUND",
-      "message" -> "regNumber does not exist"
-    )
-
-    verify(mockService).getReturnsSubmitted(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
-  }
-
-  "returns 500 when UnexpectedError" in new Setup {
-    when(mockService.getReturnsSubmitted(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(UnexpectedError)))
-
-    val req = FakeRequest(GET, s"/gambling/returns-submitted/$validRegime/ERR00001770")
-    val res: Future[Result] = controller.getReturnsSubmitted(validRegime, "ERR00001770", 1, 10)(req)
-
-    status(res) mustBe INTERNAL_SERVER_ERROR
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "UNEXPECTED_ERROR",
-      "message" -> "Unexpected error occurred"
-    )
-
-    verify(mockService).getReturnsSubmitted(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
-  }
-
 }

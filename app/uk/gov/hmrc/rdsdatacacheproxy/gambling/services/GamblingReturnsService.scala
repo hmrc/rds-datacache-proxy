@@ -38,7 +38,7 @@ class GamblingReturnsService @Inject() (
   ): Future[Either[GamblingReturnsError, ReturnsSubmitted]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReturnsController][getReturnsSubmitted] $reqText")
+    logger.info(s"[GamblingReturnsService][getReturnsSubmitted] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
     if (!ValidRegimes.contains(regime.trim.toLowerCase()))
@@ -53,6 +53,30 @@ class GamblingReturnsService @Inject() (
         .map(summary => Right(summary))
         .recover { case ex: Exception =>
           logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
+          Left(UnexpectedError)
+        }
+  }
+
+  def getOtherAssessments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GamblingReturnsError, OtherAssessments]] = {
+
+    lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    logger.info(s"[GamblingReturnsService][getOtherAssessments] $reqText")
+    val regNumber = rawRegNumber.trim.toUpperCase
+
+    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
+      logger.error(s"[GamblingReturnsService][getOtherAssessments] Invalid Regime Code $reqText")
+      Future.successful(Left(InvalidRegimeCode))
+    else if (!regNumberPattern.matcher(regNumber).matches())
+      logger.warn(s"[GamblingReturnsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
+      Future.successful(Left(InvalidRegNumber))
+    else
+      repository
+        .getOtherAssessments(regNumber, paginationStart, paginationMaxRows)
+        .map(assessments => Right(assessments))
+        .recover { case ex: Exception =>
+          logger.error(s"[GamblingReturnsService][getOtherAssessments] Unexpected error $reqText", ex)
           Left(UnexpectedError)
         }
   }

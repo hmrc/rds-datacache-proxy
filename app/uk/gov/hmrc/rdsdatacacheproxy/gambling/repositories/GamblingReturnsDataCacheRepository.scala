@@ -18,13 +18,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, Assessments, OtherAssessments, ReturnsSubmitted}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReturnsDataSource {
   def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted]
+  def getOtherAssessments(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[OtherAssessments]
 }
 
 @Singleton
@@ -74,6 +75,56 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
             total              = optDecimalFromIndex(6, cs),
             totalPeriodRecords = optInt(7, cs),
             amountDeclared     = amountDeclared
+          )
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    }(ec)
+
+  override def getOtherAssessments(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[OtherAssessments] =
+    Future {
+      db.withConnection { connection =>
+
+        val cs = connection.prepareCall("{ call GTR_LNP_PK.getOtherAssessmentDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, regNumber) // IN  P_REG_NUMBER
+          cs.setInt(2, paginationStart) // IN  P_PAGINATION_START
+          cs.setInt(3, paginationMaxRows) // IN  P_PAGINATION_MAX_ROWS
+          cs.registerOutParameter(4, java.sql.Types.DATE) // OUT P_GTR_PERIOD_START_DATE
+          cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
+          cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
+          cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_OTHER_ASSESSMENTS (REF CURSOR)
+          cs.execute()
+
+          val assessments: List[Assessments] = {
+            val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
+            if (rs == null) Nil
+            else {
+              try {
+                val b = List.newBuilder[Assessments]
+                while (rs.next()) {
+                  b += Assessments(
+                    dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
+                    periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
+                    periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
+                    amount          = optDecimalFromLabel("p_amount", rs)
+                  )
+                }
+                b.result()
+              } finally closeQuietly(rs)
+            }
+          }
+
+          OtherAssessments(
+            periodStartDate    = optDate(4, cs),
+            periodEndDate      = optDate(5, cs),
+            total              = optDecimalFromIndex(6, cs),
+            totalPeriodRecords = optInt(7, cs),
+            assessments        = assessments
           )
 
         } finally {
