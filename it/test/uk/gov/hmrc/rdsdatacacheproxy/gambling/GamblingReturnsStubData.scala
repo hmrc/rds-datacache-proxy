@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, Assessments, OtherAssessments, ReturnsSubmitted}
 
 import java.time.LocalDate
 
@@ -143,6 +143,132 @@ object GamblingReturnsStubData {
                            periodEndDate   = Some(LocalDate.of(2024, 6, 30)),
                            amount          = Some(-4500.00)
                           )
+          )
+        )
+    }
+
+  def getOtherAssessmentsData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): OtherAssessments =
+    regNumber match {
+      case "XYZ00000000000" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(0.00),
+          totalPeriodRecords = Some(0),
+          assessments = Seq()
+        )
+      case "XYZ00000000001" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(-24500.00),
+          totalPeriodRecords = Some(3),
+          assessments = Seq(
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 1)),
+              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 6, 30)),
+              amount = Some(-9500.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 2)),
+              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 3, 31)),
+              amount = Some(-8000.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 3)),
+              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
+              periodEndDate = Some(LocalDate.of(2013, 12, 31)),
+              amount = Some(-7000.00)
+            )
+          )
+        )
+      case "XYZ00000000010" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(-1000.00),
+          totalPeriodRecords = Some(1),
+          assessments = Seq(
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 1)),
+              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 6, 30)),
+              amount = Some(-9500.00)
+            )
+          )
+        )
+      case "XYZ00000000012" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(-34500.00),
+          totalPeriodRecords = Some(4),
+          assessments = Seq(
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 1)),
+              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 6, 30)),
+              amount = Some(-9500.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 2)),
+              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 3, 31)),
+              amount = Some(-8000.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 3)),
+              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
+              periodEndDate = Some(LocalDate.of(2013, 12, 31)),
+              amount = Some(-7000.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 4)),
+              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
+              periodEndDate = Some(LocalDate.of(2013, 12, 31)),
+              amount = Some(5555.00)
+            )
+          )
+        )
+      case "XYZ00000000021" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(-44500.00),
+          totalPeriodRecords = Some(3),
+          assessments = Seq(
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 1)),
+              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 6, 30)),
+              amount = Some(-9500.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 2)),
+              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
+              periodEndDate = Some(LocalDate.of(2014, 3, 31)),
+              amount = Some(-8000.00)
+            ),
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 3)),
+              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
+              periodEndDate = Some(LocalDate.of(2013, 12, 31)),
+              amount = Some(-7000.00)
+            )
+          )
+        )
+      case "XYZ99999999999" =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = Some(999.00),
+          totalPeriodRecords = Some(99),
+          assessments = Seq()
+        )
+      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case _ =>
+        OtherAssessments(
+          periodStartDate = Some(LocalDate.of(2023, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2024, 3, 11)),
+          total = Some(-4500.00),
+          totalPeriodRecords = Some(1),
+          assessments = Seq(
+            Assessments(dateRaised = Some(LocalDate.of(2014, 4, 1)),
+              periodStartDate = Some(LocalDate.of(2024, 4, 1)),
+              periodEndDate = Some(LocalDate.of(2024, 6, 30)),
+              amount = Some(-4500.00)
+            )
           )
         )
     }

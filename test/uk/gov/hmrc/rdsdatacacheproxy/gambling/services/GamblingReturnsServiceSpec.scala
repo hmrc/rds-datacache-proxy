@@ -22,7 +22,7 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseOtherAssessments, validResponseReturnsSubmitted}
 
 import scala.concurrent.Future
 
@@ -71,6 +71,42 @@ final class GamblingReturnsServiceSpec extends SpecBase {
       val result = service.getReturnsSubmitted(validRegime, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
+  "GamblingReturnsService#getOtherAssessments" - {
+
+    "return validResponseOtherAssessments when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
+      when(repository.getOtherAssessments(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+        .thenReturn(Future.successful(validResponseOtherAssessments))
+
+      val result = service.getOtherAssessments(validRegime, lowercaseRegNumber, 1, 10).futureValue
+
+      result mustBe Right(validResponseOtherAssessments)
+      verify(repository).getOtherAssessments(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidRegimeError and not call repository when Regime input is invalid" in {
+      val result = service.getOtherAssessments("INVALID", lowercaseRegNumber, 1, 10).futureValue
+      result mustBe Left(InvalidRegimeCode)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
+      val invalidRegNumber = "xwm12345678"
+      val result = service.getOtherAssessments(validRegime, invalidRegNumber, 1, 10).futureValue
+      result mustBe Left(InvalidRegNumber)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository throws exception" in {
+      when(repository.getOtherAssessments(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
+      val result = service.getOtherAssessments(validRegime, lowercaseRegNumber, 1, 10).futureValue
+      result mustBe Left(UnexpectedError)
+      verify(repository).getOtherAssessments(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }

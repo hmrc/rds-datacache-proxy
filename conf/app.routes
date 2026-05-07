@@ -42,3 +42,4 @@ GET        /gambling/business-details/:mgdRegNumber    uk.gov.hmrc.rdsdatacachep
 
 #Gambling Returns routes
 GET        /gambling/returns-submitted/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReturnsController.getReturnsSubmitted(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/other-assessments/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReturnsController.getOtherAssessments(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)

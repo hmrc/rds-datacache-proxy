@@ -46,4 +46,18 @@ class GamblingReturnsController @Inject() (authorise: AuthAction, service: Gambl
           }
       }
     }
+
+  def getOtherAssessments(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getOtherAssessments(regime, regNumber, paginationStart, paginationMaxRows).map {
+        case Right(assessments) => Ok(Json.toJson(assessments))
+        case Left(error) =>
+          error match {
+            case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound =>
+              BadRequest(errorResponse(error))
+            case UnexpectedError =>
+              InternalServerError(errorResponse(error))
+          }
+      }
+    }
 }
