@@ -30,6 +30,7 @@ trait GamblingReallocationsDataSource {
 @Singleton
 class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
     extends GamblingReallocationsDataSource
+    with RepositorySupport
     with Logging {
 
   override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsIn] = {
@@ -62,7 +63,7 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
                 val b = List.newBuilder[ReallocationsInAmount]
                 while (rs.next()) {
                   b += ReallocationsInAmount(
-                    dateProcessed = Option(rs.getDate("p_date_processed").toLocalDate),
+                    dateProcessed = Option(rs.getDate("p_date_processed")).map(_.toLocalDate),
                     amount        = optDecimalFromLabel("p_amount", rs)
                   )
                 }
@@ -85,44 +86,4 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
       }
     }(ec)
   }
-
-  def optDate(i: Int, cs: java.sql.CallableStatement): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
-
-  def optInt(i: Int, cs: java.sql.CallableStatement): Option[Int] =
-    Option(cs.getObject(i)).map {
-      case bd: java.math.BigDecimal => bd.intValue()
-      case n: java.lang.Number      => n.intValue()
-      case other                    => other.toString.toInt
-    }
-
-  def optDecimalFromIndex(i: Int, cs: java.sql.CallableStatement): Option[BigDecimal] = {
-    def alternativeMethodForMockito(idx: Int): Option[BigDecimal] = cs.getObject(idx) match {
-      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null      => None
-    }
-
-    Option(cs.getBigDecimal(i)) match {
-      case Some(v1) => Option(v1)
-      case _        => alternativeMethodForMockito(i)
-    }
-  }
-
-  def optDecimalFromLabel(s: String, rs: java.sql.ResultSet): Option[BigDecimal] = {
-    def alternativeMethodForMockito(idx: String): Option[BigDecimal] = rs.getObject(idx) match {
-      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null      => None
-    }
-
-    Option(rs.getBigDecimal(s)) match {
-      case Some(v1) => Option(v1)
-      case _        => alternativeMethodForMockito(s)
-    }
-  }
-
-  def closeQuietly(c: AutoCloseable): Unit =
-    if (c != null)
-      try c.close()
-      catch {
-        case _: Throwable => ()
-      }
 }
