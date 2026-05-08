@@ -39,7 +39,7 @@ class GamblingReallocationsService @Inject() (
     logger.info(s"[GamblingReturnsController][getReallocationsIn] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (!GamblingRegime.isValid(regime))
+    if (!Regime.contains(regime))
       logger.error(s"[GamblingReturnsService][getReallocationsIn] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())

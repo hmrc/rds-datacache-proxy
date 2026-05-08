@@ -26,8 +26,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPatte
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-private final val ValidRegimes = List("mgd", "gbd", "pbd", "rgd")
-
 class GamblingReturnsService @Inject() (
   repository: GamblingReturnsDataSource
 )(implicit ec: ExecutionContext)
@@ -41,7 +39,7 @@ class GamblingReturnsService @Inject() (
     logger.info(s"[GamblingReturnsController][getReturnsSubmitted] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
+    if (!Regime.contains(regime))
       logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())

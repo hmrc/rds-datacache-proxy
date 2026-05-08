@@ -16,15 +16,21 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-object GamblingRegime extends Enumeration {
+sealed trait Regime(val code: String)
 
-  type GamblingRegime = Value
+object Regime {
 
-  val MGD: Value = Value("mgd")
-  val GBD: Value = Value("gbd")
-  val PBD: Value = Value("pbd")
-  val RGD: Value = Value("rgd")
+  case object GBD extends Regime("gbd")
+  case object PBD extends Regime("pbd")
+  case object RGD extends Regime("rgd")
+  case object MGD extends Regime("mgd")
 
-  def isValid(regime: String): Boolean =
-    values.exists(_.toString.equalsIgnoreCase(regime.trim))
+  val values: Seq[Regime] =
+    Seq(GBD, PBD, RGD, MGD)
+
+  def fromString(s: String): Option[Regime] =
+    values.find(_.code == s.trim.toLowerCase)
+
+  def contains(s: String): Boolean =
+    values.exists(_.code == s.trim.toLowerCase)
 }
