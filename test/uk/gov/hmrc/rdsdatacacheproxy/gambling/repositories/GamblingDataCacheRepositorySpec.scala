@@ -143,9 +143,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(businessRs.getObject("business_type")).thenReturn(BigDecimal(1))
     when(businessRs.getInt("currently_registered")).thenReturn(1)
 
-    // UPDATED
     when(businessRs.getInt("group_reg")).thenReturn(1)
-
     when(businessRs.getDate("date_of_registration"))
       .thenReturn(Date.valueOf("2020-01-01"))
 
