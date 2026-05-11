@@ -18,13 +18,13 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationsIn, ReallocationsInAmount}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsAmount}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReallocationsDataSource {
-  def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsIn]
+  def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
 }
 
 @Singleton
@@ -33,7 +33,7 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
     with RepositorySupport
     with Logging {
 
-  override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsIn] = {
+  override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] = {
 
     logger.info(
       s"[GamblingReturnsDataCacheRepository][ReallocationsIn] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
@@ -55,14 +55,14 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // C_REALLOCATIONS (REF CURSOR)
           cs.execute()
 
-          val reallocationsInAmount: List[ReallocationsInAmount] = {
+          val reallocationsAmount: List[ReallocationsAmount] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[ReallocationsInAmount]
+                val b = List.newBuilder[ReallocationsAmount]
                 while (rs.next()) {
-                  b += ReallocationsInAmount(
+                  b += ReallocationsAmount(
                     dateProcessed = Option(rs.getDate("p_date_processed")).map(_.toLocalDate),
                     amount        = optDecimalFromLabel("p_amount", rs)
                   )
@@ -72,12 +72,12 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
             }
           }
 
-          ReallocationsIn(
-            periodStartDate       = optDate(4, cs),
-            periodEndDate         = optDate(5, cs),
-            total                 = optDecimalFromIndex(6, cs),
-            totalPeriodRecords    = optInt(7, cs),
-            reallocationsInAmount = reallocationsInAmount
+          Reallocations(
+            periodStartDate     = optDate(4, cs),
+            periodEndDate       = optDate(5, cs),
+            total               = optDecimalFromIndex(6, cs),
+            totalPeriodRecords  = optInt(7, cs),
+            reallocationsAmount = reallocationsAmount
           )
 
         } finally {

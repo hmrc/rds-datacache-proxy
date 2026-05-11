@@ -16,118 +16,118 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationsIn, ReallocationsInAmount}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsAmount}
 
 import java.time.LocalDate
 
 object GamblingReallocationsStubData {
-  def getReallocationsInData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): ReallocationsIn =
+  def getReallocationsInData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Reallocations =
     regNumber match {
       case "XYZ00000000000" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(0.00),
           totalPeriodRecords = Some(0),
-          reallocationsInAmount = Seq()
+          reallocationsAmount = Seq()
         )
       case "XYZ00000000001" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(2500.00),
           totalPeriodRecords = Some(2),
-          reallocationsInAmount = Seq(
-            ReallocationsInAmount(
+          reallocationsAmount = Seq(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 8, 20)),
               amount = Some(1500.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 3, 10)),
               amount = Some(1000.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
               amount = Some(3000.00)
             )
           )
         )
       case "XYZ00000000010" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(1100.00),
           totalPeriodRecords = Some(1),
-          reallocationsInAmount = Seq(
-            ReallocationsInAmount(
+          reallocationsAmount = Seq(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
               amount = Some(9500.00)
             )
           )
         )
       case "XYZ00000000012" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(3500.00),
           totalPeriodRecords = Some(4),
-          reallocationsInAmount = Seq(
-            ReallocationsInAmount(
+          reallocationsAmount = Seq(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
               amount = Some(500.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 1, 1)),
               amount = Some(8000.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
               amount = Some(7000.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
               amount = Some(5555.00)
             )
           )
         )
       case "XYZ00000000021" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(44500.00),
           totalPeriodRecords = Some(3),
-          reallocationsInAmount = Seq(
-            ReallocationsInAmount(
+          reallocationsAmount = Seq(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
               amount = Some(9500.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2014, 1, 1)),
               amount = Some(8000.00)
             ),
-            ReallocationsInAmount(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
               amount = Some(7000.00)
             )
           )
         )
       case "XYZ99999999999" =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate = Some(LocalDate.of(2014, 3, 11)),
           total = Some(999.00),
           totalPeriodRecords = Some(99),
-          reallocationsInAmount = Seq()
+          reallocationsAmount = Seq()
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
-        ReallocationsIn(
+        Reallocations(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
           periodEndDate = Some(LocalDate.of(2024, 3, 11)),
           total = Some(4500.00),
           totalPeriodRecords = Some(1),
-          reallocationsInAmount = Seq(
-            ReallocationsInAmount(
+          reallocationsAmount = Seq(
+            ReallocationsAmount(
               dateProcessed = Some(LocalDate.of(2024, 4, 1)),
               amount = Some(4500.00)
             )

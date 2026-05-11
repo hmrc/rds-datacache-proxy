@@ -20,23 +20,23 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class ReallocationsInAmount(
+final case class ReallocationsAmount(
   dateProcessed: Option[LocalDate],
   amount: Option[BigDecimal]
 )
 
-object ReallocationsInAmount {
-  implicit val format: OFormat[ReallocationsInAmount] = Json.format[ReallocationsInAmount]
+object ReallocationsAmount {
+  implicit val format: OFormat[ReallocationsAmount] = Json.format[ReallocationsAmount]
 }
 
-final case class ReallocationsIn(
+final case class Reallocations(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
   total: Option[BigDecimal],
   totalPeriodRecords: Option[Int],
-  reallocationsInAmount: Seq[ReallocationsInAmount]
+  reallocationsAmount: Seq[ReallocationsAmount]
 )
 
-object ReallocationsIn {
-  implicit val format: OFormat[ReallocationsIn] = Json.format[ReallocationsIn]
+object Reallocations {
+  implicit val format: OFormat[Reallocations] = Json.format[Reallocations]
 }

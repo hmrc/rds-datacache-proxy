@@ -33,24 +33,24 @@ class GamblingReallocationsService @Inject() (
 
   def getReallocationsIn(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[GamblingReturnsError, ReallocationsIn]] = {
+  ): Future[Either[GamblingReturnsError, Reallocations]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReturnsController][getReallocationsIn] $reqText")
+    logger.info(s"[GamblingReallocationsController][getReallocationsIn] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
     if (!Regime.contains(regime))
-      logger.error(s"[GamblingReturnsService][getReallocationsIn] Invalid Regime Code $reqText")
+      logger.error(s"[GamblingReallocationsService][getReallocationsIn] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[GamblingReturnsService][getReallocationsIn] Invalid pattern for regNumber=$regNumber")
+      logger.warn(s"[GamblingReallocationsService][getReallocationsIn] Invalid pattern for regNumber=$regNumber")
       Future.successful(Left(InvalidRegNumber))
     else
       repository
         .getReallocationsIn(regNumber, paginationStart, paginationMaxRows)
         .map(summary => Right(summary))
         .recover { case ex: Exception =>
-          logger.error(s"[GamblingReturnsService][getReallocationsIn] Unexpected error $reqText", ex)
+          logger.error(s"[GamblingReallocationsService][getReallocationsIn] Unexpected error $reqText", ex)
           Left(UnexpectedError)
         }
   }

@@ -24,14 +24,14 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.getReallocationsInData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsIn
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Reallocations
 
 import scala.concurrent.Future
 
 class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   class GamblingReallocationsRdsStub extends GamblingReallocationsDataSource {
-    override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsIn] =
+    override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] =
       Future.successful(getReallocationsInData(regNumber, paginationStart, paginationMaxRows))
   }
 

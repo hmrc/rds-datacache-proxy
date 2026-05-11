@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.shared.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReallocationsIn, ReallocationsInAmount, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, Reallocations, ReallocationsAmount, ReturnsSubmitted}
 
 import java.time.LocalDate
 
@@ -62,34 +62,34 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseReallocationsIn = ReallocationsIn(
+  val validResponseReallocationsIn = Reallocations(
     periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
     total              = Some(24500.00),
     totalPeriodRecords = Some(3),
-    reallocationsInAmount = Seq(
-      ReallocationsInAmount(
+    reallocationsAmount = Seq(
+      ReallocationsAmount(
         dateProcessed = Some(LocalDate.of(2014, 4, 1)),
         amount        = Some(9500.00)
       ),
-      ReallocationsInAmount(
+      ReallocationsAmount(
         dateProcessed = Some(LocalDate.of(2014, 1, 1)),
         amount        = Some(8000.00)
       ),
-      ReallocationsInAmount(
+      ReallocationsAmount(
         dateProcessed = Some(LocalDate.of(2013, 10, 1)),
         amount        = Some(7000.00)
       )
     )
   )
 
-  val validResponseReallocationsInSmall = ReallocationsIn(
+  val validResponseReallocationsInSmall = Reallocations(
     periodStartDate    = Some(LocalDate.of(2016, 2, 29)),
     periodEndDate      = Some(LocalDate.of(2017, 6, 15)),
     total              = Some(301.56),
     totalPeriodRecords = Some(1),
-    reallocationsInAmount = Seq(
-      ReallocationsInAmount(
+    reallocationsAmount = Seq(
+      ReallocationsAmount(
         dateProcessed = Some(LocalDate.of(2016, 3, 9)),
         amount        = Some(943.21)
       )

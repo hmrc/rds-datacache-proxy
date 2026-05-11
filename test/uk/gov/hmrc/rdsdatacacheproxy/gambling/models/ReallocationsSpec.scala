@@ -23,9 +23,9 @@ import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponse
 
 import java.time.LocalDate
 
-class ReallocationsInSpec extends AnyWordSpec with Matchers {
+class ReallocationsSpec extends AnyWordSpec with Matchers {
 
-  "ReallocationsIn JSON format" should {
+  "Reallocations JSON format" should {
 
     "serialize to JSON correctly" in {
       val json = Json.toJson(validResponseReallocationsIn)
@@ -35,19 +35,19 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
       (json \ "total").as[Double] mustBe 24500.0
       (json \ "totalPeriodRecords").as[Int] mustBe 3
 
-      (json \ "reallocationsInAmount").as[Seq[ReallocationsInAmount]].size mustBe 3
+      (json \ "reallocationsAmount").as[Seq[ReallocationsAmount]].size mustBe 3
 
-      val reallocationsInAmount1 = (json \ "reallocationsInAmount")(0)
-      (reallocationsInAmount1 \ "dateProcessed").as[String] mustBe "2014-04-01"
-      (reallocationsInAmount1 \ "amount").as[Double] mustBe 9500.0
+      val reallocationsAmount1 = (json \ "reallocationsAmount")(0)
+      (reallocationsAmount1 \ "dateProcessed").as[String] mustBe "2014-04-01"
+      (reallocationsAmount1 \ "amount").as[Double] mustBe 9500.0
 
-      val reallocationsInAmount2 = (json \ "reallocationsInAmount")(1)
-      (reallocationsInAmount2 \ "dateProcessed").as[String] mustBe "2014-01-01"
-      (reallocationsInAmount2 \ "amount").as[Double] mustBe 8000.0
+      val reallocationsAmount2 = (json \ "reallocationsAmount")(1)
+      (reallocationsAmount2 \ "dateProcessed").as[String] mustBe "2014-01-01"
+      (reallocationsAmount2 \ "amount").as[Double] mustBe 8000.0
 
-      val reallocationsInAmount3 = (json \ "reallocationsInAmount")(2)
-      (reallocationsInAmount3 \ "dateProcessed").as[String] mustBe "2013-10-01"
-      (reallocationsInAmount3 \ "amount").as[Double] mustBe 7000.0
+      val reallocationsAmount3 = (json \ "reallocationsAmount")(2)
+      (reallocationsAmount3 \ "dateProcessed").as[String] mustBe "2013-10-01"
+      (reallocationsAmount3 \ "amount").as[Double] mustBe 7000.0
     }
 
     "deserialize from JSON correctly" in {
@@ -57,7 +57,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":24500.0,
            "totalPeriodRecords":3,
-           "reallocationsInAmount":[
+           "reallocationsAmount":[
              {
                 "dateProcessed": "${LocalDate.of(2014, 4, 1)}",
                 "amount":9500.0
@@ -74,7 +74,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result: JsResult[ReallocationsIn] = json.validate[ReallocationsIn]
+      val result: JsResult[Reallocations] = json.validate[Reallocations]
 
       result mustBe JsSuccess(validResponseReallocationsIn)
     }
@@ -83,7 +83,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
       val original = validResponseReallocationsIn
 
       val json = Json.toJson(original)
-      val parsed = json.as[ReallocationsIn]
+      val parsed = json.as[Reallocations]
 
       parsed mustBe original
     }
@@ -97,7 +97,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
           |""".stripMargin
       )
 
-      val result = json.validate[ReallocationsIn]
+      val result = json.validate[Reallocations]
 
       result.isError mustBe true
     }
@@ -109,7 +109,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":24500.0,
            "totalPeriodRecords":"3",
-           "reallocationsInAmount":[
+           "reallocationsAmount":[
              {
                 "dateProcessed": "${LocalDate.of(2014, 4, 1)}",
                 "amount":9500.0
@@ -126,7 +126,7 @@ class ReallocationsInSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result = json.validate[ReallocationsIn]
+      val result = json.validate[Reallocations]
 
       result.isError mustBe true
     }

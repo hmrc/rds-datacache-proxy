@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.getReallocationsInData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsIn
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Reallocations
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
@@ -62,7 +62,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsIn] mustBe getReallocationsInData("XYZ00000000000")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000000")
     }
 
     "return 200 with correct getReallocationsInData when pageNo & pageSize NOT provided" in {
@@ -73,21 +73,21 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsIn] mustBe getReallocationsInData("XYZ99999999999")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsIn] mustBe getReallocationsInData("XYZ00000000012")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsIn] mustBe getReallocationsInData("XYZ00000000012")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {
