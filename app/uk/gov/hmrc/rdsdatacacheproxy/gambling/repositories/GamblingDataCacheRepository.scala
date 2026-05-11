@@ -93,8 +93,7 @@ class GamblingDataCacheRepository @Inject() (
             optInt("business_type").flatMap(BusinessType.fromCode)
 
           val groupReg: Boolean =
-            Option(rs.getString("group_reg"))
-              .exists(_.trim.equalsIgnoreCase("Y"))
+            rs.getInt("group_reg") == 1
 
           BusinessDetails(
             mgdRegNumber          = rs.getString("mgd_reg_number"),
