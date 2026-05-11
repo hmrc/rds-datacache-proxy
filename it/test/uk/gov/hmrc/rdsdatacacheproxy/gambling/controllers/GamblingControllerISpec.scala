@@ -30,7 +30,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDate
 import scala.concurrent.Future
 

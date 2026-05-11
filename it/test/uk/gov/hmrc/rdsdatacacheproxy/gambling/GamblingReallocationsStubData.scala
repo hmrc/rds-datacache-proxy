@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsOut}
 
 import java.time.LocalDate
 
@@ -135,4 +135,102 @@ object GamblingReallocationsStubData {
         )
     }
 
+  def getReallocationsOutData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): ReallocationsOut =
+    regNumber match {
+      case "XYZ00000000000" => ReallocationsOut.empty
+      case "XYZ00000000001" =>
+        ReallocationsOut(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = -5500.00,
+          totalRecords = 3,
+          items = Seq(
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 8, 20),
+              amount = -1500.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 3, 10),
+              amount = -1000.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2013, 10, 1),
+              amount = -3000.00
+            )
+          )
+        )
+      case "XYZ00000000010" =>
+        ReallocationsOut(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = -1100.00,
+          totalRecords = 1,
+          items = Seq(
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 4, 1),
+              amount = -1100.00
+            )
+          )
+        )
+      case "XYZ00000000012" =>
+        ReallocationsOut(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = -21055.00,
+          totalRecords = 4,
+          items = Seq(
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 4, 1),
+              amount = -500.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 1, 1),
+              amount = -8000.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2013, 10, 1),
+              amount = -7000.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2013, 10, 1),
+              amount = -5555.00
+            )
+          )
+        )
+      case "XYZ00000000021" =>
+        ReallocationsOut(
+          periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
+          total = -24500.00,
+          totalRecords = 3,
+          items = Seq(
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 4, 1),
+              amount = -9500.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2014, 1, 1),
+              amount = -8000.00
+            ),
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2013, 10, 1),
+              amount = -7000.00
+            )
+          )
+        )
+      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case _ =>
+        ReallocationsOut(
+          periodStartDate = Some(LocalDate.of(2023, 3, 1)),
+          periodEndDate = Some(LocalDate.of(2024, 3, 11)),
+          total = -4500.00,
+          totalRecords = 1,
+          items = Seq(
+            ReallocationsOut.Reallocation(
+              dateProcessed = LocalDate.of(2024, 4, 1),
+              amount = -4500.00
+            )
+          )
+        )
+    }
 }
