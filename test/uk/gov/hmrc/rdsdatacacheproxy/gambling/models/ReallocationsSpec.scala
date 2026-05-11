@@ -33,21 +33,21 @@ class ReallocationsSpec extends AnyWordSpec with Matchers {
       (json \ "periodStartDate").as[String] mustBe "2013-03-01"
       (json \ "periodEndDate").as[String] mustBe "2014-03-11"
       (json \ "total").as[Double] mustBe 24500.0
-      (json \ "totalPeriodRecords").as[Int] mustBe 3
+      (json \ "totalRecords").as[Int] mustBe 3
 
-      (json \ "reallocationsAmount").as[Seq[ReallocationsAmount]].size mustBe 3
+      (json \ "items").as[Seq[ReallocationItem]].size mustBe 3
 
-      val reallocationsAmount1 = (json \ "reallocationsAmount")(0)
-      (reallocationsAmount1 \ "dateProcessed").as[String] mustBe "2014-04-01"
-      (reallocationsAmount1 \ "amount").as[Double] mustBe 9500.0
+      val items1 = (json \ "items")(0)
+      (items1 \ "dateProcessed").as[String] mustBe "2014-04-01"
+      (items1 \ "amount").as[Double] mustBe 9500.0
 
-      val reallocationsAmount2 = (json \ "reallocationsAmount")(1)
-      (reallocationsAmount2 \ "dateProcessed").as[String] mustBe "2014-01-01"
-      (reallocationsAmount2 \ "amount").as[Double] mustBe 8000.0
+      val items2 = (json \ "items")(1)
+      (items2 \ "dateProcessed").as[String] mustBe "2014-01-01"
+      (items2 \ "amount").as[Double] mustBe 8000.0
 
-      val reallocationsAmount3 = (json \ "reallocationsAmount")(2)
-      (reallocationsAmount3 \ "dateProcessed").as[String] mustBe "2013-10-01"
-      (reallocationsAmount3 \ "amount").as[Double] mustBe 7000.0
+      val items3 = (json \ "items")(2)
+      (items3 \ "dateProcessed").as[String] mustBe "2013-10-01"
+      (items3 \ "amount").as[Double] mustBe 7000.0
     }
 
     "deserialize from JSON correctly" in {
@@ -56,8 +56,8 @@ class ReallocationsSpec extends AnyWordSpec with Matchers {
            "periodStartDate":"${LocalDate.of(2013, 3, 1)}",
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":24500.0,
-           "totalPeriodRecords":3,
-           "reallocationsAmount":[
+           "totalRecords":3,
+           "items":[
              {
                 "dateProcessed": "${LocalDate.of(2014, 4, 1)}",
                 "amount":9500.0
@@ -108,8 +108,8 @@ class ReallocationsSpec extends AnyWordSpec with Matchers {
            "periodStartDate":"${LocalDate.of(2013, 3, 1)}",
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":24500.0,
-           "totalPeriodRecords":"3",
-           "reallocationsAmount":[
+           "totalRecords":"3",
+           "items":[
              {
                 "dateProcessed": "${LocalDate.of(2014, 4, 1)}",
                 "amount":9500.0

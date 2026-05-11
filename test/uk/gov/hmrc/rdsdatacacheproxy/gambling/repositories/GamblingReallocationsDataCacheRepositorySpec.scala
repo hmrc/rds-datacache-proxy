@@ -70,8 +70,8 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyFlatSpec with Matc
 
     val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result                          shouldBe validResponseReallocationsInSmall
-    result.reallocationsAmount.size shouldBe 1
+    result            shouldBe validResponseReallocationsInSmall
+    result.items.size shouldBe 1
 
     verify(mockCs).setString(1, regNumber)
     verify(mockCs).setInt(2, 1)
@@ -187,12 +187,12 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyFlatSpec with Matc
     val regNumber = "XWM12345678901"
 
     val validResponseReallocationsInSmall: Reallocations = Reallocations(
-      periodStartDate    = Some(LocalDate.of(2016, 2, 29)),
-      periodEndDate      = Some(LocalDate.of(2017, 6, 15)),
-      total              = Some(301.56),
-      totalPeriodRecords = Some(1),
-      reallocationsAmount = List(
-        ReallocationsAmount(
+      periodStartDate = Some(LocalDate.of(2016, 2, 29)),
+      periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
+      total           = Some(301.56),
+      totalRecords    = Some(1),
+      items = List(
+        ReallocationItem(
           dateProcessed = Some(LocalDate.of(2016, 3, 9)),
           amount        = Some(943.21)
         )
@@ -211,8 +211,8 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyFlatSpec with Matc
 
     val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result                          shouldBe validResponseReallocationsInSmall
-    result.reallocationsAmount.size shouldBe 1
+    result            shouldBe validResponseReallocationsInSmall
+    result.items.size shouldBe 1
 
     verify(mockCs).setString(1, regNumber)
     verify(mockCs).setInt(2, 1)

@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsAmount}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -55,14 +55,14 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // C_REALLOCATIONS (REF CURSOR)
           cs.execute()
 
-          val reallocationsAmount: List[ReallocationsAmount] = {
+          val reallocationItem: List[ReallocationItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[ReallocationsAmount]
+                val b = List.newBuilder[ReallocationItem]
                 while (rs.next()) {
-                  b += ReallocationsAmount(
+                  b += ReallocationItem(
                     dateProcessed = Option(rs.getDate("p_date_processed")).map(_.toLocalDate),
                     amount        = optDecimalFromLabel("p_amount", rs)
                   )
@@ -73,11 +73,11 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
           }
 
           Reallocations(
-            periodStartDate     = optDate(4, cs),
-            periodEndDate       = optDate(5, cs),
-            total               = optDecimalFromIndex(6, cs),
-            totalPeriodRecords  = optInt(7, cs),
-            reallocationsAmount = reallocationsAmount
+            periodStartDate = optDate(4, cs),
+            periodEndDate   = optDate(5, cs),
+            total           = optDecimalFromIndex(6, cs),
+            totalRecords    = optInt(7, cs),
+            items           = reallocationItem
           )
 
         } finally {

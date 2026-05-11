@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsAmount}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations}
 
 import java.time.LocalDate
 
@@ -26,110 +26,110 @@ object GamblingReallocationsStubData {
       case "XYZ00000000000" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(0.00),
-          totalPeriodRecords = Some(0),
-          reallocationsAmount = Seq()
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(0.00),
+          totalRecords    = Some(0),
+          items           = Seq()
         )
       case "XYZ00000000001" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(2500.00),
-          totalPeriodRecords = Some(2),
-          reallocationsAmount = Seq(
-            ReallocationsAmount(
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(2500.00),
+          totalRecords    = Some(2),
+          items = Seq(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 8, 20)),
-              amount = Some(1500.00)
+              amount        = Some(1500.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 3, 10)),
-              amount = Some(1000.00)
+              amount        = Some(1000.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
-              amount = Some(3000.00)
+              amount        = Some(3000.00)
             )
           )
         )
       case "XYZ00000000010" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(1100.00),
-          totalPeriodRecords = Some(1),
-          reallocationsAmount = Seq(
-            ReallocationsAmount(
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(1100.00),
+          totalRecords    = Some(1),
+          items = Seq(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
-              amount = Some(9500.00)
+              amount        = Some(9500.00)
             )
           )
         )
       case "XYZ00000000012" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(3500.00),
-          totalPeriodRecords = Some(4),
-          reallocationsAmount = Seq(
-            ReallocationsAmount(
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(3500.00),
+          totalRecords    = Some(4),
+          items = Seq(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
-              amount = Some(500.00)
+              amount        = Some(500.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 1, 1)),
-              amount = Some(8000.00)
+              amount        = Some(8000.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
-              amount = Some(7000.00)
+              amount        = Some(7000.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
-              amount = Some(5555.00)
+              amount        = Some(5555.00)
             )
           )
         )
       case "XYZ00000000021" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(44500.00),
-          totalPeriodRecords = Some(3),
-          reallocationsAmount = Seq(
-            ReallocationsAmount(
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(44500.00),
+          totalRecords    = Some(3),
+          items = Seq(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 4, 1)),
-              amount = Some(9500.00)
+              amount        = Some(9500.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2014, 1, 1)),
-              amount = Some(8000.00)
+              amount        = Some(8000.00)
             ),
-            ReallocationsAmount(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2013, 10, 1)),
-              amount = Some(7000.00)
+              amount        = Some(7000.00)
             )
           )
         )
       case "XYZ99999999999" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2014, 3, 11)),
-          total = Some(999.00),
-          totalPeriodRecords = Some(99),
-          reallocationsAmount = Seq()
+          periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+          total           = Some(999.00),
+          totalRecords    = Some(99),
+          items           = Seq()
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
-          periodEndDate = Some(LocalDate.of(2024, 3, 11)),
-          total = Some(4500.00),
-          totalPeriodRecords = Some(1),
-          reallocationsAmount = Seq(
-            ReallocationsAmount(
+          periodEndDate   = Some(LocalDate.of(2024, 3, 11)),
+          total           = Some(4500.00),
+          totalRecords    = Some(1),
+          items = Seq(
+            ReallocationItem(
               dateProcessed = Some(LocalDate.of(2024, 4, 1)),
-              amount = Some(4500.00)
+              amount        = Some(4500.00)
             )
           )
         )
