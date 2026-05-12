@@ -16,20 +16,21 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-import play.api.libs.json.{Json, OFormat}
+sealed trait Regime(val code: String)
 
-import java.time.LocalDate
+object Regime {
 
-final case class BusinessDetails(
-  mgdRegNumber: String,
-  businessType: Option[BusinessType],
-  currentlyRegistered: Int,
-  groupReg: Boolean,
-  dateOfRegistration: Option[LocalDate],
-  businessPartnerNumber: Option[String],
-  systemDate: LocalDate
-)
+  case object GBD extends Regime("gbd")
+  case object PBD extends Regime("pbd")
+  case object RGD extends Regime("rgd")
+  case object MGD extends Regime("mgd")
 
-object BusinessDetails {
-  implicit val format: OFormat[BusinessDetails] = Json.format[BusinessDetails]
+  val values: Seq[Regime] =
+    Seq(GBD, PBD, RGD, MGD)
+
+  def fromString(s: String): Option[Regime] =
+    values.find(_.code == s.trim.toLowerCase)
+
+  def contains(s: String): Boolean =
+    values.exists(_.code == s.trim.toLowerCase)
 }
