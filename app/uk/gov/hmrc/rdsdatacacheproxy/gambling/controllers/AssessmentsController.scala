@@ -23,20 +23,20 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReturnsService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GamblingReturnsController @Inject() (authorise: AuthAction, service: GamblingReturnsService, cc: ControllerComponents)(implicit
+class AssessmentsController @Inject() (authorise: AuthAction, service: AssessmentsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with Logging {
 
-  def getReturnsSubmitted(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+  def getOtherAssessments(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getReturnsSubmitted(regime, regNumber, paginationStart, paginationMaxRows).map {
-        case Right(returns) => Ok(Json.toJson(returns))
+      service.getOtherAssessments(regime, regNumber, paginationStart, paginationMaxRows).map {
+        case Right(assessments) => Ok(Json.toJson(assessments))
         case Left(error) =>
           error match {
             case InvalidRegimeCode | InvalidRegNumber =>

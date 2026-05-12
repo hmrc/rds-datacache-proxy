@@ -20,8 +20,8 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import scala.concurrent.Future

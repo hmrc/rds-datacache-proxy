@@ -16,20 +16,29 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-sealed trait GamblingError {
-  def code: String
-  def message: String
+import play.api.libs.json.{Json, OFormat}
+
+import java.time.LocalDate
+
+final case class AssessmentItem(
+  dateRaised: Option[LocalDate],
+  periodStartDate: Option[LocalDate],
+  periodEndDate: Option[LocalDate],
+  amount: Option[BigDecimal]
+)
+
+object AssessmentItem {
+  implicit val format: OFormat[AssessmentItem] = Json.format[AssessmentItem]
 }
 
-object GamblingError {
+final case class Assessments(
+  periodStartDate: Option[LocalDate],
+  periodEndDate: Option[LocalDate],
+  total: Option[BigDecimal],
+  totalRecords: Option[Int],
+  items: Seq[AssessmentItem]
+)
 
-  case object InvalidMgdRegNumber extends GamblingError {
-    val code = "INVALID_MGD_REG_NUMBER"
-    val message = "mgdRegNumber does not exist"
-  }
-
-  case object UnexpectedError extends GamblingError {
-    val code = "UNEXPECTED_ERROR"
-    val message = "Unexpected error occurred"
-  }
+object Assessments {
+  implicit val format: OFormat[Assessments] = Json.format[Assessments]
 }

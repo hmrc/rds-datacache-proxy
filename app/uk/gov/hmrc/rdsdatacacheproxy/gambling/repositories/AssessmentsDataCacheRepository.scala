@@ -18,25 +18,25 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentItem, Assessments}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait GamblingReturnsDataSource {
-  def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted]
+trait AssessmentsDataSource {
+  def getOtherAssessments(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments]
 }
 
 @Singleton
-class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
-    extends GamblingReturnsDataSource
+class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
+    extends AssessmentsDataSource
     with Logging {
 
-  override def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
+  override def getOtherAssessments(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments] =
     Future {
       db.withConnection { connection =>
 
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
+        val cs = connection.prepareCall("{ call GTR_LNP_PK.getOtherAssessmentDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -46,18 +46,18 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
           cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
           cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
           cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
-          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_AMOUNT_DECLARED (REF CURSOR)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_OTHER_ASSESSMENTS (REF CURSOR)
           cs.execute()
 
-          val amountDeclared: List[AmountDeclared] = {
+          val assessments: List[AssessmentItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[AmountDeclared]
+                val b = List.newBuilder[AssessmentItem]
                 while (rs.next()) {
-                  b += AmountDeclared(
-                    descriptionCode = Option(rs.getInt("p_desc_code")),
+                  b += AssessmentItem(
+                    dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
                     amount          = optDecimalFromLabel("p_amount", rs)
@@ -68,12 +68,12 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
             }
           }
 
-          ReturnsSubmitted(
-            periodStartDate    = optDate(4, cs),
-            periodEndDate      = optDate(5, cs),
-            total              = optDecimalFromIndex(6, cs),
-            totalPeriodRecords = optInt(7, cs),
-            amountDeclared     = amountDeclared
+          Assessments(
+            periodStartDate = optDate(4, cs),
+            periodEndDate   = optDate(5, cs),
+            total           = optDecimalFromIndex(6, cs),
+            totalRecords    = optInt(7, cs),
+            items           = assessments
           )
 
         } finally {

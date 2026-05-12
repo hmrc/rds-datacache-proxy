@@ -32,18 +32,17 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
  * limitations under the License.
  */
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.*
+import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import scala.concurrent.Future

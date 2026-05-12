@@ -23,21 +23,21 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnsSubmitted
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReturnsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReturnsStubData.getReturnsSubmittedData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getOtherAssessmentsData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class GamblingReturnsRdsStub extends GamblingReturnsDataSource {
-    override def getReturnsSubmitted(regNumber: String, pageNo: Int, pageSize: Int): Future[ReturnsSubmitted] =
+  class AssessmentsRdsStub extends AssessmentsDataSource {
+    override def getOtherAssessments(regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
-        GamblingReturnsStubData.getReturnsSubmittedData(regNumber, pageNo, pageSize)
+        AssessmentsStubData.getOtherAssessmentsData(regNumber, pageNo, pageSize)
       }
   }
 
@@ -45,16 +45,16 @@ class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with Scal
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[GamblingReturnsDataSource].toInstance(new GamblingReturnsRdsStub)
+        bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub)
       )
       .build()
 
-  private final val endpoint = "/gambling/returns-submitted"
+  private final val endpoint = "/gambling/other-assessments"
   private final val GBD = "gbd"
+  
+  "GET /gambling/other-assessments (stubbed repo, no DB)" should {
 
-  "GET /gambling/returns-submitted (stubbed repo, no DB)" should {
-
-    "return 200 with correct ReturnsSubmittedData" in {
+    "return 200 with correct OtherAssessmentsData" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
@@ -62,10 +62,10 @@ class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with Scal
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReturnsSubmitted] mustBe getReturnsSubmittedData("XYZ00000000000")
+      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000000")
     }
 
-    "return 200 with correct ReturnsSubmittedData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct OtherAssessmentsData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
@@ -73,21 +73,21 @@ class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with Scal
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReturnsSubmitted] mustBe getReturnsSubmittedData("XYZ99999999999")
+      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[ReturnsSubmitted] mustBe getReturnsSubmittedData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[ReturnsSubmitted] mustBe getReturnsSubmittedData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

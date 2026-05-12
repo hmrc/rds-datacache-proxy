@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponse
 
 import java.time.LocalDate
 
-class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
+class AssessmentsSpec extends AnyWordSpec with Matchers {
 
   "OtherAssessments JSON format" should {
 
@@ -33,27 +33,27 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
       (json \ "periodStartDate").as[String] mustBe "2013-03-01"
       (json \ "periodEndDate").as[String] mustBe "2014-03-11"
       (json \ "total").as[Double] mustBe -24500.0
-      (json \ "totalPeriodRecords").as[Int] mustBe 3
+      (json \ "totalRecords").as[Int] mustBe 3
 
-      (json \ "assessments").as[Seq[Assessments]].size mustBe 3
+      (json \ "items").as[Seq[AssessmentItem]].size mustBe 3
 
-      val assessments1 = (json \ "assessments")(0)
-      (assessments1 \ "dateRaised").as[String] mustBe "2014-01-01"
-      (assessments1 \ "periodStartDate").as[String] mustBe "2014-04-01"
-      (assessments1 \ "periodEndDate").as[String] mustBe "2014-06-30"
-      (assessments1 \ "amount").as[Double] mustBe -9500.0
+      val items1 = (json \ "items")(0)
+      (items1 \ "dateRaised").as[String] mustBe "2014-01-01"
+      (items1 \ "periodStartDate").as[String] mustBe "2014-04-01"
+      (items1 \ "periodEndDate").as[String] mustBe "2014-06-30"
+      (items1 \ "amount").as[Double] mustBe -9500.0
 
-      val assessments2 = (json \ "assessments")(1)
-      (assessments2 \ "dateRaised").as[String] mustBe "2014-01-02"
-      (assessments2 \ "periodStartDate").as[String] mustBe "2014-01-01"
-      (assessments2 \ "periodEndDate").as[String] mustBe "2014-03-31"
-      (assessments2 \ "amount").as[Double] mustBe -8000.0
+      val items2 = (json \ "items")(1)
+      (items2 \ "dateRaised").as[String] mustBe "2014-01-02"
+      (items2 \ "periodStartDate").as[String] mustBe "2014-01-01"
+      (items2 \ "periodEndDate").as[String] mustBe "2014-03-31"
+      (items2 \ "amount").as[Double] mustBe -8000.0
 
-      val assessments3 = (json \ "assessments")(2)
-      (assessments3 \ "dateRaised").as[String] mustBe "2014-01-03"
-      (assessments3 \ "periodStartDate").as[String] mustBe "2013-10-01"
-      (assessments3 \ "periodEndDate").as[String] mustBe "2013-12-31"
-      (assessments3 \ "amount").as[Double] mustBe -7000.0
+      val items3 = (json \ "items")(2)
+      (items3 \ "dateRaised").as[String] mustBe "2014-01-03"
+      (items3 \ "periodStartDate").as[String] mustBe "2013-10-01"
+      (items3 \ "periodEndDate").as[String] mustBe "2013-12-31"
+      (items3 \ "amount").as[Double] mustBe -7000.0
     }
 
     "deserialize from JSON correctly" in {
@@ -62,8 +62,8 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
            "periodStartDate":"${LocalDate.of(2013, 3, 1)}",
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":-24500.0,
-           "totalPeriodRecords":3,
-           "assessments":[
+           "totalRecords":3,
+           "items":[
              {
                 "dateRaised":"${LocalDate.of(2014, 1, 1)}",
                 "periodStartDate": "${LocalDate.of(2014, 4, 1)}",
@@ -86,7 +86,7 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result: JsResult[OtherAssessments] = json.validate[OtherAssessments]
+      val result: JsResult[Assessments] = json.validate[Assessments]
 
       result mustBe JsSuccess(validResponseOtherAssessments)
     }
@@ -95,7 +95,7 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
       val original = validResponseOtherAssessments
 
       val json = Json.toJson(original)
-      val parsed = json.as[OtherAssessments]
+      val parsed = json.as[Assessments]
 
       parsed mustBe original
     }
@@ -109,7 +109,7 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
           |""".stripMargin
       )
 
-      val result = json.validate[OtherAssessments]
+      val result = json.validate[Assessments]
 
       result.isError mustBe true
     }
@@ -120,8 +120,8 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
            "periodStartDate":"${LocalDate.of(2013, 3, 1)}",
            "periodEndDate":"${LocalDate.of(2014, 3, 11)}",
            "total":-24500.0,
-           "totalPeriodRecords":"3",
-           "assessments":[
+           "totalRecords":"3",
+           "items":[
              {
                 "dateRaised":"2014-01-01",
                 "periodStartDate": "${LocalDate.of(2014, 4, 1)}",
@@ -144,7 +144,7 @@ class OtherAssessmentsSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result = json.validate[OtherAssessments]
+      val result = json.validate[Assessments]
 
       result.isError mustBe true
     }
