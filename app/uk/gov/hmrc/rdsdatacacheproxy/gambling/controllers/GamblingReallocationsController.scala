@@ -21,8 +21,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 
 import javax.inject.Inject
@@ -39,7 +39,7 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
         case Right(allocations) => Ok(Json.toJson(allocations))
         case Left(error) =>
           error match {
-            case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound =>
+            case InvalidRegimeCode | InvalidRegNumber =>
               BadRequest(errorResponse(error))
             case UnexpectedError =>
               InternalServerError(errorResponse(error))

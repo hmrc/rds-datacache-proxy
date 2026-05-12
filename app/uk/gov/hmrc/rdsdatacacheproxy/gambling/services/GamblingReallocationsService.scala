@@ -19,7 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
@@ -33,7 +34,7 @@ class GamblingReallocationsService @Inject() (
 
   def getReallocationsIn(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[GamblingReturnsError, Reallocations]] = {
+  ): Future[Either[QueryParameterError, Reallocations]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsController][getReallocationsIn] $reqText")

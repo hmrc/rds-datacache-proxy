@@ -24,7 +24,6 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -248,127 +247,127 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
   }
   "getBusinessName (stubbed repository)" should {
 
-   "return John Doe as Sole Proprietor" in {
-     val result = repository.getBusinessName("XYZ00000000000").futureValue
+    "return John Doe as Sole Proprietor" in {
+      val result = repository.getBusinessName("XYZ00000000000").futureValue
 
-     result mustBe BusinessName(
-       mgdRegNumber = "XYZ00000000000",
-       solePropTitle = Some("Mr"),
-       solePropFirstName = Some("John"),
-       solePropMidName = Some("C"),
-       solePropLastName = Some("Doe"),
-       businessName = Some("John Doe Co."),
-       businessType = Some(BusinessType.SoleProprietor),
-       tradingName = Some("DoeDoe"),
-       systemDate = Some(LocalDate.of(2026, 4, 20))
-     )
-   }
+      result mustBe BusinessName(
+        mgdRegNumber      = "XYZ00000000000",
+        solePropTitle     = Some("Mr"),
+        solePropFirstName = Some("John"),
+        solePropMidName   = Some("C"),
+        solePropLastName  = Some("Doe"),
+        businessName      = Some("John Doe Co."),
+        businessType      = Some(BusinessType.SoleProprietor),
+        tradingName       = Some("DoeDoe"),
+        systemDate        = Some(LocalDate.of(2026, 4, 20))
+      )
+    }
 
-   "return Marge Simpson as Sole Proprietor" in {
-     val result = repository.getBusinessName("XYZ00000000010").futureValue
+    "return Marge Simpson as Sole Proprietor" in {
+      val result = repository.getBusinessName("XYZ00000000010").futureValue
 
-     result mustBe BusinessName(
-       mgdRegNumber = "XYZ00000000010",
-       solePropTitle = Some("Mrs"),
-       solePropFirstName = Some("Marge"),
-       solePropMidName = Some("Jacqueline"),
-       solePropLastName = Some("Simpson"),
-       businessName = Some("Pretzel Wagon"),
-       businessType = Some(BusinessType.SoleProprietor),
-       tradingName = Some("Marge Simpson"),
-       systemDate = Some(LocalDate.of(2026, 4, 20))
-     )
-   }
+      result mustBe BusinessName(
+        mgdRegNumber      = "XYZ00000000010",
+        solePropTitle     = Some("Mrs"),
+        solePropFirstName = Some("Marge"),
+        solePropMidName   = Some("Jacqueline"),
+        solePropLastName  = Some("Simpson"),
+        businessName      = Some("Pretzel Wagon"),
+        businessType      = Some(BusinessType.SoleProprietor),
+        tradingName       = Some("Marge Simpson"),
+        systemDate        = Some(LocalDate.of(2026, 4, 20))
+      )
+    }
 
-   "return last name and business name correctly" in {
-     val result = repository.getBusinessName("XYZ00000000001").futureValue
+    "return last name and business name correctly" in {
+      val result = repository.getBusinessName("XYZ00000000001").futureValue
 
-     result.solePropLastName mustBe Some("Doe")
-     result.businessName mustBe Some("Jane Doe Co.")
-   }
+      result.solePropLastName mustBe Some("Doe")
+      result.businessName mustBe Some("Jane Doe Co.")
+    }
 
-   "return correct middle name and system date" in {
-     val result = repository.getBusinessName("XYZ00000000010").futureValue
+    "return correct middle name and system date" in {
+      val result = repository.getBusinessName("XYZ00000000010").futureValue
 
-     result.solePropMidName mustBe Some("Jacqueline")
-     result.systemDate mustBe Some(LocalDate.of(2026, 4, 20))
-   }
+      result.solePropMidName mustBe Some("Jacqueline")
+      result.systemDate mustBe Some(LocalDate.of(2026, 4, 20))
+    }
 
-   "return correct title and trading name" in {
-     val result = repository.getBusinessName("XYZ00000000012").futureValue
+    "return correct title and trading name" in {
+      val result = repository.getBusinessName("XYZ00000000012").futureValue
 
-     result.solePropTitle mustBe Some("Miss")
-     result.tradingName mustBe Some("Miss Havisham")
-   }
+      result.solePropTitle mustBe Some("Miss")
+      result.tradingName mustBe Some("Miss Havisham")
+    }
 
-   "return correct business type and first name" in {
-     val result = repository.getBusinessName("XYZ00000000021").futureValue
+    "return correct business type and first name" in {
+      val result = repository.getBusinessName("XYZ00000000021").futureValue
 
-     result.solePropFirstName mustBe Some("Eugine")
-     result.businessType mustBe Some(BusinessType.SoleProprietor)
-   }
+      result.solePropFirstName mustBe Some("Eugine")
+      result.businessType mustBe Some(BusinessType.SoleProprietor)
+    }
 
-   "return default values for unknown mgdRegNumber" in {
-     val result = repository.getBusinessName("XYZ99999999999").futureValue
+    "return default values for unknown mgdRegNumber" in {
+      val result = repository.getBusinessName("XYZ99999999999").futureValue
 
-     result mustBe BusinessName(
-       mgdRegNumber = "XYZ99999999999",
-       solePropTitle = Some("Mr"),
-       solePropFirstName = Some("Foo"),
-       solePropMidName = Some("B"),
-       solePropLastName = Some("Bar"),
-       businessName = Some("FooBar Co."),
-       businessType = Some(BusinessType.SoleProprietor),
-       tradingName = Some("Foobar"),
-       systemDate = Some(LocalDate.of(2026, 4, 20))
-     )
-   }
+      result mustBe BusinessName(
+        mgdRegNumber      = "XYZ99999999999",
+        solePropTitle     = Some("Mr"),
+        solePropFirstName = Some("Foo"),
+        solePropMidName   = Some("B"),
+        solePropLastName  = Some("Bar"),
+        businessName      = Some("FooBar Co."),
+        businessType      = Some(BusinessType.SoleProprietor),
+        tradingName       = Some("Foobar"),
+        systemDate        = Some(LocalDate.of(2026, 4, 20))
+      )
+    }
 
-   "return consistent results across multiple calls" in {
-     val result1 = repository.getBusinessName("XYZ00000000012").futureValue
-     val result2 = repository.getBusinessName("XYZ00000000012").futureValue
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getBusinessName("XYZ00000000012").futureValue
+      val result2 = repository.getBusinessName("XYZ00000000012").futureValue
 
-     result1 mustBe result2
-   }
+      result1 mustBe result2
+    }
 
-   "handle different valid mgdRegNumbers independently" in {
-     val result1 = repository.getBusinessName("XYZ00000000010").futureValue
-     val result2 = repository.getBusinessName("XYZ00000000001").futureValue
+    "handle different valid mgdRegNumbers independently" in {
+      val result1 = repository.getBusinessName("XYZ00000000010").futureValue
+      val result2 = repository.getBusinessName("XYZ00000000001").futureValue
 
-     result1 must not be result2
-   }
+      result1 must not be result2
+    }
 
-   "propagate downstream failure from stub" in {
-     val exception = intercept[RuntimeException] {
-       repository.getBusinessName("ERR00000000000").futureValue
-     }
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getBusinessName("ERR00000000000").futureValue
+      }
 
-     exception.getMessage must include("Simulated downstream failure")
-   }
+      exception.getMessage must include("Simulated downstream failure")
+    }
 
-   "handle special characters in mgdRegNumber" in {
-     val result = repository.getBusinessName("XYZ-123/ABC").futureValue
+    "handle special characters in mgdRegNumber" in {
+      val result = repository.getBusinessName("XYZ-123/ABC").futureValue
 
-     result.mgdRegNumber mustBe "XYZ-123/ABC"
-   }
+      result.mgdRegNumber mustBe "XYZ-123/ABC"
+    }
 
-   "handle whitespace mgdRegNumber" in {
-     val result = repository.getBusinessName("   ").futureValue
+    "handle whitespace mgdRegNumber" in {
+      val result = repository.getBusinessName("   ").futureValue
 
-     result.mgdRegNumber mustBe ("   ")
-   }
+      result.mgdRegNumber mustBe "   "
+    }
 
-   "return populated fields for all required responses" in {
-     val result = repository.getBusinessName("XYZ00000000012").futureValue
+    "return populated fields for all required responses" in {
+      val result = repository.getBusinessName("XYZ00000000012").futureValue
 
-     result.mgdRegNumber must not be empty
-     result.solePropTitle must not be empty
-     result.solePropFirstName must not be empty
-     result.solePropLastName must not be empty
-     result.businessName must not be empty
-     result.tradingName must not be empty
-   }
- }
+      result.mgdRegNumber      must not be empty
+      result.solePropTitle     must not be empty
+      result.solePropFirstName must not be empty
+      result.solePropLastName  must not be empty
+      result.businessName      must not be empty
+      result.tradingName       must not be empty
+    }
+  }
 
   "getBusinessDetails (stubbed repository)" should {
 
@@ -376,11 +375,13 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       val result = repository.getBusinessDetails("XYZ00000000000").futureValue
 
       result mustBe BusinessDetails(
-        mgdRegNumber = "XYZ00000000000",
-        businessType = Some(BusinessType.CorporateBody),
-        currentlyRegistered = 2,
-        groupReg = false,
-        dateOfRegistration = Some(LocalDate.of(2024, 4, 21)), businessPartnerNumber = Some("bar"), systemDate = LocalDate.of(2024, 4, 21)
+        mgdRegNumber          = "XYZ00000000000",
+        businessType          = Some(BusinessType.CorporateBody),
+        currentlyRegistered   = 2,
+        groupReg              = false,
+        dateOfRegistration    = Some(LocalDate.of(2024, 4, 21)),
+        businessPartnerNumber = Some("bar"),
+        systemDate            = LocalDate.of(2024, 4, 21)
       )
     }
 
@@ -409,7 +410,14 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "return both date values correctly" in {
       val result = repository.getBusinessDetails("XYZ00000000012").futureValue
 
-      result mustBe BusinessDetails("XYZ00000000012", Some(BusinessType.SoleProprietor), 2, true, Some(LocalDate.of(2023, 4, 21)), Some("barfoo"), LocalDate.of(2023, 4, 21))
+      result mustBe BusinessDetails("XYZ00000000012",
+                                    Some(BusinessType.SoleProprietor),
+                                    2,
+                                    true,
+                                    Some(LocalDate.of(2023, 4, 21)),
+                                    Some("barfoo"),
+                                    LocalDate.of(2023, 4, 21)
+                                   )
     }
 
     "handle multiple values" in {
@@ -422,8 +430,6 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       result.businessPartnerNumber mustBe Some("barbar")
       result.systemDate mustBe LocalDate.of(2024, 1, 21)
     }
-
-
 
     "handle different valid mgdRegNumbers independently" in {
       val result1 = repository.getBusinessDetails("XYZ00000000010").futureValue
@@ -440,11 +446,17 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       exception.getMessage must include("Simulated downstream failure")
     }
 
-
     "handle whitespace mgdRegNumber" in {
       val result = repository.getBusinessDetails("   ").futureValue
 
-      result mustBe BusinessDetails("   ", Some(BusinessType.Partnership), 0,  false, Some(LocalDate.of(2026, 4, 22)), Some("unknown"), LocalDate.of(2026, 4, 22))
+      result mustBe BusinessDetails("   ",
+                                    Some(BusinessType.Partnership),
+                                    0,
+                                    false,
+                                    Some(LocalDate.of(2026, 4, 22)),
+                                    Some("unknown"),
+                                    LocalDate.of(2026, 4, 22)
+                                   )
     }
   }
 }

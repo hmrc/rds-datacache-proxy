@@ -23,10 +23,10 @@ import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
-import play.api.test.Helpers.*
 import play.api.test.FakeRequest
+import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.{InvalidRegNumber, InvalidRegimeCode, RegNumberNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReallocationsIn}
 
@@ -85,22 +85,6 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
     contentAsJson(res) mustBe Json.obj(
       "code"    -> "INVALID_REG_NUMBER",
       "message" -> "regNumber has invalid format"
-    )
-
-    verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
-  }
-
-  "returns 400 when RegNumberNotFound" in new Setup {
-    when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(RegNumberNotFound)))
-
-    val req = FakeRequest(GET, s"/gambling/reallocations-in$validRegime/XWM12345678912")
-    val res: Future[Result] = controller.getReallocationsIn(" ", " ", 1, 10)(req)
-
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "REG_NUMBER_NOT_FOUND",
-      "message" -> "regNumber does not exist"
     )
 
     verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())

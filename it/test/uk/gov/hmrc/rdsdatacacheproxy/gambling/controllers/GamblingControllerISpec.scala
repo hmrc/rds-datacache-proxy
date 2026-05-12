@@ -23,15 +23,13 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, OperatorDetails, MgdCertificate}
 import play.api.libs.json.Reads
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, MgdCertificate, OperatorDetails}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDate
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
@@ -136,7 +134,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
   implicit val optLocalDateReads: Reads[Option[LocalDate]] =
     Reads.optionWithNull[LocalDate]
-
 
   "GET /gambling/return-summary (stubbed repo, no DB)" should {
 

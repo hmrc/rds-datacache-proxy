@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.shared.utils
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReallocationItem, Reallocations, ReturnsSubmitted}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, AssessmentItem, Assessments, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
 import java.time.LocalDate
 
@@ -96,7 +95,6 @@ object GamblingTestUtil {
       )
     )
   )
-
 
   val validResponseOtherAssessments = Assessments(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),

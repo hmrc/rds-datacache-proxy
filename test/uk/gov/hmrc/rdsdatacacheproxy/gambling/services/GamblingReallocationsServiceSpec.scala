@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReallocationsIn}
 

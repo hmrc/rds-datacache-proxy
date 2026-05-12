@@ -21,8 +21,6 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{GamblingDataCacheRepository, GamblingDataSource, GamblingReallocationsDataCacheRepository, GamblingReallocationsDataSource, GamblingReturnsDataCacheRepository, GamblingReturnsDataSource}
-import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
