@@ -18,13 +18,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsOut, Regime}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReallocationsDataSource {
   def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
+  def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut]
 }
 
 @Singleton
@@ -80,6 +81,62 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
             items           = reallocationItem
           )
 
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    }(ec)
+  }
+
+  override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] = {
+    logger.info(
+      s"[GamblingReturnsDataCacheRepository][ReallocationsOut] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
+    )
+
+    Future {
+      db.withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, regNumber) // IN  P_GTR_REGISTRATION_NUMBER
+          cs.setInt(2, paginationStart) // IN  P_PAGINATION_START
+          cs.setInt(3, paginationMaxRows) // IN  P_PAGINATION_MAX_ROWS
+          cs.registerOutParameter(4, java.sql.Types.DATE) // OUT P_GTR_PERIOD_START_DATE
+          cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
+          cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
+          cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_REALLOCATIONS_OUT (REF CURSOR)
+          cs.execute()
+
+          val reallocations: List[ReallocationsOut.Reallocation] = {
+            val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
+            if (rs == null) Nil
+            else {
+              try {
+                val b = List.newBuilder[ReallocationsOut.Reallocation]
+                while (rs.next()) {
+                  val maybeItem =
+                    for
+                      dateProcessed <- Option(rs.getDate("p_date_processed").toLocalDate)
+                      amount        <- optDecimalFromLabel("p_amount", rs)
+                    yield ReallocationsOut.Reallocation(dateProcessed, amount)
+                  b.addAll(maybeItem.toList)
+                }
+                b.result()
+              } finally closeQuietly(rs)
+            }
+          }
+
+          ReallocationsOut(
+            periodStartDate = optDate(4, cs),
+            periodEndDate   = optDate(5, cs),
+            total           = optDecimalFromIndex(6, cs).getOrElse(0),
+            totalRecords    = optInt(7, cs).getOrElse(0),
+            items           = reallocations
+          )
         } finally {
           closeQuietly(cs)
         }

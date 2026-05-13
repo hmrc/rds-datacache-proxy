@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.getReallocationsInData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Reallocations
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.{getReallocationsInData, getReallocationsOutData}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsOut, Regime}
 
 import scala.concurrent.Future
 
@@ -33,6 +33,9 @@ class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Mat
   class GamblingReallocationsRdsStub extends GamblingReallocationsDataSource {
     override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] =
       Future.successful(getReallocationsInData(regNumber, paginationStart, paginationMaxRows))
+
+    override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] =
+      Future.successful(getReallocationsOutData(regNumber, paginationStart, paginationMaxRows))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
