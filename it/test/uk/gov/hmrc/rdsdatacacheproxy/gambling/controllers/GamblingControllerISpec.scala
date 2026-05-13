@@ -23,13 +23,13 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, OperatorDetails, MgdCertificate}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, GamblingStubData, MgdCertificate, OperatorDetails}
 import play.api.libs.json.Reads
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessContactDetails
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -37,6 +37,18 @@ import scala.concurrent.Future
 class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingRdsStub extends GamblingDataSource {
+
+    override def getBusinessContactDetails(mgdRegNumber: String): Future[BusinessContactDetails] =
+      Future.successful(
+        BusinessContactDetails(
+          mgdRegNumber      = mgdRegNumber,
+          phoneNumber       = Some("02012345678"),
+          mobilePhoneNumber = Some("07123456789"),
+          faxNumber         = Some("02087654321"),
+          emailAddr         = Some("test@example.com"),
+          systemDate        = Some(java.time.LocalDate.now())
+        )
+      )
 
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
       Future.successful(
@@ -136,7 +148,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
   implicit val optLocalDateReads: Reads[Option[LocalDate]] =
     Reads.optionWithNull[LocalDate]
-
 
   "GET /gambling/return-summary (stubbed repo, no DB)" should {
 
@@ -313,5 +324,31 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       }
     }
 
+  }
+  "GET /gambling/business-contact-details/mgd/:mgdRegNumber" should {
+
+    val endpoint = "/gambling/business-contact-details/mgd"
+
+    "return 200 with business contact details" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+      (response.json \ "phoneNumber").as[String] mustBe "02012345678"
+      (response.json \ "mobilePhoneNumber").as[String] mustBe "07123456789"
+      (response.json \ "emailAddr").as[String] mustBe "test@example.com"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+
+      val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
   }
 }
