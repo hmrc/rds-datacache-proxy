@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import play.api.Logging
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
@@ -37,13 +37,24 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
     authorise.async { implicit request =>
       service.getReallocationsIn(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(allocations) => Ok(Json.toJson(allocations))
-        case Left(error) =>
-          error match {
-            case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound =>
-              BadRequest(errorResponse(error))
-            case UnexpectedError =>
-              InternalServerError(errorResponse(error))
-          }
+        case Left(error)        => handleError(error)
       }
     }
+
+  def getReallocationsOut(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getReallocationsOut(regime, regNumber, paginationStart, paginationMaxRows).map {
+        case Right(returns) => Ok(Json.toJson(returns))
+        case Left(error)    => handleError(error)
+      }
+    }
+
+  private def handleError(error: GamblingReturnsError) = {
+    error match {
+      case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound => BadRequest(errorResponse(error))
+      case UnexpectedError                                          => InternalServerError(errorResponse(error))
+    }
+  }
+
+  private def errorResponse(error: GamblingReturnsError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
 }

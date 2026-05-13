@@ -16,21 +16,14 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-sealed trait Regime(val code: String)
+import scala.util.Try
+
+enum Regime {
+  case MGD, GBD, PBD, RGD
+}
 
 object Regime {
-
-  case object GBD extends Regime("gbd")
-  case object PBD extends Regime("pbd")
-  case object RGD extends Regime("rgd")
-  case object MGD extends Regime("mgd")
-
-  val values: Seq[Regime] =
-    Seq(GBD, PBD, RGD, MGD)
-
-  def fromString(s: String): Option[Regime] =
-    values.find(_.code == s.trim.toLowerCase)
-
-  def contains(s: String): Boolean =
-    values.exists(_.code == s.trim.toLowerCase)
+  def fromString(rawRegime: String): Either[GamblingReturnsError, Regime] =
+    Try(Regime.valueOf(rawRegime.trim.toUpperCase)).toEither.left
+      .map(_ => GamblingReturnsError.InvalidRegimeCode)
 }
