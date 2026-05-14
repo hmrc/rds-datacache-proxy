@@ -41,8 +41,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessDetails, BusinessName, BusinessType, ReturnSummary}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{BusinessContactDetails, BusinessDetails, BusinessName, BusinessType, ReturnSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import java.time.LocalDate
@@ -284,6 +284,85 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     )
 
     verify(mockService).getBusinessDetails(eqTo("ERR00001770"))(any())
+  }
+  "GamblingController#getBusinessContactDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = BusinessContactDetails(
+        mgdRegNumber      = "XWM00000001770",
+        phoneNumber       = Some("0555 666111"),
+        mobilePhoneNumber = Some("0555 666112"),
+        faxNumber         = Some("0555 666113"),
+        emailAddr         = Some("aaaaa@bbbb.com"),
+        systemDate        = Some(LocalDate.of(2026, 5, 13))
+      )
+
+      when(mockService.getBusinessContactDetails(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/business-contact-details/XWM00000001770")
+      val res = controller.getBusinessContactDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getBusinessContactDetails(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = BusinessContactDetails(
+        mgdRegNumber      = "XWM00000001770",
+        phoneNumber       = Some("0555 666111"),
+        mobilePhoneNumber = Some("0555 666112"),
+        faxNumber         = Some("0555 666113"),
+        emailAddr         = Some("aaaaa@bbbb.com"),
+        systemDate        = Some(LocalDate.of(2026, 5, 13))
+      )
+
+      when(mockService.getBusinessContactDetails(any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/business-contact-details/XWM00000001770")
+      val res = controller.getBusinessContactDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getBusinessContactDetails(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getBusinessContactDetails(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/business-contact-details/bad")
+      val res = controller.getBusinessContactDetails("bad")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getBusinessContactDetails(eqTo("bad"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getBusinessContactDetails(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/business-contact-details/ERR00001770")
+      val res = controller.getBusinessContactDetails("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getBusinessContactDetails(eqTo("ERR00001770"))(any())
+    }
   }
 
 }

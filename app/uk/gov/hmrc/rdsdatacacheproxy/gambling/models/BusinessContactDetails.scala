@@ -16,14 +16,20 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-import scala.util.Try
+import play.api.libs.json.{Json, OFormat}
 
-enum Regime {
-  case MGD, GBD, PBD, RGD
-}
+import java.time.LocalDate
 
-object Regime {
-  def fromString(rawRegime: String): Either[GamblingReturnsError, Regime] =
-    Try(Regime.valueOf(rawRegime.trim.toUpperCase)).toEither.left
-      .map(_ => GamblingReturnsError.InvalidRegimeCode)
+final case class BusinessContactDetails(
+  mgdRegNumber: String,
+  phoneNumber: Option[String],
+  mobilePhoneNumber: Option[String],
+  faxNumber: Option[String],
+  emailAddr: Option[String],
+  systemDate: Option[LocalDate]
+)
+
+object BusinessContactDetails {
+  implicit val format: OFormat[BusinessContactDetails] =
+    Json.format[BusinessContactDetails]
 }

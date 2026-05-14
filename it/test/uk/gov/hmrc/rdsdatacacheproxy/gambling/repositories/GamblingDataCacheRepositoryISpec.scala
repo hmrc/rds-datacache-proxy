@@ -46,6 +46,12 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
       Future.successful(GamblingStubData.getBusinessDetails(mgdRegNumber))
+
+    override def getBusinessContactDetails(
+      mgdRegNumber: String
+    ): Future[BusinessContactDetails] =
+      Future.successful(GamblingStubData.getBusinessContactDetails(mgdRegNumber))
+
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -457,6 +463,50 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
                                     Some("unknown"),
                                     LocalDate.of(2026, 4, 22)
                                    )
+    }
+  }
+
+  "getBusinessContactDetails (stubbed repository)" should {
+
+    "return business contact details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getBusinessContactDetails("XYZ00000000001").futureValue
+
+      result mustBe BusinessContactDetails(
+        mgdRegNumber      = "XYZ00000000001",
+        phoneNumber       = Some("0123456789"),
+        mobilePhoneNumber = Some("07123456789"),
+        faxNumber         = Some("0201234567"),
+        emailAddr         = Some("test@test.com"),
+        systemDate        = Some(LocalDate.of(2026, 4, 20))
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getBusinessContactDetails("ERR00000000000")
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getBusinessContactDetails("UNKNOWN").futureValue
+
+      result mustBe BusinessContactDetails(
+        mgdRegNumber      = "UNKNOWN",
+        phoneNumber       = None,
+        mobilePhoneNumber = None,
+        faxNumber         = None,
+        emailAddr         = None,
+        systemDate        = None
+      )
     }
   }
 }

@@ -27,6 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsOut
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReallocationsIn}
 
@@ -56,30 +57,97 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getReallocationsIn(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/reallocations-in/INVALID_REGIME/XWM00000001770")
+      val res = controller.getReallocationsIn(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when InvalidRegNumber" in new Setup {
+      when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/reallocations-in/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getReallocationsIn(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REG_NUMBER",
+        "message" -> "regNumber has invalid format"
+      )
+
+      verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when RegNumberNotFound" in new Setup {
+      when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(RegNumberNotFound)))
+
+      val req = FakeRequest(GET, s"/gambling/reallocations-in$validRegime/XWM12345678912")
+      val res: Future[Result] = controller.getReallocationsIn(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "REG_NUMBER_NOT_FOUND",
+        "message" -> "regNumber does not exist"
+      )
+
+      verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/reallocations-in/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getReallocationsIn(validRegime, "ERR00001770", 1, 10)(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getReallocationsIn(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+    }
   }
 
-  "returns 400 when InvalidRegimeError" in new Setup {
-    when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+  "getReallocationsOut" - {
 
-    val req = FakeRequest(GET, "/gambling/reallocations-in/INVALID_REGIME/XWM00000001770")
-    val res = controller.getReallocationsIn(" ", " ", 1, 10)(req)
+    "returns 200 when service succeeds" in new Setup {
 
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "INVALID_REGIME_CODE",
-      "message" -> "Invalid Regime Code"
-    )
+      when(mockService.getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
+        .thenReturn(Future.successful(Right(ReallocationsOut.empty)))
 
-    verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      val req = FakeRequest(GET, s"/gambling/reallocations-out/mgd/XWM00000001770?pageNo=1&pageSize=10")
+      val res: Future[Result] = controller.getReallocationsOut("mgd", "XWM00000001770", 1, 10)(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(ReallocationsOut.empty)
+
+      verify(mockService).getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
+      verifyNoMoreInteractions(mockService)
+    }
   }
 
   "returns 400 when InvalidRegNumber" in new Setup {
-    when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+    when(mockService.getReallocationsOut(any(), any(), any(), any())(any()))
       .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
-    val req = FakeRequest(GET, s"/gambling/reallocations-in/$validRegime/InvalidRegNo")
-    val res: Future[Result] = controller.getReallocationsIn(" ", " ", 1, 10)(req)
+    val req = FakeRequest(GET, s"/gambling/reallocations-out/mgd/XWM00000001770?pageNo=1&pageSize=10")
+    val res: Future[Result] = controller.getReallocationsOut("mgd", "XWM00000001770", 1, 10)(req)
 
     status(res) mustBe BAD_REQUEST
     contentAsJson(res) mustBe Json.obj(
@@ -87,15 +155,15 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
       "message" -> "regNumber has invalid format"
     )
 
-    verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    verify(mockService).getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
   }
-
+  
   "returns 500 when UnexpectedError" in new Setup {
-    when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
+    when(mockService.getReallocationsOut(any(), any(), any(), any())(any()))
       .thenReturn(Future.successful(Left(UnexpectedError)))
 
-    val req = FakeRequest(GET, s"/gambling/reallocations-in/$validRegime/ERR00001770")
-    val res: Future[Result] = controller.getReallocationsIn(validRegime, "ERR00001770", 1, 10)(req)
+    val req = FakeRequest(GET, s"/gambling/reallocations-out/mgd/XWM00000001770?pageNo=1&pageSize=10")
+    val res: Future[Result] = controller.getReallocationsOut("mgd", "XWM00000001770", 1, 10)(req)
 
     status(res) mustBe INTERNAL_SERVER_ERROR
     contentAsJson(res) mustBe Json.obj(
@@ -103,7 +171,6 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
       "message" -> "Unexpected error occurred"
     )
 
-    verify(mockService).getReallocationsIn(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+    verify(mockService).getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
   }
-
 }

@@ -20,223 +20,388 @@ import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
-import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsOut.Reallocation
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseReallocationsInSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GamblingReallocationsDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  var db: Database = _
-  var repository: GamblingReallocationsDataCacheRepository = _
-  var mockConnection: Connection = _
-  var mockCs: CallableStatement = _
-  var reallocationsInRs: ResultSet = _
+  private var db: Database = _
+  private var repository: GamblingReallocationsDataCacheRepository = _
+  private var mockConnection: Connection = _
+  private var mockCsMgd: CallableStatement = _
+  private var mockCsGtr: CallableStatement = _
+  private var reallocationsOutRs: ResultSet = _
+  private var reallocationsInRs: ResultSet = _
+
+  private val startDate = Date.valueOf("2026-5-11")
+  private val endDate = Date.valueOf("2026-5-17")
+  private val dateProcessed = Date.valueOf("2026-5-14")
 
   before {
-    db                = mock(classOf[Database])
-    mockConnection    = mock(classOf[Connection])
-    mockCs            = mock(classOf[CallableStatement])
-    reallocationsInRs = mock(classOf[ResultSet])
+    db                 = mock(classOf[Database])
+    mockConnection     = mock(classOf[Connection])
+    mockCsMgd          = mock(classOf[CallableStatement])
+    mockCsGtr          = mock(classOf[CallableStatement])
+    reallocationsOutRs = mock(classOf[ResultSet])
+    reallocationsInRs  = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mockConnection)
     }
 
-    when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
+    when(mockConnection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
+    when(mockConnection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+    when(mockConnection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
 
     repository = new GamblingReallocationsDataCacheRepository(db)
   }
 
-  "getReallocationsIn" should "return ReallocationsIn when stored procedure returns data" in {
+  "getReallocationsIn" should {
+    "return ReallocationsIn when stored procedure returns data" in {
 
-    val regNumber = "XWM12345678901"
+      val regNumber = "XWM12345678901"
 
-    when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
-    when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
-    when(mockCs.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
-    when(mockCs.getObject(7)).thenReturn(1)
-    when(mockCs.getObject(8)).thenReturn(reallocationsInRs)
+      when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+      when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
+      when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
+      when(mockCsGtr.getObject(7)).thenReturn(1)
+      when(mockCsGtr.getObject(8)).thenReturn(reallocationsInRs)
 
-    when(reallocationsInRs.next()).thenReturn(true, false)
-    when(reallocationsInRs.getDate("p_date_processed")).thenReturn(Date.valueOf("2016-03-09"))
-    when(reallocationsInRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(943.21))
+      when(reallocationsInRs.next()).thenReturn(true, false)
+      when(reallocationsInRs.getDate("p_date_processed")).thenReturn(Date.valueOf("2016-03-09"))
+      when(reallocationsInRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(943.21))
 
-    val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
+      val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result            shouldBe validResponseReallocationsInSmall
-    result.items.size shouldBe 1
+      result            shouldBe validResponseReallocationsInSmall
+      result.items.size shouldBe 1
 
-    verify(mockCs).setString(1, regNumber)
-    verify(mockCs).setInt(2, 1)
-    verify(mockCs).setInt(3, 10)
+      verify(mockCsGtr).setString(1, regNumber)
+      verify(mockCsGtr).setInt(2, 1)
+      verify(mockCsGtr).setInt(3, 10)
 
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
-    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
 
-    verify(mockCs).execute()
+      verify(mockCsGtr).execute()
 
-    verify(mockCs).getDate(4)
-    verify(mockCs).getDate(5)
-    verify(mockCs).getBigDecimal(6)
-    verify(mockCs).getObject(7)
-    verify(mockCs).getObject(8)
+      verify(mockCsGtr).getDate(4)
+      verify(mockCsGtr).getDate(5)
+      verify(mockCsGtr).getBigDecimal(6)
+      verify(mockCsGtr).getObject(7)
+      verify(mockCsGtr).getObject(8)
 
-    verify(reallocationsInRs, times(2)).next()
-    verify(reallocationsInRs).getDate("p_date_processed")
-    verify(reallocationsInRs).getObject("p_amount")
-    verify(reallocationsInRs).close()
-    verify(mockCs).close()
-  }
+      verify(reallocationsInRs, times(2)).next()
+      verify(reallocationsInRs).getDate("p_date_processed")
+      verify(reallocationsInRs).getObject("p_amount")
+      verify(reallocationsInRs).close()
+      verify(mockCsGtr).close()
+    }
 
-  "getReallocationsIn" should "return empty ReallocationsIn when cursor is null" in {
+    "return empty ReallocationsIn when cursor is null" in {
 
-    val regNumber: Null = null
+      val regNumber: Null = null
 
-    when(mockCs.getDate(4)).thenReturn(null)
-    when(mockCs.getDate(5)).thenReturn(null)
-    when(mockCs.getBigDecimal(6)).thenReturn(null)
-    when(mockCs.getObject(7)).thenReturn(null)
-    when(mockCs.getObject(8)).thenReturn(null)
+      when(mockCsGtr.getDate(4)).thenReturn(null)
+      when(mockCsGtr.getDate(5)).thenReturn(null)
+      when(mockCsGtr.getBigDecimal(6)).thenReturn(null)
+      when(mockCsGtr.getObject(7)).thenReturn(null)
+      when(mockCsGtr.getObject(8)).thenReturn(null)
 
-    val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
+      val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result shouldBe Reallocations(None, None, None, None, List())
+      result shouldBe Reallocations(None, None, None, None, List())
 
-    verify(mockCs).setString(1, regNumber)
-    verify(mockCs).setInt(2, 1)
-    verify(mockCs).setInt(3, 10)
+      verify(mockCsGtr).setString(1, regNumber)
+      verify(mockCsGtr).setInt(2, 1)
+      verify(mockCsGtr).setInt(3, 10)
 
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
-    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
 
-    verify(mockCs).execute()
+      verify(mockCsGtr).execute()
 
-    verify(mockCs).getDate(4)
-    verify(mockCs).getDate(5)
-    verify(mockCs).getBigDecimal(6)
-    verify(mockCs).getObject(7)
-    verify(mockCs).getObject(8)
+      verify(mockCsGtr).getDate(4)
+      verify(mockCsGtr).getDate(5)
+      verify(mockCsGtr).getBigDecimal(6)
+      verify(mockCsGtr).getObject(7)
+      verify(mockCsGtr).getObject(8)
 
-    verify(reallocationsInRs, times(0)).next()
-    verify(reallocationsInRs, times(0)).close()
-    verify(mockCs).close()
-  }
+      verify(reallocationsInRs, times(0)).next()
+      verify(reallocationsInRs, times(0)).close()
+      verify(mockCsGtr).close()
+    }
 
-  "getReallocationsIn" should "return empty list when ReallocationsIn result set is empty" in {
+    "return empty list when ReallocationsIn result set is empty" in {
 
-    val regNumber = "XWM00000001770"
+      val regNumber = "XWM00000001770"
 
-    when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
-    when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
-    when(mockCs.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
-    when(mockCs.getObject(7)).thenReturn(0)
-    when(mockCs.getObject(8)).thenReturn(reallocationsInRs)
+      when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+      when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
+      when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
+      when(mockCsGtr.getObject(7)).thenReturn(0)
+      when(mockCsGtr.getObject(8)).thenReturn(reallocationsInRs)
 
-    when(reallocationsInRs.next()).thenReturn(false)
+      when(reallocationsInRs.next()).thenReturn(false)
 
-    val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
+      val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result shouldBe Reallocations(
-      Some(LocalDate.of(2016, 2, 29)),
-      Some(LocalDate.of(2017, 6, 15)),
-      Some(301.56),
-      Some(0),
-      List()
-    )
+      result shouldBe Reallocations(
+        Some(LocalDate.of(2016, 2, 29)),
+        Some(LocalDate.of(2017, 6, 15)),
+        Some(301.56),
+        Some(0),
+        List()
+      )
 
-    verify(mockCs).setString(1, regNumber)
-    verify(mockCs).setInt(2, 1)
-    verify(mockCs).setInt(3, 10)
+      verify(mockCsGtr).setString(1, regNumber)
+      verify(mockCsGtr).setInt(2, 1)
+      verify(mockCsGtr).setInt(3, 10)
 
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
-    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
 
-    verify(mockCs).execute()
+      verify(mockCsGtr).execute()
 
-    verify(mockCs).getDate(4)
-    verify(mockCs).getDate(5)
-    verify(mockCs).getBigDecimal(6)
-    verify(mockCs).getObject(7)
-    verify(mockCs).getObject(8)
+      verify(mockCsGtr).getDate(4)
+      verify(mockCsGtr).getDate(5)
+      verify(mockCsGtr).getBigDecimal(6)
+      verify(mockCsGtr).getObject(7)
+      verify(mockCsGtr).getObject(8)
 
-    verify(reallocationsInRs, times(1)).next()
-    verify(reallocationsInRs, times(0)).getDate("p_date_processed")
-    verify(reallocationsInRs, times(0)).getObject("p_amount")
-    verify(reallocationsInRs).close()
-    verify(mockCs).close()
-  }
+      verify(reallocationsInRs, times(1)).next()
+      verify(reallocationsInRs, times(0)).getDate("p_date_processed")
+      verify(reallocationsInRs, times(0)).getObject("p_amount")
+      verify(reallocationsInRs).close()
+      verify(mockCsGtr).close()
+    }
 
-  "getReallocationsIn" should "return single ReallocationsIn record" in {
+    "return single ReallocationsIn record" in {
 
-    val regNumber = "XWM12345678901"
+      val regNumber = "XWM12345678901"
 
-    val validResponseReallocationsInSmall: Reallocations = Reallocations(
-      periodStartDate = Some(LocalDate.of(2016, 2, 29)),
-      periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
-      total           = Some(301.56),
-      totalRecords    = Some(1),
-      items = List(
-        ReallocationItem(
-          dateProcessed = Some(LocalDate.of(2016, 3, 9)),
-          amount        = Some(943.21)
+      val validResponseReallocationsInSmall: Reallocations = Reallocations(
+        periodStartDate = Some(LocalDate.of(2016, 2, 29)),
+        periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
+        total           = Some(301.56),
+        totalRecords    = Some(1),
+        items = List(
+          ReallocationItem(
+            dateProcessed = Some(LocalDate.of(2016, 3, 9)),
+            amount        = Some(943.21)
+          )
         )
       )
-    )
 
-    when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
-    when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
-    when(mockCs.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
-    when(mockCs.getObject(7)).thenReturn(1)
-    when(mockCs.getObject(8)).thenReturn(reallocationsInRs)
+      when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+      when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
+      when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(301.56))
+      when(mockCsGtr.getObject(7)).thenReturn(1)
+      when(mockCsGtr.getObject(8)).thenReturn(reallocationsInRs)
 
-    when(reallocationsInRs.next()).thenReturn(true, false)
-    when(reallocationsInRs.getDate("p_date_processed")).thenReturn(Date.valueOf("2016-03-09"))
-    when(reallocationsInRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(943.21))
+      when(reallocationsInRs.next()).thenReturn(true, false)
+      when(reallocationsInRs.getDate("p_date_processed")).thenReturn(Date.valueOf("2016-03-09"))
+      when(reallocationsInRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(943.21))
 
-    val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
+      val result = repository.getReallocationsIn(regNumber, 1, 10).futureValue
 
-    result            shouldBe validResponseReallocationsInSmall
-    result.items.size shouldBe 1
+      result            shouldBe validResponseReallocationsInSmall
+      result.items.size shouldBe 1
 
-    verify(mockCs).setString(1, regNumber)
-    verify(mockCs).setInt(2, 1)
-    verify(mockCs).setInt(3, 10)
+      verify(mockCsGtr).setString(1, regNumber)
+      verify(mockCsGtr).setInt(2, 1)
+      verify(mockCsGtr).setInt(3, 10)
 
-    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
-    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
-    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
 
-    verify(mockCs).execute()
+      verify(mockCsGtr).execute()
 
-    verify(mockCs).getDate(4)
-    verify(mockCs).getDate(5)
-    verify(mockCs).getBigDecimal(6)
-    verify(mockCs).getObject(7)
-    verify(mockCs).getObject(8)
+      verify(mockCsGtr).getDate(4)
+      verify(mockCsGtr).getDate(5)
+      verify(mockCsGtr).getBigDecimal(6)
+      verify(mockCsGtr).getObject(7)
+      verify(mockCsGtr).getObject(8)
 
-    verify(reallocationsInRs, times(2)).next()
-    verify(reallocationsInRs).getDate("p_date_processed")
-    verify(reallocationsInRs).getObject("p_amount")
-    verify(reallocationsInRs).close()
-    verify(mockCs).close()
+      verify(reallocationsInRs, times(2)).next()
+      verify(reallocationsInRs).getDate("p_date_processed")
+      verify(reallocationsInRs).getObject("p_amount")
+      verify(reallocationsInRs).close()
+      verify(mockCsGtr).close()
+    }
   }
 
+  "getReallocationsOut" should {
+    "return ReallocationsOut for MGD regime when stored procedure returns data" in {
+      val regNumber = "XWM12345678901"
+
+      when(mockCsMgd.getDate(4)).thenReturn(startDate)
+      when(mockCsMgd.getDate(5)).thenReturn(endDate)
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(7)).thenReturn(1)
+      when(mockCsMgd.getObject(8)).thenReturn(reallocationsOutRs)
+      when(reallocationsOutRs.next()).thenReturn(true, false)
+      when(reallocationsOutRs.getDate("p_date_processed")).thenReturn(dateProcessed)
+      when(reallocationsOutRs.getObject("p_amount")).thenReturn(BigDecimal(-301.56))
+
+      val result = repository.getReallocationsOut(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result shouldBe ReallocationsOut(
+        Option(startDate.toLocalDate),
+        Option(endDate.toLocalDate),
+        BigDecimal(-301.56),
+        1,
+        Seq(Reallocation(dateProcessed.toLocalDate, BigDecimal(-301.56)))
+      )
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+      verify(reallocationsOutRs, times(2)).next()
+      verify(reallocationsOutRs).getDate("p_date_processed")
+      verify(reallocationsOutRs).getObject("p_amount")
+      verify(reallocationsOutRs).close()
+      verify(mockCsMgd).close()
+    }
+
+    Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
+      s"return ReallocationsOut for $regime regime when stored procedure returns data" in {
+        val regNumber = "XWM12345678901"
+
+        when(mockCsGtr.getDate(4)).thenReturn(startDate)
+        when(mockCsGtr.getDate(5)).thenReturn(endDate)
+        when(mockCsGtr.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+        when(mockCsGtr.getObject(7)).thenReturn(1)
+        when(mockCsGtr.getObject(8)).thenReturn(reallocationsOutRs)
+        when(reallocationsOutRs.next()).thenReturn(true, false)
+        when(reallocationsOutRs.getDate("p_date_processed")).thenReturn(dateProcessed)
+        when(reallocationsOutRs.getObject("p_amount")).thenReturn(BigDecimal(-301.56))
+
+        val result = repository.getReallocationsOut(regime, regNumber, 1, 10).futureValue
+
+        result shouldBe ReallocationsOut(
+          Option(startDate.toLocalDate),
+          Option(endDate.toLocalDate),
+          BigDecimal(-301.56),
+          1,
+          Seq(Reallocation(dateProcessed.toLocalDate, BigDecimal(-301.56)))
+        )
+
+        verify(mockCsGtr).setString(1, regNumber)
+        verify(mockCsGtr).setInt(2, 1)
+        verify(mockCsGtr).setInt(3, 10)
+        verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+        verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+        verify(mockCsGtr).execute()
+
+        verify(mockCsGtr).getDate(4)
+        verify(mockCsGtr).getDate(5)
+        verify(mockCsGtr).getBigDecimal(6)
+        verify(mockCsGtr).getObject(7)
+        verify(mockCsGtr).getObject(8)
+        verify(reallocationsOutRs, times(2)).next()
+        verify(reallocationsOutRs).getDate("p_date_processed")
+        verify(reallocationsOutRs).getObject("p_amount")
+        verify(reallocationsOutRs).close()
+        verify(mockCsGtr).close()
+      }
+    }
+
+    "return empty ReallocationsOut when regNumber is null" in {
+      val regNumber: Null = null
+      when(mockCsMgd.getDate(2)).thenReturn(null)
+      val result = repository.getReallocationsOut(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result shouldBe ReallocationsOut.empty
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+      verify(reallocationsOutRs, times(0)).next()
+      verify(reallocationsOutRs, times(0)).getInt("p_date_processed")
+      verify(reallocationsOutRs, times(0)).close()
+      verify(mockCsMgd).close()
+    }
+
+    "return Empty List when ReallocationsOut result set is empty" in {
+      val regNumber = "XWM00000001770"
+      when(mockCsMgd.getDate(4)).thenReturn(startDate)
+      when(mockCsMgd.getDate(5)).thenReturn(endDate)
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(0))
+      when(mockCsMgd.getObject(7)).thenReturn(0)
+      when(reallocationsOutRs.next()).thenReturn(false)
+
+      val result = repository.getReallocationsOut(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result shouldBe ReallocationsOut(Option(startDate.toLocalDate), Option(endDate.toLocalDate), BigDecimal(0), 0, Seq.empty)
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+      verify(reallocationsOutRs, times(0)).next()
+      verify(reallocationsOutRs, times(0)).getInt("p_date_processed")
+      verify(reallocationsOutRs, times(0)).close()
+      verify(mockCsMgd).close()
+    }
+  }
 }
