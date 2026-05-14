@@ -284,4 +284,33 @@ object GamblingStubData {
           returnPeriodEndDates = Seq.empty
         )
     }
+
+  def getBusinessContactDetails(
+    mgdRegNumber: String
+  ): BusinessContactDetails =
+    mgdRegNumber match {
+
+      case "XYZ00000000001" =>
+        BusinessContactDetails(
+          mgdRegNumber      = "XYZ00000000001",
+          phoneNumber       = Some("0123456789"),
+          mobilePhoneNumber = Some("07123456789"),
+          faxNumber         = Some("0201234567"),
+          emailAddr         = Some("test@test.com"),
+          systemDate        = Some(LocalDate.of(2026, 4, 20))
+        )
+
+      case "ERR00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case _ =>
+        BusinessContactDetails(
+          mgdRegNumber      = mgdRegNumber,
+          phoneNumber       = None,
+          mobilePhoneNumber = None,
+          faxNumber         = None,
+          emailAddr         = None,
+          systemDate        = None
+        )
+    }
 }

@@ -95,5 +95,21 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         InternalServerError(errorResponse(error))
     }
 
+  def getBusinessContactDetails(
+    mgdRegNumber: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getBusinessContactDetails(mgdRegNumber).map {
+
+      case Right(details) =>
+        Ok(Json.toJson(details))
+
+      case Left(error) =>
+        val logMessage =
+          s"[GamblingController][getBusinessContactDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
+        handleError(error, logMessage)
+    }
+  }
+
   private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

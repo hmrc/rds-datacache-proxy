@@ -22,6 +22,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future, blocking}
+import java.time.LocalDate
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
@@ -29,6 +30,7 @@ trait GamblingDataSource {
   def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
   def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
+  def getBusinessContactDetails(mgdRegNumber: String): Future[BusinessContactDetails]
 }
 
 @Singleton
@@ -37,6 +39,101 @@ class GamblingDataCacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
     with Logging {
+
+  override def getBusinessContactDetails(
+    mgdRegNumber: String
+  ): Future[BusinessContactDetails] = {
+
+    logger.info(
+      s"[GamblingDataCacheRepository][getBusinessContactDetails] mgdRegNumber=$mgdRegNumber"
+    )
+
+    Future(blocking {
+
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_CONTACT_DETAILS(?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val rs =
+            cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+          if (rs == null) {
+
+            BusinessContactDetails(
+              mgdRegNumber      = "",
+              phoneNumber       = None,
+              mobilePhoneNumber = None,
+              faxNumber         = None,
+              emailAddr         = None,
+              systemDate        = None
+            )
+
+          } else {
+
+            try {
+
+              if (rs.next()) {
+
+                def optString(col: String): Option[String] =
+                  Option(rs.getString(col))
+                    .map(_.trim)
+                    .filter(_.nonEmpty)
+
+                def optDate(col: String): Option[LocalDate] =
+                  Option(rs.getDate(col))
+                    .map(_.toLocalDate)
+
+                BusinessContactDetails(
+                  mgdRegNumber = Option(rs.getString("mgd_reg_number"))
+                    .map(_.trim)
+                    .getOrElse(""),
+                  phoneNumber       = optString("phone_number"),
+                  mobilePhoneNumber = optString("mobile_phone_number"),
+                  faxNumber         = optString("fax_number"),
+                  emailAddr         = optString("email_addr"),
+                  systemDate        = optDate("system_date")
+                )
+
+              } else {
+
+                BusinessContactDetails(
+                  mgdRegNumber      = "",
+                  phoneNumber       = None,
+                  mobilePhoneNumber = None,
+                  faxNumber         = None,
+                  emailAddr         = None,
+                  systemDate        = None
+                )
+              }
+
+            } finally {
+              closeQuietly(rs)
+            }
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+
+    })(ec)
+  }
 
   override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] = {
 
