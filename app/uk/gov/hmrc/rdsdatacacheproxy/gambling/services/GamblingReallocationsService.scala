@@ -59,7 +59,7 @@ class GamblingReallocationsService @Inject() (
 
   def getReallocationsOut(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[GamblingReturnsError, ReallocationsOut]] = {
+  ): Future[Either[QueryParameterError, ReallocationsOut]] = {
 
     val reqText = s"regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsService][getReallocationsOut] $reqText")
@@ -82,7 +82,7 @@ class GamblingReallocationsService @Inject() (
                 Left(UnexpectedError)
               }
         case Left(error) =>
-          logger.error(s"[GamblingReturnsService][getReallocationsOut] Invalid Regime Code $rawRegime")
+          logger.error(s"[GamblingReallocationsService][getReallocationsOut] Invalid Regime Code $rawRegime")
           Future.successful(Left(error))
       }
   }

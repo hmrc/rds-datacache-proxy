@@ -49,12 +49,12 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
       }
     }
 
-  private def handleError(error: GamblingReturnsError) = {
+  private def handleError(error: QueryParameterError) = {
     error match {
-      case InvalidRegimeCode | InvalidRegNumber | RegNumberNotFound => BadRequest(errorResponse(error))
-      case UnexpectedError                                          => InternalServerError(errorResponse(error))
+      case InvalidRegimeCode | InvalidRegNumber => BadRequest(errorResponse(error))
+      case UnexpectedError => InternalServerError(errorResponse(error))
     }
   }
 
-  private def errorResponse(error: GamblingReturnsError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
+  private def errorResponse(error: QueryParameterError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
 }

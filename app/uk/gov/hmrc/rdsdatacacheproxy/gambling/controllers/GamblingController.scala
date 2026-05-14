@@ -21,8 +21,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import javax.inject.Inject

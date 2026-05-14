@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
 
 class RegimeSpec extends AnyWordSpec with Matchers {
 
@@ -44,7 +45,7 @@ class RegimeSpec extends AnyWordSpec with Matchers {
     }
 
     "return InvalidRegimeCode error when regime is not recognised" in {
-      Regime.fromString("unknown") mustBe Left(GamblingReturnsError.InvalidRegimeCode)
+      Regime.fromString("unknown") mustBe Left(QueryParameterError.InvalidRegimeCode)
     }
   }
 }
