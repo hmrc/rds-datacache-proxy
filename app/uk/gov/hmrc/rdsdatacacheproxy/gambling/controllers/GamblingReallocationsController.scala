@@ -52,7 +52,7 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
   private def handleError(error: QueryParameterError) = {
     error match {
       case InvalidRegimeCode | InvalidRegNumber => BadRequest(errorResponse(error))
-      case UnexpectedError => InternalServerError(errorResponse(error))
+      case UnexpectedError                      => InternalServerError(errorResponse(error))
     }
   }
 
