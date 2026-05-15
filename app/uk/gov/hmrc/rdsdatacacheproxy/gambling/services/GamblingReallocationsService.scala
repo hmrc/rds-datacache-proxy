@@ -19,8 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
@@ -34,7 +34,7 @@ class GamblingReallocationsService @Inject() (
 
   def getReallocationsIn(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UrlParameterError, Reallocations]] = {
+  ): Future[Either[StatementError, Reallocations]] = {
 
     lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsController][getReallocationsIn] $reqText")
@@ -59,7 +59,7 @@ class GamblingReallocationsService @Inject() (
 
   def getReallocationsOut(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UrlParameterError, ReallocationsOut]] = {
+  ): Future[Either[StatementError, ReallocationsOut]] = {
 
     val reqText = s"regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsService][getReallocationsOut] $reqText")

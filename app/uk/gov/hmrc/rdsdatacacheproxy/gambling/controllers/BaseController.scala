@@ -19,11 +19,11 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Result
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 
 trait BaseController extends BackendController {
-  final def handleError(error: UrlParameterError): Result =
+  final def handleError(error: StatementError): Result =
     error match {
       case InvalidRegimeCode | InvalidRegNumber =>
         BadRequest(errorResponse(error))
@@ -31,5 +31,5 @@ trait BaseController extends BackendController {
         InternalServerError(errorResponse(error))
     }
 
-  def errorResponse(error: UrlParameterError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
+  def errorResponse(error: StatementError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
 }

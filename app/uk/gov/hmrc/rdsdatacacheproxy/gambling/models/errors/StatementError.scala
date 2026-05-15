@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
-sealed trait UrlParameterError {
+sealed trait StatementError {
   def code: String
   def message: String
 }
 
-object UrlParameterError {
+object StatementError {
 
-  case object InvalidRegNumber extends UrlParameterError {
+  case object InvalidRegNumber extends StatementError {
     val code = "INVALID_REG_NUMBER"
     val message = "regNumber has invalid format"
   }
 
-  case object UnexpectedError extends UrlParameterError {
+  case object UnexpectedError extends StatementError {
     val code = "UNEXPECTED_ERROR"
     val message = "Unexpected error occurred"
   }
 
-  case object InvalidRegimeCode extends UrlParameterError {
+  case object InvalidRegimeCode extends StatementError {
     val code = "INVALID_REGIME_CODE"
     val message = "Invalid Regime Code"
   }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError.InvalidRegimeCode
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.InvalidRegimeCode
 
 class RegimeSpec extends AnyWordSpec with Matchers {
 
