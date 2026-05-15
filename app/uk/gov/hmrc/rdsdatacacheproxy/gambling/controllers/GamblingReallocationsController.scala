@@ -17,12 +17,10 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import play.api.Logging
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 
 import javax.inject.Inject
@@ -31,6 +29,7 @@ import scala.concurrent.ExecutionContext
 class GamblingReallocationsController @Inject() (authorise: AuthAction, service: GamblingReallocationsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
+    with BaseController
     with Logging {
 
   def getReallocationsIn(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
@@ -48,13 +47,4 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
         case Left(error)    => handleError(error)
       }
     }
-
-  private def handleError(error: QueryParameterError) = {
-    error match {
-      case InvalidRegimeCode | InvalidRegNumber => BadRequest(errorResponse(error))
-      case UnexpectedError                      => InternalServerError(errorResponse(error))
-    }
-  }
-
-  private def errorResponse(error: QueryParameterError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
 }

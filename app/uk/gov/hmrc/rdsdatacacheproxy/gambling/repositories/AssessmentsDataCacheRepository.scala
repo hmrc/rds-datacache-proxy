@@ -30,6 +30,7 @@ trait AssessmentsDataSource {
 @Singleton
 class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
     extends AssessmentsDataSource
+    with RepositorySupport
     with Logging {
 
   override def getOtherAssessments(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments] =
@@ -82,43 +83,4 @@ class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: D
       }
     }(ec)
 
-  def optDate(i: Int, cs: java.sql.CallableStatement): Option[java.time.LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
-
-  def optInt(i: Int, cs: java.sql.CallableStatement): Option[Int] =
-    Option(cs.getObject(i)).map {
-      case bd: java.math.BigDecimal => bd.intValue()
-      case n: java.lang.Number      => n.intValue()
-      case other                    => other.toString.toInt
-    }
-
-  def optDecimalFromIndex(i: Int, cs: java.sql.CallableStatement): Option[BigDecimal] = {
-    def alternativeMethodForMockito(idx: Int): Option[BigDecimal] = cs.getObject(idx) match {
-      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null      => None
-    }
-
-    Option(cs.getBigDecimal(i)) match {
-      case Some(v1) => Option(v1)
-      case _        => alternativeMethodForMockito(i)
-    }
-  }
-
-  def optDecimalFromLabel(s: String, rs: java.sql.ResultSet): Option[BigDecimal] = {
-    def alternativeMethodForMockito(idx: String): Option[BigDecimal] = rs.getObject(idx) match {
-      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
-      case null      => None
-    }
-
-    Option(rs.getBigDecimal(s)) match {
-      case Some(v1) => Option(v1)
-      case _        => alternativeMethodForMockito(s)
-    }
-  }
-
-  def closeQuietly(c: AutoCloseable): Unit =
-    if (c != null)
-      try c.close()
-      catch {
-        case _: Throwable => ()
-      }
 }

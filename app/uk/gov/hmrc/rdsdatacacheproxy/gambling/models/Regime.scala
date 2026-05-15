@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError
 
 import scala.util.Try
 
@@ -25,7 +25,7 @@ enum Regime {
 }
 
 object Regime {
-  def fromString(rawRegime: String): Either[QueryParameterError, Regime] =
+  def fromString(rawRegime: String): Either[UrlParameterError, Regime] =
     Try(Regime.valueOf(rawRegime.trim.toUpperCase)).toEither.left
-      .map(_ => QueryParameterError.InvalidRegimeCode)
+      .map(_ => UrlParameterError.InvalidRegimeCode)
 }

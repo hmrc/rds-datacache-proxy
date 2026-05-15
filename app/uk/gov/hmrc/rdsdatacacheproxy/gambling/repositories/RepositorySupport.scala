@@ -21,31 +21,40 @@ import java.time.LocalDate
 
 trait RepositorySupport {
 
-  protected def optDate(i: Int, cs: CallableStatement): Option[LocalDate] =
-    Option(cs.getDate(i)).map(_.toLocalDate)
+  def optDate(i: Int, cs: CallableStatement): Option[LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
 
-  protected def optInt(i: Int, cs: CallableStatement): Option[Int] =
+  def optInt(i: Int, cs: CallableStatement): Option[Int] =
     Option(cs.getObject(i)).map {
       case bd: java.math.BigDecimal => bd.intValue()
       case n: java.lang.Number      => n.intValue()
       case other                    => other.toString.toInt
     }
 
-  protected def optDecimalFromIndex(i: Int, cs: CallableStatement): Option[BigDecimal] =
-    Option(cs.getBigDecimal(i))
-      .map(BigDecimal(_))
-      .orElse {
-        Option(cs.getObject(i)).map(obj => BigDecimal(obj.toString))
-      }
+  def optDecimalFromIndex(i: Int, cs: CallableStatement): Option[BigDecimal] = {
+    def alternativeMethodForMockito(idx: Int): Option[BigDecimal] = cs.getObject(idx) match {
+      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
+      case null      => None
+    }
 
-  protected def optDecimalFromLabel(s: String, rs: ResultSet): Option[BigDecimal] =
-    Option(rs.getBigDecimal(s))
-      .map(BigDecimal(_))
-      .orElse {
-        Option(rs.getObject(s)).map(obj => BigDecimal(obj.toString))
-      }
+    Option(cs.getBigDecimal(i)) match {
+      case Some(v1) => Option(v1)
+      case _        => alternativeMethodForMockito(i)
+    }
+  }
 
-  protected def closeQuietly(c: AutoCloseable): Unit =
+  def optDecimalFromLabel(s: String, rs: ResultSet): Option[BigDecimal] = {
+    def alternativeMethodForMockito(idx: String): Option[BigDecimal] = rs.getObject(idx) match {
+      case o: AnyRef => Some(BigDecimal.decimal(o.toString.toDouble))
+      case null      => None
+    }
+
+    Option(rs.getBigDecimal(s)) match {
+      case Some(v1) => Option(v1)
+      case _        => alternativeMethodForMockito(s)
+    }
+  }
+
+  def closeQuietly(c: AutoCloseable): Unit =
     if (c != null)
       try c.close()
       catch {

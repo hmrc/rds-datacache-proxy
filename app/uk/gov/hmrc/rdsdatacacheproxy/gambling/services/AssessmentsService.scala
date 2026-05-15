@@ -19,8 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
@@ -36,7 +36,7 @@ class AssessmentsService @Inject() (
 
   def getOtherAssessments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[QueryParameterError, Assessments]] = {
+  ): Future[Either[UrlParameterError, Assessments]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[AssessmentsService][getOtherAssessments] $reqText")

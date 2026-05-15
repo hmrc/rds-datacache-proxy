@@ -19,8 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.UrlParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
@@ -34,7 +34,7 @@ class GamblingReturnsService @Inject() (
 
   def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[QueryParameterError, ReturnsSubmitted]] = {
+  ): Future[Either[UrlParameterError, ReturnsSubmitted]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReturnsService][getReturnsSubmitted] $reqText")

@@ -21,8 +21,6 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.QueryParameterError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsService
 
 import javax.inject.Inject
@@ -31,19 +29,14 @@ import scala.concurrent.ExecutionContext
 class AssessmentsController @Inject() (authorise: AuthAction, service: AssessmentsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
+    with BaseController
     with Logging {
 
   def getOtherAssessments(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getOtherAssessments(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(assessments) => Ok(Json.toJson(assessments))
-        case Left(error) =>
-          error match {
-            case InvalidRegimeCode | InvalidRegNumber =>
-              BadRequest(errorResponse(error))
-            case UnexpectedError =>
-              InternalServerError(errorResponse(error))
-          }
+        case Left(error)        => handleError(error)
       }
     }
 }

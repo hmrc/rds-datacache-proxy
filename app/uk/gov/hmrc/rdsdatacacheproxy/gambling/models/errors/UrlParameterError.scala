@@ -16,30 +16,26 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
-import play.api.libs.json.{JsObject, Json}
-
-sealed trait QueryParameterError {
+sealed trait UrlParameterError {
   def code: String
   def message: String
 }
 
-object QueryParameterError {
+object UrlParameterError {
 
-  case object InvalidRegNumber extends QueryParameterError {
+  case object InvalidRegNumber extends UrlParameterError {
     val code = "INVALID_REG_NUMBER"
     val message = "regNumber has invalid format"
   }
 
-  case object UnexpectedError extends QueryParameterError {
+  case object UnexpectedError extends UrlParameterError {
     val code = "UNEXPECTED_ERROR"
     val message = "Unexpected error occurred"
   }
 
-  case object InvalidRegimeCode extends QueryParameterError {
+  case object InvalidRegimeCode extends UrlParameterError {
     val code = "INVALID_REGIME_CODE"
     val message = "Invalid Regime Code"
   }
-
-  def errorResponse(error: QueryParameterError): JsObject = Json.obj("code" -> error.code, "message" -> error.message)
 
 }
