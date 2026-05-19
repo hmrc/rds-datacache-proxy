@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-
-import scala.util.Try
-
-enum Regime {
-  case MGD, GBD, PBD, RGD
+sealed trait GamblingError {
+  def code: String
+  def message: String
 }
 
-object Regime {
-  def fromString(rawRegime: String): Either[StatementError, Regime] =
-    Try(Regime.valueOf(rawRegime.trim.toUpperCase)).toEither.left
-      .map(_ => StatementError.InvalidRegimeCode)
+object GamblingError {
+
+  case object InvalidMgdRegNumber extends GamblingError {
+    val code = "INVALID_MGD_REG_NUMBER"
+    val message = "mgdRegNumber does not exist"
+  }
+
+  case object UnexpectedError extends GamblingError {
+    val code = "UNEXPECTED_ERROR"
+    val message = "Unexpected error occurred"
+  }
 }

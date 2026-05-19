@@ -18,40 +18,42 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GamblingReturnsService @Inject() (
-  repository: GamblingReturnsDataSource
+private final val ValidRegimes = List("mgd", "gbd", "pbd", "rgd")
+
+class AssessmentsService @Inject() (
+  repository: AssessmentsDataSource
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getOtherAssessments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, ReturnsSubmitted]] = {
+  ): Future[Either[StatementError, Assessments]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReturnsService][getReturnsSubmitted] $reqText")
+    logger.info(s"[AssessmentsService][getOtherAssessments] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (Regime.fromString(regime.trim).isLeft)
-      logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $reqText")
+    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
+      logger.error(s"[AssessmentsService][getOtherAssessments] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[GamblingReturnsService][getReturnsSubmitted] Invalid pattern for regNumber=$regNumber")
+      logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
       Future.successful(Left(InvalidRegNumber))
     else
       repository
-        .getReturnsSubmitted(regNumber, paginationStart, paginationMaxRows)
-        .map(summary => Right(summary))
+        .getOtherAssessments(regNumber, paginationStart, paginationMaxRows)
+        .map(assessments => Right(assessments))
         .recover { case ex: Exception =>
-          logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
+          logger.error(s"[AssessmentsService][getOtherAssessments] Unexpected error $reqText", ex)
           Left(UnexpectedError)
         }
   }

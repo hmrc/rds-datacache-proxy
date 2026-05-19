@@ -24,16 +24,16 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseReturnsSubmittedSmall
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessmentsSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+class AssessmentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: GamblingReturnsDataCacheRepository = _
+  var repository: AssessmentsDataCacheRepository = _
   var mockConnection: Connection = _
   var mockCs: CallableStatement = _
   var amountDeclaredRs: ResultSet = _
@@ -53,11 +53,11 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
 
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
 
-    repository = new GamblingReturnsDataCacheRepository(db)
+    repository = new AssessmentsDataCacheRepository(db)
   }
 
-  "getReturnsSubmitted" should {
-    "return ReturnsSubmitted when stored procedure returns data" in {
+  "getOtherAssessments" should {
+    "return OtherAssessments when stored procedure returns data" in {
 
       val regNumber = "XWM12345678901"
 
@@ -65,18 +65,18 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
       when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
       when(mockCs.getObject(7)).thenReturn(1)
-      when(mockCs.getObject(8)).thenReturn(amountDeclaredRs)
-      when(amountDeclaredRs.next()).thenReturn(true, false)
+      when(mockCs.getObject(8)).thenReturn(assessmentsRs)
+      when(assessmentsRs.next()).thenReturn(true, false)
 
-      when(amountDeclaredRs.getInt("p_desc_code")).thenReturn(4455)
-      when(amountDeclaredRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
-      when(amountDeclaredRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
-      when(amountDeclaredRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
+      when(assessmentsRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-1-01"))
+      when(assessmentsRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
+      when(assessmentsRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
+      when(assessmentsRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
 
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      val result = repository.getOtherAssessments(regNumber, 1, 10).futureValue
 
-      result                     shouldBe validResponseReturnsSubmittedSmall
-      result.amountDeclared.size shouldBe 1
+      result            shouldBe validResponseOtherAssessmentsSmall
+      result.items.size shouldBe 1
 
       verify(mockCs).setString(1, regNumber)
       verify(mockCs).setInt(2, 1)
@@ -91,23 +91,23 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       verify(mockCs).getBigDecimal(6)
       verify(mockCs).getObject(7)
       verify(mockCs).getObject(8)
-      verify(amountDeclaredRs, times(2)).next()
-      verify(amountDeclaredRs).getInt("p_desc_code")
-      verify(amountDeclaredRs).getDate("p_period_start")
-      verify(amountDeclaredRs).getDate("p_period_end")
-      verify(amountDeclaredRs).getObject("p_amount")
-      verify(amountDeclaredRs).close()
+      verify(assessmentsRs, times(2)).next()
+      verify(assessmentsRs).getDate("p_date_raised")
+      verify(assessmentsRs).getDate("p_period_start")
+      verify(assessmentsRs).getDate("p_period_end")
+      verify(assessmentsRs).getObject("p_amount")
+      verify(assessmentsRs).close()
       verify(mockCs).close()
 
     }
 
-    "return empty ReturnsSubmitted when regNumber is null" in {
+    "return empty OtherAssessments when regNumber is null" in {
       val regNumber: Null = null
       when(mockCs.getDate(2)).thenReturn(null)
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      val result = repository.getOtherAssessments(regNumber, 1, 10).futureValue
 
-      result                shouldBe ReturnsSubmitted(None, None, None, None, List())
-      result.amountDeclared shouldBe empty
+      result       shouldBe Assessments(None, None, None, None, List())
+      result.items shouldBe empty
 
       verify(mockCs).setString(1, regNumber)
       verify(mockCs).setInt(2, 1)
@@ -122,9 +122,9 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       verify(mockCs).getBigDecimal(6)
       verify(mockCs).getObject(7)
       verify(mockCs).getObject(8)
-      verify(amountDeclaredRs, times(0)).next()
-      verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
-      verify(amountDeclaredRs, times(0)).close()
+      verify(assessmentsRs, times(0)).next()
+      verify(assessmentsRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsRs, times(0)).close()
       verify(mockCs).close()
     }
 
@@ -134,11 +134,11 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
       when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
       when(mockCs.getObject(7)).thenReturn(0)
-      when(amountDeclaredRs.next()).thenReturn(false)
+      when(assessmentsRs.next()).thenReturn(false)
 
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      val result = repository.getOtherAssessments(regNumber, 1, 10).futureValue
 
-      result shouldBe ReturnsSubmitted(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
+      result shouldBe Assessments(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
 
       verify(mockCs).setString(1, regNumber)
       verify(mockCs).setInt(2, 1)
@@ -153,9 +153,9 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       verify(mockCs).getBigDecimal(6)
       verify(mockCs).getObject(7)
       verify(mockCs).getObject(8)
-      verify(amountDeclaredRs, times(0)).next()
-      verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
-      verify(amountDeclaredRs, times(0)).close()
+      verify(assessmentsRs, times(0)).next()
+      verify(assessmentsRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsRs, times(0)).close()
       verify(mockCs).close()
     }
   }

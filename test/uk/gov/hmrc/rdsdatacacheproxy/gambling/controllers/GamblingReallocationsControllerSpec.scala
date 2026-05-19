@@ -26,8 +26,8 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingReturnsError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsOut
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReallocationsIn}
 
@@ -90,22 +90,6 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
     }
 
-    "returns 400 when RegNumberNotFound" in new Setup {
-      when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
-        .thenReturn(Future.successful(Left(RegNumberNotFound)))
-
-      val req = FakeRequest(GET, s"/gambling/reallocations-in$validRegime/XWM12345678912")
-      val res: Future[Result] = controller.getReallocationsIn(" ", " ", 1, 10)(req)
-
-      status(res) mustBe BAD_REQUEST
-      contentAsJson(res) mustBe Json.obj(
-        "code"    -> "REG_NUMBER_NOT_FOUND",
-        "message" -> "regNumber does not exist"
-      )
-
-      verify(mockService).getReallocationsIn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
-    }
-
     "returns 500 when UnexpectedError" in new Setup {
       when(mockService.getReallocationsIn(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
@@ -153,22 +137,6 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
     contentAsJson(res) mustBe Json.obj(
       "code"    -> "INVALID_REG_NUMBER",
       "message" -> "regNumber has invalid format"
-    )
-
-    verify(mockService).getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
-  }
-
-  "returns 400 when RegNumberNotFound" in new Setup {
-    when(mockService.getReallocationsOut(any(), any(), any(), any())(any()))
-      .thenReturn(Future.successful(Left(RegNumberNotFound)))
-
-    val req = FakeRequest(GET, s"/gambling/reallocations-out/mgd/XWM00000001770?pageNo=1&pageSize=10")
-    val res: Future[Result] = controller.getReallocationsOut("mgd", "XWM00000001770", 1, 10)(req)
-
-    status(res) mustBe BAD_REQUEST
-    contentAsJson(res) mustBe Json.obj(
-      "code"    -> "REG_NUMBER_NOT_FOUND",
-      "message" -> "regNumber does not exist"
     )
 
     verify(mockService).getReallocationsOut(eqTo("mgd"), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())

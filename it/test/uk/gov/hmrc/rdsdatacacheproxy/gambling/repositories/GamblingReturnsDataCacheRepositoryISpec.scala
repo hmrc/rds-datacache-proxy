@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReturnsStubData.getReturnsSubmittedData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnsSubmitted
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReturnsStubData.*
 
 import scala.concurrent.Future
 

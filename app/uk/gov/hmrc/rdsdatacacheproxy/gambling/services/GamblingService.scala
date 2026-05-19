@@ -19,7 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.GamblingError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
