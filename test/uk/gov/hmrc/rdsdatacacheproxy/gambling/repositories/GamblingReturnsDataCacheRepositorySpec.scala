@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
@@ -32,40 +33,46 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  var db: Database = _
-  var repository: GamblingReturnsDataCacheRepository = _
-  var mockConnection: Connection = _
-  var mockCs: CallableStatement = _
-  var amountDeclaredRs: ResultSet = _
-  var assessmentsRs: ResultSet = _
+  private val gtrDb: Database = mock(classOf[Database])
+  private val mgdDb: Database = mock(classOf[Database])
+  private val mgdMockConnection: Connection = mock(classOf[Connection])
+  private val gtrMockConnection: Connection = mock(classOf[Connection])
+  private val mockCsMgd: CallableStatement = mock(classOf[CallableStatement])
+  private val mockCsGtr: CallableStatement = mock(classOf[CallableStatement])
+  private val amountDeclaredRs: ResultSet = mock(classOf[ResultSet])
+  private val assessmentsRs: ResultSet = mock(classOf[ResultSet])
+
+  private val repository: GamblingReturnsDataCacheRepository = new GamblingReturnsDataCacheRepository(
+    mgdDb = mgdDb,
+    gtrDb = gtrDb
+  )
 
   before {
-    db               = mock(classOf[Database])
-    mockConnection   = mock(classOf[Connection])
-    mockCs           = mock(classOf[CallableStatement])
-    amountDeclaredRs = mock(classOf[ResultSet])
-    assessmentsRs    = mock(classOf[ResultSet])
+    Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsRs)
 
-    when(db.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
-      fn(mockConnection)
+      fn(mgdMockConnection)
     }
 
-    when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
+    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+      val fn = invocation.getArgument(0, classOf[Connection => Any])
+      fn(gtrMockConnection)
+    }
 
-    repository = new GamblingReturnsDataCacheRepository(db)
+    when(mgdMockConnection.prepareCall(any[String])).thenReturn(mockCsMgd)
+    when(gtrMockConnection.prepareCall(any[String])).thenReturn(mockCsGtr)
   }
 
   "getReturnsSubmitted" should {
-    "return ReturnsSubmitted when stored procedure returns data" in {
-
+    "return ReturnsSubmitted when regime is MGD and stored procedure returns data" in {
       val regNumber = "XWM12345678901"
 
-      when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-      when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
-      when(mockCs.getObject(7)).thenReturn(1)
-      when(mockCs.getObject(8)).thenReturn(amountDeclaredRs)
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(7)).thenReturn(1)
+      when(mockCsMgd.getObject(8)).thenReturn(amountDeclaredRs)
       when(amountDeclaredRs.next()).thenReturn(true, false)
 
       when(amountDeclaredRs.getInt("p_desc_code")).thenReturn(4455)
@@ -73,90 +80,133 @@ class GamblingReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       when(amountDeclaredRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
       when(amountDeclaredRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
 
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      val result = repository.getReturnsSubmitted(Regime.MGD, regNumber, 1, 10).futureValue
 
       result                     shouldBe validResponseReturnsSubmittedSmall
       result.amountDeclared.size shouldBe 1
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
       verify(amountDeclaredRs, times(2)).next()
       verify(amountDeclaredRs).getInt("p_desc_code")
       verify(amountDeclaredRs).getDate("p_period_start")
       verify(amountDeclaredRs).getDate("p_period_end")
       verify(amountDeclaredRs).getObject("p_amount")
       verify(amountDeclaredRs).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
+    }
 
+    Regime.values.toList.filter(_ != Regime.MGD).foreach { regime =>
+      s"return ReturnsSubmitted when regime is $regime and stored procedure returns data" in {
+        val regNumber = "XWM12345678901"
+
+        when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+        when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+        when(mockCsGtr.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+        when(mockCsGtr.getObject(7)).thenReturn(1)
+        when(mockCsGtr.getObject(8)).thenReturn(amountDeclaredRs)
+        when(amountDeclaredRs.next()).thenReturn(true, false)
+
+        when(amountDeclaredRs.getInt("p_desc_code")).thenReturn(4455)
+        when(amountDeclaredRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
+        when(amountDeclaredRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
+        when(amountDeclaredRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
+
+        val result = repository.getReturnsSubmitted(regime, regNumber, 1, 10).futureValue
+
+        result                     shouldBe validResponseReturnsSubmittedSmall
+        result.amountDeclared.size shouldBe 1
+
+        verify(mockCsGtr).setString(1, regNumber)
+        verify(mockCsGtr).setInt(2, 1)
+        verify(mockCsGtr).setInt(3, 10)
+        verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+        verify(mockCsGtr).execute()
+
+        verify(mockCsGtr).getDate(4)
+        verify(mockCsGtr).getDate(5)
+        verify(mockCsGtr).getBigDecimal(6)
+        verify(mockCsGtr).getObject(7)
+        verify(mockCsGtr).getObject(8)
+        verify(amountDeclaredRs, times(2)).next()
+        verify(amountDeclaredRs).getInt("p_desc_code")
+        verify(amountDeclaredRs).getDate("p_period_start")
+        verify(amountDeclaredRs).getDate("p_period_end")
+        verify(amountDeclaredRs).getObject("p_amount")
+        verify(amountDeclaredRs).close()
+        verify(mockCsGtr).close()
+      }
     }
 
     "return empty ReturnsSubmitted when regNumber is null" in {
       val regNumber: Null = null
-      when(mockCs.getDate(2)).thenReturn(null)
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      when(mockCsMgd.getDate(2)).thenReturn(null)
+      val result = repository.getReturnsSubmitted(Regime.MGD, regNumber, 1, 10).futureValue
 
       result                shouldBe ReturnsSubmitted(None, None, None, None, List())
       result.amountDeclared shouldBe empty
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
       verify(amountDeclaredRs, times(0)).next()
       verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
       verify(amountDeclaredRs, times(0)).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
     }
 
     "return Empty List when AmountDeclared result set is empty" in {
       val regNumber = "XWM00000001770"
-      when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-      when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
-      when(mockCs.getObject(7)).thenReturn(0)
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(7)).thenReturn(0)
       when(amountDeclaredRs.next()).thenReturn(false)
 
-      val result = repository.getReturnsSubmitted(regNumber, 1, 10).futureValue
+      val result = repository.getReturnsSubmitted(Regime.MGD, regNumber, 1, 10).futureValue
 
       result shouldBe ReturnsSubmitted(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
       verify(amountDeclaredRs, times(0)).next()
       verify(amountDeclaredRs, times(0)).getInt("p_desc_code")
       verify(amountDeclaredRs, times(0)).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
     }
   }
 }

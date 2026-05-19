@@ -39,22 +39,26 @@ class GamblingReallocationsService @Inject() (
     lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsController][getReallocationsIn] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
-    val regime = Regime.fromString(rawRegime.trim)
 
-    if (regime.isLeft)
-      logger.error(s"[GamblingReallocationsService][getReallocationsIn] Invalid Regime Code $reqText")
-      Future.successful(Left(InvalidRegimeCode))
-    else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[GamblingReallocationsService][getReallocationsIn] Invalid pattern for regNumber=$regNumber")
-      Future.successful(Left(InvalidRegNumber))
-    else
-      repository
-        .getReallocationsIn(regNumber, paginationStart, paginationMaxRows)
-        .map(summary => Right(summary))
-        .recover { case ex: Exception =>
-          logger.error(s"[GamblingReallocationsService][getReallocationsIn] Unexpected error $reqText", ex)
-          Left(UnexpectedError)
-        }
+    Future
+      .successful(Regime.fromString(rawRegime.trim))
+      .flatMap {
+        case Right(regime) =>
+          if (!regNumberPattern.matcher(regNumber).matches())
+            logger.warn(s"[GamblingReallocationsService][getReallocationsIn] Invalid pattern for regNumber=$regNumber")
+            Future.successful(Left(InvalidRegNumber))
+          else
+            repository
+              .getReallocationsIn(regime, regNumber, paginationStart, paginationMaxRows)
+              .map(summary => Right(summary))
+              .recover { case ex: Exception =>
+                logger.error(s"[GamblingReallocationsService][getReallocationsIn] Unexpected error $reqText", ex)
+                Left(UnexpectedError)
+              }
+        case Left(error) =>
+          logger.error(s"[GamblingReallocationsService][getReallocationsIn] Invalid Regime Code $rawRegime")
+          Future.successful(Left(error))
+      }
   }
 
   def getReallocationsOut(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
@@ -64,10 +68,9 @@ class GamblingReallocationsService @Inject() (
     val reqText = s"regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReallocationsService][getReallocationsOut] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
-    val regime = Regime.fromString(rawRegime.trim)
 
     Future
-      .successful(regime)
+      .successful(Regime.fromString(rawRegime.trim))
       .flatMap {
         case Right(regime) =>
           if (!regNumberPattern.matcher(regNumber).matches())

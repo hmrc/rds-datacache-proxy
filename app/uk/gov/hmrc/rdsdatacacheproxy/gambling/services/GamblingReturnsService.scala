@@ -32,27 +32,32 @@ class GamblingReturnsService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getReturnsSubmitted(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, ReturnsSubmitted]] = {
 
-    lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[GamblingReturnsService][getReturnsSubmitted] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (Regime.fromString(regime.trim).isLeft)
-      logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $reqText")
-      Future.successful(Left(InvalidRegimeCode))
-    else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[GamblingReturnsService][getReturnsSubmitted] Invalid pattern for regNumber=$regNumber")
-      Future.successful(Left(InvalidRegNumber))
-    else
-      repository
-        .getReturnsSubmitted(regNumber, paginationStart, paginationMaxRows)
-        .map(summary => Right(summary))
-        .recover { case ex: Exception =>
-          logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
-          Left(UnexpectedError)
-        }
+    Future
+      .successful(Regime.fromString(rawRegime.trim))
+      .flatMap {
+        case Right(regime) =>
+          if (!regNumberPattern.matcher(regNumber).matches())
+            logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
+            Future.successful(Left(InvalidRegNumber))
+          else
+            repository
+              .getReturnsSubmitted(regime, regNumber, paginationStart, paginationMaxRows)
+              .map(summary => Right(summary))
+              .recover { case ex: Exception =>
+                logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
+                Left(UnexpectedError)
+              }
+        case Left(error) =>
+          logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $rawRegime")
+          Future.successful(Left(error))
+      }
   }
 }

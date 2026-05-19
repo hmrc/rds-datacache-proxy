@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReturnsSubmitted
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, ReturnsSubmitted}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReturnsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReturnsStubData.getReturnsSubmittedData
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class GamblingReturnsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingReturnsRdsStub extends GamblingReturnsDataSource {
-    override def getReturnsSubmitted(regNumber: String, pageNo: Int, pageSize: Int): Future[ReturnsSubmitted] =
+    override def getReturnsSubmitted(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[ReturnsSubmitted] =
       Future {
         GamblingReturnsStubData.getReturnsSubmittedData(regNumber, pageNo, pageSize)
       }
