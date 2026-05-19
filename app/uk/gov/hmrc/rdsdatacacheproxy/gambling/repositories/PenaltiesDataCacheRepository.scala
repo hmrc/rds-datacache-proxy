@@ -16,28 +16,31 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
-import play.api.Logging
+import play.api.{Logging, db}
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltyItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltyItem, Regime}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PenaltiesDataSource {
-  def getPenalties(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Penalties]
+  def getPenalties(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Penalties]
 }
 
 @Singleton
-class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
-    extends PenaltiesDataSource
+class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: Database, @NamedDatabase("gambling.gtr") gtrDb: Database)(implicit
+  ec: ExecutionContext
+) extends PenaltiesDataSource
     with RepositorySupport
     with Logging {
 
-  override def getPenalties(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Penalties] =
+  override def getPenalties(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Penalties] =
     Future {
-      db.withConnection { connection =>
-
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")
+      getDb(regime).withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -86,5 +89,10 @@ class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Dat
         }
       }
     }(ec)
+
+  private def getDb(regime: Regime): Database =
+    regime match
+      case Regime.MGD => mgdDb
+      case _          => gtrDb
 
 }

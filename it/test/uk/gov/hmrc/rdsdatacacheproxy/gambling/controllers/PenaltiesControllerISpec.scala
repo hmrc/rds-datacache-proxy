@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Penalties
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PenaltiesDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PenaltiesStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PenaltiesStubData.getPenaltiesData
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class PenaltiesControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class PenaltiesRdsStub extends PenaltiesDataSource {
-    override def getPenalties(regNumber: String, pageNo: Int, pageSize: Int) =
+    override def getPenalties(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
         PenaltiesStubData.getPenaltiesData(regNumber, pageNo, pageSize)
       }

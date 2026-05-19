@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Penalties
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PenaltiesStubData.*
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 class PenaltiesDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   class PenaltiesRdsStub extends PenaltiesDataSource {
-    override def getPenalties(regNumber: String, pageNo: Int, pageSize: Int): Future[Penalties] =
+    override def getPenalties(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Penalties] =
       Future.successful(getPenaltiesData(regNumber, pageNo, pageSize))
   }
 
@@ -44,33 +44,33 @@ class PenaltiesDataCacheRepositoryISpec extends AnyWordSpec with Matchers with S
   "getPenalties (stubbed repository)" should {
 
     "return correct PenaltiesData" in {
-      val result = repository.getPenalties("XYZ00000000000", 1, 10).futureValue
+      val result = repository.getPenalties(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
       result mustBe getPenaltiesData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
-      val result = repository.getPenalties("XYZ00000000001", 1, 10).futureValue
+      val result = repository.getPenalties(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
       result mustBe getPenaltiesData("XYZ00000000001")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getPenalties("XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getPenalties("XYZ00000000012", 1, 10).futureValue
+      val result1 = repository.getPenalties(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
+      val result2 = repository.getPenalties(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getPenalties("XYZ00000000010", 1, 10).futureValue
-      val result2 = repository.getPenalties("XYZ00000000001", 1, 10).futureValue
+      val result1 = repository.getPenalties(Regime.MGD, "XYZ00000000010", 1, 10).futureValue
+      val result2 = repository.getPenalties(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
 
       result1 must not be result2
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getPenalties("ERR00000000000", 1, 10).futureValue
+        repository.getPenalties(Regime.MGD, "ERR00000000000", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

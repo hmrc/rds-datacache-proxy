@@ -40,19 +40,24 @@ class PenaltiesService @Inject() (
     logger.info(s"[PenaltiesController][getPenalties] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (Regime.fromString(regime.trim).isLeft)
-      logger.error(s"[PenaltiesService][getPenalties] Invalid Regime Code $reqText")
-      Future.successful(Left(InvalidRegimeCode))
-    else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[PenaltiesService][getPenalties] Invalid pattern for regNumber=$regNumber")
-      Future.successful(Left(InvalidRegNumber))
-    else
-      repository
-        .getPenalties(regNumber, paginationStart, paginationMaxRows)
-        .map(summary => Right(summary))
-        .recover { case ex: Exception =>
-          logger.error(s"[PenaltiesService][getPenalties] Unexpected error $reqText", ex)
-          Left(UnexpectedError)
-        }
+    Future
+      .successful(Regime.fromString(regime.trim))
+      .flatMap {
+        case Right(regime) =>
+          if (!regNumberPattern.matcher(regNumber).matches())
+            logger.warn(s"[PenaltiesService][getPenalties] Invalid pattern for regNumber=$regNumber")
+            Future.successful(Left(InvalidRegNumber))
+          else
+            repository
+              .getPenalties(regime, regNumber, paginationStart, paginationMaxRows)
+              .map(summary => Right(summary))
+              .recover { case ex: Exception =>
+                logger.error(s"[PenaltiesService][getPenalties] Unexpected error $reqText", ex)
+                Left(UnexpectedError)
+              }
+        case Left(error) =>
+          logger.error(s"[PenaltiesService][getPenalties] Invalid Regime Code $regime")
+          Future.successful(Left(error))
+      }
   }
 }

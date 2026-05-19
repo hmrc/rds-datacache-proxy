@@ -32,40 +32,55 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  var db: Database = _
+  private var mgdDb: Database = _
+  private var gtrDb: Database = _
   var repository: PenaltiesDataCacheRepository = _
-  var mockConnection: Connection = _
-  var mockCs: CallableStatement = _
+  private var mgdMockConnection: Connection = _
+  private var gtrMockConnection: Connection = _
+  private var mockCsMgd: CallableStatement = _
+  private var mockCsGtr: CallableStatement = _
   var itemsRs: ResultSet = _
   var penaltiesRs: ResultSet = _
 
   before {
-    db             = mock(classOf[Database])
-    mockConnection = mock(classOf[Connection])
-    mockCs         = mock(classOf[CallableStatement])
-    itemsRs        = mock(classOf[ResultSet])
-    penaltiesRs    = mock(classOf[ResultSet])
+    mgdDb             = mock(classOf[Database])
+    gtrDb             = mock(classOf[Database])
+    mgdMockConnection = mock(classOf[Connection])
+    gtrMockConnection = mock(classOf[Connection])
+    mockCsMgd         = mock(classOf[CallableStatement])
+    mockCsGtr         = mock(classOf[CallableStatement])
+    itemsRs           = mock(classOf[ResultSet])
+    penaltiesRs       = mock(classOf[ResultSet])
 
-    when(db.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
-      fn(mockConnection)
+      fn(mgdMockConnection)
     }
 
-    when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
+    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+      val fn = invocation.getArgument(0, classOf[Connection => Any])
+      fn(gtrMockConnection)
+    }
 
-    repository = new PenaltiesDataCacheRepository(db)
+    when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
+    when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+
+    repository = new PenaltiesDataCacheRepository(
+      mgdDb = mgdDb,
+      gtrDb = gtrDb
+    )
   }
 
   "getPenalties" should {
-    "return Penalties when stored procedure returns data" in {
+    "return Penalties for MGD regime when stored procedure returns data" in {
 
       val regNumber = "XWM12345678901"
 
-      when(mockCs.getDate(4)).thenReturn(Date.valueOf("2013-03-01"))
-      when(mockCs.getDate(5)).thenReturn(Date.valueOf("2014-03-11"))
-      when(mockCs.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-2500.00))
-      when(mockCs.getObject(7)).thenReturn(1)
-      when(mockCs.getObject(8)).thenReturn(penaltiesRs)
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2013-03-01"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2014-03-11"))
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-2500.00))
+      when(mockCsMgd.getObject(7)).thenReturn(1)
+      when(mockCsMgd.getObject(8)).thenReturn(penaltiesRs)
 
       when(penaltiesRs.next()).thenReturn(true, false)
 
@@ -75,24 +90,24 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
       when(penaltiesRs.getDate("p_period_start")).thenReturn(Date.valueOf("2014-04-01"))
       when(penaltiesRs.getDate("p_period_end")).thenReturn(Date.valueOf("2014-06-30"))
 
-      val result = repository.getPenalties(regNumber, 1, 10).futureValue
+      val result = repository.getPenalties(Regime.MGD, regNumber, 1, 10).futureValue
 
       result            shouldBe validResponsePenaltiesSmall
       result.items.size shouldBe 1
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
 
       verify(penaltiesRs, times(2)).next()
       verify(penaltiesRs).getDate("p_date_raised")
@@ -102,65 +117,119 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
       verify(penaltiesRs).getDate("p_period_end")
 
       verify(penaltiesRs).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
     }
 
     "return empty Penalties when regNumber is null" in {
       val regNumber: Null = null
-      when(mockCs.getDate(2)).thenReturn(null)
-      val result = repository.getPenalties(regNumber, 1, 10).futureValue
+      when(mockCsMgd.getDate(2)).thenReturn(null)
+      val result = repository.getPenalties(Regime.MGD, regNumber, 1, 10).futureValue
 
       result       shouldBe Penalties(None, None, BigDecimal(0), 0, List())
       result.items shouldBe empty
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
       verify(penaltiesRs, times(0)).next()
       verify(penaltiesRs, times(0)).getDate("p_date_raised")
       verify(penaltiesRs, times(0)).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
     }
 
     "return Empty List when Penalties result set is empty" in {
       val regNumber = "XWM00000001770"
-      when(mockCs.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCs.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-      when(mockCs.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
-      when(mockCs.getObject(7)).thenReturn(0)
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(7)).thenReturn(0)
       when(penaltiesRs.next()).thenReturn(false)
 
-      val result = repository.getPenalties(regNumber, 1, 10).futureValue
+      val result = repository.getPenalties(Regime.MGD, regNumber, 1, 10).futureValue
 
       result shouldBe Penalties(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
 
-      verify(mockCs).setString(1, regNumber)
-      verify(mockCs).setInt(2, 1)
-      verify(mockCs).setInt(3, 10)
-      verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCs).execute()
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
 
-      verify(mockCs).getDate(4)
-      verify(mockCs).getDate(5)
-      verify(mockCs).getBigDecimal(6)
-      verify(mockCs).getObject(7)
-      verify(mockCs).getObject(8)
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
       verify(penaltiesRs, times(0)).next()
       verify(penaltiesRs, times(0)).getDate("p_date_raised")
       verify(penaltiesRs, times(0)).close()
-      verify(mockCs).close()
+      verify(mockCsMgd).close()
     }
+
+    Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
+      s"return Penalties for $regime regime when stored procedure returns data" in {
+
+        val regNumber = "XWM12345678901"
+
+        when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2013-03-01"))
+        when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2014-03-11"))
+        when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-2500.00))
+        when(mockCsGtr.getObject(7)).thenReturn(1)
+        when(mockCsGtr.getObject(8)).thenReturn(penaltiesRs)
+
+        when(penaltiesRs.next()).thenReturn(true, false)
+        when(penaltiesRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2014-09-01"))
+        when(penaltiesRs.getInt("p_desc_code")).thenReturn(2680)
+        when(penaltiesRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-800.00))
+        when(penaltiesRs.getDate("p_period_start")).thenReturn(Date.valueOf("2014-04-01"))
+        when(penaltiesRs.getDate("p_period_end")).thenReturn(Date.valueOf("2014-06-30"))
+
+        val result = repository.getPenalties(regime, regNumber, 1, 10).futureValue
+
+        result            shouldBe validResponsePenaltiesSmall
+        result.items.size shouldBe 1
+
+        verify(mockCsGtr).setString(1, regNumber)
+        verify(mockCsGtr).setInt(2, 1)
+        verify(mockCsGtr).setInt(3, 10)
+
+        verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+        verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
+        verify(mockCsGtr).execute()
+
+        verify(mockCsGtr).getDate(4)
+        verify(mockCsGtr).getDate(5)
+        verify(mockCsGtr).getBigDecimal(6)
+        verify(mockCsGtr).getObject(7)
+        verify(mockCsGtr).getObject(8)
+
+        verify(penaltiesRs, times(2)).next()
+        verify(penaltiesRs).getDate("p_date_raised")
+        verify(penaltiesRs).getInt("p_desc_code")
+        verify(penaltiesRs).getObject("p_amount")
+        verify(penaltiesRs).getDate("p_period_start")
+        verify(penaltiesRs).getDate("p_period_end")
+
+        verify(penaltiesRs).close()
+        verify(mockCsGtr).close()
+      }
+    }
+
   }
 }
