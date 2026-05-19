@@ -45,5 +45,6 @@ class Module extends AppModule:
       bind[GamblingDataSource].to(classOf[GamblingDataCacheRepository]),
       bind[GamblingReturnsDataSource].to(classOf[GamblingReturnsDataCacheRepository]),
       bind[GamblingReallocationsDataSource].to(classOf[GamblingReallocationsDataCacheRepository]),
-      bind[AssessmentsDataSource].to(classOf[AssessmentsDataCacheRepository])
+      bind[AssessmentsDataSource].to(classOf[AssessmentsDataCacheRepository]),
+      bind[PenaltiesDataSource].to(classOf[PenaltiesDataCacheRepository])
     )
