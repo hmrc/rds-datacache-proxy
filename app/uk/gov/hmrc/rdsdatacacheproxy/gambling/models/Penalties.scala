@@ -20,25 +20,25 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class PenaltiesItem(
-                                dateRaised: Option[LocalDate],
-                                descriptionCode: Option[Int],
-                                amount: Option[BigDecimal],
-                                periodStartDate: Option[LocalDate],
-                                periodEndDate: Option[LocalDate]
-                              )
+final case class PenaltyItem(
+  dateRaised: LocalDate,
+  descriptionCode: Int,
+  amount: BigDecimal,
+  periodStartDate: LocalDate,
+  periodEndDate: LocalDate
+)
 
-object PenaltiesItem {
-  implicit val format: OFormat[PenaltiesItem] = Json.format[PenaltiesItem]
+object PenaltyItem {
+  implicit val format: OFormat[PenaltyItem] = Json.format[PenaltyItem]
 }
 
 final case class Penalties(
-                            periodStartDate: Option[LocalDate],
-                            periodEndDate: Option[LocalDate],
-                            total: Option[BigDecimal],
-                            totalRecords: Option[Int],
-                            items: Seq[PenaltiesItem]
-                          )
+  periodStartDate: Option[LocalDate],
+  periodEndDate: Option[LocalDate],
+  total: BigDecimal,
+  totalRecords: Int,
+  items: Seq[PenaltyItem]
+)
 
 object Penalties {
   implicit val format: OFormat[Penalties] = Json.format[Penalties]

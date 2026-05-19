@@ -28,20 +28,19 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PenaltiesService @Inject() (
-                                   repository: PenaltiesDataSource
-                                 )(implicit ec: ExecutionContext)
-  extends Logging {
+  repository: PenaltiesDataSource
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
-  def getPenalties(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
-                                                                                                          hc: HeaderCarrier
+  def getPenalties(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+    hc: HeaderCarrier
   ): Future[Either[StatementError, Penalties]] = {
 
-    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[PenaltiesController][getPenalties] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
-    val regime = Regime.fromString(rawRegime.trim)
 
-    if (regime.isLeft)
+    if (Regime.fromString(regime.trim).isLeft)
       logger.error(s"[PenaltiesService][getPenalties] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())

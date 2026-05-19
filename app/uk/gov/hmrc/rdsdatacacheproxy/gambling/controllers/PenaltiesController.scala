@@ -27,16 +27,16 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class PenaltiesController @Inject() (authorise: AuthAction, service: PenaltiesService, cc: ControllerComponents)(implicit
-                                                                                                                 ec: ExecutionContext
+  ec: ExecutionContext
 ) extends BackendController(cc)
-  with BaseController
-  with Logging {
+    with BaseController
+    with Logging {
 
   def getPenalties(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getPenalties(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(penalties) => Ok(Json.toJson(penalties))
-        case Left(error)        => handleError(error)
+        case Left(error)      => handleError(error)
       }
     }
 }

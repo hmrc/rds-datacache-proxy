@@ -33,7 +33,7 @@ class PenaltiesSpec extends AnyWordSpec with Matchers {
       (json \ "total").as[Double] mustBe -24500.0
       (json \ "totalRecords").as[Int] mustBe 3
 
-      (json \ "items").as[Seq[PenaltiesItem]].size mustBe 3
+      (json \ "items").as[Seq[PenaltyItem]].size mustBe 3
 
       val item1 = (json \ "items")(0)
       (item1 \ "dateRaised").as[String] mustBe "2014-01-01"

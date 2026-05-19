@@ -140,29 +140,29 @@ object GamblingTestUtil {
   val validResponsePenalties = Penalties(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-    total           = Some(BigDecimal(-24500.00)),
-    totalRecords    = Some(3),
+    total           = BigDecimal(-24500.00),
+    totalRecords    = 3,
     items = Seq(
-      PenaltiesItem(
-        dateRaised      = Some(LocalDate.of(2014, 1, 1)),
-        descriptionCode = Some(2680),
-        amount          = Some(BigDecimal(-9500.00)),
-        periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-        periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+      PenaltyItem(
+        dateRaised      = LocalDate.of(2014, 1, 1),
+        descriptionCode = 2680,
+        amount          = BigDecimal(-9500.00),
+        periodStartDate = LocalDate.of(2014, 4, 1),
+        periodEndDate   = LocalDate.of(2014, 6, 30)
       ),
-      PenaltiesItem(
-        dateRaised      = Some(LocalDate.of(2014, 1, 2)),
-        descriptionCode = Some(2690),
-        amount          = Some(BigDecimal(-8000.00)),
-        periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-        periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+      PenaltyItem(
+        dateRaised      = LocalDate.of(2014, 1, 2),
+        descriptionCode = 2690,
+        amount          = BigDecimal(-8000.00),
+        periodStartDate = LocalDate.of(2014, 1, 1),
+        periodEndDate   = LocalDate.of(2014, 3, 31)
       ),
-      PenaltiesItem(
-        dateRaised      = Some(LocalDate.of(2014, 1, 3)),
-        descriptionCode = Some(2680),
-        amount          = Some(BigDecimal(-7000.00)),
-        periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-        periodEndDate   = Some(LocalDate.of(2013, 12, 31))
+      PenaltyItem(
+        dateRaised      = LocalDate.of(2014, 1, 3),
+        descriptionCode = 2680,
+        amount          = BigDecimal(-7000.00),
+        periodStartDate = LocalDate.of(2013, 10, 1),
+        periodEndDate   = LocalDate.of(2013, 12, 31)
       )
     )
   )
@@ -170,15 +170,15 @@ object GamblingTestUtil {
   val validResponsePenaltiesSmall = Penalties(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-    total           = Some(-2500.00),
-    totalRecords    = Some(1),
+    total           = -2500.00,
+    totalRecords    = 1,
     items = Seq(
-      PenaltiesItem(
-        dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-        descriptionCode = Some(2680),
-        amount          = Some(-800.00),
-        periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-        periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+      PenaltyItem(
+        dateRaised      = LocalDate.of(2014, 9, 1),
+        descriptionCode = 2680,
+        amount          = -800.00,
+        periodStartDate = LocalDate.of(2014, 4, 1),
+        periodEndDate   = LocalDate.of(2014, 6, 30)
       )
     )
   )

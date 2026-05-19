@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltiesItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltyItem}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,7 +29,7 @@ trait PenaltiesDataSource {
 
 @Singleton
 class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
-  extends PenaltiesDataSource
+    extends PenaltiesDataSource
     with RepositorySupport
     with Logging {
 
@@ -50,20 +50,23 @@ class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Dat
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_PENALTIES (REF CURSOR)
           cs.execute()
 
-          val penalties: List[PenaltiesItem] = {
+          val penalties: List[PenaltyItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[PenaltiesItem]
+                val b = List.newBuilder[PenaltyItem]
+
                 while (rs.next()) {
-                  b += PenaltiesItem(
-                    dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
-                    descriptionCode = Option(rs.getInt("p_desc_code")),
-                    amount          = optDecimalFromLabel("p_amount", rs),
-                    periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
-                    periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate)
-                  )
+                  val maybeItem =
+                    for
+                      dateRaised      <- Option(rs.getDate("p_date_raised").toLocalDate)
+                      descriptionCode <- Option(rs.getInt("p_desc_code"))
+                      amount          <- optDecimalFromLabel("p_amount", rs)
+                      periodStartDate <- Option(rs.getDate("p_period_start").toLocalDate)
+                      periodEndDate   <- Option(rs.getDate("p_period_end").toLocalDate)
+                    yield PenaltyItem(dateRaised, descriptionCode, amount, periodStartDate, periodEndDate)
+                  b.addAll(maybeItem.toList)
                 }
                 b.result()
               } finally closeQuietly(rs)
@@ -73,8 +76,8 @@ class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Dat
           Penalties(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
-            total           = optDecimalFromIndex(6, cs),
-            totalRecords    = optInt(7, cs),
+            total           = optDecimalFromIndex(6, cs).getOrElse(0),
+            totalRecords    = optInt(7, cs).getOrElse(0),
             items           = penalties
           )
 

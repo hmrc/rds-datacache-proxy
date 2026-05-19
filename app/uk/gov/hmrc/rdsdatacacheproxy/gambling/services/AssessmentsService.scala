@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
@@ -26,8 +26,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPatte
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-
-private final val ValidRegimes = List("mgd", "gbd", "pbd", "rgd")
 
 class AssessmentsService @Inject() (
   repository: AssessmentsDataSource
@@ -42,7 +40,7 @@ class AssessmentsService @Inject() (
     logger.info(s"[AssessmentsService][getOtherAssessments] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
+    if (Regime.fromString(regime.trim).isLeft)
       logger.error(s"[AssessmentsService][getOtherAssessments] Invalid Regime Code $reqText")
       Future.successful(Left(InvalidRegimeCode))
     else if (!regNumberPattern.matcher(regNumber).matches())

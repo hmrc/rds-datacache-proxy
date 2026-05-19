@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltiesItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltyItem}
 
 import java.time.LocalDate
 
@@ -27,37 +27,37 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(0.00),
-          totalRecords       = Some(0),
+          total              = BigDecimal(0.00),
+          totalRecords       = 0,
           items              = Seq()
         )
       case "XYZ00000000001" =>
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(-1200.00),
-          totalRecords       = Some(3),
+          total              = BigDecimal(-1200.00),
+          totalRecords       = 3,
           items     = Seq(
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-800.00),
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 9, 1),
+              descriptionCode = 2680,
+              amount          = -800.00,
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 4, 1)),
-              descriptionCode = Some(2690),
-              amount          = Some(-400.00),
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 4, 1),
+              descriptionCode = 2690,
+              amount          = -400.00,
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2013, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-1400.00),
-              periodStartDate = Some(LocalDate.of(2013, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2013, 9, 1),
+              descriptionCode = 2680,
+              amount          = -1400.00,
+              periodStartDate = LocalDate.of(2013, 4, 1),
+              periodEndDate   = LocalDate.of(2013, 6, 30)
             )
           )
         )
@@ -65,15 +65,15 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(-2500.00),
-          totalRecords       = Some(1),
+          total              = -2500.00,
+          totalRecords       = 1,
           items     = Seq(
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-800.00),
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 9, 1),
+              descriptionCode = 2680,
+              amount          = -800.00,
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             )
           )
         )
@@ -82,36 +82,36 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(-7600.00),
-          totalRecords       = Some(4),
+          total              = -7600.00,
+          totalRecords       = 4,
           items     = Seq(
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-800.00),
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 9, 1),
+              descriptionCode = 2680,
+              amount          = -800.00,
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 4, 1)),
-              descriptionCode = Some(2690),
-              amount          = Some(-400.00),
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 4, 1),
+              descriptionCode = 2690,
+              amount          = -400.00,
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2013, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-1400.00),
-              periodStartDate = Some(LocalDate.of(2013, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2013, 9, 1),
+              descriptionCode = 2680,
+              amount          = -1400.00,
+              periodStartDate = LocalDate.of(2013, 4, 1),
+              periodEndDate   = LocalDate.of(2013, 6, 30)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2013, 9, 1)),
-              descriptionCode = Some(2690),
-              amount          = Some(-5000.00),
-              periodStartDate = Some(LocalDate.of(2013, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2013, 9, 1),
+              descriptionCode = 2690,
+              amount          = -5000.00,
+              periodStartDate = LocalDate.of(2013, 4, 1),
+              periodEndDate   = LocalDate.of(2013, 6, 30)
             )
           )
         )
@@ -119,29 +119,29 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(-27000.00),
-          totalRecords       = Some(3),
+          total              = -27000.00,
+          totalRecords       = 3,
           items     = Seq(
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-9000.00),
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 9, 1),
+              descriptionCode = 2680,
+              amount          = -9000.00,
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 4, 1)),
-              descriptionCode = Some(2690),
-              amount          = Some(-10000.00),
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 4, 1),
+              descriptionCode = 2690,
+              amount          = -10000.00,
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2013, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-8000.00),
-              periodStartDate = Some(LocalDate.of(2013, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2013, 9, 1),
+              descriptionCode = 2680,
+              amount          = -8000.00,
+              periodStartDate = LocalDate.of(2013, 4, 1),
+              periodEndDate   = LocalDate.of(2013, 6, 30)
             )
           )
         )
@@ -149,8 +149,8 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(999.00),
-          totalRecords       = Some(99),
+          total              = 999.00,
+          totalRecords       = 99,
           items              = Seq()
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
@@ -158,22 +158,22 @@ object PenaltiesStubData {
         Penalties(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
-          total              = Some(-4000.00),
-          totalRecords       = Some(2),
+          total              = -4000.00,
+          totalRecords       = 2,
           items     = Seq(
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 9, 1)),
-              descriptionCode = Some(2680),
-              amount          = Some(-3500.00),
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 9, 1),
+              descriptionCode = 2680,
+              amount          = -3500.00,
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
-            PenaltiesItem(
-              dateRaised      = Some(LocalDate.of(2014, 4, 1)),
-              descriptionCode = Some(2690),
-              amount          = Some(-500.00),
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+            PenaltyItem(
+              dateRaised      = LocalDate.of(2014, 4, 1),
+              descriptionCode = 2690,
+              amount          = -500.00,
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             )
           )
 

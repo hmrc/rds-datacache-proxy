@@ -40,11 +40,11 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
   var penaltiesRs: ResultSet = _
 
   before {
-    db               = mock(classOf[Database])
-    mockConnection   = mock(classOf[Connection])
-    mockCs           = mock(classOf[CallableStatement])
-    itemsRs          = mock(classOf[ResultSet])
-    penaltiesRs      = mock(classOf[ResultSet])
+    db             = mock(classOf[Database])
+    mockConnection = mock(classOf[Connection])
+    mockCs         = mock(classOf[CallableStatement])
+    itemsRs        = mock(classOf[ResultSet])
+    penaltiesRs    = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -77,7 +77,7 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
 
       val result = repository.getPenalties(regNumber, 1, 10).futureValue
 
-      result shouldBe validResponsePenaltiesSmall
+      result            shouldBe validResponsePenaltiesSmall
       result.items.size shouldBe 1
 
       verify(mockCs).setString(1, regNumber)
@@ -110,7 +110,7 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
       when(mockCs.getDate(2)).thenReturn(null)
       val result = repository.getPenalties(regNumber, 1, 10).futureValue
 
-      result       shouldBe Penalties(None, None, None, None, List())
+      result       shouldBe Penalties(None, None, BigDecimal(0), 0, List())
       result.items shouldBe empty
 
       verify(mockCs).setString(1, regNumber)
@@ -142,7 +142,7 @@ class PenaltiesDataCacheRepositorySpec extends AnyWordSpec with Matchers with Be
 
       val result = repository.getPenalties(regNumber, 1, 10).futureValue
 
-      result shouldBe Penalties(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
+      result shouldBe Penalties(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
 
       verify(mockCs).setString(1, regNumber)
       verify(mockCs).setInt(2, 1)
