@@ -18,18 +18,18 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceItem, AssessmentsInAbsence}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, AssessmentsInAbsenceItem}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AssessmentsWithoutDataSource {
+trait AssessmentsInAbsenceDataSource {
   def getAssessmentsWithoutReturn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence]
 }
 
 @Singleton
 class AssessmentsInAbsenceDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
-    extends AssessmentsWithoutDataSource
+    extends AssessmentsInAbsenceDataSource
     with RepositorySupport
     with Logging {
 
