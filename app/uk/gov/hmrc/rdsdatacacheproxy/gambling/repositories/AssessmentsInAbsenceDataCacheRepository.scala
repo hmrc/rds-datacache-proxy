@@ -23,13 +23,13 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceItem, 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AssessmentsDataSource {
+trait AssessmentsWithoutDataSource {
   def getAssessmentsWithoutReturn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence]
 }
 
 @Singleton
-class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
-    extends AssessmentsDataSource
+class AssessmentsInAbsenceDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
+    extends AssessmentsWithoutDataSource
     with RepositorySupport
     with Logging {
 
@@ -47,10 +47,10 @@ class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: D
           cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
           cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
           cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
-          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_OTHER_ASSESSMENTS (REF CURSOR)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_ASSESSMENTS_NO_RETURNS (REF CURSOR)
           cs.execute()
 
-          val assessments: List[AssessmentsInAbsenceItem] = {
+          val assessmentsWithoutReturns: List[AssessmentsInAbsenceItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
@@ -74,7 +74,7 @@ class AssessmentsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: D
             periodEndDate   = optDate(5, cs),
             total           = optDecimalFromIndex(6, cs),
             totalRecords    = optInt(7, cs),
-            items           = assessments
+            items           = assessmentsWithoutReturns
           )
 
         } finally {

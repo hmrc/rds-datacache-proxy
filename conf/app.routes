@@ -44,7 +44,8 @@ GET        /gambling/business-contact-details/mgd/:mgdRegNumber  uk.gov.hmrc.rds
 
 
 #Gambling Returns routes
-GET        /gambling/returns-submitted/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReturnsController.getReturnsSubmitted(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
-GET        /gambling/reallocations-in/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReallocationsController.getReallocationsIn(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
-GET        /gambling/reallocations-out/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReallocationsController.getReallocationsOut(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
-GET        /gambling/other-assessments/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AssessmentsController.getOtherAssessments(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/returns-submitted/:regime/:regNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReturnsController.getReturnsSubmitted(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/reallocations-in/:regime/:regNumber             uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReallocationsController.getReallocationsIn(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/reallocations-out/:regime/:regNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReallocationsController.getReallocationsOut(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/other-assessments/:regime/:regNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AssessmentsController.getOtherAssessments(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/assessments-without-returns/:regime/:regNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AssessmentsInAbsenceController.getAssessmentsWithoutReturn(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)

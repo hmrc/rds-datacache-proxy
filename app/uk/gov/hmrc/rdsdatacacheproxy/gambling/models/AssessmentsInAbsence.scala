@@ -5,7 +5,9 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 final case class AssessmentsInAbsenceItem(
-                                   dateProcessed: Option[LocalDate],
+                                   periodStartDate: Option[LocalDate],
+                                   periodEndDate: Option[LocalDate],
+                                   dateRaised: Option[LocalDate],
                                    amount: Option[BigDecimal]
                                  )
 
