@@ -37,7 +37,7 @@ class PenaltiesService @Inject() (
   ): Future[Either[StatementError, Penalties]] = {
 
     lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[PenaltiesController][getPenalties] $reqText")
+    logger.info(s"[PenaltiesService][getPenalties] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
     Future
