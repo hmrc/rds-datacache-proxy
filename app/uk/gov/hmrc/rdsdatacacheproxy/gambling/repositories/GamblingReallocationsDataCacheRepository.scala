@@ -24,26 +24,31 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReallocationsDataSource {
-  def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
+  def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
   def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut]
 }
 
 @Singleton
-class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
+class GamblingReallocationsDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") mgdDb: Database,
+  @NamedDatabase("gambling.gtr") gtrDb: Database
+)(implicit ec: ExecutionContext)
     extends GamblingReallocationsDataSource
     with RepositorySupport
     with Logging {
 
-  override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] = {
+  override def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] = {
 
     logger.info(
-      s"[GamblingReturnsDataCacheRepository][ReallocationsIn] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
+      s"[GamblingReturnsDataCacheRepository][ReallocationsIn] regime=$regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
     )
 
     Future {
-      db.withConnection { connection =>
-
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+      getDb(regime).withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -90,11 +95,11 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
 
   override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] = {
     logger.info(
-      s"[GamblingReturnsDataCacheRepository][ReallocationsOut] regNumber=$regNumber paginationStart=$paginationStart paginationMaxRows=$paginationMaxRows"
+      s"[GamblingReturnsDataCacheRepository][ReallocationsOut] regime= $regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
     )
 
     Future {
-      db.withConnection { connection =>
+      getDb(regime).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -143,4 +148,9 @@ class GamblingReallocationsDataCacheRepository @Inject() (@NamedDatabase("gambli
       }
     }(ec)
   }
+
+  private def getDb(regime: Regime): Database =
+    regime match
+      case Regime.MGD => mgdDb
+      case _          => gtrDb
 }

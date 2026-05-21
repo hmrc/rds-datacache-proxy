@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class GamblingReallocationsRdsStub extends GamblingReallocationsDataSource {
-    override def getReallocationsIn(regNumber: String, pageNo: Int, pageSize: Int): Future[Reallocations] =
+    override def getReallocationsIn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Reallocations] =
       Future(GamblingReallocationsStubData.getReallocationsInData(regNumber, pageNo, pageSize))
 
     override def getReallocationsOut(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[ReallocationsOut] =

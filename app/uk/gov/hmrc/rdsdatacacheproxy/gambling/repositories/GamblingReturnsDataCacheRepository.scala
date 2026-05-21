@@ -18,26 +18,31 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, ReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AmountDeclared, Regime, ReturnsSubmitted}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait GamblingReturnsDataSource {
-  def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted]
+  def getReturnsSubmitted(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted]
 }
 
 @Singleton
-class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
+class GamblingReturnsDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") mgdDb: Database,
+  @NamedDatabase("gambling.gtr") gtrDb: Database
+)(implicit ec: ExecutionContext)
     extends GamblingReturnsDataSource
     with RepositorySupport
     with Logging {
 
-  override def getReturnsSubmitted(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
+  override def getReturnsSubmitted(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
     Future {
-      db.withConnection { connection =>
-
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
+      getDb(regime).withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -83,4 +88,8 @@ class GamblingReturnsDataCacheRepository @Inject() (@NamedDatabase("gambling") d
       }
     }(ec)
 
+  private def getDb(regime: Regime): Database =
+    regime match
+      case Regime.MGD => mgdDb
+      case _          => gtrDb
 }

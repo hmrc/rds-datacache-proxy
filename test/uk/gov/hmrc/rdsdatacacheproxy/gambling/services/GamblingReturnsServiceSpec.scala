@@ -20,9 +20,10 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReturnsSubmitted}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseReturnsSubmitted
 
 import scala.concurrent.Future
 
@@ -36,19 +37,20 @@ final class GamblingReturnsServiceSpec extends SpecBase {
     reset(repository)
   }
 
+  private val validRegime = Regime.values.head
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
   "GamblingReturnsService#getReturnsSubmitted" - {
 
     "return validResponseReturnsSubmitted when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.successful(validResponseReturnsSubmitted))
 
-      val result = service.getReturnsSubmitted(validRegime, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
       result mustBe Right(validResponseReturnsSubmitted)
-      verify(repository).getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
 
@@ -60,17 +62,17 @@ final class GamblingReturnsServiceSpec extends SpecBase {
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getReturnsSubmitted(validRegime, invalidRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted(validRegime.toString, invalidRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getReturnsSubmitted(validRegime, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getReturnsSubmitted(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getReturnsSubmitted(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }
