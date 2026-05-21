@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
@@ -34,27 +34,32 @@ class AssessmentsService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getOtherAssessments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getOtherAssessments(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Assessments]] = {
 
-    lazy val reqText = s"regime=$regime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[AssessmentsService][getOtherAssessments] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
-    if (!ValidRegimes.contains(regime.trim.toLowerCase()))
-      logger.error(s"[AssessmentsService][getOtherAssessments] Invalid Regime Code $reqText")
-      Future.successful(Left(InvalidRegimeCode))
-    else if (!regNumberPattern.matcher(regNumber).matches())
-      logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
-      Future.successful(Left(InvalidRegNumber))
-    else
-      repository
-        .getOtherAssessments(regNumber, paginationStart, paginationMaxRows)
-        .map(assessments => Right(assessments))
-        .recover { case ex: Exception =>
-          logger.error(s"[AssessmentsService][getOtherAssessments] Unexpected error $reqText", ex)
-          Left(UnexpectedError)
-        }
+    Future
+      .successful(Regime.fromString(rawRegime.trim))
+      .flatMap {
+        case Right(regime) =>
+          if (!regNumberPattern.matcher(regNumber).matches())
+            logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
+            Future.successful(Left(InvalidRegNumber))
+          else
+            repository
+              .getOtherAssessments(regime, regNumber, paginationStart, paginationMaxRows)
+              .map(assessments => Right(assessments))
+              .recover { case ex: Exception =>
+                logger.error(s"[AssessmentsService][getOtherAssessments] Unexpected error $reqText", ex)
+                Left(UnexpectedError)
+              }
+        case Left(error) =>
+          logger.error(s"[AssessmentsService][getOtherAssessments] Invalid Regime Code $rawRegime")
+          Future.successful(Left(error))
+      }
   }
 }

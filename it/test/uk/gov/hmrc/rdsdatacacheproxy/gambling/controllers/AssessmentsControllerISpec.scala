@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Assessments
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getOtherAssessmentsData
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class AssessmentsRdsStub extends AssessmentsDataSource {
-    override def getOtherAssessments(regNumber: String, pageNo: Int, pageSize: Int) =
+    override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
         AssessmentsStubData.getOtherAssessmentsData(regNumber, pageNo, pageSize)
       }
