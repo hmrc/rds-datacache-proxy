@@ -28,21 +28,25 @@ trait AssessmentsInAbsenceDataSource {
 }
 
 @Singleton
-class AssessmentsDataCacheRepository @Inject() (
-                                                 @NamedDatabase("gambling") mgdDb: Database,
-                                                 @NamedDatabase("gambling.gtr") gtrDb: Database
-                                               )(implicit ec: ExecutionContext)
+class AssessmentsInAbsenceDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") mgdDb: Database,
+  @NamedDatabase("gambling.gtr") gtrDb: Database
+)(implicit ec: ExecutionContext)
     extends AssessmentsInAbsenceDataSource
     with RepositorySupport
     with Logging {
 
-  override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence] =
+  override def getAssessmentsWithoutReturn(regime: Regime,
+                                           regNumber: String,
+                                           paginationStart: Int,
+                                           paginationMaxRows: Int
+                                          ): Future[AssessmentsInAbsence] =
     Future {
       getDb(regime).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
-            case _ => connection.prepareCall("{ call GTR_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -91,5 +95,5 @@ class AssessmentsDataCacheRepository @Inject() (
   private def getDb(regime: Regime): Database =
     regime match
       case Regime.MGD => mgdDb
-      case _ => gtrDb
+      case _          => gtrDb
 }

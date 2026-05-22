@@ -68,11 +68,11 @@ final class AssessmentsInAbsenceServiceSpec extends SpecBase {
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getAssessmentsWithoutReturn(eqTo(validRegime),eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
       val result = service.getAssessmentsWithoutReturn(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getAssessmentsWithoutReturn(eqTo(validRegime),eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }

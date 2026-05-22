@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
@@ -46,7 +47,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
   )
 
   before {
-    Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsRs)
+    Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsWithoutRs)
     when(mgdDb.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
@@ -78,7 +79,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
       when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
       when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
 
-      val result = repository.getAssessmentsWithoutReturn(Regime.MGD,regNumber, 1, 10).futureValue
+      val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
       result            shouldBe validResponseAssessmentsInAbsenceSmall
       result.items.size shouldBe 1
@@ -115,8 +116,8 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
         when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
         when(mockCsGtr.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
         when(mockCsGtr.getObject(7)).thenReturn(1)
-        when(mockCsGtr.getObject(8)).thenReturn(assessmentsRs)
-        when(assessmentsRs.next()).thenReturn(true, false)
+        when(mockCsGtr.getObject(8)).thenReturn(assessmentsWithoutRs)
+        when(assessmentsWithoutRs.next()).thenReturn(true, false)
 
         when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-1-01"))
         when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
@@ -125,7 +126,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
 
         val result = repository.getAssessmentsWithoutReturn(regime, regNumber, 1, 10).futureValue
 
-        result shouldBe validResponseAssessmentsInAbsenceSmall
+        result            shouldBe validResponseAssessmentsInAbsenceSmall
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)
@@ -149,63 +150,64 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
         verify(assessmentsWithoutRs).close()
         verify(mockCsGtr).close()
       }
-      
-    "return empty OtherAssessments when regNumber is null" in {
-      val regNumber: Null = null
-      when(mockCsMgd.getDate(2)).thenReturn(null)
-      val result = repository.getAssessmentsWithoutReturn(Regime.MGD,regNumber, 1, 10).futureValue
 
-      result       shouldBe AssessmentsInAbsence(None, None, None, None, List())
-      result.items shouldBe empty
+      s"return empty AssessmentsInAbsence when regNumber is null for regime $regime" in {
+        val regNumber: Null = null
+        when(mockCsMgd.getDate(2)).thenReturn(null)
+        val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      verify(mockCsMgd).setString(1, regNumber)
-      verify(mockCsMgd).setInt(2, 1)
-      verify(mockCsMgd).setInt(3, 10)
-      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCsMgd).execute()
+        result       shouldBe AssessmentsInAbsence(None, None, None, None, List())
+        result.items shouldBe empty
 
-      verify(mockCsMgd).getDate(4)
-      verify(mockCsMgd).getDate(5)
-      verify(mockCsMgd).getBigDecimal(6)
-      verify(mockCsMgd).getObject(7)
-      verify(mockCsMgd).getObject(8)
-      verify(assessmentsWithoutRs, times(0)).next()
-      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
-      verify(assessmentsWithoutRs, times(0)).close()
-      verify(mockCsMgd).close()
-    }
+        verify(mockCsMgd).setString(1, regNumber)
+        verify(mockCsMgd).setInt(2, 1)
+        verify(mockCsMgd).setInt(3, 10)
+        verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+        verify(mockCsMgd).execute()
 
-    "return Empty List when AmountDeclared result set is empty" in {
-      val regNumber = "XWM00000001770"
-      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
-      when(mockCsMgd.getObject(7)).thenReturn(0)
-      when(assessmentsWithoutRs.next()).thenReturn(false)
+        verify(mockCsMgd).getDate(4)
+        verify(mockCsMgd).getDate(5)
+        verify(mockCsMgd).getBigDecimal(6)
+        verify(mockCsMgd).getObject(7)
+        verify(mockCsMgd).getObject(8)
+        verify(assessmentsWithoutRs, times(0)).next()
+        verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+        verify(assessmentsWithoutRs, times(0)).close()
+        verify(mockCsMgd).close()
+      }
 
-      val result = repository.getAssessmentsWithoutReturn(Regime.MGD,regNumber, 1, 10).futureValue
+      s"return Empty List when AmountDeclared result set is empty for regime $regime" in {
+        val regNumber = "XWM00000001770"
+        when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+        when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+        when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+        when(mockCsMgd.getObject(7)).thenReturn(0)
+        when(assessmentsWithoutRs.next()).thenReturn(false)
 
-      result shouldBe AssessmentsInAbsence(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
+        val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      verify(mockCsMgd).setString(1, regNumber)
-      verify(mockCsMgd).setInt(2, 1)
-      verify(mockCsMgd).setInt(3, 10)
-      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCsMgd).execute()
+        result shouldBe AssessmentsInAbsence(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
 
-      verify(mockCsMgd).getDate(4)
-      verify(mockCsMgd).getDate(5)
-      verify(mockCsMgd).getBigDecimal(6)
-      verify(mockCsMgd).getObject(7)
-      verify(mockCsMgd).getObject(8)
-      verify(assessmentsWithoutRs, times(0)).next()
-      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
-      verify(assessmentsWithoutRs, times(0)).close()
-      verify(mockCsMgd).close()
+        verify(mockCsMgd).setString(1, regNumber)
+        verify(mockCsMgd).setInt(2, 1)
+        verify(mockCsMgd).setInt(3, 10)
+        verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+        verify(mockCsMgd).execute()
+
+        verify(mockCsMgd).getDate(4)
+        verify(mockCsMgd).getDate(5)
+        verify(mockCsMgd).getBigDecimal(6)
+        verify(mockCsMgd).getObject(7)
+        verify(mockCsMgd).getObject(8)
+        verify(assessmentsWithoutRs, times(0)).next()
+        verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+        verify(assessmentsWithoutRs, times(0)).close()
+        verify(mockCsMgd).close()
+      }
     }
   }
 }
