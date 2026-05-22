@@ -22,15 +22,15 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseReturnsSubmitted
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PenaltiesDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponsePenalties
 
 import scala.concurrent.Future
 
-final class GamblingReturnsServiceSpec extends SpecBase {
+final class PenaltiesServiceSpec extends SpecBase {
 
-  private val repository = mock[GamblingReturnsDataSource]
-  private val service = new GamblingReturnsService(repository)
+  private val repository = mock[PenaltiesDataSource]
+  private val service = new PenaltiesService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -41,38 +41,38 @@ final class GamblingReturnsServiceSpec extends SpecBase {
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
-  "GamblingReturnsService#getReturnsSubmitted" - {
+  "PenaltiesService#getPenalties" - {
 
-    "return validResponseReturnsSubmitted when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
-        .thenReturn(Future.successful(validResponseReturnsSubmitted))
+    "return validResponsePenalties when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
+      when(repository.getPenalties(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+        .thenReturn(Future.successful(validResponsePenalties))
 
-      val result = service.getReturnsSubmitted(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getPenalties(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
-      result mustBe Right(validResponseReturnsSubmitted)
-      verify(repository).getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      result mustBe Right(validResponsePenalties)
+      verify(repository).getPenalties(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegimeError and not call repository when Regime input is invalid" in {
-      val result = service.getReturnsSubmitted("INVALID", lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getPenalties("INVALID", lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getReturnsSubmitted(validRegime.toString, invalidRegNumber, 1, 10).futureValue
+      val result = service.getPenalties(validRegime.toString, invalidRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getPenalties(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getReturnsSubmitted(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getPenalties(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getReturnsSubmitted(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getPenalties(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }

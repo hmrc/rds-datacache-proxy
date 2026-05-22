@@ -45,13 +45,13 @@ final class GamblingReallocationsServiceSpec extends SpecBase {
   "GamblingReturnsService#getReallocationsIn" - {
 
     "return validResponseReallocationsIn when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getReallocationsIn(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getReallocationsIn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.successful(validResponseReallocationsIn))
 
       val result = service.getReallocationsIn(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
       result mustBe Right(validResponseReallocationsIn)
-      verify(repository).getReallocationsIn(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getReallocationsIn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
 
@@ -69,11 +69,11 @@ final class GamblingReallocationsServiceSpec extends SpecBase {
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getReallocationsIn(eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getReallocationsIn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
       val result = service.getReallocationsIn(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getReallocationsIn(eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getReallocationsIn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }

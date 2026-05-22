@@ -31,7 +31,7 @@ import scala.concurrent.Future
 class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   class GamblingReallocationsRdsStub extends GamblingReallocationsDataSource {
-    override def getReallocationsIn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] =
+    override def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] =
       Future.successful(getReallocationsInData(regNumber, paginationStart, paginationMaxRows))
 
     override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] =
@@ -47,33 +47,33 @@ class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Mat
   "getReallocationsIn (stubbed repository)" should {
 
     "return correct ReallocationsInData" in {
-      val result = repository.getReallocationsIn("XYZ00000000000", 1, 10).futureValue
+      val result = repository.getReallocationsIn(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
       result mustBe getReallocationsInData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
-      val result = repository.getReallocationsIn("XYZ00000000001", 1, 10).futureValue
+      val result = repository.getReallocationsIn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
       result mustBe getReallocationsInData("XYZ00000000001")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getReallocationsIn("XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getReallocationsIn("XYZ00000000012", 1, 10).futureValue
+      val result1 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
+      val result2 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getReallocationsIn("XYZ00000000010", 1, 10).futureValue
-      val result2 = repository.getReallocationsIn("XYZ00000000001", 1, 10).futureValue
+      val result1 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000010", 1, 10).futureValue
+      val result2 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
 
       result1 must not be result2
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReallocationsIn("ERR00000000000", 1, 10).futureValue
+        repository.getReallocationsIn(Regime.MGD, "ERR00000000000", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

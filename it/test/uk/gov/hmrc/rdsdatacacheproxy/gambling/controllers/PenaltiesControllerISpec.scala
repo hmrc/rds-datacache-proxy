@@ -23,21 +23,21 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getOtherAssessmentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PenaltiesDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PenaltiesStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PenaltiesStubData.getPenaltiesData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class PenaltiesControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class AssessmentsRdsStub extends AssessmentsDataSource {
-    override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
+  class PenaltiesRdsStub extends PenaltiesDataSource {
+    override def getPenalties(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
-        AssessmentsStubData.getOtherAssessmentsData(regNumber, pageNo, pageSize)
+        PenaltiesStubData.getPenaltiesData(regNumber, pageNo, pageSize)
       }
   }
 
@@ -45,16 +45,16 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub)
+        bind[PenaltiesDataSource].toInstance(new PenaltiesRdsStub)
       )
       .build()
 
-  private final val endpoint = "/gambling/other-assessments"
+  private final val endpoint = "/gambling/penalties"
   private final val GBD = "gbd"
-  
-  "GET /gambling/other-assessments (stubbed repo, no DB)" should {
 
-    "return 200 with correct OtherAssessmentsData" in {
+  "GET /gambling/penalties (stubbed repo, no DB)" should {
+
+    "return 200 with correct PenaltiesData" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
@@ -62,10 +62,10 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000000")
+      response.json.as[Penalties] mustBe getPenaltiesData("XYZ00000000000")
     }
 
-    "return 200 with correct OtherAssessmentsData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct PenaltiesData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
@@ -73,21 +73,21 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ99999999999")
+      response.json.as[Penalties] mustBe getPenaltiesData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
+      response.json.as[Penalties] mustBe getPenaltiesData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
+      response.json.as[Penalties] mustBe getPenaltiesData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {
