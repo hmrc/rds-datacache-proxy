@@ -18,26 +18,31 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, AssessmentsInAbsenceItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, AssessmentsInAbsenceItem, Regime}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AssessmentsInAbsenceDataSource {
-  def getAssessmentsWithoutReturn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence]
+  def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence]
 }
 
 @Singleton
-class AssessmentsInAbsenceDataCacheRepository @Inject() (@NamedDatabase("gambling") db: Database)(implicit ec: ExecutionContext)
+class AssessmentsDataCacheRepository @Inject() (
+                                                 @NamedDatabase("gambling") mgdDb: Database,
+                                                 @NamedDatabase("gambling.gtr") gtrDb: Database
+                                               )(implicit ec: ExecutionContext)
     extends AssessmentsInAbsenceDataSource
     with RepositorySupport
     with Logging {
 
-  override def getAssessmentsWithoutReturn(regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence] =
+  override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence] =
     Future {
-      db.withConnection { connection =>
-
-        val cs = connection.prepareCall("{ call GTR_LNP_PK.getGTRAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
+      getDb(regime).withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _ => connection.prepareCall("{ call GTR_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -83,4 +88,8 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (@NamedDatabase("gamblin
       }
     }(ec)
 
+  private def getDb(regime: Regime): Database =
+    regime match
+      case Regime.MGD => mgdDb
+      case _ => gtrDb
 }

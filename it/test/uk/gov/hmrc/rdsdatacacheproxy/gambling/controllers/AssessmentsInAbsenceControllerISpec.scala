@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.AssessmentsInAbsence
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceStubData.getAssessmentsWithoutReturnData
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class AssessmentsInAbsenceControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class AssessmentsInAbsenceRdsStub extends AssessmentsInAbsenceDataSource {
-    override def getAssessmentsWithoutReturn(regNumber: String, pageNo: Int, pageSize: Int) =
+    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
       AssessmentsInAbsenceStubData.getAssessmentsWithoutReturnData(regNumber, pageNo, pageSize)
       }
