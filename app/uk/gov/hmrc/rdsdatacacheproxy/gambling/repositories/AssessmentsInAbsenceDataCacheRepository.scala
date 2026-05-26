@@ -45,8 +45,8 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (
       getDb(regime).withConnection { connection =>
         val cs =
           regime match
-            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
-            case _          => connection.prepareCall("{ call GTR_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -81,8 +81,8 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (
           AssessmentsInAbsence(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
-            total           = optDecimalFromIndex(6, cs),
-            totalRecords    = optInt(7, cs),
+            total           = optDecimalFromIndex(6, cs).getOrElse(0),
+            totalRecords    = optInt(7, cs).getOrElse(0),
             items           = assessmentsWithoutReturns
           )
 

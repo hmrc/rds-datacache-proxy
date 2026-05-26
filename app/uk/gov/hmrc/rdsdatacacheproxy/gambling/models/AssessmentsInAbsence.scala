@@ -34,8 +34,8 @@ object AssessmentsInAbsenceItem {
 final case class AssessmentsInAbsence(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
-  total: Option[BigDecimal],
-  totalRecords: Option[Int],
+  total: BigDecimal,
+  totalRecords: Int,
   items: Seq[AssessmentsInAbsenceItem]
 )
 

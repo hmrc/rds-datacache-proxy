@@ -17,7 +17,6 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
@@ -33,21 +32,26 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private val gtrDb: Database = mock(classOf[Database])
-  private val mgdDb: Database = mock(classOf[Database])
-  private val mgdMockConnection: Connection = mock(classOf[Connection])
-  private val gtrMockConnection: Connection = mock(classOf[Connection])
-  private val mockCsMgd: CallableStatement = mock(classOf[CallableStatement])
-  private val mockCsGtr: CallableStatement = mock(classOf[CallableStatement])
-  private val amountDeclaredRs: ResultSet = mock(classOf[ResultSet])
-  private val assessmentsWithoutRs: ResultSet = mock(classOf[ResultSet])
-  private val repository: AssessmentsInAbsenceDataCacheRepository = new AssessmentsInAbsenceDataCacheRepository(
-    mgdDb = mgdDb,
-    gtrDb = gtrDb
-  )
+  private var mgdDb: Database = _
+  private var gtrDb: Database = _
+  var repository: AssessmentsInAbsenceDataCacheRepository = _
+  private var mgdMockConnection: Connection = _
+  private var gtrMockConnection: Connection = _
+  private var mockCsMgd: CallableStatement = _
+  private var mockCsGtr: CallableStatement = _
+  var itemsRs: ResultSet = _
+  var assessmentsWithoutRs: ResultSet = _
 
   before {
-    Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsWithoutRs)
+    mgdDb                = mock(classOf[Database])
+    gtrDb                = mock(classOf[Database])
+    mgdMockConnection    = mock(classOf[Connection])
+    gtrMockConnection    = mock(classOf[Connection])
+    mockCsMgd            = mock(classOf[CallableStatement])
+    mockCsGtr            = mock(classOf[CallableStatement])
+    itemsRs              = mock(classOf[ResultSet])
+    assessmentsWithoutRs = mock(classOf[ResultSet])
+
     when(mgdDb.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
@@ -58,26 +62,32 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
       fn(gtrMockConnection)
     }
 
-    when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
-    when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+    when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
+    when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+
+    repository = new AssessmentsInAbsenceDataCacheRepository(
+      mgdDb = mgdDb,
+      gtrDb = gtrDb
+    )
   }
 
   "getAssessmentsWithoutReturn" should {
-    "return AssessmentsWithoutReturn when regime is MGD and stored procedure returns data" in {
+    "return assessments without return for MGD/GTR regime when stored procedure returns data" in {
 
       val regNumber = "XWM12345678901"
 
-      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-301.56))
       when(mockCsMgd.getObject(7)).thenReturn(1)
       when(mockCsMgd.getObject(8)).thenReturn(assessmentsWithoutRs)
+
       when(assessmentsWithoutRs.next()).thenReturn(true, false)
 
-      when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-1-01"))
-      when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
-      when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
-      when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
+      when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-01-01"))
+      when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-943.21))
+      when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-03-09"))
+      when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-05-20"))
 
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
@@ -97,32 +107,91 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
       verify(mockCsMgd).getBigDecimal(6)
       verify(mockCsMgd).getObject(7)
       verify(mockCsMgd).getObject(8)
+
       verify(assessmentsWithoutRs, times(2)).next()
       verify(assessmentsWithoutRs).getDate("p_date_raised")
+      verify(assessmentsWithoutRs).getObject("p_amount")
       verify(assessmentsWithoutRs).getDate("p_period_start")
       verify(assessmentsWithoutRs).getDate("p_period_end")
-      verify(assessmentsWithoutRs).getObject("p_amount")
+
       verify(assessmentsWithoutRs).close()
       verify(mockCsMgd).close()
-
     }
 
-    Regime.values.toList.filter(_ != Regime.MGD).foreach { regime =>
-      s"return AssessmentWithoutReturn when regime is $regime and stored procedure returns data" in {
+    "return empty Assessments when regNumber is null" in {
+      val regNumber: Null = null
+      when(mockCsMgd.getDate(2)).thenReturn(null)
+      val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result       shouldBe AssessmentsInAbsence(None, None, BigDecimal(0), 0, List())
+      result.items shouldBe empty
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+      verify(assessmentsWithoutRs, times(0)).next()
+      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsWithoutRs, times(0)).close()
+      verify(mockCsMgd).close()
+    }
+
+    "return Empty List when Assessments result set is empty" in {
+      val regNumber = "XWM00000001770"
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(7)).thenReturn(0)
+      when(assessmentsWithoutRs.next()).thenReturn(false)
+
+      val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result shouldBe AssessmentsInAbsence(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+      verify(assessmentsWithoutRs, times(0)).next()
+      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsWithoutRs, times(0)).close()
+      verify(mockCsMgd).close()
+    }
+
+    Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
+      s"return Assessments for $regime regime when stored procedure returns data" in {
 
         val regNumber = "XWM12345678901"
 
-        when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-        when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-        when(mockCsGtr.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
+        when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+        when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
+        when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-301.56))
         when(mockCsGtr.getObject(7)).thenReturn(1)
         when(mockCsGtr.getObject(8)).thenReturn(assessmentsWithoutRs)
-        when(assessmentsWithoutRs.next()).thenReturn(true, false)
 
-        when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-1-01"))
-        when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-3-09"))
-        when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-5-20"))
-        when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(BigDecimal.valueOf(-943.21))
+        when(assessmentsWithoutRs.next()).thenReturn(true, false)
+        when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-01-01"))
+        when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-943.21))
+        when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-03-09"))
+        when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-05-20"))
 
         val result = repository.getAssessmentsWithoutReturn(regime, regNumber, 1, 10).futureValue
 
@@ -132,9 +201,13 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
         verify(mockCsGtr).setString(1, regNumber)
         verify(mockCsGtr).setInt(2, 1)
         verify(mockCsGtr).setInt(3, 10)
+
         verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
         verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
         verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
         verify(mockCsGtr).execute()
 
         verify(mockCsGtr).getDate(4)
@@ -142,72 +215,17 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
         verify(mockCsGtr).getBigDecimal(6)
         verify(mockCsGtr).getObject(7)
         verify(mockCsGtr).getObject(8)
+
         verify(assessmentsWithoutRs, times(2)).next()
         verify(assessmentsWithoutRs).getDate("p_date_raised")
+        verify(assessmentsWithoutRs).getObject("p_amount")
         verify(assessmentsWithoutRs).getDate("p_period_start")
         verify(assessmentsWithoutRs).getDate("p_period_end")
-        verify(assessmentsWithoutRs).getObject("p_amount")
+
         verify(assessmentsWithoutRs).close()
         verify(mockCsGtr).close()
       }
-
-      s"return empty AssessmentsInAbsence when regNumber is null for regime $regime" in {
-        val regNumber: Null = null
-        when(mockCsMgd.getDate(2)).thenReturn(null)
-        val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
-
-        result       shouldBe AssessmentsInAbsence(None, None, None, None, List())
-        result.items shouldBe empty
-
-        verify(mockCsMgd).setString(1, regNumber)
-        verify(mockCsMgd).setInt(2, 1)
-        verify(mockCsMgd).setInt(3, 10)
-        verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-        verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-        verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-        verify(mockCsMgd).execute()
-
-        verify(mockCsMgd).getDate(4)
-        verify(mockCsMgd).getDate(5)
-        verify(mockCsMgd).getBigDecimal(6)
-        verify(mockCsMgd).getObject(7)
-        verify(mockCsMgd).getObject(8)
-        verify(assessmentsWithoutRs, times(0)).next()
-        verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
-        verify(assessmentsWithoutRs, times(0)).close()
-        verify(mockCsMgd).close()
-      }
-
-      s"return Empty List when AmountDeclared result set is empty for regime $regime" in {
-        val regNumber = "XWM00000001770"
-        when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-        when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
-        when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
-        when(mockCsMgd.getObject(7)).thenReturn(0)
-        when(assessmentsWithoutRs.next()).thenReturn(false)
-
-        val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
-
-        result shouldBe AssessmentsInAbsence(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
-
-        verify(mockCsMgd).setString(1, regNumber)
-        verify(mockCsMgd).setInt(2, 1)
-        verify(mockCsMgd).setInt(3, 10)
-        verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
-        verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-        verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
-        verify(mockCsMgd).execute()
-
-        verify(mockCsMgd).getDate(4)
-        verify(mockCsMgd).getDate(5)
-        verify(mockCsMgd).getBigDecimal(6)
-        verify(mockCsMgd).getObject(7)
-        verify(mockCsMgd).getObject(8)
-        verify(assessmentsWithoutRs, times(0)).next()
-        verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
-        verify(assessmentsWithoutRs, times(0)).close()
-        verify(mockCsMgd).close()
-      }
     }
+
   }
 }

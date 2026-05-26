@@ -186,8 +186,8 @@ object GamblingTestUtil {
   val validResponseAssessmentsInAbsence = AssessmentsInAbsence(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-    total           = Some(-24500.00),
-    totalRecords    = Some(3),
+    total           = -24500.00,
+    totalRecords    = 3,
     items = Seq(
       AssessmentsInAbsenceItem(
         dateRaised      = Some(LocalDate.of(2014, 1, 1)),
@@ -213,8 +213,8 @@ object GamblingTestUtil {
   val validResponseAssessmentsInAbsenceSmall = AssessmentsInAbsence(
     periodStartDate = Some(LocalDate.of(2016, 2, 29)),
     periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
-    total           = Some(-301.56),
-    totalRecords    = Some(1),
+    total           = -301.56,
+    totalRecords    = 1,
     items = Seq(
       AssessmentsInAbsenceItem(dateRaised      = Some(LocalDate.of(2016, 1, 1)),
                                periodStartDate = Some(LocalDate.of(2016, 3, 9)),
