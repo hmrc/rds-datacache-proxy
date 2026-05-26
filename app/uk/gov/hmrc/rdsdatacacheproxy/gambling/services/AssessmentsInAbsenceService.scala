@@ -27,8 +27,6 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPatte
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-private final val ValidRegimes = List("mgd", "gbd", "pbd", "rgd")
-
 class AssessmentsInAbsenceService @Inject() (
   repository: AssessmentsInAbsenceDataSource
 )(implicit ec: ExecutionContext)

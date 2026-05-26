@@ -56,7 +56,7 @@ class AssessmentsInAbsenceDataCacheRepositoryISpec extends AnyWordSpec with Matc
 
     "return consistent results across multiple calls" in {
       val result1 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getAssessmentsWithoutReturn("XYZ00000000012", 1, 10).futureValue
+      val result2 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000012", 1, 10).futureValue
 
       result1 mustBe result2
     }
