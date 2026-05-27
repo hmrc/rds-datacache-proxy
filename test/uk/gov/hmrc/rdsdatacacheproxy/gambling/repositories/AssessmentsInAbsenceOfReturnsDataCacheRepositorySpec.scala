@@ -24,7 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsenceOfReturnsSmall
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessmentsSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
@@ -91,7 +91,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
 
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result            shouldBe validResponseAssessmentsInAbsenceOfReturnsSmall
+      result            shouldBe validResponseOtherAssessmentsSmall
       result.items.size shouldBe 1
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -123,7 +123,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result       shouldBe AssessmentsInAbsenceOfReturns(None, None, BigDecimal(0), 0, List())
+      result       shouldBe Assessments(None, None, None, None, List())
       result.items shouldBe empty
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -147,15 +147,15 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
 
     "return Empty List when Assessments result set is empty" in {
       val regNumber = "XWM00000001770"
-      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
-      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
       when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-301.56))
       when(mockCsMgd.getObject(7)).thenReturn(0)
       when(assessmentsWithoutRs.next()).thenReturn(false)
 
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result shouldBe AssessmentsInAbsenceOfReturns(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
+      result shouldBe Assessments(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), Some(-301.56), Some(0), List())
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 1)
@@ -195,7 +195,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
 
         val result = repository.getAssessmentsWithoutReturn(regime, regNumber, 1, 10).futureValue
 
-        result            shouldBe validResponseAssessmentsInAbsenceOfReturnsSmall
+        result            shouldBe validResponseOtherAssessmentsSmall
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)

@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsenceOfReturns
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessments
 
 import scala.concurrent.Future
 
@@ -45,11 +45,11 @@ final class AssessmentsInAbsenceOfReturnsServiceSpec extends SpecBase {
 
     "return validResponseAssessmentsWithoutReturn when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
-        .thenReturn(Future.successful(validResponseAssessmentsInAbsenceOfReturns))
+        .thenReturn(Future.successful(validResponseOtherAssessments))
 
       val result = service.getAssessmentsInAbsenceOfReturns(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
-      result mustBe Right(validResponseAssessmentsInAbsenceOfReturns)
+      result mustBe Right(validResponseOtherAssessments)
       verify(repository).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }

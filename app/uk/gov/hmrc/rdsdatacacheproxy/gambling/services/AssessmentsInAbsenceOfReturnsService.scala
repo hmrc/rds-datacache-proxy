@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
@@ -34,7 +34,7 @@ class AssessmentsInAbsenceOfReturnsService @Inject() (
 
   def getAssessmentsInAbsenceOfReturns(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, AssessmentsInAbsenceOfReturns]] = {
+  ): Future[Either[StatementError, Assessments]] = {
 
     lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] $reqText")

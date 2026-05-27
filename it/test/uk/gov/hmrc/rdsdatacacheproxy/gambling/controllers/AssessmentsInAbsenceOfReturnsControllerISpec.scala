@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceOfReturnsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceOfReturnsStubData.getAssessmentsWithoutReturnData
@@ -62,7 +62,7 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[AssessmentsInAbsenceOfReturns] mustBe getAssessmentsWithoutReturnData("XYZ00000000000")
+      response.json.as[Assessments] mustBe getAssessmentsWithoutReturnData("XYZ00000000000")
     }
 
     "return 200 with correct AssessmentsWithoutReturnData when pageNo & pageSize NOT provided" in {
@@ -73,21 +73,21 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[AssessmentsInAbsenceOfReturns] mustBe getAssessmentsWithoutReturnData("XYZ99999999999")
+      response.json.as[Assessments] mustBe getAssessmentsWithoutReturnData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[AssessmentsInAbsenceOfReturns] mustBe getAssessmentsWithoutReturnData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getAssessmentsWithoutReturnData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[AssessmentsInAbsenceOfReturns] mustBe getAssessmentsWithoutReturnData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getAssessmentsWithoutReturnData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

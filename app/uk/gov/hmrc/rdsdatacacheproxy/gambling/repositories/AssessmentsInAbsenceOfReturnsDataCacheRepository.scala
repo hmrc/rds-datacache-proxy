@@ -18,17 +18,13 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, AssessmentsInAbsenceOfReturnsItem, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentItem, Assessments, Regime}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AssessmentsInAbsenceOfReturnsDataSource {
-  def getAssessmentsWithoutReturn(regime: Regime,
-                                  regNumber: String,
-                                  paginationStart: Int,
-                                  paginationMaxRows: Int
-                                 ): Future[AssessmentsInAbsenceOfReturns]
+  def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments]
 }
 
 @Singleton
@@ -40,11 +36,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
     with RepositorySupport
     with Logging {
 
-  override def getAssessmentsWithoutReturn(regime: Regime,
-                                           regNumber: String,
-                                           paginationStart: Int,
-                                           paginationMaxRows: Int
-                                          ): Future[AssessmentsInAbsenceOfReturns] =
+  override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments] =
     Future {
       getDb(regime).withConnection { connection =>
         val cs =
@@ -63,14 +55,14 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_ASSESSMENTS_NO_RETURNS (REF CURSOR)
           cs.execute()
 
-          val assessmentsWithoutReturns: List[AssessmentsInAbsenceOfReturnsItem] = {
+          val assessmentsWithoutReturns: List[AssessmentItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[AssessmentsInAbsenceOfReturnsItem]
+                val b = List.newBuilder[AssessmentItem]
                 while (rs.next()) {
-                  b += AssessmentsInAbsenceOfReturnsItem(
+                  b += AssessmentItem(
                     dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
@@ -82,11 +74,11 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
             }
           }
 
-          AssessmentsInAbsenceOfReturns(
+          Assessments(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
-            total           = optDecimalFromIndex(6, cs).getOrElse(0),
-            totalRecords    = optInt(7, cs).getOrElse(0),
+            total           = optDecimalFromIndex(6, cs),
+            totalRecords    = optInt(7, cs),
             items           = assessmentsWithoutReturns
           )
 

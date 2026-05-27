@@ -16,42 +16,42 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturnsItem, AssessmentsInAbsenceOfReturns}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentItem, Assessments}
 
 import java.time.LocalDate
 
 object AssessmentsInAbsenceOfReturnsStubData {
 
-  def getAssessmentsWithoutReturnData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): AssessmentsInAbsenceOfReturns =
+  def getAssessmentsWithoutReturnData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Assessments =
     regNumber match {
       case "XYZ00000000000" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = 0.00,
-          totalRecords    = 0,
+          total           = Some(0.00),
+          totalRecords    = Some(0),
           items           = Seq()
         )
       case "XYZ00000000001" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = -24500.00,
-          totalRecords    = 3,
+          total           = Some(-24500.00),
+          totalRecords    = Some(3),
           items = Seq(
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 1)),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
               amount          = Some(-9500.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 2)),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31)),
               amount          = Some(-8000.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 3)),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
@@ -60,13 +60,13 @@ object AssessmentsInAbsenceOfReturnsStubData {
           )
         )
       case "XYZ00000000010" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = -1000.00,
-          totalRecords    = 1,
+          total           = Some(-1000.00),
+          totalRecords    = Some(1),
           items = Seq(
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 1)),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
@@ -75,31 +75,31 @@ object AssessmentsInAbsenceOfReturnsStubData {
           )
         )
       case "XYZ00000000012" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = -34500.00,
-          totalRecords    = 4,
+          total           = Some(-34500.00),
+          totalRecords    = Some(4),
           items = Seq(
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 1)),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
               amount          = Some(-9500.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 2)),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31)),
               amount          = Some(-8000.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 3)),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
               amount          = Some(-7000.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 4)),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
@@ -108,25 +108,25 @@ object AssessmentsInAbsenceOfReturnsStubData {
           )
         )
       case "XYZ00000000021" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = -44500.00,
-          totalRecords    = 3,
+          total           = Some(-44500.00),
+          totalRecords    = Some(3),
           items = Seq(
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 1)),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
               amount          = Some(-9500.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 2)),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31)),
               amount          = Some(-8000.00)
             ),
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 3)),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
@@ -135,22 +135,22 @@ object AssessmentsInAbsenceOfReturnsStubData {
           )
         )
       case "XYZ99999999999" =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = 999.00,
-          totalRecords    = 99,
+          total           = Some(999.00),
+          totalRecords    = Some(99),
           items           = Seq()
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
-        AssessmentsInAbsenceOfReturns(
+        Assessments(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2024, 3, 11)),
-          total           = -4500.00,
-          totalRecords    = 1,
+          total           = Some(-4500.00),
+          totalRecords    = Some(1),
           items = Seq(
-            AssessmentsInAbsenceOfReturnsItem(
+            AssessmentItem(
               dateRaised      = Some(LocalDate.of(2014, 4, 1)),
               periodStartDate = Some(LocalDate.of(2024, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2024, 6, 30)),

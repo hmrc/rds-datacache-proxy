@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceOfReturnsStubData.*
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 class AssessmentsInAbsenceOfReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   class AssessmentsInAbsenceOfReturnsRdsStub extends AssessmentsInAbsenceOfReturnsDataSource {
-    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[AssessmentsInAbsenceOfReturns] =
+    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Assessments] =
       Future.successful(getAssessmentsWithoutReturnData(regNumber, pageNo, pageSize))
   }
 
