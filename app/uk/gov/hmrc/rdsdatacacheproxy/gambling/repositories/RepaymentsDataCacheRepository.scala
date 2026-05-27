@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
-import play.api.db.{Database, NamedDatabase}
-import play.api.{Logging, db}
+import play.api.Logging
+import play.api.db.NamedDatabase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,15 +29,15 @@ trait RepaymentsDataSource {
 }
 
 @Singleton
-class RepaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: Database, @NamedDatabase("gambling.gtr") gtrDb: Database)(implicit
-  ec: ExecutionContext
+class RepaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase, @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase)(
+  implicit ec: ExecutionContext
 ) extends RepaymentsDataSource
     with RepositorySupport
     with Logging {
 
   override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[RepaymentsSummary] =
     Future {
-      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDRepaymentSummary(?, ?, ?, ?, ?, ?) }")

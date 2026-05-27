@@ -32,14 +32,22 @@ class GamblingReallocationsService @Inject() (
   def getReallocationsIn(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Reallocations]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsIn]")(
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getReallocationsIn")(
       repository.getReallocationsIn
     )
 
   def getReallocationsOut(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, ReallocationsOut]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsOut]")(
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getReallocationsOut")(
       repository.getReallocationsOut
     )
+
+  def getReallocationsDetails(rawRegime: String, rawRegNumber: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[StatementError, ReallocationsDetails]] = {
+    withValidParams(rawRegime, rawRegNumber.trim.toUpperCase, "getReallocationsDetail")(
+      repository.getReallocationsDetails
+    )
+  }
 }

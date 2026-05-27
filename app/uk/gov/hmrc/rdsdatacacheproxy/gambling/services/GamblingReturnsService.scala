@@ -32,7 +32,7 @@ class GamblingReturnsService @Inject() (
   def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, ReturnsSubmitted]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReturnsSubmitted]")(
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getReturnsSubmitted")(
       repository.getReturnsSubmitted
     )
 }
