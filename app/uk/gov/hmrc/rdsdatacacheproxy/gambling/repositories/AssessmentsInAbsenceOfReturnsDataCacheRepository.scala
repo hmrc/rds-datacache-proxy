@@ -18,21 +18,25 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, AssessmentsInAbsenceItem, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, AssessmentsInAbsenceOfReturnsItem, Regime}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AssessmentsInAbsenceDataSource {
-  def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[AssessmentsInAbsence]
+trait AssessmentsInAbsenceOfReturnsDataSource {
+  def getAssessmentsWithoutReturn(regime: Regime,
+                                  regNumber: String,
+                                  paginationStart: Int,
+                                  paginationMaxRows: Int
+                                 ): Future[AssessmentsInAbsenceOfReturns]
 }
 
 @Singleton
-class AssessmentsInAbsenceDataCacheRepository @Inject() (
+class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
   @NamedDatabase("gambling") mgdDb: Database,
   @NamedDatabase("gambling.gtr") gtrDb: Database
 )(implicit ec: ExecutionContext)
-    extends AssessmentsInAbsenceDataSource
+    extends AssessmentsInAbsenceOfReturnsDataSource
     with RepositorySupport
     with Logging {
 
@@ -40,7 +44,7 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (
                                            regNumber: String,
                                            paginationStart: Int,
                                            paginationMaxRows: Int
-                                          ): Future[AssessmentsInAbsence] =
+                                          ): Future[AssessmentsInAbsenceOfReturns] =
     Future {
       getDb(regime).withConnection { connection =>
         val cs =
@@ -59,14 +63,14 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_ASSESSMENTS_NO_RETURNS (REF CURSOR)
           cs.execute()
 
-          val assessmentsWithoutReturns: List[AssessmentsInAbsenceItem] = {
+          val assessmentsWithoutReturns: List[AssessmentsInAbsenceOfReturnsItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[AssessmentsInAbsenceItem]
+                val b = List.newBuilder[AssessmentsInAbsenceOfReturnsItem]
                 while (rs.next()) {
-                  b += AssessmentsInAbsenceItem(
+                  b += AssessmentsInAbsenceOfReturnsItem(
                     dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
@@ -78,7 +82,7 @@ class AssessmentsInAbsenceDataCacheRepository @Inject() (
             }
           }
 
-          AssessmentsInAbsence(
+          AssessmentsInAbsenceOfReturns(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
             total           = optDecimalFromIndex(6, cs).getOrElse(0),

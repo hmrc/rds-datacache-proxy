@@ -20,25 +20,25 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class AssessmentsInAbsenceItem(
+final case class AssessmentsInAbsenceOfReturnsItem(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
   dateRaised: Option[LocalDate],
   amount: Option[BigDecimal]
 )
 
-object AssessmentsInAbsenceItem {
-  implicit val format: OFormat[AssessmentsInAbsenceItem] = Json.format[AssessmentsInAbsenceItem]
+object AssessmentsInAbsenceOfReturnsItem {
+  implicit val format: OFormat[AssessmentsInAbsenceOfReturnsItem] = Json.format[AssessmentsInAbsenceOfReturnsItem]
 }
 
-final case class AssessmentsInAbsence(
+final case class AssessmentsInAbsenceOfReturns(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
   total: BigDecimal,
   totalRecords: Int,
-  items: Seq[AssessmentsInAbsenceItem]
+  items: Seq[AssessmentsInAbsenceOfReturnsItem]
 )
 
-object AssessmentsInAbsence {
-  implicit val format: OFormat[AssessmentsInAbsence] = Json.format[AssessmentsInAbsence]
+object AssessmentsInAbsenceOfReturns {
+  implicit val format: OFormat[AssessmentsInAbsenceOfReturns] = Json.format[AssessmentsInAbsenceOfReturns]
 }

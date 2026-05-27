@@ -23,27 +23,27 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceOfReturnsStubData.*
 
 import scala.concurrent.Future
 
-class AssessmentsInAbsenceDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
+class AssessmentsInAbsenceOfReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
-  class AssessmentsInAbsenceRdsStub extends AssessmentsInAbsenceDataSource {
-    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[AssessmentsInAbsence] =
+  class AssessmentsInAbsenceOfReturnsRdsStub extends AssessmentsInAbsenceOfReturnsDataSource {
+    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[AssessmentsInAbsenceOfReturns] =
       Future.successful(getAssessmentsWithoutReturnData(regNumber, pageNo, pageSize))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[AssessmentsInAbsenceDataSource].toInstance(new AssessmentsInAbsenceRdsStub))
+    .overrides(bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnsRdsStub))
     .build()
 
-  private lazy val repository: AssessmentsInAbsenceDataSource = app.injector.instanceOf[AssessmentsInAbsenceDataSource]
+  private lazy val repository: AssessmentsInAbsenceOfReturnsDataSource = app.injector.instanceOf[AssessmentsInAbsenceOfReturnsDataSource]
   
-  "getOtherAssessments (stubbed repository)" should {
+  "getAssessmentsInAbsenceOfReturns(stubbed repository)" should {
 
-    "return correct OtherAssessmentsData" in {
+    "return correct AssessmentsInAbsenceOfReturnsData" in {
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
       result mustBe getAssessmentsWithoutReturnData("XYZ00000000000")

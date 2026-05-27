@@ -183,25 +183,25 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseAssessmentsInAbsence = AssessmentsInAbsence(
+  val validResponseAssessmentsInAbsenceOfReturns = AssessmentsInAbsenceOfReturns(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
     total           = -24500.00,
     totalRecords    = 3,
     items = Seq(
-      AssessmentsInAbsenceItem(
+      AssessmentsInAbsenceOfReturnsItem(
         dateRaised      = Some(LocalDate.of(2014, 1, 1)),
         periodStartDate = Some(LocalDate.of(2014, 4, 1)),
         periodEndDate   = Some(LocalDate.of(2014, 6, 30)),
         amount          = Some(-9500.00)
       ),
-      AssessmentsInAbsenceItem(
+      AssessmentsInAbsenceOfReturnsItem(
         dateRaised      = Some(LocalDate.of(2014, 1, 2)),
         periodStartDate = Some(LocalDate.of(2014, 1, 1)),
         periodEndDate   = Some(LocalDate.of(2014, 3, 31)),
         amount          = Some(-8000.00)
       ),
-      AssessmentsInAbsenceItem(
+      AssessmentsInAbsenceOfReturnsItem(
         dateRaised      = Some(LocalDate.of(2014, 1, 3)),
         periodStartDate = Some(LocalDate.of(2013, 10, 1)),
         periodEndDate   = Some(LocalDate.of(2013, 12, 31)),
@@ -210,17 +210,17 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseAssessmentsInAbsenceSmall = AssessmentsInAbsence(
+  val validResponseAssessmentsInAbsenceOfReturnsSmall = AssessmentsInAbsenceOfReturns(
     periodStartDate = Some(LocalDate.of(2016, 2, 29)),
     periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
     total           = -301.56,
     totalRecords    = 1,
     items = Seq(
-      AssessmentsInAbsenceItem(dateRaised      = Some(LocalDate.of(2016, 1, 1)),
-                               periodStartDate = Some(LocalDate.of(2016, 3, 9)),
-                               periodEndDate   = Some(LocalDate.of(2016, 5, 20)),
-                               amount          = Some(-943.21)
-                              )
+      AssessmentsInAbsenceOfReturnsItem(dateRaised      = Some(LocalDate.of(2016, 1, 1)),
+                                        periodStartDate = Some(LocalDate.of(2016, 3, 9)),
+                                        periodEndDate   = Some(LocalDate.of(2016, 5, 20)),
+                                        amount          = Some(-943.21)
+                                       )
     )
   )
 }

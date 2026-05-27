@@ -18,26 +18,26 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsence, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentsInAbsenceOfReturns, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AssessmentsInAbsenceService @Inject() (
-  repository: AssessmentsInAbsenceDataSource
+class AssessmentsInAbsenceOfReturnsService @Inject() (
+  repository: AssessmentsInAbsenceOfReturnsDataSource
 )(implicit ec: ExecutionContext)
     extends Logging {
 
-  def getAssessmentsWithoutReturn(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getAssessmentsInAbsenceOfReturns(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, AssessmentsInAbsence]] = {
+  ): Future[Either[StatementError, AssessmentsInAbsenceOfReturns]] = {
 
     lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[AssessmentsInAbsenceService][getAssessmentsWithoutReturn] $reqText")
+    logger.info(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] $reqText")
     val regNumber = rawRegNumber.trim.toUpperCase
 
     Future
@@ -45,18 +45,18 @@ class AssessmentsInAbsenceService @Inject() (
       .flatMap {
         case Right(regime) =>
           if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[AssessmentsInAbsenceService][getAssessmentsWithoutReturn] Invalid pattern for regNumber=$regNumber")
+            logger.warn(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Invalid pattern for regNumber=$regNumber")
             Future.successful(Left(InvalidRegNumber))
           else
             repository
               .getAssessmentsWithoutReturn(regime, regNumber, paginationStart, paginationMaxRows)
               .map(assessments => Right(assessments))
               .recover { case ex: Exception =>
-                logger.error(s"[AssessmentsInAbsence][getAssessmentsWithoutReturn] Unexpected error $reqText", ex)
+                logger.error(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Unexpected error $reqText", ex)
                 Left(UnexpectedError)
               }
         case Left(error) =>
-          logger.error(s"[AssessmentsInAbsence][getAssessmentsWithoutReturn] Invalid Regime Code $rawRegime")
+          logger.error(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Invalid Regime Code $rawRegime")
           Future.successful(Left(error))
       }
   }

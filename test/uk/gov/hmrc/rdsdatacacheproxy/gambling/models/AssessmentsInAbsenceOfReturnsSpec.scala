@@ -19,23 +19,23 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResult, JsSuccess, Json}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsence
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsenceOfReturns
 
 import java.time.LocalDate
 
-class AssessmentsInAbsenceSpec extends AnyWordSpec with Matchers {
+class AssessmentsInAbsenceOfReturnsSpec extends AnyWordSpec with Matchers {
 
   "AssessmentsInAbsence JSON format" should {
 
     "serialize to JSON correctly" in {
-      val json = Json.toJson(validResponseAssessmentsInAbsence)
+      val json = Json.toJson(validResponseAssessmentsInAbsenceOfReturns)
 
       (json \ "periodStartDate").as[String] mustBe "2013-03-01"
       (json \ "periodEndDate").as[String] mustBe "2014-03-11"
       (json \ "total").as[Double] mustBe -24500.0
       (json \ "totalRecords").as[Int] mustBe 3
 
-      (json \ "items").as[Seq[AssessmentsInAbsenceItem]].size mustBe 3
+      (json \ "items").as[Seq[AssessmentsInAbsenceOfReturnsItem]].size mustBe 3
 
       val items1 = (json \ "items")(0)
       (items1 \ "dateRaised").as[String] mustBe "2014-01-01"
@@ -86,16 +86,16 @@ class AssessmentsInAbsenceSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result: JsResult[AssessmentsInAbsence] = json.validate[AssessmentsInAbsence]
+      val result: JsResult[AssessmentsInAbsenceOfReturns] = json.validate[AssessmentsInAbsenceOfReturns]
 
-      result mustBe JsSuccess(validResponseAssessmentsInAbsence)
+      result mustBe JsSuccess(validResponseAssessmentsInAbsenceOfReturns)
     }
 
     "round-trip (write then read) should return same object" in {
-      val original = validResponseAssessmentsInAbsence
+      val original = validResponseAssessmentsInAbsenceOfReturns
 
       val json = Json.toJson(original)
-      val parsed = json.as[AssessmentsInAbsence]
+      val parsed = json.as[AssessmentsInAbsenceOfReturns]
 
       parsed mustBe original
     }
@@ -109,7 +109,7 @@ class AssessmentsInAbsenceSpec extends AnyWordSpec with Matchers {
           |""".stripMargin
       )
 
-      val result = json.validate[AssessmentsInAbsence]
+      val result = json.validate[AssessmentsInAbsenceOfReturns]
 
       result.isError mustBe true
     }
@@ -144,7 +144,7 @@ class AssessmentsInAbsenceSpec extends AnyWordSpec with Matchers {
            }""".stripMargin
       )
 
-      val result = json.validate[AssessmentsInAbsence]
+      val result = json.validate[AssessmentsInAbsenceOfReturns]
 
       result.isError mustBe true
     }

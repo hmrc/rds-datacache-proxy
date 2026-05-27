@@ -27,42 +27,42 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsInAbsenceService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseAssessmentsInAbsence}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsInAbsenceOfReturnsService
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseAssessmentsInAbsenceOfReturns}
 
 import scala.concurrent.Future
 
-class AssessmentsInAbsenceControllerSpec extends SpecBase with MockitoSugar {
+class AssessmentsInAbsenceOfReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockService: AssessmentsInAbsenceService = mock[AssessmentsInAbsenceService]
-    val controller = new AssessmentsInAbsenceController(fakeAuthAction, mockService, cc)
+    val mockService: AssessmentsInAbsenceOfReturnsService = mock[AssessmentsInAbsenceOfReturnsService]
+    val controller = new AssessmentsInAbsenceOfReturnsController(fakeAuthAction, mockService, cc)
   }
 
   "AssessmentsInAbsenceServiceController#getAssessmentWithoutReturn" - {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.getAssessmentsWithoutReturn(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseAssessmentsInAbsence)))
+      when(mockService.getAssessmentsInAbsenceOfReturns(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
+        .thenReturn(Future.successful(Right(validResponseAssessmentsInAbsenceOfReturns)))
 
       val req = FakeRequest(GET, s"/gambling/assessments-without-returns/$validRegime/XWM00000001770?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getAssessmentsWithoutReturn(validRegime, "XWM00000001770", 1, 10)(req)
+      val res: Future[Result] = controller.getAssessmentsInAbsenceOfReturns(validRegime, "XWM00000001770", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseAssessmentsInAbsence)
+      contentAsJson(res) mustBe Json.toJson(validResponseAssessmentsInAbsenceOfReturns)
 
-      verify(mockService).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getAssessmentsInAbsenceOfReturns(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getAssessmentsWithoutReturn(any(), any(), any(), any())(any()))
+      when(mockService.getAssessmentsInAbsenceOfReturns(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
       val req = FakeRequest(GET, "/gambling/assessments-without-returns/INVALID_REGIME/XWM00000001770")
-      val res: Future[Result] = controller.getAssessmentsWithoutReturn(" ", " ", 1, 10)(req)
+      val res: Future[Result] = controller.getAssessmentsInAbsenceOfReturns(" ", " ", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -70,15 +70,15 @@ class AssessmentsInAbsenceControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Invalid Regime Code"
       )
 
-      verify(mockService).getAssessmentsWithoutReturn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      verify(mockService).getAssessmentsInAbsenceOfReturns(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getAssessmentsWithoutReturn(any(), any(), any(), any())(any()))
+      when(mockService.getAssessmentsInAbsenceOfReturns(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/assessments-without-returns/$validRegime/InvalidRegNo")
-      val res: Future[Result] = controller.getAssessmentsWithoutReturn(" ", " ", 1, 10)(req)
+      val res: Future[Result] = controller.getAssessmentsInAbsenceOfReturns(" ", " ", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -86,15 +86,15 @@ class AssessmentsInAbsenceControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getAssessmentsWithoutReturn(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      verify(mockService).getAssessmentsInAbsenceOfReturns(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getAssessmentsWithoutReturn(any(), any(), any(), any())(any()))
+      when(mockService.getAssessmentsInAbsenceOfReturns(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/assessments-without-returns/$validRegime/ERR00001770")
-      val res: Future[Result] = controller.getAssessmentsWithoutReturn(validRegime, "ERR00001770", 1, 10)(req)
+      val res: Future[Result] = controller.getAssessmentsInAbsenceOfReturns(validRegime, "ERR00001770", 1, 10)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -102,7 +102,7 @@ class AssessmentsInAbsenceControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getAssessmentsInAbsenceOfReturns(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
     }
   }
 }

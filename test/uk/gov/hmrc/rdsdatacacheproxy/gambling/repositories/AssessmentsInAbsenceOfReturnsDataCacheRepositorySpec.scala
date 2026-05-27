@@ -24,17 +24,17 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsenceSmall
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsInAbsenceOfReturnsSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   private var mgdDb: Database = _
   private var gtrDb: Database = _
-  var repository: AssessmentsInAbsenceDataCacheRepository = _
+  var repository: AssessmentsInAbsenceOfReturnsDataCacheRepository = _
   private var mgdMockConnection: Connection = _
   private var gtrMockConnection: Connection = _
   private var mockCsMgd: CallableStatement = _
@@ -65,7 +65,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
     when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
 
-    repository = new AssessmentsInAbsenceDataCacheRepository(
+    repository = new AssessmentsInAbsenceOfReturnsDataCacheRepository(
       mgdDb = mgdDb,
       gtrDb = gtrDb
     )
@@ -91,7 +91,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
 
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result            shouldBe validResponseAssessmentsInAbsenceSmall
+      result            shouldBe validResponseAssessmentsInAbsenceOfReturnsSmall
       result.items.size shouldBe 1
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -123,7 +123,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result       shouldBe AssessmentsInAbsence(None, None, BigDecimal(0), 0, List())
+      result       shouldBe AssessmentsInAbsenceOfReturns(None, None, BigDecimal(0), 0, List())
       result.items shouldBe empty
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -155,7 +155,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
 
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result shouldBe AssessmentsInAbsence(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
+      result shouldBe AssessmentsInAbsenceOfReturns(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 1)
@@ -195,7 +195,7 @@ class AssessmentsInAbsenceDataCacheRepositorySpec extends AnyWordSpec with Match
 
         val result = repository.getAssessmentsWithoutReturn(regime, regNumber, 1, 10).futureValue
 
-        result            shouldBe validResponseAssessmentsInAbsenceSmall
+        result            shouldBe validResponseAssessmentsInAbsenceOfReturnsSmall
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)
