@@ -44,7 +44,7 @@ class GamblingReallocationsDataCacheRepository @Inject() (
     )
 
     Future {
-      getDb(regime).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -99,7 +99,7 @@ class GamblingReallocationsDataCacheRepository @Inject() (
     )
 
     Future {
-      getDb(regime).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -148,9 +148,4 @@ class GamblingReallocationsDataCacheRepository @Inject() (
       }
     }(ec)
   }
-
-  private def getDb(regime: Regime): Database =
-    regime match
-      case Regime.MGD => mgdDb
-      case _          => gtrDb
 }
