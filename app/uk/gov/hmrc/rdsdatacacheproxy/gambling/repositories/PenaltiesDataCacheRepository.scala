@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
-import play.api.{Logging, db}
 import play.api.db.{Database, NamedDatabase}
+import play.api.{Logging, db}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Penalties, PenaltyItem, Regime}
 
 import javax.inject.{Inject, Singleton}
@@ -36,7 +36,7 @@ class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: 
 
   override def getPenalties(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Penalties] =
     Future {
-      getDb(regime).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDPenalties(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -89,10 +89,4 @@ class PenaltiesDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: 
         }
       }
     }(ec)
-
-  private def getDb(regime: Regime): Database =
-    regime match
-      case Regime.MGD => mgdDb
-      case _          => gtrDb
-
 }

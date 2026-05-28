@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
+import play.api.db.Database
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
+
 import java.sql.{CallableStatement, ResultSet}
 import java.time.LocalDate
 
@@ -60,4 +63,9 @@ trait RepositorySupport {
       catch {
         case _: Throwable => ()
       }
+
+  def getDb(regime: Regime, mgdDb: Database, gtrDb: Database): Database =
+    regime match
+      case Regime.MGD => mgdDb
+      case _          => gtrDb
 }

@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,34 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class AssessmentsService @Inject() (
   repository: AssessmentsDataSource
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends BaseService {
 
-  def getOtherAssessments(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getOtherAssessments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Assessments]] = {
-
-    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[AssessmentsService][getOtherAssessments] $reqText")
-    val regNumber = rawRegNumber.trim.toUpperCase
-
-    Future
-      .successful(Regime.fromString(rawRegime.trim))
-      .flatMap {
-        case Right(regime) =>
-          if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
-            Future.successful(Left(InvalidRegNumber))
-          else
-            repository
-              .getOtherAssessments(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(assessments => Right(assessments))
-              .recover { case ex: Exception =>
-                logger.error(s"[AssessmentsService][getOtherAssessments] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
-        case Left(error) =>
-          logger.error(s"[AssessmentsService][getOtherAssessments] Invalid Regime Code $rawRegime")
-          Future.successful(Left(error))
-      }
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getOtherAssessments]")(
+      repository.getOtherAssessments
+    )
   }
 }
