@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,34 +27,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class GamblingReturnsService @Inject() (
   repository: GamblingReturnsDataSource
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends BaseService {
 
-  def getReturnsSubmitted(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getReturnsSubmitted(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, ReturnsSubmitted]] = {
-
-    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReturnsService][getReturnsSubmitted] $reqText")
-    val regNumber = rawRegNumber.trim.toUpperCase
-
-    Future
-      .successful(Regime.fromString(rawRegime.trim))
-      .flatMap {
-        case Right(regime) =>
-          if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[AssessmentsService][getOtherAssessments] Invalid pattern for regNumber=$regNumber")
-            Future.successful(Left(InvalidRegNumber))
-          else
-            repository
-              .getReturnsSubmitted(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
-        case Left(error) =>
-          logger.error(s"[GamblingReturnsService][getReturnsSubmitted] Invalid Regime Code $rawRegime")
-          Future.successful(Left(error))
-      }
-  }
+  ): Future[Either[StatementError, ReturnsSubmitted]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReturnsSubmitted]")(
+      repository.getReturnsSubmitted
+    )
 }

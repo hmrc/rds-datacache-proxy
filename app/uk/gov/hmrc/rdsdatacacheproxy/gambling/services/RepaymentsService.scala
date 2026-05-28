@@ -17,29 +17,20 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentsDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GamblingReallocationsService @Inject() (
-  repository: GamblingReallocationsDataSource
+class RepaymentsService @Inject() (
+  repository: RepaymentsDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getReallocationsIn(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getRepaymentsSummary(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, Reallocations]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsIn]")(
-      repository.getReallocationsIn
-    )
-
-  def getReallocationsOut(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[StatementError, ReallocationsOut]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsOut]")(
-      repository.getReallocationsOut
-    )
+  ): Future[Either[StatementError, RepaymentsSummary]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "[getRepaymentsSummary]")(repository.getRepaymentsSummary)
 }
