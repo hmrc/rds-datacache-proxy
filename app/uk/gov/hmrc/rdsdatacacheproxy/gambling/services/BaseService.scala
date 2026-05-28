@@ -53,4 +53,33 @@ trait BaseService extends Logging {
         logger.error(s"[$baseText] Invalid Regime Code $regime")
         Future.successful(Left(error))
     }
+
+  def withValidParams[T](
+    regime: String,
+    regNumber: String,
+    paginationStart: Int,
+    paginationMaxRows: Int,
+    baseText: String
+  )(
+    ifValid: (Regime, String, Int, Int) => Future[T]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    lazy val reqText = s"regime=$regime regNumber=$regNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    logger.info(s"[$baseText] $reqText")
+
+    Regime.fromString(regime.trim) match {
+      case Right(regime) =>
+        if (!regNumberPattern.matcher(regNumber).matches())
+          logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
+          Future.successful(Left(InvalidRegNumber))
+        else
+          ifValid(regime, regNumber, paginationStart, paginationMaxRows)
+            .map(summary => Right(summary))
+            .recover { case ex: Exception =>
+              logger.error(s"[$baseText] Unexpected error $reqText", ex)
+              Left(UnexpectedError)
+            }
+      case Left(error) =>
+        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        Future.successful(Left(error))
+    }
 }
