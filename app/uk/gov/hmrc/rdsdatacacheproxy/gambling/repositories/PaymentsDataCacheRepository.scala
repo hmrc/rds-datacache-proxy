@@ -29,10 +29,10 @@ trait PaymentsDataSource {
 
 @Singleton
 class PaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: Database, @NamedDatabase("gambling.gtr") gtrDb: Database)(implicit
-                                                                                                                                          ec: ExecutionContext
+  ec: ExecutionContext
 ) extends PaymentsDataSource
-  with RepositorySupport
-  with Logging {
+    with RepositorySupport
+    with Logging {
 
   override def getPayments(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Payments] =
     Future {
@@ -63,7 +63,7 @@ class PaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: D
                 while (rs.next()) {
                   val maybeItem =
                     for
-                      transactionDate      <- Option(rs.getDate("p_transaction_date").toLocalDate)
+                      transactionDate <- Option(rs.getDate("p_transaction_date").toLocalDate)
                       descriptionCode <- Option(rs.getString("p_desc_code"))
                       amount          <- optDecimalFromLabel("p_amount", rs)
                     yield PaymentItem(transactionDate, descriptionCode, amount)

@@ -183,6 +183,14 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseRepaymentsSummary = RepaymentsSummary(
+    periodStartDate                = Some(LocalDate.of(2013, 3, 1)),
+    periodEndDate                  = Some(LocalDate.of(2014, 3, 11)),
+    actualRepaymentsAmount         = BigDecimal(71.84),
+    repaymentsInterestRepaidAmount = BigDecimal(-35.76),
+    total                          = BigDecimal(36.08)
+  )
+
   val validResponsePayments = Payments(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),

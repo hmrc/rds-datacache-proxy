@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,64 +27,19 @@ import scala.concurrent.{ExecutionContext, Future}
 class GamblingReallocationsService @Inject() (
   repository: GamblingReallocationsDataSource
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends BaseService {
 
-  def getReallocationsIn(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getReallocationsIn(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, Reallocations]] = {
+  ): Future[Either[StatementError, Reallocations]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsIn]")(
+      repository.getReallocationsIn
+    )
 
-    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReallocationsController][getReallocationsIn] $reqText")
-    val regNumber = rawRegNumber.trim.toUpperCase
-
-    Future
-      .successful(Regime.fromString(rawRegime.trim))
-      .flatMap {
-        case Right(regime) =>
-          if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[GamblingReallocationsService][getReallocationsIn] Invalid pattern for regNumber=$regNumber")
-            Future.successful(Left(InvalidRegNumber))
-          else
-            repository
-              .getReallocationsIn(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[GamblingReallocationsService][getReallocationsIn] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
-        case Left(error) =>
-          logger.error(s"[GamblingReallocationsService][getReallocationsIn] Invalid Regime Code $rawRegime")
-          Future.successful(Left(error))
-      }
-  }
-
-  def getReallocationsOut(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getReallocationsOut(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, ReallocationsOut]] = {
-
-    val reqText = s"regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[GamblingReallocationsService][getReallocationsOut] $reqText")
-    val regNumber = rawRegNumber.trim.toUpperCase
-
-    Future
-      .successful(Regime.fromString(rawRegime.trim))
-      .flatMap {
-        case Right(regime) =>
-          if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[GamblingReallocationsService][getReallocationsOut] Invalid pattern for regNumber=$regNumber")
-            Future.successful(Left(InvalidRegNumber))
-          else
-            repository
-              .getReallocationsOut(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[GamblingReallocationsService][getReallocationsOut] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
-        case Left(error) =>
-          logger.error(s"[GamblingReallocationsService][getReallocationsOut] Invalid Regime Code $rawRegime")
-          Future.successful(Left(error))
-      }
-  }
-
+  ): Future[Either[StatementError, ReallocationsOut]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getReallocationsOut]")(
+      repository.getReallocationsOut
+    )
 }

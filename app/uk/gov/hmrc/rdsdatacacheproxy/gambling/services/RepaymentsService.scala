@@ -18,21 +18,19 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Payments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PaymentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentsDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PaymentsService @Inject() (
-  repository: PaymentsDataSource
+class RepaymentsService @Inject() (
+  repository: RepaymentsDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getPayments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getRepaymentsSummary(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, Payments]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getPayments]")(
-      repository.getPayments
-    )
+  ): Future[Either[StatementError, RepaymentsSummary]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "[getRepaymentsSummary]")(repository.getRepaymentsSummary)
 }

@@ -38,7 +38,7 @@ class GamblingReturnsDataCacheRepository @Inject() (
 
   override def getReturnsSubmitted(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReturnsSubmitted] =
     Future {
-      getDb(regime).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReturnsSubmitted(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -87,9 +87,4 @@ class GamblingReturnsDataCacheRepository @Inject() (
         }
       }
     }(ec)
-
-  private def getDb(regime: Regime): Database =
-    regime match
-      case Regime.MGD => mgdDb
-      case _          => gtrDb
 }

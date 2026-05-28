@@ -38,7 +38,7 @@ class AssessmentsDataCacheRepository @Inject() (
 
   override def getOtherAssessments(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments] =
     Future {
-      getDb(regime).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getOtherAssessmentDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -87,9 +87,4 @@ class AssessmentsDataCacheRepository @Inject() (
         }
       }
     }(ec)
-
-  private def getDb(regime: Regime): Database =
-    regime match
-      case Regime.MGD => mgdDb
-      case _          => gtrDb
 }
