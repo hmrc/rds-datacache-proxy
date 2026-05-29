@@ -32,5 +32,5 @@ class RepaymentsService @Inject() (
   def getRepaymentsSummary(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, RepaymentsSummary]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, "[getRepaymentsSummary]")(repository.getRepaymentsSummary)
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getRepaymentsSummary")(repository.getRepaymentsSummary)
 }

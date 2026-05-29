@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import java.sql.{CallableStatement, ResultSet}
 import java.time.LocalDate
@@ -64,8 +65,14 @@ trait RepositorySupport {
         case _: Throwable => ()
       }
 
-  def getDb(regime: Regime, mgdDb: Database, gtrDb: Database): Database =
+  def getDb(regime: Regime, mgdDb: MGDDatabase, gtrDb: GTRDatabase): MGDDatabase | GTRDatabase =
     regime match
       case Regime.MGD => mgdDb
       case _          => gtrDb
 }
+
+object RepositorySupport:
+  opaque type GTRDatabase = Database
+  opaque type MGDDatabase = Database
+
+  extension (db: MGDDatabase | GTRDatabase) def underlying: Database = db

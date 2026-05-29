@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseRepaymentsSummary
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
@@ -31,8 +32,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private var mgdDb: Database = _
-  private var gtrDb: Database = _
+  private var mgdDb: MGDDatabase = _
+  private var gtrDb: GTRDatabase = _
   var repository: RepaymentsDataCacheRepository = _
   private var mgdMockConnection: Connection = _
   private var gtrMockConnection: Connection = _
@@ -41,20 +42,20 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
   var repaymentsRs: ResultSet = _
 
   before {
-    mgdDb             = mock(classOf[Database])
-    gtrDb             = mock(classOf[Database])
+    gtrDb             = mock(classOf[Database]).asInstanceOf[GTRDatabase]
+    mgdDb             = mock(classOf[Database]).asInstanceOf[MGDDatabase]
     mgdMockConnection = mock(classOf[Connection])
     gtrMockConnection = mock(classOf[Connection])
     mockCsMgd         = mock(classOf[CallableStatement])
     mockCsGtr         = mock(classOf[CallableStatement])
     repaymentsRs      = mock(classOf[ResultSet])
 
-    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
     }
 
-    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+    when(gtrDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(gtrMockConnection)
     }

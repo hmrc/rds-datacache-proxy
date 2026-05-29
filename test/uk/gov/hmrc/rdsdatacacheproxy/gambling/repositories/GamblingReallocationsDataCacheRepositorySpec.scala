@@ -26,6 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.ReallocationsOut.Reallocation
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseReallocationsInSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
@@ -34,8 +35,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private val mgdDb: Database = mock(classOf[Database])
-  private val gtrDb: Database = mock(classOf[Database])
+  private val gtrDb: GTRDatabase = mock(classOf[Database]).asInstanceOf[GTRDatabase]
+  private val mgdDb: MGDDatabase = mock(classOf[Database]).asInstanceOf[MGDDatabase]
   private val mgdMockConnection: Connection = mock(classOf[Connection])
   private val gtrMockConnection: Connection = mock(classOf[Connection])
   private val mockCsMgd: CallableStatement = mock(classOf[CallableStatement])
@@ -53,12 +54,12 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
 
   before {
     Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, reallocationsOutRs, reallocationsInRs)
-    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
     }
 
-    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+    when(gtrDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(gtrMockConnection)
     }
@@ -68,6 +69,9 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
 
     when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+
+    when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsDetails(?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
+    when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsDetails(?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
   }
 
   "getReallocationsIn" should {
@@ -451,6 +455,91 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
       verify(reallocationsOutRs, times(0)).next()
       verify(reallocationsOutRs, times(0)).getInt("p_date_processed")
       verify(reallocationsOutRs, times(0)).close()
+      verify(mockCsMgd).close()
+    }
+  }
+
+  "getReallocationsDetails" should {
+    "return ReallocationsDetails for MGD regime when stored procedure returns data" in {
+      val regNumber = "XWM12345678901"
+
+      when(mockCsMgd.getDate(2)).thenReturn(startDate)
+      when(mockCsMgd.getDate(3)).thenReturn(endDate)
+      when(mockCsMgd.getObject(4)).thenReturn(BigDecimal.valueOf(201.56))
+      when(mockCsMgd.getObject(5)).thenReturn(BigDecimal.valueOf(-301.56))
+      when(mockCsMgd.getObject(6)).thenReturn(BigDecimal.valueOf(-101.56))
+
+      val result = repository.getReallocationsDetails(Regime.MGD, regNumber).futureValue
+
+      result shouldBe ReallocationsDetails(
+        Option(startDate.toLocalDate),
+        Option(endDate.toLocalDate),
+        BigDecimal(201.56),
+        BigDecimal(-301.56),
+        BigDecimal(-101.56)
+      )
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).execute()
+      verify(mockCsMgd).close()
+    }
+
+    Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
+      s"return ReallocationsDetails for $regime regime when stored procedure returns data" in {
+        val regNumber = "XWM12345678901"
+
+        when(mockCsGtr.getDate(2)).thenReturn(startDate)
+        when(mockCsGtr.getDate(3)).thenReturn(endDate)
+        when(mockCsGtr.getObject(4)).thenReturn(BigDecimal.valueOf(201.56))
+        when(mockCsGtr.getObject(5)).thenReturn(BigDecimal.valueOf(-301.56))
+        when(mockCsGtr.getObject(6)).thenReturn(BigDecimal.valueOf(-101.56))
+
+        val result = repository.getReallocationsDetails(regime, regNumber).futureValue
+
+        result shouldBe ReallocationsDetails(
+          Option(startDate.toLocalDate),
+          Option(endDate.toLocalDate),
+          BigDecimal(201.56),
+          BigDecimal(-301.56),
+          BigDecimal(-101.56)
+        )
+
+        verify(mockCsGtr).setString(1, regNumber)
+        verify(mockCsGtr).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).execute()
+        verify(mockCsGtr).close()
+      }
+    }
+
+    "return empty ReallocationsDetails when regNumber is null" in {
+      val regNumber: Null = null
+      when(mockCsMgd.getDate(2)).thenReturn(null)
+      val result = repository.getReallocationsDetails(Regime.MGD, regNumber).futureValue
+
+      result shouldBe ReallocationsDetails(None, None, 0, 0, 0)
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(2)
+      verify(mockCsMgd).getDate(3)
+      verify(mockCsMgd).getBigDecimal(4)
+      verify(mockCsMgd).getBigDecimal(5)
+      verify(mockCsMgd).getBigDecimal(6)
       verify(mockCsMgd).close()
     }
   }
