@@ -32,7 +32,7 @@ class PenaltiesService @Inject() (
   def getPenalties(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Penalties]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getPenalties]")(
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getPenalties")(
       repository.getPenalties
     )
 }

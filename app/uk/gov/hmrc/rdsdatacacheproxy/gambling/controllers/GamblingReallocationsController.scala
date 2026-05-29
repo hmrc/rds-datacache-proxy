@@ -43,7 +43,15 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction, service:
   def getReallocationsOut(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getReallocationsOut(regime, regNumber, paginationStart, paginationMaxRows).map {
-        case Right(returns) => Ok(Json.toJson(returns))
+        case Right(allocations) => Ok(Json.toJson(allocations))
+        case Left(error)        => handleError(error)
+      }
+    }
+
+  def getReallocationsDetails(regime: String, regNumber: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getReallocationsDetails(regime, regNumber).map {
+        case Right(details) => Ok(Json.toJson(details))
         case Left(error)    => handleError(error)
       }
     }

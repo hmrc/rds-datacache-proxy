@@ -23,12 +23,17 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.{getReallocationsInData, getReallocationsOutData}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsOut, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
 
 import scala.concurrent.Future
 
-class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
+class GamblingReallocationsDataCacheRepositoryISpec
+    extends AnyWordSpec
+    with Matchers
+    with ScalaFutures
+    with IntegrationPatience
+    with GuiceOneAppPerSuite {
 
   class GamblingReallocationsRdsStub extends GamblingReallocationsDataSource {
     override def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] =
@@ -36,6 +41,9 @@ class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Mat
 
     override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] =
       Future.successful(getReallocationsOutData(regNumber, paginationStart, paginationMaxRows))
+
+    override def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails] =
+      Future.successful(getReallocationsDetailData(regNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -74,6 +82,37 @@ class GamblingReallocationsDataCacheRepositoryISpec extends AnyWordSpec with Mat
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
         repository.getReallocationsIn(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
+
+  "getReallocationsDetail (stubbed repository)" should {
+
+    "return correct Reallocations Detail" in {
+      val result = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000000").futureValue
+
+      result mustBe getReallocationsDetailData("XYZ00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000012").futureValue
+      val result2 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000012").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different valid regNumbers independently" in {
+      val result1 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000000").futureValue
+      val result2 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000001").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getReallocationsDetails(Regime.MGD, "ERR00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
