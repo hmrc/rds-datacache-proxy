@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponsePaymentsSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
@@ -32,8 +33,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private var mgdDb: Database = _
-  private var gtrDb: Database = _
+  private var mgdDb: MGDDatabase = _
+  private var gtrDb: GTRDatabase = _
   var repository: PaymentsDataCacheRepository = _
   private var mgdMockConnection: Connection = _
   private var gtrMockConnection: Connection = _
@@ -43,8 +44,8 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
   var paymentsRs: ResultSet = _
 
   before {
-    mgdDb             = mock(classOf[Database])
-    gtrDb             = mock(classOf[Database])
+    mgdDb             = mock(classOf[Database]).asInstanceOf[MGDDatabase]
+    gtrDb             = mock(classOf[Database]).asInstanceOf[GTRDatabase]
     mgdMockConnection = mock(classOf[Connection])
     gtrMockConnection = mock(classOf[Connection])
     mockCsMgd         = mock(classOf[CallableStatement])
@@ -52,12 +53,12 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
     itemsRs           = mock(classOf[ResultSet])
     paymentsRs        = mock(classOf[ResultSet])
 
-    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
     }
 
-    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+    when(gtrDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(gtrMockConnection)
     }

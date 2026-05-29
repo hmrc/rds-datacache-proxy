@@ -25,6 +25,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessmentsSmall
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
@@ -33,8 +34,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class AssessmentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private val gtrDb: Database = mock(classOf[Database])
-  private val mgdDb: Database = mock(classOf[Database])
+  private val gtrDb: GTRDatabase = mock(classOf[Database]).asInstanceOf[GTRDatabase]
+  private val mgdDb: MGDDatabase = mock(classOf[Database]).asInstanceOf[MGDDatabase]
   private val mgdMockConnection: Connection = mock(classOf[Connection])
   private val gtrMockConnection: Connection = mock(classOf[Connection])
   private val mockCsMgd: CallableStatement = mock(classOf[CallableStatement])
@@ -48,12 +49,12 @@ class AssessmentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with 
 
   before {
     Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsRs)
-    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
+    when(mgdDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
     }
 
-    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+    when(gtrDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(gtrMockConnection)
     }
