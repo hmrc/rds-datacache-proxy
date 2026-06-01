@@ -39,4 +39,12 @@ class RepaymentsController @Inject() (authorise: AuthAction, service: Repayments
         case Left(error)              => handleError(error)
       }
     }
+
+  def getActualRepayments(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getActualRepayments(regime, regNumber, paginationStart, paginationMaxRows).map {
+        case Right(repayments) => Ok(Json.toJson(repayments))
+        case Left(error)       => handleError(error)
+      }
+    }
 }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.RepaymentsSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepaymentItem, ActualRepayments, RepaymentsSummary}
 
 import java.time.LocalDate
 
@@ -48,6 +48,41 @@ object RepaymentsStubData {
           actualRepaymentsAmount         = BigDecimal(171.84),
           repaymentsInterestRepaidAmount = BigDecimal(-35.76),
           total                          = BigDecimal(136.08)
+        )
+    }
+
+  def getActualRepaymentsData(regNumber: String): ActualRepayments =
+    regNumber match {
+      case "XYZ00000000000" =>
+        ActualRepayments(
+          periodStartDate  = Some(LocalDate.of(2013, 1, 1)),
+          periodEndDate    = Some(LocalDate.of(2014, 11, 3)),
+          total            = BigDecimal(-3250.00),
+          totalRecords     = 2,
+          items = Seq(
+            ActualRepaymentItem(transactionDate = LocalDate.of(2014, 9, 15), amount = BigDecimal(-1500.00)),
+            ActualRepaymentItem(transactionDate = LocalDate.of(2014, 6, 30), amount = BigDecimal(-1750.00))
+          )
+        )
+
+      case "XYZ99999999999" =>
+        ActualRepayments(
+          periodStartDate  = Some(LocalDate.of(2023, 3, 1)),
+          periodEndDate    = Some(LocalDate.of(2024, 3, 11)),
+          total            = BigDecimal(0),
+          totalRecords     = 0,
+          items = Seq.empty
+        )
+      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case _ =>
+        ActualRepayments(
+          periodStartDate  = Some(LocalDate.of(2013, 1, 1)),
+          periodEndDate    = Some(LocalDate.of(2014, 11, 3)),
+          total            = BigDecimal(-1750.00),
+          totalRecords     = 1,
+          items = Seq(
+            ActualRepaymentItem(transactionDate = LocalDate.of(2014, 6, 30), amount = BigDecimal(-1750.00))
+          )
         )
     }
 

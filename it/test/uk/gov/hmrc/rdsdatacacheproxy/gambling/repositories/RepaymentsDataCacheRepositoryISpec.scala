@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepayments, Regime, RepaymentsSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentsStubData.*
 
 import scala.concurrent.Future
@@ -33,6 +33,9 @@ class RepaymentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with 
   class RepaymentsRdsStub extends RepaymentsDataSource {
     override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[RepaymentsSummary] =
       Future.successful(getRepaymentsSummaryData(regNumber))
+
+    override def getActualRepayments(regime: Regime, regNumber: String, pageStart: Int, pageMaxRows: Int): Future[ActualRepayments] =
+      Future.successful(getActualRepaymentsData(regNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()

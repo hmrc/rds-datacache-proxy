@@ -28,7 +28,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.RepaymentsService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseRepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseActualRepayments, validResponseRepaymentsSummary}
 
 import scala.concurrent.Future
 
@@ -103,6 +103,73 @@ class RepaymentsControllerSpec extends SpecBase with MockitoSugar {
       )
 
       verify(mockService).getRepaymentsSummary(eqTo(validRegime), eqTo("ERR00001770"))(any())
+    }
+  }
+
+  "RepaymentsController#getActualRepayments" - {
+
+    "returns 200 when service succeeds" in new Setup {
+
+      when(mockService.getActualRepayments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
+        .thenReturn(Future.successful(Right(validResponseActualRepayments)))
+
+      val req = FakeRequest(GET, s"/gambling/actual-repayments/$validRegime/XWM00000001770")
+      val res: Future[Result] = controller.getActualRepayments(validRegime, "XWM00000001770", 1, 10)(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(validResponseActualRepayments)
+
+      verify(mockService).getActualRepayments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getActualRepayments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/actual-repayments/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getActualRepayments(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getActualRepayments(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 400 when InvalidRegNumber" in new Setup {
+      when(mockService.getActualRepayments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/actual-repayments/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getActualRepayments(" ", " ", 1, 10)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REG_NUMBER",
+        "message" -> "regNumber has invalid format"
+      )
+
+      verify(mockService).getActualRepayments(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getActualRepayments(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/actual-repayments/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getActualRepayments(validRegime, "ERR00001770", 1, 10)(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getActualRepayments(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
     }
   }
 }

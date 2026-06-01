@@ -229,4 +229,14 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseActualRepayments = ActualRepayments(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(-3250.00),
+    totalRecords    = 2,
+    items = Seq(
+      ActualRepaymentItem(transactionDate = LocalDate.of(2014, 9, 15), amount = BigDecimal(-1500.00)),
+      ActualRepaymentItem(transactionDate = LocalDate.of(2014, 6, 30), amount = BigDecimal(-1750.00))
+    )
+  )
 }
