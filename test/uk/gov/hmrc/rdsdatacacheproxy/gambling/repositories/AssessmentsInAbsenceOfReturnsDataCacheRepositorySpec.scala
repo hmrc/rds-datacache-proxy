@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
@@ -25,6 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsSmall
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
@@ -32,43 +34,33 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
-  private var mgdDb: Database = _
-  private var gtrDb: Database = _
-  var repository: AssessmentsInAbsenceOfReturnsDataCacheRepository = _
-  private var mgdMockConnection: Connection = _
-  private var gtrMockConnection: Connection = _
-  private var mockCsMgd: CallableStatement = _
-  private var mockCsGtr: CallableStatement = _
-  var itemsRs: ResultSet = _
-  var assessmentsWithoutRs: ResultSet = _
+  private val gtrDb: GTRDatabase = mock(classOf[Database]).asInstanceOf[GTRDatabase]
+  private val mgdDb: MGDDatabase = mock(classOf[Database]).asInstanceOf[MGDDatabase]
+  private val mgdMockConnection: Connection = mock(classOf[Connection])
+  private val gtrMockConnection: Connection = mock(classOf[Connection])
+  private val mockCsMgd: CallableStatement = mock(classOf[CallableStatement])
+  private val mockCsGtr: CallableStatement = mock(classOf[CallableStatement])
+  private val amountDeclaredRs: ResultSet = mock(classOf[ResultSet])
+  private val assessmentsWithoutRs: ResultSet = mock(classOf[ResultSet])
+  private val repository: AssessmentsInAbsenceOfReturnsDataCacheRepository = new AssessmentsInAbsenceOfReturnsDataCacheRepository(
+    mgdDb = mgdDb,
+    gtrDb = gtrDb
+  )
 
   before {
-    mgdDb                = mock(classOf[Database])
-    gtrDb                = mock(classOf[Database])
-    mgdMockConnection    = mock(classOf[Connection])
-    gtrMockConnection    = mock(classOf[Connection])
-    mockCsMgd            = mock(classOf[CallableStatement])
-    mockCsGtr            = mock(classOf[CallableStatement])
-    itemsRs              = mock(classOf[ResultSet])
-    assessmentsWithoutRs = mock(classOf[ResultSet])
-
-    when(mgdDb.withConnection(any())).thenAnswer { invocation =>
+    Mockito.reset(mgdDb, gtrDb, mgdMockConnection, gtrMockConnection, mockCsMgd, mockCsGtr, amountDeclaredRs, assessmentsWithoutRs)
+    when(mgdDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(mgdMockConnection)
     }
 
-    when(gtrDb.withConnection(any())).thenAnswer { invocation =>
+    when(gtrDb.underlying.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
       fn(gtrMockConnection)
     }
 
     when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
-
-    repository = new AssessmentsInAbsenceOfReturnsDataCacheRepository(
-      mgdDb = mgdDb,
-      gtrDb = gtrDb
-    )
   }
 
   "getAssessmentsWithoutReturn" should {

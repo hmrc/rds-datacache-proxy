@@ -17,8 +17,9 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
-import play.api.db.{Database, NamedDatabase}
+import play.api.db.NamedDatabase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AssessmentItem, Assessments, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,8 +30,8 @@ trait AssessmentsInAbsenceOfReturnsDataSource {
 
 @Singleton
 class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
-  @NamedDatabase("gambling") mgdDb: Database,
-  @NamedDatabase("gambling.gtr") gtrDb: Database
+  @NamedDatabase("gambling") mgdDb: MGDDatabase,
+  @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
 )(implicit ec: ExecutionContext)
     extends AssessmentsInAbsenceOfReturnsDataSource
     with RepositorySupport
@@ -38,7 +39,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
 
   override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Assessments] =
     Future {
-      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDAssessmentsWithoutReturn(?, ?, ?, ?, ?, ?, ?, ?) }")
