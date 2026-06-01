@@ -154,6 +154,39 @@ object GamblingStubData {
         )
     }
 
+  def getMgdDetails(mgdRegNumber: String): MgdDetails =
+    mgdRegNumber match {
+
+      case "ERR00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case "EMPTY000000000" =>
+        MgdDetails(
+          mgdRegNumber       = "",
+          isBusinessSeasonal = None,
+          previousMgdrn1     = None,
+          previousMgdrn2     = None,
+          previousMgdrn3     = None,
+          associatedMgdrn1   = None,
+          associatedMgdrn2   = None,
+          associatedMgdrn3   = None,
+          systemDate         = None
+        )
+
+      case _ =>
+        MgdDetails(
+          mgdRegNumber       = mgdRegNumber,
+          isBusinessSeasonal = Some(1),
+          previousMgdrn1     = Some("PREV001"),
+          previousMgdrn2     = Some("PREV002"),
+          previousMgdrn3     = None,
+          associatedMgdrn1   = Some("ASSOC001"),
+          associatedMgdrn2   = Some("ASSOC002"),
+          associatedMgdrn3   = None,
+          systemDate         = Some(LocalDate.of(2026, 5, 31))
+        )
+    }
+
   def getBusinessName(mgdRegNumber: String): BusinessName = {
     val dateTimeOne: Some[LocalDate] = Some(LocalDate.of(2026, 4, 20))
     val dateTimeTwo: Some[LocalDate] = Some(LocalDate.of(2026, 1, 1))

@@ -32,6 +32,22 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     extends BackendController(cc)
     with Logging {
 
+  def getMgdDetails(mgdRegNumber: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+
+      service.getMgdDetails(mgdRegNumber).map {
+
+        case Right(details) =>
+          Ok(Json.toJson(details))
+
+        case Left(error) =>
+          val logMessage =
+            s"[GamblingController][getMgdDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
+
+          handleError(error, logMessage)
+      }
+    }
+
   def getReturnSummary(mgdRegNumber: String): Action[AnyContent] = authorise.async { implicit request =>
 
     service.getReturnSummary(mgdRegNumber).map {

@@ -48,6 +48,21 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
         )
       )
 
+    override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] =
+      Future.successful(
+        MgdDetails(
+          mgdRegNumber = mgdRegNumber,
+          isBusinessSeasonal = Some(1),
+          previousMgdrn1 = None,
+          previousMgdrn2 = None,
+          previousMgdrn3 = None,
+          associatedMgdrn1 = None,
+          associatedMgdrn2 = None,
+          associatedMgdrn3 = None,
+          systemDate = Some(LocalDate.now())
+        )
+      )
+    
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
       Future.successful(
         uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessDetails(
@@ -95,6 +110,9 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       Future {
         GamblingStubData.getBusinessName(mgdRegNumber)
       }
+
+
+
 
     override def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate] =
       Future.successful(
@@ -267,6 +285,80 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+    "GET /gambling/mgd-details/mgd/:mgdRegNumber" should {
+
+      val endpoint = "/gambling/mgd-details/mgd"
+
+      "return 200 with mgd details" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe OK
+        response.contentType mustBe "application/json"
+
+        (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+      }
+
+      "normalise mgdRegNumber (trim + uppercase)" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/  xyz00000000012 ").futureValue
+
+        response.status mustBe OK
+        (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+      }
+
+      "return 401 when unauthorised" in {
+        AuthStub.unauthorised()
+
+        val response = get(s"$endpoint/XYZ00000000012").futureValue
+
+        response.status mustBe UNAUTHORIZED
+      }
+
+      "return 400 for invalid mgdRegNumber format (special characters)" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/XYZ00000@00000").futureValue
+
+        response.status mustBe BAD_REQUEST
+      }
+
+      "return 400 for partially valid mgdRegNumber (wrong length)" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/XYZ123").futureValue
+
+        response.status mustBe BAD_REQUEST
+      }
+
+      "return 404 when mgdRegNumber is missing" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/").futureValue
+
+        response.status mustBe NOT_FOUND
+      }
+
+      "return 404 for whitespace-only mgdRegNumber" in {
+        AuthStub.authorised()
+
+        val response = get(s"$endpoint/   ").futureValue
+
+        response.status mustBe NOT_FOUND
+      }
+
+      "return consistent results across multiple calls" in {
+        AuthStub.authorised()
+
+        val r1 = get(s"$endpoint/XYZ00000000012").futureValue
+        val r2 = get(s"$endpoint/XYZ00000000012").futureValue
+
+        r1.json mustBe r2.json
+      }
     }
 
     "GET /gambling/business-details/:mgdRegNumber" should {

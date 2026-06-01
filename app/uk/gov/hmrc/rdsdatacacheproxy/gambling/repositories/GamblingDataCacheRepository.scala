@@ -31,6 +31,7 @@ trait GamblingDataSource {
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
   def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
   def getBusinessContactDetails(mgdRegNumber: String): Future[BusinessContactDetails]
+  def getMgdDetails(mgdRegNumber: String): Future[MgdDetails]
 }
 
 @Singleton
@@ -39,6 +40,95 @@ class GamblingDataCacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
     with Logging {
+
+  override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] = {
+
+    logger.info(s"[GamblingDataCacheRepository][getMgdDetails] mgdRegNumber=$mgdRegNumber")
+
+    Future(blocking {
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_MGD_DETAILS(?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          // input
+          cs.setString(1, mgdRegNumber)
+
+          // output cursor
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          var rs: java.sql.ResultSet = null
+
+          try {
+
+            rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+            if (rs == null || !rs.next()) {
+
+              logger.warn(s"[getMgdDetails] No data found for mgdRegNumber=$mgdRegNumber")
+
+              MgdDetails(
+                mgdRegNumber       = "",
+                isBusinessSeasonal = None,
+                previousMgdrn1     = None,
+                previousMgdrn2     = None,
+                previousMgdrn3     = None,
+                associatedMgdrn1   = None,
+                associatedMgdrn2   = None,
+                associatedMgdrn3   = None,
+                systemDate         = None
+              )
+
+            } else {
+
+              def optString(col: String): Option[String] =
+                Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
+
+              def optInt(col: String): Option[Int] =
+                Option(rs.getObject(col)).map {
+                  case bd: java.math.BigDecimal => bd.intValue()
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
+                }
+
+              def optDate(col: String): Option[java.time.LocalDate] =
+                Option(rs.getDate(col)).map(_.toLocalDate)
+
+              MgdDetails(
+                mgdRegNumber       = optString("mgd_reg_number").getOrElse(""),
+                isBusinessSeasonal = optInt("is_business_seasonal"),
+                previousMgdrn1     = optString("previous_mgdrn_1"),
+                previousMgdrn2     = optString("previous_mgdrn_2"),
+                previousMgdrn3     = optString("previous_mgdrn_3"),
+                associatedMgdrn1   = optString("associated_mgdrn_1"),
+                associatedMgdrn2   = optString("associated_mgdrn_2"),
+                associatedMgdrn3   = optString("associated_mgdrn_3"),
+                systemDate         = optDate("system_date")
+              )
+            }
+
+          } finally {
+            closeQuietly(rs)
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    })(ec)
+  }
 
   override def getBusinessContactDetails(
     mgdRegNumber: String
