@@ -17,8 +17,9 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
-import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsOut, Regime}
+import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,12 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 trait GamblingReallocationsDataSource {
   def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
   def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut]
+  def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails]
 }
 
 @Singleton
 class GamblingReallocationsDataCacheRepository @Inject() (
-  @NamedDatabase("gambling") mgdDb: Database,
-  @NamedDatabase("gambling.gtr") gtrDb: Database
+  @NamedDatabase("gambling") mgdDb: MGDDatabase,
+  @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
 )(implicit ec: ExecutionContext)
     extends GamblingReallocationsDataSource
     with RepositorySupport
@@ -40,11 +42,11 @@ class GamblingReallocationsDataCacheRepository @Inject() (
   override def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations] = {
 
     logger.info(
-      s"[GamblingReturnsDataCacheRepository][ReallocationsIn] regime=$regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
+      s"[GamblingReallocationsDataCacheRepository][ReallocationsIn] regime=$regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
     )
 
     Future {
-      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsInDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -95,11 +97,11 @@ class GamblingReallocationsDataCacheRepository @Inject() (
 
   override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] = {
     logger.info(
-      s"[GamblingReturnsDataCacheRepository][ReallocationsOut] regime= $regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
+      s"[GamblingReallocationsDataCacheRepository][ReallocationsOut] regime= $regime, regNumber=$regNumber, paginationStart=$paginationStart, paginationMaxRows=$paginationMaxRows"
     )
 
     Future {
-      getDb(regime, mgdDb, gtrDb).withConnection { connection =>
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
           regime match
             case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsOutDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
@@ -141,6 +143,41 @@ class GamblingReallocationsDataCacheRepository @Inject() (
             total           = optDecimalFromIndex(6, cs).getOrElse(0),
             totalRecords    = optInt(7, cs).getOrElse(0),
             items           = reallocations
+          )
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    }(ec)
+  }
+
+  override def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails] = {
+    logger.info(
+      s"[GamblingReallocationsDataCacheRepository][ReallocationsDetails] regime= $regime, regNumber=$regNumber"
+    )
+
+    Future {
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
+        val cs =
+          regime match
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDReallocationsDetails(?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRReallocationsDetails(?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, regNumber) // IN P_REGISTRATION_NUMBER
+          cs.registerOutParameter(2, java.sql.Types.DATE) // OUT P_PERIOD_START_DATE
+          cs.registerOutParameter(3, java.sql.Types.DATE) // OUT P_PERIOD_END_DATE
+          cs.registerOutParameter(4, java.sql.Types.DECIMAL) // OUT P_REALLOCATIONS_IN_AMOUNT (DECIMAL)
+          cs.registerOutParameter(5, java.sql.Types.DECIMAL) // OUT P_REALLOCATIONS_OUT_AMOUNT (DECIMAL)
+          cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (DECIMAL)
+          cs.execute()
+
+          ReallocationsDetails(
+            periodStartDate        = optDate(2, cs),
+            periodEndDate          = optDate(3, cs),
+            reallocationsInAmount  = optDecimalFromIndex(4, cs).getOrElse(0),
+            reallocationsOutAmount = optDecimalFromIndex(5, cs).getOrElse(0),
+            total                  = optDecimalFromIndex(6, cs).getOrElse(0)
           )
         } finally {
           closeQuietly(cs)
