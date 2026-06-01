@@ -24,53 +24,53 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
 
 import scala.concurrent.Future
 
-class AssessmentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
+class AssessmentsInAbsenceOfReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
-  class AssessmentsRdsStub extends AssessmentsDataSource {
-    override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Assessments] =
+  class AssessmentsInAbsenceOfReturnsRdsStub extends AssessmentsInAbsenceOfReturnsDataSource {
+    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Assessments] =
       Future.successful(getAssessmentsData(regNumber, pageNo, pageSize))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub))
+    .overrides(bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnsRdsStub))
     .build()
 
-  private lazy val repository: AssessmentsDataSource = app.injector.instanceOf[AssessmentsDataSource]
+  private lazy val repository: AssessmentsInAbsenceOfReturnsDataSource = app.injector.instanceOf[AssessmentsInAbsenceOfReturnsDataSource]
+  
+  "getAssessmentsInAbsenceOfReturns(stubbed repository)" should {
 
-  "getOtherAssessments (stubbed repository)" should {
-
-    "return correct OtherAssessmentsData" in {
-      val result = repository.getOtherAssessments(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
+    "return correct AssessmentsInAbsenceOfReturnsData" in {
+      val result = repository.getAssessmentsWithoutReturn(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
       result mustBe getAssessmentsData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
-      val result = repository.getOtherAssessments(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
+      val result = repository.getAssessmentsWithoutReturn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
       result mustBe getAssessmentsData("XYZ00000000001")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getOtherAssessments(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getOtherAssessments(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
+      val result1 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000012", 1, 10).futureValue
+      val result2 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000012", 1, 10).futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getOtherAssessments(Regime.MGD, "XYZ00000000010", 1, 10).futureValue
-      val result2 = repository.getOtherAssessments(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
+      val result1 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000010", 1, 10).futureValue
+      val result2 = repository.getAssessmentsWithoutReturn(Regime.MGD,"XYZ00000000001", 1, 10).futureValue
 
       result1 must not be result2
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getOtherAssessments(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+        repository.getAssessmentsWithoutReturn(Regime.MGD,"ERR00000000000", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

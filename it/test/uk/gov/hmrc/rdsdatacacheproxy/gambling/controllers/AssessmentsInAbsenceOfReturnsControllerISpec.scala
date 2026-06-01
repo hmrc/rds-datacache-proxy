@@ -24,7 +24,7 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -32,12 +32,12 @@ import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class AssessmentsRdsStub extends AssessmentsDataSource {
-    override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
+  class AssessmentsInAbsenceOfReturnRdsStub extends AssessmentsInAbsenceOfReturnsDataSource {
+    override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
-        AssessmentsStubData.getAssessmentsData(regNumber, pageNo, pageSize)
+      AssessmentsStubData.getAssessmentsData(regNumber, pageNo, pageSize)
       }
   }
 
@@ -45,16 +45,16 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub)
+        bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnRdsStub)
       )
       .build()
 
-  private final val endpoint = "/gambling/other-assessments"
+  private final val endpoint = "/gambling/assessments-without-returns"
   private final val GBD = "gbd"
-  
-  "GET /gambling/other-assessments (stubbed repo, no DB)" should {
 
-    "return 200 with correct OtherAssessmentsData" in {
+  "GET /gambling/assessments-without-returns (stubbed repo, no DB)" should {
+
+    "return 200 with correct AssessmentsData" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
@@ -65,7 +65,7 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       response.json.as[Assessments] mustBe getAssessmentsData("XYZ00000000000")
     }
 
-    "return 200 with correct OtherAssessmentsData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct AssessmentsData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
