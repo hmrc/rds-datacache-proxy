@@ -22,15 +22,15 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessments
 
 import scala.concurrent.Future
 
-final class AssessmentsServiceSpec extends SpecBase {
+final class AssessmentsInAbsenceOfReturnsServiceSpec extends SpecBase {
 
-  private val repository = mock[AssessmentsDataSource]
-  private val service = new AssessmentsService(repository)
+  private val repository = mock[AssessmentsInAbsenceOfReturnsDataSource]
+  private val service = new AssessmentsInAbsenceOfReturnsService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -41,38 +41,38 @@ final class AssessmentsServiceSpec extends SpecBase {
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
-  "AssessmentsService#getOtherAssessments" - {
+  "AssessmentsInAbsenceService#getAssessmentsWithoutReturn" - {
 
-    "return validResponseOtherAssessments when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+    "return validResponseAssessmentsWithoutReturn when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
+      when(repository.getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.successful(validResponseAssessments))
 
-      val result = service.getOtherAssessments(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getAssessmentsInAbsenceOfReturns(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
       result mustBe Right(validResponseAssessments)
-      verify(repository).getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegimeError and not call repository when Regime input is invalid" in {
-      val result = service.getOtherAssessments("INVALID", lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getAssessmentsInAbsenceOfReturns("INVALID", lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getOtherAssessments(validRegime.toString, invalidRegNumber, 1, 10).futureValue
+      val result = service.getAssessmentsInAbsenceOfReturns(validRegime.toString, invalidRegNumber, 1, 10).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
+      when(repository.getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getOtherAssessments(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
+      val result = service.getAssessmentsInAbsenceOfReturns(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verify(repository).getAssessmentsWithoutReturn(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }
