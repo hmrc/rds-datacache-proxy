@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessments
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessments
 
 import scala.concurrent.Future
 
@@ -45,11 +45,11 @@ final class AssessmentsServiceSpec extends SpecBase {
 
     "return validResponseOtherAssessments when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
-        .thenReturn(Future.successful(validResponseOtherAssessments))
+        .thenReturn(Future.successful(validResponseAssessments))
 
       val result = service.getOtherAssessments(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
 
-      result mustBe Right(validResponseOtherAssessments)
+      result mustBe Right(validResponseAssessments)
       verify(repository).getOtherAssessments(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }

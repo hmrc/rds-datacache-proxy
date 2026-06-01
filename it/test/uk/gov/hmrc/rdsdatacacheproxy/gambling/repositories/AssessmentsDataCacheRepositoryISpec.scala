@@ -32,7 +32,7 @@ class AssessmentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with
 
   class AssessmentsRdsStub extends AssessmentsDataSource {
     override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Assessments] =
-      Future.successful(getOtherAssessmentsData(regNumber, pageNo, pageSize))
+      Future.successful(getAssessmentsData(regNumber, pageNo, pageSize))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -46,12 +46,12 @@ class AssessmentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with
     "return correct OtherAssessmentsData" in {
       val result = repository.getOtherAssessments(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
-      result mustBe getOtherAssessmentsData("XYZ00000000000")
+      result mustBe getAssessmentsData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
       val result = repository.getOtherAssessments(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
-      result mustBe getOtherAssessmentsData("XYZ00000000001")
+      result mustBe getAssessmentsData("XYZ00000000001")
     }
 
     "return consistent results across multiple calls" in {

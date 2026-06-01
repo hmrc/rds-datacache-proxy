@@ -26,7 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getOtherAssessmentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +37,7 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
   class AssessmentsRdsStub extends AssessmentsDataSource {
     override def getOtherAssessments(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
-        AssessmentsStubData.getOtherAssessmentsData(regNumber, pageNo, pageSize)
+        AssessmentsStubData.getAssessmentsData(regNumber, pageNo, pageSize)
       }
   }
 
@@ -62,7 +62,7 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000000")
+      response.json.as[Assessments] mustBe getAssessmentsData("XYZ00000000000")
     }
 
     "return 200 with correct OtherAssessmentsData when pageNo & pageSize NOT provided" in {
@@ -73,21 +73,21 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ99999999999")
+      response.json.as[Assessments] mustBe getAssessmentsData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getAssessmentsData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[Assessments] mustBe getOtherAssessmentsData("XYZ00000000012")
+      response.json.as[Assessments] mustBe getAssessmentsData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

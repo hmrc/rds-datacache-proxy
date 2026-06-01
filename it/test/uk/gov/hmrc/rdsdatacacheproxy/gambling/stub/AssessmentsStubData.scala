@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 object AssessmentsStubData {
 
-  def getOtherAssessmentsData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Assessments =
+  def getAssessmentsData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Assessments =
     regNumber match {
       case "XYZ00000000000" =>
         Assessments(

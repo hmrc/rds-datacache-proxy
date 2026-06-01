@@ -25,8 +25,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessmentsSmall
-
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessmentsSmall
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -81,7 +80,7 @@ class AssessmentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with 
 
       val result = repository.getOtherAssessments(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result            shouldBe validResponseOtherAssessmentsSmall
+      result            shouldBe validResponseAssessmentsSmall
       result.items.size shouldBe 1
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -125,7 +124,7 @@ class AssessmentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with 
 
         val result = repository.getOtherAssessments(regime, regNumber, 1, 10).futureValue
 
-        result            shouldBe validResponseOtherAssessmentsSmall
+        result            shouldBe validResponseAssessmentsSmall
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)

@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsInAbsenceOfReturnsStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
 
 import scala.concurrent.Future
 
@@ -32,7 +32,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositoryISpec extends AnyWordSpec 
 
   class AssessmentsInAbsenceOfReturnsRdsStub extends AssessmentsInAbsenceOfReturnsDataSource {
     override def getAssessmentsWithoutReturn(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[Assessments] =
-      Future.successful(getAssessmentsWithoutReturnData(regNumber, pageNo, pageSize))
+      Future.successful(getAssessmentsData(regNumber, pageNo, pageSize))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -46,12 +46,12 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositoryISpec extends AnyWordSpec 
     "return correct AssessmentsInAbsenceOfReturnsData" in {
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
 
-      result mustBe getAssessmentsWithoutReturnData("XYZ00000000000")
+      result mustBe getAssessmentsData("XYZ00000000000")
     }
 
     "return correct data when paginationStart is 1" in {
       val result = repository.getAssessmentsWithoutReturn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
-      result mustBe getAssessmentsWithoutReturnData("XYZ00000000001")
+      result mustBe getAssessmentsData("XYZ00000000001")
     }
 
     "return consistent results across multiple calls" in {

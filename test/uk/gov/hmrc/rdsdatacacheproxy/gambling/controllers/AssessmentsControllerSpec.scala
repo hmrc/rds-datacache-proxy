@@ -28,7 +28,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseOtherAssessments}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseAssessments}
 
 import scala.concurrent.Future
 
@@ -44,14 +44,14 @@ class AssessmentsControllerSpec extends SpecBase with MockitoSugar {
     "returns 200 when service succeeds" in new Setup {
 
       when(mockService.getOtherAssessments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseOtherAssessments)))
+        .thenReturn(Future.successful(Right(validResponseAssessments)))
 
       val req = FakeRequest(GET, s"/gambling/other-assessments/$validRegime/XWM00000001770?pageNo=1&pageSize=10")
       val res: Future[Result] = controller.getOtherAssessments(validRegime, "XWM00000001770", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseOtherAssessments)
+      contentAsJson(res) mustBe Json.toJson(validResponseAssessments)
 
       verify(mockService).getOtherAssessments(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)

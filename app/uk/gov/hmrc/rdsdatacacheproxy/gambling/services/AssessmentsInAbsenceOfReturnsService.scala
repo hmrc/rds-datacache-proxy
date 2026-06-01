@@ -16,13 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
-import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,34 +27,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class AssessmentsInAbsenceOfReturnsService @Inject() (
   repository: AssessmentsInAbsenceOfReturnsDataSource
 )(implicit ec: ExecutionContext)
-    extends Logging {
+    extends BaseService {
 
-  def getAssessmentsInAbsenceOfReturns(rawRegime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getAssessmentsInAbsenceOfReturns(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Assessments]] = {
-
-    lazy val reqText = s"regime=$rawRegime regNumber=$rawRegNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
-    logger.info(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] $reqText")
-    val regNumber = rawRegNumber.trim.toUpperCase
-
-    Future
-      .successful(Regime.fromString(rawRegime.trim))
-      .flatMap {
-        case Right(regime) =>
-          if (!regNumberPattern.matcher(regNumber).matches())
-            logger.warn(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Invalid pattern for regNumber=$regNumber")
-            Future.successful(Left(InvalidRegNumber))
-          else
-            repository
-              .getAssessmentsWithoutReturn(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(assessments => Right(assessments))
-              .recover { case ex: Exception =>
-                logger.error(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
-        case Left(error) =>
-          logger.error(s"[AssessmentsInAbsenceService][getAssessmentsInAbsenceOfReturns] Invalid Regime Code $rawRegime")
-          Future.successful(Left(error))
-      }
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getAssessmentsWithoutReturn]")(
+      repository.getAssessmentsWithoutReturn
+    )
   }
 }

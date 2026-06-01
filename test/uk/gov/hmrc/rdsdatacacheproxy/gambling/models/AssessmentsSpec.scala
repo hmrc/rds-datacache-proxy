@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResult, JsSuccess, Json}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseOtherAssessments
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAssessments
 
 import java.time.LocalDate
 
@@ -28,7 +28,7 @@ class AssessmentsSpec extends AnyWordSpec with Matchers {
   "OtherAssessments JSON format" should {
 
     "serialize to JSON correctly" in {
-      val json = Json.toJson(validResponseOtherAssessments)
+      val json = Json.toJson(validResponseAssessments)
 
       (json \ "periodStartDate").as[String] mustBe "2013-03-01"
       (json \ "periodEndDate").as[String] mustBe "2014-03-11"
@@ -88,11 +88,11 @@ class AssessmentsSpec extends AnyWordSpec with Matchers {
 
       val result: JsResult[Assessments] = json.validate[Assessments]
 
-      result mustBe JsSuccess(validResponseOtherAssessments)
+      result mustBe JsSuccess(validResponseAssessments)
     }
 
     "round-trip (write then read) should return same object" in {
-      val original = validResponseOtherAssessments
+      val original = validResponseAssessments
 
       val json = Json.toJson(original)
       val parsed = json.as[Assessments]

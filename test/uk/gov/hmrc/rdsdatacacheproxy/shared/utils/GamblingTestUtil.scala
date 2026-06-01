@@ -96,7 +96,7 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseOtherAssessments = Assessments(
+  val validResponseAssessments = Assessments(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
     total           = Some(-24500.00),
@@ -123,7 +123,7 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseOtherAssessmentsSmall = Assessments(
+  val validResponseAssessmentsSmall = Assessments(
     periodStartDate = Some(LocalDate.of(2016, 2, 29)),
     periodEndDate   = Some(LocalDate.of(2017, 6, 15)),
     total           = Some(-301.56),
