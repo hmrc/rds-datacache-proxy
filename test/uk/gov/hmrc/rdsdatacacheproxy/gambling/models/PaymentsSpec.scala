@@ -37,17 +37,17 @@ class PaymentsSpec extends AnyWordSpec with Matchers {
 
       val item1 = (json \ "items")(0)
       (item1 \ "transactionDate").as[String] mustBe "2014-10-01"
-      (item1 \ "descriptionCode").as[String] mustBe "P"
+      (item1 \ "descriptionCode").as[String] mustBe "2680"
       (item1 \ "amount").as[Double] mustBe 3000.0
 
       val item2 = (json \ "items")(1)
       (item2 \ "transactionDate").as[String] mustBe "2014-07-15"
-      (item2 \ "descriptionCode").as[String] mustBe "P"
+      (item2 \ "descriptionCode").as[String] mustBe "2680"
       (item2 \ "amount").as[Double] mustBe 5000.0
 
       val item3 = (json \ "items")(2)
       (item3 \ "transactionDate").as[String] mustBe "2013-06-01"
-      (item3 \ "descriptionCode").as[String] mustBe "F"
+      (item3 \ "descriptionCode").as[String] mustBe "2690"
       (item3 \ "amount").as[Double] mustBe -500.0
     }
 
@@ -61,17 +61,17 @@ class PaymentsSpec extends AnyWordSpec with Matchers {
            |  "items":[
            |    {
            |      "transactionDate":"2014-10-01",
-           |      "descriptionCode":"P",
+           |      "descriptionCode":"2680",
            |      "amount":3000.0
            |    },
            |    {
            |      "transactionDate":"2014-07-15",
-           |      "descriptionCode":"P",
+           |      "descriptionCode":"2680",
            |      "amount":5000.0
            |    },
            |    {
            |      "transactionDate":"2013-06-01",
-           |      "descriptionCode":"F",
+           |      "descriptionCode":"2690",
            |      "amount":-500.0
            |    }
            |  ]
@@ -114,7 +114,7 @@ class PaymentsSpec extends AnyWordSpec with Matchers {
            |  "items":[
            |    {
            |      "transactionDate":"2014-10-01",
-           |      "descriptionCode":"P",
+           |      "descriptionCode":"2680",
            |      "amount":3000.0
            |    }
            |  ]
