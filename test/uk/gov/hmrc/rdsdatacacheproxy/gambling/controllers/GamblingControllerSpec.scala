@@ -285,6 +285,93 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     verify(mockService).getBusinessDetails(eqTo("ERR00001770"))(any())
   }
+
+  "GamblingController#getMgdDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = MgdDetails(
+        mgdRegNumber       = "XWM00000001770",
+        isBusinessSeasonal = Some(1),
+        previousMgdrn1     = Some("PREV001"),
+        previousMgdrn2     = Some("PREV002"),
+        previousMgdrn3     = None,
+        associatedMgdrn1   = Some("ASSOC001"),
+        associatedMgdrn2   = Some("ASSOC002"),
+        associatedMgdrn3   = None,
+        systemDate         = Some(LocalDate.of(2026, 5, 31))
+      )
+
+      when(mockService.getMgdDetails(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/mgd-details/mgd/XWM00000001770")
+      val res = controller.getMgdDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getMgdDetails(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = MgdDetails(
+        mgdRegNumber       = "XWM00000001770",
+        isBusinessSeasonal = Some(1),
+        previousMgdrn1     = None,
+        previousMgdrn2     = None,
+        previousMgdrn3     = None,
+        associatedMgdrn1   = None,
+        associatedMgdrn2   = None,
+        associatedMgdrn3   = None,
+        systemDate         = None
+      )
+
+      when(mockService.getMgdDetails(any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/mgd-details/mgd/XWM00000001770")
+      val res = controller.getMgdDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getMgdDetails(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getMgdDetails(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/mgd-details/mgd/bad-input")
+      val res = controller.getMgdDetails("bad-input")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getMgdDetails(eqTo("bad-input"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getMgdDetails(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/mgd-details/mgd/ERR00001770")
+      val res = controller.getMgdDetails("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getMgdDetails(eqTo("ERR00001770"))(any())
+    }
+  }
+
   "GamblingController#getBusinessContactDetails" - {
 
     "returns 200 when service succeeds" in new Setup {

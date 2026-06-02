@@ -162,6 +162,83 @@ final class GamblingServiceSpec extends SpecBase {
     }
   }
 
+  "GamblingService#getMgdDetails" - {
+
+    "return Right(details) when repository succeeds" in {
+
+      val details = MgdDetails(
+        mgdRegNumber       = validMgdRegNumber,
+        isBusinessSeasonal = Some(1),
+        previousMgdrn1     = Some("PREV001"),
+        previousMgdrn2     = Some("PREV002"),
+        previousMgdrn3     = None,
+        associatedMgdrn1   = Some("ASSOC001"),
+        associatedMgdrn2   = Some("ASSOC002"),
+        associatedMgdrn3   = None,
+        systemDate         = Some(LocalDate.of(2026, 5, 31))
+      )
+
+      when(repository.getMgdDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getMgdDetails(validMgdRegNumber).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getMgdDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input (trim + uppercase) before calling repository" in {
+
+      val raw = "  xwm12345678901  "
+
+      val details = MgdDetails(
+        mgdRegNumber       = normalisedMgdRegNumber,
+        isBusinessSeasonal = Some(1),
+        previousMgdrn1     = Some("PREV001"),
+        previousMgdrn2     = Some("PREV002"),
+        previousMgdrn3     = None,
+        associatedMgdrn1   = Some("ASSOC001"),
+        associatedMgdrn2   = Some("ASSOC002"),
+        associatedMgdrn3   = None,
+        systemDate         = Some(LocalDate.of(2026, 5, 31))
+      )
+
+      when(repository.getMgdDetails(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getMgdDetails(raw).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getMgdDetails(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber when input is invalid" in {
+
+      val result = service.getMgdDetails("bad").futureValue
+
+      result mustBe Left(InvalidMgdRegNumber)
+
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getMgdDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure")))
+
+      val result = service.getMgdDetails(validMgdRegNumber).futureValue
+
+      result mustBe Left(UnexpectedError)
+
+      verify(repository).getMgdDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
   "GamblingService#getMgdCertificate" - {
 
     "return Right(certificate) when repository succeeds" in {

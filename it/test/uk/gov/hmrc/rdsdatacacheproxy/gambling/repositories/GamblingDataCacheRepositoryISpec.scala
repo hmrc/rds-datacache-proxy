@@ -52,6 +52,8 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     ): Future[BusinessContactDetails] =
       Future.successful(GamblingStubData.getBusinessContactDetails(mgdRegNumber))
 
+    override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] =
+      Future.successful(GamblingStubData.getMgdDetails(mgdRegNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -108,6 +110,81 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       }
 
       exception.getMessage must include("Null cursor")
+    }
+  }
+
+  "getMgdDetails (stubbed repository)" should {
+
+    "return mgd details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getMgdDetails("XYZ00000000001").futureValue
+
+      result.mgdRegNumber mustBe "XYZ00000000001"
+      result.isBusinessSeasonal mustBe Some(1)
+    }
+
+    "return correct previous MGD numbers" in {
+
+      val result =
+        repository.getMgdDetails("XYZ00000000001").futureValue
+
+      result.previousMgdrn1 mustBe Some("PREV001")
+      result.previousMgdrn2 mustBe Some("PREV002")
+      result.previousMgdrn3 mustBe None
+    }
+
+    "return correct associated MGD numbers" in {
+
+      val result =
+        repository.getMgdDetails("XYZ00000000001").futureValue
+
+      result.associatedMgdrn1 mustBe Some("ASSOC001")
+      result.associatedMgdrn2 mustBe Some("ASSOC002")
+      result.associatedMgdrn3 mustBe None
+    }
+
+    "return system date correctly" in {
+
+      val result =
+        repository.getMgdDetails("XYZ00000000001").futureValue
+
+      result.systemDate mustBe Some(LocalDate.of(2026, 5, 31))
+    }
+
+    "handle different mgdRegNumbers independently" in {
+
+      val result1 = repository.getMgdDetails("XYZ00000000001").futureValue
+      val result2 = repository.getMgdDetails("XYZ00000000002").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+
+      val exception = intercept[RuntimeException] {
+        repository.getMgdDetails("ERR00000000000").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "handle empty response scenario" in {
+
+      val result =
+        repository.getMgdDetails("UNKNOWN").futureValue
+
+      result mustBe MgdDetails(
+        mgdRegNumber = "UNKNOWN",
+        isBusinessSeasonal = Some(1),
+        previousMgdrn1 = Some("PREV001"),
+        previousMgdrn2 = Some("PREV002"),
+        previousMgdrn3 = None,
+        associatedMgdrn1 = Some("ASSOC001"),
+        associatedMgdrn2 = Some("ASSOC002"),
+        associatedMgdrn3 = None,
+        systemDate = Some(LocalDate.of(2026, 5, 31))
+      )
     }
   }
 
