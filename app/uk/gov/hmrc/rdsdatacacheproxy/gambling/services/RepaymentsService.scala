@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepayments, Regime, RepaymentsSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentsDataSource
 
 import javax.inject.Inject
@@ -33,4 +33,10 @@ class RepaymentsService @Inject() (
     hc: HeaderCarrier
   ): Future[Either[StatementError, RepaymentsSummary]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, "getRepaymentsSummary")(repository.getRepaymentsSummary)
+
+  def getActualRepayments(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[StatementError, ActualRepayments]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getActualRepayments")(repository.getActualRepayments)
+
 }

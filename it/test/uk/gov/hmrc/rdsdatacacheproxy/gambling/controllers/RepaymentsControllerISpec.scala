@@ -23,10 +23,10 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentsSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepayments, Regime, RepaymentsSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentsStubData.getRepaymentsSummaryData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentsStubData.{getActualRepaymentsData, getRepaymentsSummaryData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,6 +39,11 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
       Future {
         RepaymentsStubData.getRepaymentsSummaryData(regNumber)
       }
+
+    override def getActualRepayments(regime: Regime, regNumber: String, pageStart: Int, pageMaxRows: Int) =
+      Future {
+        RepaymentsStubData.getActualRepaymentsData(regNumber)
+      }
   }
 
   override lazy val app: Application =
@@ -50,6 +55,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
       .build()
 
   private final val endpoint = "/gambling/repayment-summary"
+  private final val actualRepaymentsEndpoint = "/gambling/actual-repayments"
   private final val GBD = "gbd"
 
   "GET /gambling/repayment-summary (stubbed repo, no DB)" should {
@@ -165,6 +171,126 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/ERR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+      (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+  }
+
+  "GET /gambling/actual-repayments (stubbed repo, no DB)" should {
+
+    "return 200 with correct ActualRepayments" in {
+      AuthStub.authorised()
+
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000000")
+    }
+
+    "return 200 with correct ActualRepayments when pageNo & pageSize NOT provided" in {
+      AuthStub.authorised()
+
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ99999999999").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ99999999999")
+    }
+
+    "normalise lowercase input" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/xyz00000000012 ").futureValue
+      response.status mustBe OK
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000012")
+    }
+
+    "trim whitespace around regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/   XYZ00000000012   ").futureValue
+      response.status mustBe OK
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000012")
+    }
+
+    "return consistent results across multiple calls" in {
+      AuthStub.authorised()
+      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      res1.json mustBe res2.json
+    }
+
+    "handle different valid regNumbers independently" in {
+      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ99999999999").futureValue
+
+      res1 must not be res2
+    }
+
+    "return JSON content type for valid response" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000012").futureValue
+      response.contentType mustBe "application/json"
+    }
+
+    "return 400 for partially valid regNumber (wrong length)" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ123").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regime)" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/BAD_REGIME/XYZ00000000012").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for regNumber with special characters" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000@00000").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regNumber format" in {
+      AuthStub.authorised()
+
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/INVALID").futureValue
+      response.status mustBe BAD_REQUEST
+      (response.json \ "code").as[String] mustBe "INVALID_REG_NUMBER"
+      (response.json \ "message").as[String] mustBe "regNumber has invalid format"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+
+    "return 404 for missing regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 404 for whitespace-only regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/   ").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 500 when stub simulates failure" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/ERR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return correct error structure for 500 response" in {
+      AuthStub.authorised()
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/ERR00000000000").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

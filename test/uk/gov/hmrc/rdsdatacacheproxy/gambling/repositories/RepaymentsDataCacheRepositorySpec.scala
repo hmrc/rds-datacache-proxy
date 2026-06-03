@@ -25,7 +25,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseRepaymentsSummary
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseActualRepayments, validResponseRepaymentsSummary}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -62,6 +62,8 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
 
     when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDRepaymentSummary(?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRRepaymentSummary(?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
+    when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDActualRepayments(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
+    when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRActualRepayments(?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
 
     repository = new RepaymentsDataCacheRepository(
       mgdDb = mgdDb,
@@ -159,6 +161,168 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
         verify(mockCsGtr).getBigDecimal(5)
         verify(mockCsGtr).getBigDecimal(6)
 
+        verify(mockCsGtr).close()
+        verifyNoInteractions(mockCsMgd)
+      }
+    }
+  }
+
+  "getActualRepayments" should {
+    "return ActualRepayments for MGD regime when stored procedure returns data" in {
+
+      val regNumber = "XWM12345678901"
+
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-3250.00))
+      when(mockCsMgd.getObject(7)).thenReturn(2)
+      when(mockCsMgd.getObject(8)).thenReturn(repaymentsRs)
+
+      when(repaymentsRs.next()).thenReturn(true, true, false)
+      when(repaymentsRs.getDate("p_transaction_date")).thenReturn(Date.valueOf("2014-09-15"), Date.valueOf("2014-06-30"))
+      when(repaymentsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-1500.00), java.math.BigDecimal.valueOf(-1750.00))
+
+      val result = repository.getActualRepayments(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result            shouldBe validResponseActualRepayments
+      result.items.size shouldBe 2
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+
+      verify(repaymentsRs, times(3)).next()
+      verify(repaymentsRs, times(2)).getDate("p_transaction_date")
+      verify(repaymentsRs, times(2)).getObject("p_amount")
+
+      verify(repaymentsRs).close()
+      verify(mockCsMgd).close()
+      verifyNoInteractions(mockCsGtr)
+    }
+
+    "return empty ActualRepayments when regNumber is null" in {
+      val regNumber: Null = null
+      when(mockCsMgd.getDate(4)).thenReturn(null)
+
+      val result = repository.getActualRepayments(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result shouldBe ActualRepayments(None, None, BigDecimal(0), 0, Nil)
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+
+      verify(repaymentsRs, times(0)).next()
+      verify(repaymentsRs, times(0)).getDate("p_transaction_date")
+      verify(repaymentsRs, times(0)).close()
+      verify(mockCsMgd).close()
+      verifyNoInteractions(mockCsGtr)
+    }
+
+    "return empty actualRepayments list when cursor result set is empty" in {
+      val regNumber = "XWM12345678901"
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(0))
+      when(mockCsMgd.getObject(7)).thenReturn(0)
+
+      val result = repository.getActualRepayments(Regime.MGD, regNumber, 1, 10).futureValue
+
+      result       shouldBe ActualRepayments(Some(java.time.LocalDate.of(2013, 1, 1)), Some(java.time.LocalDate.of(2014, 11, 3)), 0, 0, Nil)
+      result.items shouldBe empty
+
+      verify(mockCsMgd).setString(1, regNumber)
+      verify(mockCsMgd).setInt(2, 1)
+      verify(mockCsMgd).setInt(3, 10)
+      verify(mockCsMgd).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+      verify(mockCsMgd).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+      verify(mockCsMgd).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+      verify(mockCsMgd).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
+      verify(mockCsMgd).execute()
+
+      verify(mockCsMgd).getDate(4)
+      verify(mockCsMgd).getDate(5)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getObject(8)
+
+      verify(repaymentsRs, times(0)).next()
+      verify(repaymentsRs, times(0)).getDate("p_transaction_date")
+      verify(repaymentsRs, times(0)).close()
+      verify(mockCsMgd).close()
+      verifyNoInteractions(mockCsGtr)
+    }
+
+    Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
+      s"return ActualRepayments for $regime regime when stored procedure returns data" in {
+
+        val regNumber = "XWM12345678901"
+
+        when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
+        when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
+        when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-3250.00))
+        when(mockCsGtr.getObject(7)).thenReturn(2)
+        when(mockCsGtr.getObject(8)).thenReturn(repaymentsRs)
+
+        when(repaymentsRs.next()).thenReturn(true, true, false)
+        when(repaymentsRs.getDate("p_transaction_date")).thenReturn(Date.valueOf("2014-09-15"), Date.valueOf("2014-06-30"))
+        when(repaymentsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-1500.00), java.math.BigDecimal.valueOf(-1750.00))
+
+        val result = repository.getActualRepayments(regime, regNumber, 1, 10).futureValue
+
+        result            shouldBe validResponseActualRepayments
+        result.items.size shouldBe 2
+
+        verify(mockCsGtr).setString(1, regNumber)
+        verify(mockCsGtr).setInt(2, 1)
+        verify(mockCsGtr).setInt(3, 10)
+        verify(mockCsGtr).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(5, oracle.jdbc.OracleTypes.DATE)
+        verify(mockCsGtr).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
+        verify(mockCsGtr).registerOutParameter(7, oracle.jdbc.OracleTypes.NUMERIC)
+        verify(mockCsGtr).registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR)
+
+        verify(mockCsGtr).execute()
+
+        verify(mockCsGtr).getDate(4)
+        verify(mockCsGtr).getDate(5)
+        verify(mockCsGtr).getBigDecimal(6)
+        verify(mockCsGtr).getObject(7)
+        verify(mockCsGtr).getObject(8)
+
+        verify(repaymentsRs, times(3)).next()
+        verify(repaymentsRs, times(2)).getDate("p_transaction_date")
+        verify(repaymentsRs, times(2)).getObject("p_amount")
+
+        verify(repaymentsRs).close()
         verify(mockCsGtr).close()
         verifyNoInteractions(mockCsMgd)
       }
