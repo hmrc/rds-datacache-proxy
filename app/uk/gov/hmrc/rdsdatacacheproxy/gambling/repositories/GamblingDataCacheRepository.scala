@@ -32,6 +32,7 @@ trait GamblingDataSource {
   def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
   def getBusinessContactDetails(mgdRegNumber: String): Future[BusinessContactDetails]
   def getMgdDetails(mgdRegNumber: String): Future[MgdDetails]
+  def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
 }
 
 @Singleton
@@ -116,6 +117,77 @@ class GamblingDataCacheRepository @Inject() (
                 associatedMgdrn2   = optString("associated_mgdrn_2"),
                 associatedMgdrn3   = optString("associated_mgdrn_3"),
                 systemDate         = optDate("system_date")
+              )
+            }
+
+          } finally {
+            closeQuietly(rs)
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    })(ec)
+  }
+
+  override def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails] = {
+    logger.info(s"[GamblingDataCacheRepository][getTradeClassDetails] mgdRegNumber=$mgdRegNumber")
+
+    Future(blocking {
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_TRADE_CLASS(?, ?) }")
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+          // input
+          cs.setString(1, mgdRegNumber)
+
+          // output cursor
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          var rs: java.sql.ResultSet = null
+
+          try {
+            rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+            if (rs == null || !rs.next()) {
+              logger.warn(s"[getTradeClassDetails] No data found for mgdRegNumber=$mgdRegNumber")
+              TradeClassDetails(
+                mgdRegNumber         = "",
+                businessTradeClass   = None,
+                businessActivityDesc = "",
+                systemDate           = None
+              )
+            } else {
+
+              def optString(col: String): Option[String] =
+                Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
+
+              def optInt(col: String): Option[Int] =
+                Option(rs.getObject(col)).map {
+                  case bd: java.math.BigDecimal => bd.intValue()
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
+                }
+
+              def optDate(col: String): Option[LocalDate] =
+                Option(rs.getDate(col)).map(_.toLocalDate)
+
+              TradeClassDetails(
+                mgdRegNumber         = optString("mgd_reg_number").getOrElse(""),
+                businessTradeClass   = optInt("business_trade_class"),
+                businessActivityDesc = optString("business_activity_desc").getOrElse(""),
+                systemDate           = optDate("system_date")
               )
             }
 

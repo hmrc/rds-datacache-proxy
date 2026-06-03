@@ -39,6 +39,19 @@ object GamblingStubData {
         ReturnSummary(mgdRegNumber, 3, 4)
     }
 
+  def getTradeClassDetails(mgdRegNumber: String): TradeClassDetails = {
+    mgdRegNumber match {
+      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case _ =>
+        TradeClassDetails(
+          mgdRegNumber         = mgdRegNumber,
+          businessTradeClass   = Some(1),
+          businessActivityDesc = "Gaming Machine Operation",
+          systemDate           = Some(LocalDate.of(2026, 5, 31))
+        )
+    }
+  }
+
   // -------------------------
   // OperatorDetails
   // -------------------------
