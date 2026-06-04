@@ -239,4 +239,39 @@ object GamblingTestUtil {
       ActualRepaymentItem(transactionDate = LocalDate.of(2014, 6, 30), amount = BigDecimal(-1750.00))
     )
   )
+
+  val validResponseRepaymentInterestRepaid = RepaymentInterestRepaid(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(7500.00),
+    totalRecords    = 3,
+    items = Seq(
+      RepaymentInterestRepaidItem(
+        transactionDate = LocalDate.of(2014, 10, 1),
+        amount          = 3000.00
+      ),
+      RepaymentInterestRepaidItem(
+        transactionDate = LocalDate.of(2014, 7, 15),
+        amount          = 5000.00
+      ),
+      RepaymentInterestRepaidItem(
+        transactionDate = LocalDate.of(2014, 7, 22),
+        amount          = -500.00
+      )
+    )
+  )
+
+  val validResponseRepaymentInterestRepaidSmall = RepaymentInterestRepaid(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(-45.00),
+    totalRecords    = 1,
+    items = Seq(
+      RepaymentInterestRepaidItem(
+        transactionDate = LocalDate.of(2014, 7, 22),
+        amount          = -45.00
+      )
+    )
+  )
+
 }
