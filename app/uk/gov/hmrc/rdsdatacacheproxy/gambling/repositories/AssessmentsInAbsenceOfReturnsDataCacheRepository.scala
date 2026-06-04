@@ -64,7 +64,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepository @Inject() (
                 val b = List.newBuilder[AssessmentItem]
                 while (rs.next()) {
                   b += AssessmentItem(
-                    dateRaised      = Option(rs.getDate("p_date_raised").toLocalDate),
+                    dateRaised      = Option(rs.getDate("p_date").toLocalDate),
                     periodStartDate = Option(rs.getDate("p_period_start").toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end").toLocalDate),
                     amount          = optDecimalFromLabel("p_amount", rs)

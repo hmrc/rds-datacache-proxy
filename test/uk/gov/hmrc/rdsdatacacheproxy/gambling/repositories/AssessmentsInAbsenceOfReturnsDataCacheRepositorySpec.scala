@@ -76,7 +76,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
 
       when(assessmentsWithoutRs.next()).thenReturn(true, false)
 
-      when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-01-01"))
+      when(assessmentsWithoutRs.getDate("p_date")).thenReturn(Date.valueOf("2016-01-01"))
       when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-943.21))
       when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-03-09"))
       when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-05-20"))
@@ -101,7 +101,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
       verify(mockCsMgd).getObject(8)
 
       verify(assessmentsWithoutRs, times(2)).next()
-      verify(assessmentsWithoutRs).getDate("p_date_raised")
+      verify(assessmentsWithoutRs).getDate("p_date")
       verify(assessmentsWithoutRs).getObject("p_amount")
       verify(assessmentsWithoutRs).getDate("p_period_start")
       verify(assessmentsWithoutRs).getDate("p_period_end")
@@ -132,7 +132,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
       verify(mockCsMgd).getObject(7)
       verify(mockCsMgd).getObject(8)
       verify(assessmentsWithoutRs, times(0)).next()
-      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsWithoutRs, times(0)).getDate("p_date")
       verify(assessmentsWithoutRs, times(0)).close()
       verify(mockCsMgd).close()
     }
@@ -163,7 +163,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
       verify(mockCsMgd).getObject(7)
       verify(mockCsMgd).getObject(8)
       verify(assessmentsWithoutRs, times(0)).next()
-      verify(assessmentsWithoutRs, times(0)).getDate("p_date_raised")
+      verify(assessmentsWithoutRs, times(0)).getDate("p_date")
       verify(assessmentsWithoutRs, times(0)).close()
       verify(mockCsMgd).close()
     }
@@ -180,7 +180,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
         when(mockCsGtr.getObject(8)).thenReturn(assessmentsWithoutRs)
 
         when(assessmentsWithoutRs.next()).thenReturn(true, false)
-        when(assessmentsWithoutRs.getDate("p_date_raised")).thenReturn(Date.valueOf("2016-01-01"))
+        when(assessmentsWithoutRs.getDate("p_date")).thenReturn(Date.valueOf("2016-01-01"))
         when(assessmentsWithoutRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(-943.21))
         when(assessmentsWithoutRs.getDate("p_period_start")).thenReturn(Date.valueOf("2016-03-09"))
         when(assessmentsWithoutRs.getDate("p_period_end")).thenReturn(Date.valueOf("2016-05-20"))
@@ -209,7 +209,7 @@ class AssessmentsInAbsenceOfReturnsDataCacheRepositorySpec extends AnyWordSpec w
         verify(mockCsGtr).getObject(8)
 
         verify(assessmentsWithoutRs, times(2)).next()
-        verify(assessmentsWithoutRs).getDate("p_date_raised")
+        verify(assessmentsWithoutRs).getDate("p_date")
         verify(assessmentsWithoutRs).getObject("p_amount")
         verify(assessmentsWithoutRs).getDate("p_period_start")
         verify(assessmentsWithoutRs).getDate("p_period_end")
