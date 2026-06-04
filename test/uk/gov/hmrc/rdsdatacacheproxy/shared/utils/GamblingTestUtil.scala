@@ -199,17 +199,17 @@ object GamblingTestUtil {
     items = Seq(
       PaymentItem(
         transactionDate = LocalDate.of(2014, 10, 1),
-        descriptionCode = "P",
+        descriptionCode = "E",
         amount          = 3000.00
       ),
       PaymentItem(
         transactionDate = LocalDate.of(2014, 7, 15),
-        descriptionCode = "P",
+        descriptionCode = "E",
         amount          = 5000.00
       ),
       PaymentItem(
         transactionDate = LocalDate.of(2013, 6, 1),
-        descriptionCode = "F",
+        descriptionCode = "C",
         amount          = -500.00
       )
     )
@@ -223,7 +223,7 @@ object GamblingTestUtil {
     items = Seq(
       PaymentItem(
         transactionDate = LocalDate.of(2014, 10, 1),
-        descriptionCode = "P",
+        descriptionCode = "E",
         amount          = 3000.00
       )
     )
