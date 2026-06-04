@@ -25,12 +25,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class RepaymentInterestRepaidService @Inject() (
-                                  repository: RepaymentInterestRepaidDataSource
-                                )(implicit ec: ExecutionContext)
-  extends BaseService {
+  repository: RepaymentInterestRepaidDataSource
+)(implicit ec: ExecutionContext)
+    extends BaseService {
 
   def getRepaymentInterestRepaid(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
-                                                                                                      hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[Either[StatementError, RepaymentInterestRepaid]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getRepaymentInterestRepaid")(
       repository.getRepaymentInterestRepaid

@@ -29,13 +29,19 @@ trait RepaymentInterestRepaidDataSource {
 }
 
 @Singleton
-class RepaymentInterestRepaidDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase, @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase)(
-  implicit ec: ExecutionContext
+class RepaymentInterestRepaidDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase,
+                                                            @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
+                                                           )(implicit
+  ec: ExecutionContext
 ) extends RepaymentInterestRepaidDataSource
-  with RepositorySupport
-  with Logging {
+    with RepositorySupport
+    with Logging {
 
-  override def getRepaymentInterestRepaid(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[RepaymentInterestRepaid] =
+  override def getRepaymentInterestRepaid(regime: Regime,
+                                          regNumber: String,
+                                          paginationStart: Int,
+                                          paginationMaxRows: Int
+                                         ): Future[RepaymentInterestRepaid] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =

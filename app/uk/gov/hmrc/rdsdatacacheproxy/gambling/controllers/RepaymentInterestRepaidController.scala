@@ -27,10 +27,10 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class RepaymentInterestRepaidController @Inject() (authorise: AuthAction, service: RepaymentInterestRepaidService, cc: ControllerComponents)(implicit
-                                                                                                               ec: ExecutionContext
+  ec: ExecutionContext
 ) extends BackendController(cc)
-  with BaseController
-  with Logging {
+    with BaseController
+    with Logging {
 
   def getRepaymentInterestRepaid(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
