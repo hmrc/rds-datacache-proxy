@@ -32,7 +32,7 @@ class AssessmentsInAbsenceOfReturnsService @Inject() (
   def getAssessmentsInAbsenceOfReturns(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, Assessments]] = {
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "[getAssessmentsWithoutReturn]")(
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getAssessmentsWithoutReturn")(
       repository.getAssessmentsWithoutReturn
     )
   }
