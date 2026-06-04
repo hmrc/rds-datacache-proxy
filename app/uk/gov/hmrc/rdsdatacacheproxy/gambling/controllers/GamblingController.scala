@@ -32,6 +32,22 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     extends BackendController(cc)
     with Logging {
 
+  def getTradeClass(mgdRegNumber: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+
+      service.getTradeClass(mgdRegNumber).map {
+
+        case Right(details) =>
+          Ok(Json.toJson(details))
+
+        case Left(error) =>
+          val logMessage =
+            s"[GamblingController][getTradeClass] code=${error.code} mgdRegNumber=$mgdRegNumber"
+
+          handleError(error, logMessage)
+      }
+    }
+
   def getMgdDetails(mgdRegNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
 

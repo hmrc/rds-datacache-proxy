@@ -52,6 +52,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     ): Future[BusinessContactDetails] =
       Future.successful(GamblingStubData.getBusinessContactDetails(mgdRegNumber))
 
+    override def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails] =
+      Future.successful(GamblingStubData.getTradeClassDetails(mgdRegNumber))
+
     override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] =
       Future.successful(GamblingStubData.getMgdDetails(mgdRegNumber))
   }
@@ -113,6 +116,71 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     }
   }
 
+  "getTradeClassDetails (stubbed repository)" should {
+
+    "return trade class details for a valid mgdRegNumber" in {
+
+      val result =
+        repository.getTradeClassDetails("XYZ00000000001").futureValue
+
+      result.mgdRegNumber mustBe "XYZ00000000001"
+      result.businessTradeClass mustBe Some(1)
+      result.businessActivityDesc must not be empty
+      result.systemDate mustBe Some(LocalDate.of(2026, 5, 31))
+    }
+
+    "return correct business trade class and description" in {
+
+      val result =
+        repository.getTradeClassDetails("XYZ00000000001").futureValue
+
+      result.businessTradeClass mustBe Some(1)
+      result.businessActivityDesc mustBe "Gaming Machine Operation"
+    }
+
+    "return consistent results across multiple calls" in {
+
+      val result1 =
+        repository.getTradeClassDetails("XYZ00000000001").futureValue
+      val result2 =
+        repository.getTradeClassDetails("XYZ00000000001").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different mgdRegNumbers independently" in {
+
+      val result1 =
+        repository.getTradeClassDetails("XYZ00000000001").futureValue
+      val result2 =
+        repository.getTradeClassDetails("XYZ00000000002").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+
+      val exception = intercept[RuntimeException] {
+        repository.getTradeClassDetails("ERR00000000000").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "handle empty response scenario" in {
+
+      val result =
+        repository.getTradeClassDetails("UNKNOWN").futureValue
+
+      result mustBe TradeClassDetails(
+        mgdRegNumber = "UNKNOWN",
+        businessTradeClass = Some(1),
+        businessActivityDesc = "Gaming Machine Operation",
+        systemDate = Some(LocalDate.of(2026, 5, 31))
+      )
+    }
+  }
+  
   "getMgdDetails (stubbed repository)" should {
 
     "return mgd details for valid mgdRegNumber" in {

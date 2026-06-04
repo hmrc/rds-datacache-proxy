@@ -41,17 +41,23 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var returnPeriodRs: ResultSet = _
   var businessRs: ResultSet = _
   var operatorRs: ResultSet = _
+  var mgdRs: ResultSet = _
+  var tradeClassRs: ResultSet = _
+  var businessContactRs: ResultSet = _
 
   before {
-    db              = mock(classOf[Database])
-    mockConnection  = mock(classOf[Connection])
-    mockCs          = mock(classOf[CallableStatement])
-    returnSummaryRs = mock(classOf[ResultSet])
-    partRs          = mock(classOf[ResultSet])
-    groupRs         = mock(classOf[ResultSet])
-    returnPeriodRs  = mock(classOf[ResultSet])
-    businessRs      = mock(classOf[ResultSet])
-    operatorRs      = mock(classOf[ResultSet])
+    db                = mock(classOf[Database])
+    mockConnection    = mock(classOf[Connection])
+    mockCs            = mock(classOf[CallableStatement])
+    returnSummaryRs   = mock(classOf[ResultSet])
+    partRs            = mock(classOf[ResultSet])
+    groupRs           = mock(classOf[ResultSet])
+    returnPeriodRs    = mock(classOf[ResultSet])
+    businessRs        = mock(classOf[ResultSet])
+    operatorRs        = mock(classOf[ResultSet])
+    mgdRs             = mock(classOf[ResultSet])
+    tradeClassRs      = mock(classOf[ResultSet])
+    businessContactRs = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -61,6 +67,251 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCs)
 
     repository = new GamblingDataCacheRepository(db)
+  }
+
+  "getTradeClassDetails" should "return TradeClassDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(tradeClassRs)
+    when(tradeClassRs.next()).thenReturn(true)
+
+    when(tradeClassRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(tradeClassRs.getObject("business_trade_class")).thenReturn(BigDecimal(3))
+    when(tradeClassRs.getString("business_activity_desc")).thenReturn("Arcade Operator")
+    when(tradeClassRs.getDate("system_date")).thenReturn(Date.valueOf("2025-01-01"))
+
+    val result =
+      repository.getTradeClassDetails(mgdRegNumber).futureValue
+
+    result shouldBe TradeClassDetails(
+      mgdRegNumber         = mgdRegNumber,
+      businessTradeClass   = Some(3),
+      businessActivityDesc = "Arcade Operator",
+      systemDate           = Some(LocalDate.of(2025, 1, 1))
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(tradeClassRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "return default TradeClassDetails when cursor is null" in {
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val result =
+      repository.getTradeClassDetails("XWM00000001770").futureValue
+
+    result shouldBe TradeClassDetails(
+      mgdRegNumber         = "",
+      businessTradeClass   = None,
+      businessActivityDesc = "",
+      systemDate           = None
+    )
+
+    verify(mockCs).close()
+  }
+
+  it should "return default TradeClassDetails when result set is empty" in {
+
+    when(mockCs.getObject(2)).thenReturn(tradeClassRs)
+    when(tradeClassRs.next()).thenReturn(false)
+
+    val result =
+      repository.getTradeClassDetails("XWM00000001770").futureValue
+
+    result shouldBe TradeClassDetails(
+      mgdRegNumber         = "",
+      businessTradeClass   = None,
+      businessActivityDesc = "",
+      systemDate           = None
+    )
+
+    verify(tradeClassRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "handle null values safely" in {
+
+    when(mockCs.getObject(2)).thenReturn(tradeClassRs)
+    when(tradeClassRs.next()).thenReturn(true)
+
+    when(tradeClassRs.getString("mgd_reg_number")).thenReturn("XWM00000001770")
+    when(tradeClassRs.getObject("business_trade_class")).thenReturn(null)
+    when(tradeClassRs.getString("business_activity_desc")).thenReturn(null)
+    when(tradeClassRs.getDate("system_date")).thenReturn(null)
+
+    val result =
+      repository.getTradeClassDetails("XWM00000001770").futureValue
+
+    result.mgdRegNumber         shouldBe "XWM00000001770"
+    result.businessTradeClass   shouldBe None
+    result.businessActivityDesc shouldBe ""
+    result.systemDate           shouldBe None
+
+    verify(tradeClassRs).close()
+    verify(mockCs).close()
+  }
+
+  "getMgdDetails" should "return MgdDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(mgdRs)
+    when(mgdRs.next()).thenReturn(true)
+
+    when(mgdRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(mgdRs.getObject("is_business_seasonal")).thenReturn(BigDecimal(1))
+
+    when(mgdRs.getString("previous_mgdrn_1")).thenReturn("OLD001")
+    when(mgdRs.getString("previous_mgdrn_2")).thenReturn("OLD002")
+    when(mgdRs.getString("previous_mgdrn_3")).thenReturn("OLD003")
+
+    when(mgdRs.getString("associated_mgdrn_1")).thenReturn("ASS001")
+    when(mgdRs.getString("associated_mgdrn_2")).thenReturn("ASS002")
+    when(mgdRs.getString("associated_mgdrn_3")).thenReturn("ASS003")
+
+    when(mgdRs.getDate("system_date"))
+      .thenReturn(Date.valueOf("2025-01-01"))
+
+    val result =
+      repository.getMgdDetails(mgdRegNumber).futureValue
+
+    result shouldBe MgdDetails(
+      mgdRegNumber       = mgdRegNumber,
+      isBusinessSeasonal = Some(1),
+      previousMgdrn1     = Some("OLD001"),
+      previousMgdrn2     = Some("OLD002"),
+      previousMgdrn3     = Some("OLD003"),
+      associatedMgdrn1   = Some("ASS001"),
+      associatedMgdrn2   = Some("ASS002"),
+      associatedMgdrn3   = Some("ASS003"),
+      systemDate         = Some(LocalDate.of(2025, 1, 1))
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(mgdRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "return default MgdDetails when cursor is null" in {
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val result =
+      repository.getMgdDetails("XWM00000001770").futureValue
+
+    result shouldBe MgdDetails(
+      mgdRegNumber       = "",
+      isBusinessSeasonal = None,
+      previousMgdrn1     = None,
+      previousMgdrn2     = None,
+      previousMgdrn3     = None,
+      associatedMgdrn1   = None,
+      associatedMgdrn2   = None,
+      associatedMgdrn3   = None,
+      systemDate         = None
+    )
+
+    verify(mockCs).close()
+  }
+
+  it should "return default MgdDetails when result set is empty" in {
+
+    when(mockCs.getObject(2)).thenReturn(mgdRs)
+    when(mgdRs.next()).thenReturn(false)
+
+    val result =
+      repository.getMgdDetails("XWM00000001770").futureValue
+
+    result shouldBe MgdDetails(
+      mgdRegNumber       = "",
+      isBusinessSeasonal = None,
+      previousMgdrn1     = None,
+      previousMgdrn2     = None,
+      previousMgdrn3     = None,
+      associatedMgdrn1   = None,
+      associatedMgdrn2   = None,
+      associatedMgdrn3   = None,
+      systemDate         = None
+    )
+
+    verify(mgdRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "convert blank and null values to None" in {
+
+    when(mockCs.getObject(2)).thenReturn(mgdRs)
+    when(mgdRs.next()).thenReturn(true)
+
+    when(mgdRs.getString("mgd_reg_number")).thenReturn("XWM00000001770")
+    when(mgdRs.getObject("is_business_seasonal")).thenReturn(null)
+
+    when(mgdRs.getString("previous_mgdrn_1")).thenReturn(" ")
+    when(mgdRs.getString("previous_mgdrn_2")).thenReturn("")
+    when(mgdRs.getString("previous_mgdrn_3")).thenReturn(null)
+
+    when(mgdRs.getString("associated_mgdrn_1")).thenReturn(" ")
+    when(mgdRs.getString("associated_mgdrn_2")).thenReturn("")
+    when(mgdRs.getString("associated_mgdrn_3")).thenReturn(null)
+
+    when(mgdRs.getDate("system_date")).thenReturn(null)
+
+    val result =
+      repository.getMgdDetails("XWM00000001770").futureValue
+
+    result.mgdRegNumber       shouldBe "XWM00000001770"
+    result.isBusinessSeasonal shouldBe None
+    result.previousMgdrn1     shouldBe None
+    result.previousMgdrn2     shouldBe None
+    result.previousMgdrn3     shouldBe None
+    result.associatedMgdrn1   shouldBe None
+    result.associatedMgdrn2   shouldBe None
+    result.associatedMgdrn3   shouldBe None
+    result.systemDate         shouldBe None
+
+    verify(mgdRs).close()
+    verify(mockCs).close()
+  }
+
+  "getBusinessContactDetails" should "return BusinessContactDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(businessContactRs)
+    when(businessContactRs.next()).thenReturn(true)
+
+    when(businessContactRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(businessContactRs.getString("phone_number")).thenReturn("111111")
+    when(businessContactRs.getString("mobile_phone_number")).thenReturn("222222")
+    when(businessContactRs.getString("fax_number")).thenReturn("333333")
+    when(businessContactRs.getString("email_addr")).thenReturn("test@test.com")
+    when(businessContactRs.getDate("system_date"))
+      .thenReturn(Date.valueOf("2025-01-01"))
+
+    val result =
+      repository.getBusinessContactDetails(mgdRegNumber).futureValue
+
+    result shouldBe BusinessContactDetails(
+      mgdRegNumber      = mgdRegNumber,
+      phoneNumber       = Some("111111"),
+      mobilePhoneNumber = Some("222222"),
+      faxNumber         = Some("333333"),
+      emailAddr         = Some("test@test.com"),
+      systemDate        = Some(LocalDate.of(2025, 1, 1))
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(businessContactRs).close()
+    verify(mockCs).close()
   }
 
   "getOperatorDetails" should "return operator details when data exists" in {

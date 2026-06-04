@@ -32,6 +32,28 @@ class GamblingService @Inject() (
 )(implicit ec: ExecutionContext)
     extends Logging {
 
+  def getTradeClass(
+    rawMgdRegNumber: String
+  )(implicit hc: HeaderCarrier): Future[Either[GamblingError, TradeClassDetails]] = {
+
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+      logger.warn(s"[GamblingService][getTradeClass] Invalid pattern mgdRegNumber=$mgdRegNumber")
+      Future.successful(Left(InvalidMgdRegNumber))
+    } else {
+      repository
+        .getTradeClassDetails(mgdRegNumber)
+        .map { tradeClassDetails =>
+          Right(tradeClassDetails)
+        }
+        .recover { case ex: Exception =>
+          logger.error(s"[GamblingService][getTradeClass] Unexpected error mgdRegNumber=$mgdRegNumber", ex)
+          Left(UnexpectedError)
+        }
+    }
+  }
+
   def getMgdDetails(
     rawMgdRegNumber: String
   )(implicit hc: HeaderCarrier): Future[Either[GamblingError, MgdDetails]] = {
