@@ -40,17 +40,17 @@ object PaymentsStubData {
           items = Seq(
             PaymentItem(
               transactionDate = LocalDate.of(2014, 10, 1),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 3000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2014, 7, 15),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 5000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2013, 6, 1),
-              descriptionCode = "F",
+              descriptionCode = "C",
               amount          = -500.00
             )
           )
@@ -64,7 +64,7 @@ object PaymentsStubData {
           items = Seq(
             PaymentItem(
               transactionDate = LocalDate.of(2014, 10, 1),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 3000.00
             )
           )
@@ -79,22 +79,22 @@ object PaymentsStubData {
           items = Seq(
             PaymentItem(
               transactionDate = LocalDate.of(2014, 10, 1),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 3000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2014, 7, 15),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 5000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2013, 6, 1),
-              descriptionCode = "F",
+              descriptionCode = "C",
               amount          = -500.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2013, 6, 1),
-              descriptionCode = "F",
+              descriptionCode = "C",
               amount          = -500.00
             )
           )
@@ -108,17 +108,17 @@ object PaymentsStubData {
           items = Seq(
             PaymentItem(
               transactionDate = LocalDate.of(2014, 10, 1),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 3000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2014, 7, 15),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 5000.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2013, 6, 1),
-              descriptionCode = "F",
+              descriptionCode = "C",
               amount          = -500.00
             )
           )
@@ -141,12 +141,12 @@ object PaymentsStubData {
           items = Seq(
             PaymentItem(
               transactionDate = LocalDate.of(2014, 9, 1),
-              descriptionCode = "P",
+              descriptionCode = "E",
               amount          = 4500.00
             ),
             PaymentItem(
               transactionDate = LocalDate.of(2014, 4, 1),
-              descriptionCode = "F",
+              descriptionCode = "C",
               amount          = -500.00
             )
           )

@@ -86,7 +86,7 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
       when(paymentsRs.next()).thenReturn(true, false)
 
       when(paymentsRs.getDate("p_transaction_date")).thenReturn(Date.valueOf("2014-10-01"))
-      when(paymentsRs.getString("p_desc_code")).thenReturn("P")
+      when(paymentsRs.getString("p_desc_code")).thenReturn("E")
       when(paymentsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
 
       val result = repository.getPayments(Regime.MGD, regNumber, 1, 10).futureValue
@@ -188,7 +188,7 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
 
         when(paymentsRs.next()).thenReturn(true, false)
         when(paymentsRs.getDate("p_transaction_date")).thenReturn(Date.valueOf("2014-10-01"))
-        when(paymentsRs.getString("p_desc_code")).thenReturn("P")
+        when(paymentsRs.getString("p_desc_code")).thenReturn("E")
         when(paymentsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
 
         val result = repository.getPayments(regime, regNumber, 1, 10).futureValue
