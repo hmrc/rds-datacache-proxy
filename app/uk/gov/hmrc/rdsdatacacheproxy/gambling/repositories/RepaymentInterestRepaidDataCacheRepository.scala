@@ -57,7 +57,7 @@ class RepaymentInterestRepaidDataCacheRepository @Inject() (@NamedDatabase("gamb
           cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
           cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
           cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
-          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_REPAYMENT_INTEREST_REPAID (REF CURSOR)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_REPAYMENT_INTEREST_REPAID(REF CURSOR)
           cs.execute()
 
           val repaymentInterestRepaid: List[RepaymentInterestRepaidItem] = {
