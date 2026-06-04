@@ -18,22 +18,21 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentInterestRepaid}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentInterestRepaidDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AssessmentsInAbsenceOfReturnsService @Inject() (
-  repository: AssessmentsInAbsenceOfReturnsDataSource
+class RepaymentInterestRepaidService @Inject() (
+  repository: RepaymentInterestRepaidDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getAssessmentsInAbsenceOfReturns(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getRepaymentInterestRepaid(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, Assessments]] = {
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getAssessmentsWithoutReturn")(
-      repository.getAssessmentsWithoutReturn
+  ): Future[Either[StatementError, RepaymentInterestRepaid]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getRepaymentInterestRepaid")(
+      repository.getRepaymentInterestRepaid
     )
-  }
 }
