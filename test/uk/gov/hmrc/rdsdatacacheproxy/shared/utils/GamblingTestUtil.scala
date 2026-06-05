@@ -286,6 +286,33 @@ object GamblingTestUtil {
     repayments         = None
   )
 
+  val validResponseInterestAccruing = InterestAccruing(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(1250.50),
+    totalRecords    = 1,
+    descriptionCode = Some(42),
+    items = Seq(
+      InterestAccruingItem(
+        interestOn = BigDecimal(1000.00),
+        dateFrom   = LocalDate.of(2013, 6, 1),
+        dateTo     = LocalDate.of(2014, 6, 1),
+        noOfDays   = BigDecimal(365),
+        rate       = BigDecimal(2.5),
+        amount     = BigDecimal(1250.50)
+      )
+    )
+  )
+
+  val validResponseInterestAccruingEmpty = InterestAccruing(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(0.00),
+    totalRecords    = 0,
+    descriptionCode = None,
+    items           = Seq.empty
+  )
+
   val validResponseRepaymentInterestRepaidSmall = RepaymentInterestRepaid(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
