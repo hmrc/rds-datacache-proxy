@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsDetails, ReallocationsOut}
 

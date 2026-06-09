@@ -50,5 +50,6 @@ class Module extends AppModule:
       bind[AssessmentsInAbsenceOfReturnsDataSource].to(classOf[AssessmentsInAbsenceOfReturnsDataCacheRepository]),
       bind[RepaymentsDataSource].to(classOf[RepaymentsDataCacheRepository]),
       bind[PaymentsDataSource].to(classOf[PaymentsDataCacheRepository]),
-      bind[RepaymentInterestRepaidDataSource].to(classOf[RepaymentInterestRepaidDataCacheRepository])
+      bind[RepaymentInterestRepaidDataSource].to(classOf[RepaymentInterestRepaidDataCacheRepository]),
+      bind[InterestBreakdownSummaryDataSource].to(classOf[InterestBreakdownSummaryDataCacheRepository])
     )
