@@ -22,15 +22,15 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestBreakdownSummaryDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestBreakdownSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestOverviewDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestOverview
 
 import scala.concurrent.Future
 
-final class InterestBreakdownSummaryServiceSpec extends SpecBase {
+final class InterestOverviewServiceSpec extends SpecBase {
 
-  private val repository = mock[InterestBreakdownSummaryDataSource]
-  private val service = new InterestBreakdownSummaryService(repository)
+  private val repository = mock[InterestOverviewDataSource]
+  private val service = new InterestOverviewService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -41,38 +41,38 @@ final class InterestBreakdownSummaryServiceSpec extends SpecBase {
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
-  "InterestBreakdownSummaryService#getInterestBreakdownSummary" - {
+  "InterestOverviewService#getInterestOverview" - {
 
-    "return validResponseInterestBreakdownSummary when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getInterestBreakdownSummary(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(validResponseInterestBreakdownSummary))
+    "return validResponseInterestOverview when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
+      when(repository.getInterestOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
+        .thenReturn(Future.successful(validResponseInterestOverview))
 
-      val result = service.getInterestBreakdownSummary(validRegime.toString, lowercaseRegNumber).futureValue
+      val result = service.getInterestOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
-      result mustBe Right(validResponseInterestBreakdownSummary)
-      verify(repository).getInterestBreakdownSummary(eqTo(validRegime), eqTo(normalisedRegNumber))
+      result mustBe Right(validResponseInterestOverview)
+      verify(repository).getInterestOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegimeError and not call repository when Regime input is invalid" in {
-      val result = service.getInterestBreakdownSummary("INVALID", lowercaseRegNumber).futureValue
+      val result = service.getInterestOverview("INVALID", lowercaseRegNumber).futureValue
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getInterestBreakdownSummary(validRegime.toString, invalidRegNumber).futureValue
+      val result = service.getInterestOverview(validRegime.toString, invalidRegNumber).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getInterestBreakdownSummary(eqTo(validRegime), eqTo(normalisedRegNumber)))
+      when(repository.getInterestOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getInterestBreakdownSummary(validRegime.toString, lowercaseRegNumber).futureValue
+      val result = service.getInterestOverview(validRegime.toString, lowercaseRegNumber).futureValue
       result mustBe Left(UnexpectedError)
-      verify(repository).getInterestBreakdownSummary(eqTo(validRegime), eqTo(normalisedRegNumber))
+      verify(repository).getInterestOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }
   }

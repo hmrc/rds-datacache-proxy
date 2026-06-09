@@ -23,58 +23,58 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestBreakdownSummary, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestBreakdownSummaryStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData.*
 
 import scala.concurrent.Future
 
-class InterestBreakdownSummaryDataCacheRepositoryISpec
+class InterestOverviewDataCacheRepositoryISpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneAppPerSuite {
 
-  class InterestBreakdownSummaryRdsStub extends InterestBreakdownSummaryDataSource {
-    override def getInterestBreakdownSummary(regime: Regime, regNumber: String): Future[InterestBreakdownSummary] =
-      Future.successful(getInterestBreakdownSummaryData(regNumber))
+  class InterestOverviewRdsStub extends InterestOverviewDataSource {
+    override def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview] =
+      Future.successful(getInterestOverviewData(regNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[InterestBreakdownSummaryDataSource].toInstance(new InterestBreakdownSummaryRdsStub))
+    .overrides(bind[InterestOverviewDataSource].toInstance(new InterestOverviewRdsStub))
     .build()
 
-  private lazy val repository: InterestBreakdownSummaryDataSource = app.injector.instanceOf[InterestBreakdownSummaryDataSource]
+  private lazy val repository: InterestOverviewDataSource = app.injector.instanceOf[InterestOverviewDataSource]
 
-  "getInterestBreakdownSummary (stubbed repository)" should {
+  "getInterestOverview (stubbed repository)" should {
 
-    "return correct InterestBreakdownSummaryStubData" in {
-      val result = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ00000000000").futureValue
-      result mustBe getInterestBreakdownSummaryData("XYZ00000000000")
+    "return correct InterestOverviewStubData" in {
+      val result = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
+      result mustBe getInterestOverviewData("XYZ00000000000")
     }
 
     "return correct data when values are 0" in {
-      val result = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ99999999999").futureValue
-      result mustBe getInterestBreakdownSummaryData("XYZ99999999999")
+      val result = repository.getInterestOverview(Regime.MGD, "XYZ99999999999").futureValue
+      result mustBe getInterestOverviewData("XYZ99999999999")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ00000000000").futureValue
-      val result2 = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
+      val result2 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ00000000000").futureValue
-      val result2 = repository.getInterestBreakdownSummary(Regime.MGD, "XYZ99999999999").futureValue
+      val result1 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
+      val result2 = repository.getInterestOverview(Regime.MGD, "XYZ99999999999").futureValue
 
       result1 must not be result2
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getInterestBreakdownSummary(Regime.MGD, "ERR00000000000").futureValue
+        repository.getInterestOverview(Regime.MGD, "ERR00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

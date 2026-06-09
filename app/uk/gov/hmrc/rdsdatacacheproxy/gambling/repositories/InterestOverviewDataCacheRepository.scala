@@ -18,26 +18,26 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestBreakdownSummary, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait InterestBreakdownSummaryDataSource {
-  def getInterestBreakdownSummary(regime: Regime, regNumber: String): Future[InterestBreakdownSummary]
+trait InterestOverviewDataSource {
+  def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview]
 }
 
 @Singleton
-class InterestBreakdownSummaryDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase,
-                                                             @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
-                                                            )(implicit
+class InterestOverviewDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase,
+                                                     @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
+                                                    )(implicit
   ec: ExecutionContext
-) extends InterestBreakdownSummaryDataSource
+) extends InterestOverviewDataSource
     with RepositorySupport
     with Logging {
 
-  override def getInterestBreakdownSummary(regime: Regime, regNumber: String): Future[InterestBreakdownSummary] =
+  override def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -56,7 +56,7 @@ class InterestBreakdownSummaryDataCacheRepository @Inject() (@NamedDatabase("gam
 
           cs.execute()
 
-          InterestBreakdownSummary(
+          InterestOverview(
             periodStartDate         = optDate(2, cs),
             periodEndDate           = optDate(3, cs),
             interestAmount          = optDecimalFromIndex(4, cs).getOrElse(0),

@@ -27,42 +27,42 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestBreakdownSummaryService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestBreakdownSummary}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestOverviewService
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestOverview}
 
 import scala.concurrent.Future
 
-class InterestBreakdownSummaryControllerSpec extends SpecBase with MockitoSugar {
+class InterestOverviewControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockService: InterestBreakdownSummaryService = mock[InterestBreakdownSummaryService]
-    val controller = new InterestBreakdownSummaryController(fakeAuthAction, mockService, cc)
+    val mockService: InterestOverviewService = mock[InterestOverviewService]
+    val controller = new InterestOverviewController(fakeAuthAction, mockService, cc)
   }
 
-  "InterestBreakdownSummaryController#getInterestBreakdownSummary" - {
+  "InterestOverviewController#getInterestOverview" - {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.getInterestBreakdownSummary(eqTo(validRegime), eqTo("XWM00000001770"))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterestBreakdownSummary)))
+      when(mockService.getInterestOverview(eqTo(validRegime), eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(validResponseInterestOverview)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/XWM00000001770")
-      val res: Future[Result] = controller.getInterestBreakdownSummary(validRegime, "XWM00000001770")(req)
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/XWM00000001770")
+      val res: Future[Result] = controller.getInterestOverview(validRegime, "XWM00000001770")(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterestBreakdownSummary)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestOverview)
 
-      verify(mockService).getInterestBreakdownSummary(eqTo(validRegime), eqTo("XWM00000001770"))(any())
+      verify(mockService).getInterestOverview(eqTo(validRegime), eqTo("XWM00000001770"))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getInterestBreakdownSummary(any(), any())(any()))
+      when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
-      val req = FakeRequest(GET, "/gambling/interest-breakdown/INVALID_REGIME/XWM00000001770")
-      val res: Future[Result] = controller.getInterestBreakdownSummary(" ", " ")(req)
+      val req = FakeRequest(GET, "/gambling/interest-overview/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getInterestOverview(" ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -70,15 +70,15 @@ class InterestBreakdownSummaryControllerSpec extends SpecBase with MockitoSugar 
         "message" -> "Invalid Regime Code"
       )
 
-      verify(mockService).getInterestBreakdownSummary(eqTo(" "), eqTo(" "))(any())
+      verify(mockService).getInterestOverview(eqTo(" "), eqTo(" "))(any())
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getInterestBreakdownSummary(any(), any())(any()))
+      when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/InvalidRegNo")
-      val res: Future[Result] = controller.getInterestBreakdownSummary(" ", " ")(req)
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getInterestOverview(" ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -86,15 +86,15 @@ class InterestBreakdownSummaryControllerSpec extends SpecBase with MockitoSugar 
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getInterestBreakdownSummary(eqTo(" "), eqTo(" "))(any())
+      verify(mockService).getInterestOverview(eqTo(" "), eqTo(" "))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getInterestBreakdownSummary(any(), any())(any()))
+      when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/ERR00001770")
-      val res: Future[Result] = controller.getInterestBreakdownSummary(validRegime, "ERR00001770")(req)
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getInterestOverview(validRegime, "ERR00001770")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -102,7 +102,7 @@ class InterestBreakdownSummaryControllerSpec extends SpecBase with MockitoSugar 
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getInterestBreakdownSummary(eqTo(validRegime), eqTo("ERR00001770"))(any())
+      verify(mockService).getInterestOverview(eqTo(validRegime), eqTo("ERR00001770"))(any())
     }
   }
 }

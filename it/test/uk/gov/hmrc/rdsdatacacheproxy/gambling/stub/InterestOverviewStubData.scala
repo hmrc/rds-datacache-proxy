@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.InterestBreakdownSummary
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.InterestOverview
 
 import java.time.LocalDate
 
-object InterestBreakdownSummaryStubData {
-  def getInterestBreakdownSummaryData(regNumber: String): InterestBreakdownSummary =
+object InterestOverviewStubData {
+  def getInterestOverviewData(regNumber: String): InterestOverview =
     regNumber match {
       case "XYZ00000000000" =>
-        InterestBreakdownSummary(
+        InterestOverview(
           periodStartDate         = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate           = Some(LocalDate.of(2014, 3, 11)),
           interestAmount          = BigDecimal(-81.84),
@@ -34,7 +34,7 @@ object InterestBreakdownSummaryStubData {
         )
 
       case "XYZ99999999999" =>
-        InterestBreakdownSummary(
+        InterestOverview(
           periodStartDate         = Some(LocalDate.of(2023, 3, 1)),
           periodEndDate           = Some(LocalDate.of(2024, 3, 11)),
           interestAmount          = BigDecimal(0),
@@ -44,7 +44,7 @@ object InterestBreakdownSummaryStubData {
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
-        InterestBreakdownSummary(
+        InterestOverview(
           periodStartDate         = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate           = Some(LocalDate.of(2014, 3, 11)),
           interestAmount          = BigDecimal(-171.84),
