@@ -18,19 +18,19 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestBreakdownSummary, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestBreakdownSummaryDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestOverviewDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterestBreakdownSummaryService @Inject() (
-  repository: InterestBreakdownSummaryDataSource
+class InterestOverviewService @Inject() (
+  repository: InterestOverviewDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getInterestBreakdownSummary(regime: String, rawRegNumber: String)(implicit
+  def getInterestOverview(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, InterestBreakdownSummary]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getInterestBreakdownSummary")(repository.getInterestBreakdownSummary)
+  ): Future[Either[StatementError, InterestOverview]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getInterestOverview")(repository.getInterestOverview)
 }

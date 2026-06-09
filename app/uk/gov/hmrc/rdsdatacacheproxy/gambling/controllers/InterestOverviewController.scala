@@ -21,22 +21,22 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestBreakdownSummaryService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestOverviewService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestBreakdownSummaryController @Inject() (authorise: AuthAction, service: InterestBreakdownSummaryService, cc: ControllerComponents)(
-  implicit ec: ExecutionContext
+class InterestOverviewController @Inject() (authorise: AuthAction, service: InterestOverviewService, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
-  def getInterestBreakdownSummary(regime: String, regNumber: String): Action[AnyContent] =
+  def getInterestOverview(regime: String, regNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getInterestBreakdownSummary(regime, regNumber).map {
-        case Right(interestBreakdownSummary) => Ok(Json.toJson(interestBreakdownSummary))
-        case Left(error)                     => handleError(error)
+      service.getInterestOverview(regime, regNumber).map {
+        case Right(interestOverview) => Ok(Json.toJson(interestOverview))
+        case Left(error)             => handleError(error)
       }
     }
 }

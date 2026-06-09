@@ -19,14 +19,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsResult, JsSuccess, Json}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestBreakdownSummary
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestOverview
 
-class InterestBreakdownSummarySpec extends AnyWordSpec with Matchers {
+class InterestOverviewSpec extends AnyWordSpec with Matchers {
 
-  "InterestBreakdownSummary JSON format" should {
+  "InterestOverview JSON format" should {
 
     "serialize to JSON correctly" in {
-      val json = Json.toJson(validResponseInterestBreakdownSummary)
+      val json = Json.toJson(validResponseInterestOverview)
 
       (json \ "periodStartDate").as[String] mustBe "2013-03-01"
       (json \ "periodEndDate").as[String] mustBe "2014-03-11"
@@ -48,16 +48,16 @@ class InterestBreakdownSummarySpec extends AnyWordSpec with Matchers {
            |}""".stripMargin
       )
 
-      val result: JsResult[InterestBreakdownSummary] = json.validate[InterestBreakdownSummary]
+      val result: JsResult[InterestOverview] = json.validate[InterestOverview]
 
-      result mustBe JsSuccess(validResponseInterestBreakdownSummary)
+      result mustBe JsSuccess(validResponseInterestOverview)
     }
 
     "round-trip write then read should return same object" in {
-      val json = Json.toJson(validResponseInterestBreakdownSummary)
-      val parsed = json.as[InterestBreakdownSummary]
+      val json = Json.toJson(validResponseInterestOverview)
+      val parsed = json.as[InterestOverview]
 
-      parsed mustBe validResponseInterestBreakdownSummary
+      parsed mustBe validResponseInterestOverview
     }
 
     "fail to deserialize when required fields are missing" in {
@@ -69,7 +69,7 @@ class InterestBreakdownSummarySpec extends AnyWordSpec with Matchers {
           |""".stripMargin
       )
 
-      val result = json.validate[InterestBreakdownSummary]
+      val result = json.validate[InterestOverview]
 
       result.isError mustBe true
     }
@@ -86,7 +86,7 @@ class InterestBreakdownSummarySpec extends AnyWordSpec with Matchers {
            |}""".stripMargin
       )
 
-      val result = json.validate[InterestBreakdownSummary]
+      val result = json.validate[InterestOverview]
 
       result.isError mustBe true
     }

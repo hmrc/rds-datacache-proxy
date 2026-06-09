@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class InterestBreakdownSummary(
+final case class InterestOverview(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
   interestAmount: BigDecimal,
@@ -29,6 +29,6 @@ final case class InterestBreakdownSummary(
   total: BigDecimal
 )
 
-object InterestBreakdownSummary {
-  implicit val format: OFormat[InterestBreakdownSummary] = Json.format[InterestBreakdownSummary]
+object InterestOverview {
+  implicit val format: OFormat[InterestOverview] = Json.format[InterestOverview]
 }

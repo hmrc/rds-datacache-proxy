@@ -23,26 +23,26 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestBreakdownSummary, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestBreakdownSummaryDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestBreakdownSummaryStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestBreakdownSummaryStubData.getInterestBreakdownSummaryData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestOverviewDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData.getInterestOverviewData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InterestBreakdownSummaryControllerISpec
+class InterestOverviewControllerISpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
     with ApplicationWithWiremock {
 
-  class InterestBreakdownSummaryRdsStub extends InterestBreakdownSummaryDataSource {
-    override def getInterestBreakdownSummary(regime: Regime, regNumber: String) =
+  class InterestOverviewRdsStub extends InterestOverviewDataSource {
+    override def getInterestOverview(regime: Regime, regNumber: String) =
       Future {
-        InterestBreakdownSummaryStubData.getInterestBreakdownSummaryData(regNumber)
+        InterestOverviewStubData.getInterestOverviewData(regNumber)
       }
   }
 
@@ -50,7 +50,7 @@ class InterestBreakdownSummaryControllerISpec
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestBreakdownSummaryDataSource].toInstance(new InterestBreakdownSummaryRdsStub)
+        bind[InterestOverviewDataSource].toInstance(new InterestOverviewRdsStub)
       )
       .build()
 
@@ -59,7 +59,7 @@ class InterestBreakdownSummaryControllerISpec
 
   "GET /gambling/interest-breakdown (stubbed repo, no DB)" should {
 
-    "return 200 with correct InterestBreakdownSummaryStubData" in {
+    "return 200 with correct InterestOverviewStubData" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
@@ -67,10 +67,10 @@ class InterestBreakdownSummaryControllerISpec
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestBreakdownSummary] mustBe getInterestBreakdownSummaryData("XYZ00000000000")
+      response.json.as[InterestOverview] mustBe getInterestOverviewData("XYZ00000000000")
     }
 
-    "return 200 with correct InterestBreakdownSummaryStubData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct InterestOverviewStubData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
@@ -78,21 +78,21 @@ class InterestBreakdownSummaryControllerISpec
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestBreakdownSummary] mustBe getInterestBreakdownSummaryData("XYZ99999999999")
+      response.json.as[InterestOverview] mustBe getInterestOverviewData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[InterestBreakdownSummary] mustBe getInterestBreakdownSummaryData("XYZ00000000012")
+      response.json.as[InterestOverview] mustBe getInterestOverviewData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[InterestBreakdownSummary] mustBe getInterestBreakdownSummaryData("XYZ00000000012")
+      response.json.as[InterestOverview] mustBe getInterestOverviewData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

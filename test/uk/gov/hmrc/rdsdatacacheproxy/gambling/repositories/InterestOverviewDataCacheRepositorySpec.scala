@@ -25,16 +25,16 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestBreakdownSummary
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestOverview
 
 import java.sql.{CallableStatement, Connection, Date}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+class InterestOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   private var mgdDb: MGDDatabase = _
   private var gtrDb: GTRDatabase = _
-  var repository: InterestBreakdownSummaryDataCacheRepository = _
+  var repository: InterestOverviewDataCacheRepository = _
   private var mgdMockConnection: Connection = _
   private var gtrMockConnection: Connection = _
   private var mockCsMgd: CallableStatement = _
@@ -61,14 +61,14 @@ class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with M
     when(mgdMockConnection.prepareCall("{ call MGD_LNP_PK.getMGDInterestOverview(?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRInterestOverview(?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
 
-    repository = new InterestBreakdownSummaryDataCacheRepository(
+    repository = new InterestOverviewDataCacheRepository(
       mgdDb = mgdDb,
       gtrDb = gtrDb
     )
   }
 
-  "getInterestBreakdownSummary" should {
-    "return a InterestBreakdownSummary for MGD regime when stored procedure returns data" in {
+  "getInterestOverview" should {
+    "return a InterestOverview for MGD regime when stored procedure returns data" in {
 
       val regNumber = "XWM12345678901"
 
@@ -79,9 +79,9 @@ class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with M
       when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(41.23))
       when(mockCsMgd.getBigDecimal(7)).thenReturn(java.math.BigDecimal.valueOf(66.37))
 
-      val result = repository.getInterestBreakdownSummary(Regime.MGD, regNumber).futureValue
+      val result = repository.getInterestOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe validResponseInterestBreakdownSummary
+      result shouldBe validResponseInterestOverview
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -104,12 +104,12 @@ class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with M
       verifyNoInteractions(mockCsGtr)
     }
 
-    "return empty InterestBreakdownSummary when regNumber is null" in {
+    "return empty InterestOverview when regNumber is null" in {
       val regNumber: Null = null
       when(mockCsMgd.getDate(2)).thenReturn(null)
-      val result = repository.getInterestBreakdownSummary(Regime.MGD, regNumber).futureValue
+      val result = repository.getInterestOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe InterestBreakdownSummary(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0), BigDecimal(0))
+      result shouldBe InterestOverview(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0), BigDecimal(0))
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -133,7 +133,7 @@ class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with M
     }
 
     Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
-      s"return InterestBreakdownSummary for $regime regime when stored procedure returns data" in {
+      s"return InterestOverview for $regime regime when stored procedure returns data" in {
 
         val regNumber = "XWM12345678901"
 
@@ -144,9 +144,9 @@ class InterestBreakdownSummaryDataCacheRepositorySpec extends AnyWordSpec with M
         when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(41.23))
         when(mockCsGtr.getBigDecimal(7)).thenReturn(java.math.BigDecimal.valueOf(66.37))
 
-        val result = repository.getInterestBreakdownSummary(regime, regNumber).futureValue
+        val result = repository.getInterestOverview(regime, regNumber).futureValue
 
-        result shouldBe validResponseInterestBreakdownSummary
+        result shouldBe validResponseInterestOverview
 
         verify(mockCsGtr).setString(1, regNumber)
         verify(mockCsGtr).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
