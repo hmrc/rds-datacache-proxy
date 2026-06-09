@@ -191,6 +191,15 @@ object GamblingTestUtil {
     total                          = BigDecimal(36.08)
   )
 
+  val validResponseInterestBreakdownSummary = InterestBreakdownSummary(
+    periodStartDate         = Some(LocalDate.of(2013, 3, 1)),
+    periodEndDate           = Some(LocalDate.of(2014, 3, 11)),
+    interestAmount          = BigDecimal(-81.84),
+    interestAccruingAmount  = BigDecimal(-25.76),
+    repaymentInterestAmount = BigDecimal(41.23),
+    total                   = BigDecimal(66.37)
+  )
+
   val validResponsePayments = Payments(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),

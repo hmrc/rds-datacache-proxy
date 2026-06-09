@@ -132,7 +132,7 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
     }
 
     Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
-      s"return Penalties for $regime regime when stored procedure returns data" in {
+      s"return ActualRepayments for $regime regime when stored procedure returns data" in {
 
         val regNumber = "XWM12345678901"
 
