@@ -21,16 +21,16 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AccountOverviewDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseAccountOverview
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, StatementNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.StatementOverviewDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseStatementOverview
 
 import scala.concurrent.Future
 
-final class AccountOverviewServiceSpec extends SpecBase {
+final class StatementOverviewServiceSpec extends SpecBase {
 
-  private val repository = mock[AccountOverviewDataSource]
-  private val service = new AccountOverviewService(repository)
+  private val repository = mock[StatementOverviewDataSource]
+  private val service = new StatementOverviewService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -41,52 +41,52 @@ final class AccountOverviewServiceSpec extends SpecBase {
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
-  "AccountOverviewService#getAccountOverview" - {
+  "StatementOverviewService#getStatementOverview" - {
 
-    "return Right(AccountOverview) when repository returns Some and normalise input (trim + uppercase)" in {
-      when(repository.getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(Some(validResponseAccountOverview)))
+    "return Right(StatementOverview) when repository returns Some and normalise input (trim + uppercase)" in {
+      when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
+        .thenReturn(Future.successful(Some(validResponseStatementOverview)))
 
-      val result = service.getAccountOverview(validRegime.toString, lowercaseRegNumber).futureValue
+      val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
-      result mustBe Right(validResponseAccountOverview)
-      verify(repository).getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
+      result mustBe Right(validResponseStatementOverview)
+      verify(repository).getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }
 
-    "return Left(UnexpectedError) when repository returns None" in {
-      when(repository.getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
+    "return Left(StatementNotFound) when repository returns None" in {
+      when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
         .thenReturn(Future.successful(None))
 
-      val result = service.getAccountOverview(validRegime.toString, lowercaseRegNumber).futureValue
+      val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
-      result mustBe Left(UnexpectedError)
-      verify(repository).getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
+      result mustBe Left(StatementNotFound)
+      verify(repository).getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }
 
     "return Left(InvalidRegimeCode) and not call repository when regime is invalid" in {
-      val result = service.getAccountOverview("INVALID", lowercaseRegNumber).futureValue
+      val result = service.getStatementOverview("INVALID", lowercaseRegNumber).futureValue
 
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return Left(InvalidRegNumber) and not call repository when regNumber has invalid format" in {
-      val result = service.getAccountOverview(validRegime.toString, "xwm12345678").futureValue
+      val result = service.getStatementOverview(validRegime.toString, "xwm12345678").futureValue
 
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return Left(UnexpectedError) when repository throws an exception" in {
-      when(repository.getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
+      when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
         .thenReturn(Future.failed(new RuntimeException("DB failure")))
 
-      val result = service.getAccountOverview(validRegime.toString, lowercaseRegNumber).futureValue
+      val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
       result mustBe Left(UnexpectedError)
-      verify(repository).getAccountOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
+      verify(repository).getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }
   }

@@ -17,27 +17,27 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.AccountOverview
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.StatementOverview
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.UnexpectedError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AccountOverviewDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.StatementNotFound
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.StatementOverviewDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountOverviewService @Inject() (
-  repository: AccountOverviewDataSource
+class StatementOverviewService @Inject() (
+  repository: StatementOverviewDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getAccountOverview(regime: String, rawRegNumber: String)(implicit
+  def getStatementOverview(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, AccountOverview]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getAccountOverview")(
-      repository.getAccountOverview
+  ): Future[Either[StatementError, StatementOverview]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getStatementOverview")(
+      repository.getStatementOverview
     ).map {
       case Right(Some(overview)) => Right(overview)
-      case Right(None)           => Left(UnexpectedError)
+      case Right(None)           => Left(StatementNotFound)
       case Left(error)           => Left(error)
     }
 }

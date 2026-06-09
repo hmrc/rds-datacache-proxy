@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class AccountOverview(
+final case class StatementOverview(
   gtrPeriodStartDate: Option[LocalDate],
   gtrPeriodEndDate: Option[LocalDate],
   total: BigDecimal,
@@ -36,6 +36,6 @@ final case class AccountOverview(
   repayments: Option[BigDecimal]
 )
 
-object AccountOverview {
-  implicit val format: OFormat[AccountOverview] = Json.format[AccountOverview]
+object StatementOverview {
+  implicit val format: OFormat[StatementOverview] = Json.format[StatementOverview]
 }

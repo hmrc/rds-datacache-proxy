@@ -38,4 +38,9 @@ object StatementError {
     val message = "Invalid Regime Code"
   }
 
+  case object StatementNotFound extends StatementError {
+    val code = "NOT_FOUND"
+    val message = "No statement overview found for the given registration number"
+  }
+
 }
