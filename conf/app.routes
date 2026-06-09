@@ -59,4 +59,4 @@ GET        /gambling/payments/:regime/:regNumber                   uk.gov.hmrc.r
 GET        /gambling/actual-repayments/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentsController.getActualRepayments(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/repayment-interest-repaid/:regime/:regNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentInterestRepaidController.getRepaymentInterestRepaid(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/account-overview/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AccountOverviewController.getAccountOverview(regime: String, regNumber: String)
-GET        /gambling/interest-breakdown/:regime/:regNumber         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestOverviewController.getInterestOverview(regime: String, regNumber: String)
+GET        /gambling/interest-overview/:regime/:regNumber         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestOverviewController.getInterestOverview(regime: String, regNumber: String)

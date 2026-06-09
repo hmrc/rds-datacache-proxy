@@ -54,10 +54,10 @@ class InterestOverviewControllerISpec
       )
       .build()
 
-  private final val endpoint = "/gambling/interest-breakdown"
+  private final val endpoint = "/gambling/interest-overview"
   private final val GBD = "gbd"
 
-  "GET /gambling/interest-breakdown (stubbed repo, no DB)" should {
+  "GET /gambling/interest-overview (stubbed repo, no DB)" should {
 
     "return 200 with correct InterestOverviewStubData" in {
       AuthStub.authorised()

@@ -46,7 +46,7 @@ class InterestOverviewControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getInterestOverview(eqTo(validRegime), eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(validResponseInterestOverview)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/XWM00000001770")
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/XWM00000001770")
       val res: Future[Result] = controller.getInterestOverview(validRegime, "XWM00000001770")(req)
 
       status(res) mustBe OK
@@ -61,7 +61,7 @@ class InterestOverviewControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
-      val req = FakeRequest(GET, "/gambling/interest-breakdown/INVALID_REGIME/XWM00000001770")
+      val req = FakeRequest(GET, "/gambling/interest-overview/INVALID_REGIME/XWM00000001770")
       val res: Future[Result] = controller.getInterestOverview(" ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
@@ -77,7 +77,7 @@ class InterestOverviewControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/InvalidRegNo")
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/InvalidRegNo")
       val res: Future[Result] = controller.getInterestOverview(" ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
@@ -93,7 +93,7 @@ class InterestOverviewControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getInterestOverview(any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-breakdown/$validRegime/ERR00001770")
+      val req = FakeRequest(GET, s"/gambling/interest-overview/$validRegime/ERR00001770")
       val res: Future[Result] = controller.getInterestOverview(validRegime, "ERR00001770")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
