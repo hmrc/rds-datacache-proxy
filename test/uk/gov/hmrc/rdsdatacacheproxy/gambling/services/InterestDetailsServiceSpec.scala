@@ -41,7 +41,7 @@ final class InterestDetailsServiceSpec extends SpecBase {
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
 
-  "InterestDetailsService#getPenalties" - {
+  "InterestDetailsService#getInterestDetails" - {
 
     "return validResponseInterestDetails when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getInterestDetails(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
