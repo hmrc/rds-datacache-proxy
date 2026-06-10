@@ -191,6 +191,15 @@ object GamblingTestUtil {
     total                          = BigDecimal(36.08)
   )
 
+  val validResponseInterestOverview = InterestOverview(
+    periodStartDate         = Some(LocalDate.of(2013, 3, 1)),
+    periodEndDate           = Some(LocalDate.of(2014, 3, 11)),
+    interestAmount          = BigDecimal(-81.84),
+    interestAccruingAmount  = BigDecimal(-25.76),
+    repaymentInterestAmount = BigDecimal(41.23),
+    total                   = BigDecimal(66.37)
+  )
+
   val validResponsePayments = Payments(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
@@ -259,6 +268,22 @@ object GamblingTestUtil {
         amount          = -500.00
       )
     )
+  )
+
+  val validResponseStatementOverview = StatementOverview(
+    gtrPeriodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    gtrPeriodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total              = BigDecimal("-15562.47"),
+    balance            = BigDecimal("-500.00"),
+    amountDeclared     = BigDecimal("-24500.00"),
+    assessments        = BigDecimal("-4500.00"),
+    penalties          = BigDecimal("-1200.00"),
+    adjustments        = BigDecimal("-250.00"),
+    reallocations      = BigDecimal("-1500.00"),
+    otherAssessments   = BigDecimal("-3500.00"),
+    interest           = BigDecimal("-1624.97"),
+    payments           = BigDecimal("22012.50"),
+    repayments         = None
   )
 
   val validResponseRepaymentInterestRepaidSmall = RepaymentInterestRepaid(

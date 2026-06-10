@@ -23,10 +23,10 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.GamblingReallocationsStubData.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData.*
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
