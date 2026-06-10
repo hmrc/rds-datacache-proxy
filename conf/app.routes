@@ -64,4 +64,3 @@ GET        /gambling/interest-accruing-details/:regime/:regNumber  uk.gov.hmrc.r
 
 #EUVAT routes
 GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
-

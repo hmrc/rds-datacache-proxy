@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue &amp; Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetailsItem, InterestAccruingDetails, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetails, InterestAccruingDetailsItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
@@ -30,14 +30,18 @@ trait InterestAccruingDetailsDataSource {
 
 @Singleton
 class InterestAccruingDetailsDataCacheRepository @Inject() (
-                                                             @NamedDatabase("gambling") mgdDb: MGDDatabase,
-                                                             @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
-                                                           )(implicit ec: ExecutionContext)
-  extends InterestAccruingDetailsDataSource
+  @NamedDatabase("gambling") mgdDb: MGDDatabase,
+  @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
+)(implicit ec: ExecutionContext)
+    extends InterestAccruingDetailsDataSource
     with RepositorySupport
     with Logging {
 
-  override def getInterestAccruingDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestAccruingDetails] =
+  override def getInterestAccruingDetails(regime: Regime,
+                                          regNumber: String,
+                                          paginationStart: Int,
+                                          paginationMaxRows: Int
+                                         ): Future[InterestAccruingDetails] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -64,11 +68,11 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
                 val b = List.newBuilder[InterestAccruingDetailsItem]
                 while (rs.next()) {
                   b += InterestAccruingDetailsItem(
-                    descriptionCode  = Option(rs.getInt("p_desc_code")),
-                    amount           = optDecimalFromLabel("p_amount", rs),
-                    interestID       = Option(rs.getString("p_interest_id")),
-                    periodStartDate  = Option(rs.getDate("p_period_start")).map(_.toLocalDate),
-                    periodEndDate    = Option(rs.getDate("p_period_end")).map(_.toLocalDate)
+                    descriptionCode = Option(rs.getInt("p_desc_code")),
+                    amount          = optDecimalFromLabel("p_amount", rs),
+                    interestID      = Option(rs.getString("p_interest_id")),
+                    periodStartDate = Option(rs.getDate("p_period_start")).map(_.toLocalDate),
+                    periodEndDate   = Option(rs.getDate("p_period_end")).map(_.toLocalDate)
                   )
                 }
                 b.result()

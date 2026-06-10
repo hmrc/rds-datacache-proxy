@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue &amp; Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestAccruingDetai
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterestAccruingDetailsService @Inject()(
-                                                repository: InterestAccruingDetailsDataSource
-                                              )(implicit ec: ExecutionContext)
-  extends BaseService {
+class InterestAccruingDetailsService @Inject() (
+  repository: InterestAccruingDetailsDataSource
+)(implicit ec: ExecutionContext)
+    extends BaseService {
 
   def getInterestAccruingDetails(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
-                                                                                                                     hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[Either[StatementError, InterestAccruingDetails]] = {
     withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getInterestAccruingDetails")(
       repository.getInterestAccruingDetails
