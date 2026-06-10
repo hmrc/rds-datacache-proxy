@@ -70,7 +70,7 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
                   b += InterestAccruingDetailsItem(
                     descriptionCode = Option(rs.getInt("p_desc_code")),
                     amount          = optDecimalFromLabel("p_amount", rs),
-                    interestID      = Option(rs.getString("p_interest_id")),
+                    interestId      = Option(rs.getString("p_interest_id")),
                     periodStartDate = Option(rs.getDate("p_period_start")).map(_.toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end")).map(_.toLocalDate)
                   )

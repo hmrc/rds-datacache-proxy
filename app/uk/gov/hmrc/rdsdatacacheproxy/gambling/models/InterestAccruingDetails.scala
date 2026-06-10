@@ -23,7 +23,7 @@ import java.time.LocalDate
 final case class InterestAccruingDetailsItem(
   descriptionCode: Option[Int],
   amount: Option[BigDecimal],
-  interestID: Option[String],
+  interestId: Option[String],
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate]
 )

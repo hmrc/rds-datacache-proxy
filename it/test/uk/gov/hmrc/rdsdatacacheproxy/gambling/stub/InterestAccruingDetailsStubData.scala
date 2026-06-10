@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 HM Revenue &amp; Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,23 +40,23 @@ object InterestAccruingDetailsStubData {
           totalRecords    = Some(3),
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(1),
+              descriptionCode = Some(1),
               amount          = Some(-9500.00),
-              interestID      = Some("SAFE-CHG-00001"),
+              interestId      = Some("SAFE-CHG-00001"),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(2),
+              descriptionCode = Some(2),
               amount          = Some(-8000.00),
-              interestID      = Some("SAFE-CHG-00002"),
+              interestId      = Some("SAFE-CHG-00002"),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(3),
+              descriptionCode = Some(3),
               amount          = Some(-7000.00),
-              interestID      = Some("SAFE-CHG-00003"),
+              interestId      = Some("SAFE-CHG-00003"),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -70,9 +70,9 @@ object InterestAccruingDetailsStubData {
           totalRecords    = Some(1),
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(1),
+              descriptionCode = Some(1),
               amount          = Some(-9500.00),
-              interestID      = Some("SAFE-CHG-00001"),
+              interestId      = Some("SAFE-CHG-00001"),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             )
@@ -86,30 +86,30 @@ object InterestAccruingDetailsStubData {
           totalRecords    = Some(4),
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(1),
+              descriptionCode = Some(1),
               amount          = Some(-9500.00),
-              interestID      = Some("SAFE-CHG-00001"),
+              interestId      = Some("SAFE-CHG-00001"),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(2),
+              descriptionCode = Some(2),
               amount          = Some(-8000.00),
-              interestID      = Some("SAFE-CHG-00002"),
+              interestId      = Some("SAFE-CHG-00002"),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(3),
+              descriptionCode = Some(3),
               amount          = Some(-7000.00),
-              interestID      = Some("SAFE-CHG-00003"),
+              interestId      = Some("SAFE-CHG-00003"),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(4),
+              descriptionCode = Some(4),
               amount          = Some(5555.00),
-              interestID      = Some("SAFE-CHG-00004"),
+              interestId      = Some("SAFE-CHG-00004"),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -123,23 +123,23 @@ object InterestAccruingDetailsStubData {
           totalRecords    = Some(3),
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(1),
+              descriptionCode = Some(1),
               amount          = Some(-9500.00),
-              interestID      = Some("SAFE-CHG-00001"),
+              interestId      = Some("SAFE-CHG-00001"),
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(2),
+              descriptionCode = Some(2),
               amount          = Some(-8000.00),
-              interestID      = Some("SAFE-CHG-00002"),
+              interestId      = Some("SAFE-CHG-00002"),
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(3),
+              descriptionCode = Some(3),
               amount          = Some(-7000.00),
-              interestID      = Some("SAFE-CHG-00003"),
+              interestId      = Some("SAFE-CHG-00003"),
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -162,9 +162,9 @@ object InterestAccruingDetailsStubData {
           totalRecords    = Some(1),
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode     = Some(1),
+              descriptionCode = Some(1),
               amount          = Some(-4500.00),
-              interestID      = Some("SAFE-CHG-DEFAULT"),
+              interestId      = Some("SAFE-CHG-DEFAULT"),
               periodStartDate = Some(LocalDate.of(2024, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2024, 6, 30))
             )
