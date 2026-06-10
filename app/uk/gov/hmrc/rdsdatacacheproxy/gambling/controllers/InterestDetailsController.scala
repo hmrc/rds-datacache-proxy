@@ -27,16 +27,16 @@ import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class InterestDetailsController @Inject() (authorise: AuthAction, service: InterestDetailsService, cc: ControllerComponents)(implicit
-                                                                                                                 ec: ExecutionContext
+  ec: ExecutionContext
 ) extends BackendController(cc)
-  with BaseController
-  with Logging {
+    with BaseController
+    with Logging {
 
   def getInterestDetails(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getInterestDetails(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(interestDetails) => Ok(Json.toJson(interestDetails))
-        case Left(error)      => handleError(error)
+        case Left(error)            => handleError(error)
       }
     }
 }
