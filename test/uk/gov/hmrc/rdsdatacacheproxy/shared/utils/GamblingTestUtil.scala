@@ -286,7 +286,7 @@ object GamblingTestUtil {
     repayments         = None
   )
 
-  val validResponseInterestAccruing = InterestAccruingDrilldown(
+  val validResponseInterestAccruingDrilldown = InterestAccruingDrilldown(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total           = BigDecimal(1250.50),
@@ -304,7 +304,7 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseInterestAccruingEmpty = InterestAccruingDrilldown(
+  val validResponseInterestAccruingDrilldownEmpty = InterestAccruingDrilldown(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total           = BigDecimal(0.00),

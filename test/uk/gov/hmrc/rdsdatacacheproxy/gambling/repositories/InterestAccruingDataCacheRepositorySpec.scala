@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestAccruing
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestAccruingDrilldown
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
@@ -87,7 +87,7 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
 
       val result = repository.getInterestAccruingDrilldown(Regime.MGD, regNumber, interestId, 1, 10).futureValue
 
-      result            shouldBe validResponseInterestAccruing
+      result            shouldBe validResponseInterestAccruingDrilldown
       result.items.size shouldBe 1
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -220,7 +220,7 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
 
         val result = repository.getInterestAccruingDrilldown(regime, regNumber, interestId, 1, 10).futureValue
 
-        result            shouldBe validResponseInterestAccruing
+        result            shouldBe validResponseInterestAccruingDrilldown
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)

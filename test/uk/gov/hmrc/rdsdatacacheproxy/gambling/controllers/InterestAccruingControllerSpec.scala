@@ -26,7 +26,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestAccruingService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestAccruing, validResponseInterestAccruingEmpty}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestAccruingDrilldown, validResponseInterestAccruingDrilldownEmpty}
 
 import scala.concurrent.Future
 
@@ -41,14 +41,14 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
       when(mockService.getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterestAccruing)))
+        .thenReturn(Future.successful(Right(validResponseInterestAccruingDrilldown)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
       val res: Future[Result] = controller.getInterestAccruingDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruing)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruingDrilldown)
 
       verify(mockService).getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
@@ -56,14 +56,14 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 with empty response when service returns no items" in new Setup {
       when(mockService.getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterestAccruingEmpty)))
+        .thenReturn(Future.successful(Right(validResponseInterestAccruingDrilldownEmpty)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
       val res: Future[Result] = controller.getInterestAccruingDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruingEmpty)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruingDrilldownEmpty)
 
       verify(mockService).getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)

@@ -20,9 +20,9 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDrilldown,
 
 import java.time.LocalDate
 
-object InterestAccruingStubData {
+object InterestAccruingDrilldownStubData {
 
-  def getInterestAccruingData(regNumber: String, interestId: String = "INT001", paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestAccruingDrilldown =
+  def getInterestAccruingDrilldownData(regNumber: String, interestId: String = "INT001", paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestAccruingDrilldown =
     regNumber match {
       case "XYZ00000000000" =>
         InterestAccruingDrilldown(
