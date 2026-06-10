@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruing, InterestAccruingItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDrilldown, InterestAccruingDrilldownItem}
 
 import java.time.LocalDate
 
 object InterestAccruingStubData {
 
-  def getInterestAccruingData(regNumber: String, interestId: String = "INT001", paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestAccruing =
+  def getInterestAccruingData(regNumber: String, interestId: String = "INT001", paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestAccruingDrilldown =
     regNumber match {
       case "XYZ00000000000" =>
-        InterestAccruing(
+        InterestAccruingDrilldown(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(0.00),
@@ -35,14 +35,14 @@ object InterestAccruingStubData {
         )
 
       case "XYZ00000000001" =>
-        InterestAccruing(
+        InterestAccruingDrilldown(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(1250.50),
           totalRecords    = 1,
           descriptionCode        = Some(42),
           items = Seq(
-            InterestAccruingItem(
+            InterestAccruingDrilldownItem(
               interestOn = BigDecimal(1000.00),
               dateFrom   = LocalDate.of(2013, 6, 1),
               dateTo     = LocalDate.of(2014, 6, 1),
@@ -54,7 +54,7 @@ object InterestAccruingStubData {
         )
 
       case "XYZ99999999999" =>
-        InterestAccruing(
+        InterestAccruingDrilldown(
           periodStartDate = Some(LocalDate.of(2013, 2, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(999.00),
@@ -66,14 +66,14 @@ object InterestAccruingStubData {
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
-        InterestAccruing(
+        InterestAccruingDrilldown(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
           total           = BigDecimal(500.00),
           totalRecords    = 2,
           descriptionCode        = Some(5),
           items = Seq(
-            InterestAccruingItem(
+            InterestAccruingDrilldownItem(
               interestOn = BigDecimal(200.00),
               dateFrom   = LocalDate.of(2013, 4, 1),
               dateTo     = LocalDate.of(2013, 10, 1),
@@ -81,7 +81,7 @@ object InterestAccruingStubData {
               rate       = BigDecimal(1.5),
               amount     = BigDecimal(250.00)
             ),
-            InterestAccruingItem(
+            InterestAccruingDrilldownItem(
               interestOn = BigDecimal(300.00),
               dateFrom   = LocalDate.of(2013, 10, 1),
               dateTo     = LocalDate.of(2014, 3, 1),

@@ -42,40 +42,40 @@ final class InterestAccruingServiceSpec extends SpecBase {
   private val normalisedRegNumber = "XWM12345678901"
   private val interestId = "INT001"
 
-  "InterestAccruingService#getInterestAccruing" - {
+  "InterestAccruingService#getInterestAccruingDrilldown" - {
 
     "return validResponseInterestAccruing when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
-      when(repository.getInterestAccruing(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
+      when(repository.getInterestAccruingDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
         .thenReturn(Future.successful(validResponseInterestAccruing))
 
-      val result = service.getInterestAccruing(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
+      val result = service.getInterestAccruingDrilldown(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
 
       result mustBe Right(validResponseInterestAccruing)
-      verify(repository).getInterestAccruing(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
+      verify(repository).getInterestAccruingDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegimeError and not call repository when Regime input is invalid" in {
-      val result = service.getInterestAccruing("INVALID", lowercaseRegNumber, interestId, 1, 10).futureValue
+      val result = service.getInterestAccruingDrilldown("INVALID", lowercaseRegNumber, interestId, 1, 10).futureValue
       result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getInterestAccruing(validRegime.toString, invalidRegNumber, interestId, 1, 10).futureValue
+      val result = service.getInterestAccruingDrilldown(validRegime.toString, invalidRegNumber, interestId, 1, 10).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
 
     "return UnexpectedError when repository throws exception" in {
-      when(repository.getInterestAccruing(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
+      when(repository.getInterestAccruingDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
 
-      val result = service.getInterestAccruing(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
+      val result = service.getInterestAccruingDrilldown(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
 
       result mustBe Left(UnexpectedError)
-      verify(repository).getInterestAccruing(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
+      verify(repository).getInterestAccruingDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }

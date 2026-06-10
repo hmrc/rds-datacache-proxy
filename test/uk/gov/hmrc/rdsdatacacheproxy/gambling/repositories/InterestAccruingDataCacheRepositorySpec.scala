@@ -64,7 +64,7 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
     when(gtrMockConnection.prepareCall("{ call GTR_LNP_PK.getGTRAccruingDrilldown(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(mockCsGtr)
   }
 
-  "getInterestAccruing" should {
+  "getInterestAccruingDrilldown" should {
 
     "return InterestAccruing for MGD regime when stored procedure returns data" in {
       val regNumber = "XWM12345678901"
@@ -85,7 +85,7 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
       when(itemsRs.getObject("p_rate")).thenReturn(java.math.BigDecimal.valueOf(2.5))
       when(itemsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(1250.50))
 
-      val result = repository.getInterestAccruing(Regime.MGD, regNumber, interestId, 1, 10).futureValue
+      val result = repository.getInterestAccruingDrilldown(Regime.MGD, regNumber, interestId, 1, 10).futureValue
 
       result            shouldBe validResponseInterestAccruing
       result.items.size shouldBe 1
@@ -131,9 +131,9 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
       when(mockCsMgd.getObject(9)).thenReturn(null)
       when(mockCsMgd.getObject(10)).thenReturn(null)
 
-      val result = repository.getInterestAccruing(Regime.MGD, regNumber, interestId, 1, 10).futureValue
+      val result = repository.getInterestAccruingDrilldown(Regime.MGD, regNumber, interestId, 1, 10).futureValue
 
-      result shouldBe InterestAccruing(None, None, BigDecimal(0), 0, None, List())
+      result shouldBe InterestAccruingDrilldown(None, None, BigDecimal(0), 0, None, List())
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setString(2, interestId)
@@ -170,9 +170,9 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
       when(mockCsMgd.getObject(10)).thenReturn(itemsRs)
       when(itemsRs.next()).thenReturn(false)
 
-      val result = repository.getInterestAccruing(Regime.MGD, regNumber, interestId, 1, 10).futureValue
+      val result = repository.getInterestAccruingDrilldown(Regime.MGD, regNumber, interestId, 1, 10).futureValue
 
-      result shouldBe InterestAccruing(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), BigDecimal(0), 0, None, List())
+      result shouldBe InterestAccruingDrilldown(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), BigDecimal(0), 0, None, List())
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setString(2, interestId)
@@ -218,7 +218,7 @@ class InterestAccruingDataCacheRepositorySpec extends AnyWordSpec with Matchers 
         when(itemsRs.getObject("p_rate")).thenReturn(java.math.BigDecimal.valueOf(2.5))
         when(itemsRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(1250.50))
 
-        val result = repository.getInterestAccruing(regime, regNumber, interestId, 1, 10).futureValue
+        val result = repository.getInterestAccruingDrilldown(regime, regNumber, interestId, 1, 10).futureValue
 
         result            shouldBe validResponseInterestAccruing
         result.items.size shouldBe 1

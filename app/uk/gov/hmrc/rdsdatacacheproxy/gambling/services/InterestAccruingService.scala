@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.InterestAccruing
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.InterestAccruingDrilldown
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestAccruingDataSource
 
@@ -29,10 +29,10 @@ class InterestAccruingService @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getInterestAccruing(regime: String, rawRegNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+  def getInterestAccruingDrilldown(regime: String, rawRegNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, InterestAccruing]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, interestId, paginationStart, paginationMaxRows, "getInterestAccruing")(
-      repository.getInterestAccruing
+  ): Future[Either[StatementError, InterestAccruingDrilldown]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, interestId, paginationStart, paginationMaxRows, "getInterestAccruingDrilldown")(
+      repository.getInterestAccruingDrilldown
     )
 }

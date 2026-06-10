@@ -32,9 +32,14 @@ class InterestAccruingController @Inject() (authorise: AuthAction, service: Inte
     with BaseController
     with Logging {
 
-  def getInterestAccruing(regime: String, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+  def getInterestAccruingDrilldown(regime: String,
+                                   regNumber: String,
+                                   interestId: String,
+                                   paginationStart: Int,
+                                   paginationMaxRows: Int
+                                  ): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getInterestAccruing(regime, regNumber, interestId, paginationStart, paginationMaxRows).map {
+      service.getInterestAccruingDrilldown(regime, regNumber, interestId, paginationStart, paginationMaxRows).map {
         case Right(interestAccruing) => Ok(Json.toJson(interestAccruing))
         case Left(error)             => handleError(error)
       }

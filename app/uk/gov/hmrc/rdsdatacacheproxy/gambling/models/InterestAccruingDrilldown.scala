@@ -20,7 +20,7 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-final case class InterestAccruingItem(
+final case class InterestAccruingDrilldownItem(
   interestOn: BigDecimal,
   dateFrom: LocalDate,
   dateTo: LocalDate,
@@ -29,19 +29,19 @@ final case class InterestAccruingItem(
   amount: BigDecimal
 )
 
-object InterestAccruingItem {
-  implicit val format: OFormat[InterestAccruingItem] = Json.format[InterestAccruingItem]
+object InterestAccruingDrilldownItem {
+  implicit val format: OFormat[InterestAccruingDrilldownItem] = Json.format[InterestAccruingDrilldownItem]
 }
 
-final case class InterestAccruing(
+final case class InterestAccruingDrilldown(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
   total: BigDecimal,
   totalRecords: Int,
   descriptionCode: Option[Int],
-  items: Seq[InterestAccruingItem]
+  items: Seq[InterestAccruingDrilldownItem]
 )
 
-object InterestAccruing {
-  implicit val format: OFormat[InterestAccruing] = Json.format[InterestAccruing]
+object InterestAccruingDrilldown {
+  implicit val format: OFormat[InterestAccruingDrilldown] = Json.format[InterestAccruingDrilldown]
 }

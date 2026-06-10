@@ -18,19 +18,19 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruing, InterestAccruingItem, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDrilldown, InterestAccruingDrilldownItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait InterestAccruingDataSource {
-  def getInterestAccruing(regime: Regime,
-                          regNumber: String,
-                          interestId: String,
-                          paginationStart: Int,
-                          paginationMaxRows: Int
-                         ): Future[InterestAccruing]
+  def getInterestAccruingDrilldown(regime: Regime,
+                                   regNumber: String,
+                                   interestId: String,
+                                   paginationStart: Int,
+                                   paginationMaxRows: Int
+                                  ): Future[InterestAccruingDrilldown]
 }
 
 @Singleton
@@ -42,12 +42,12 @@ class InterestAccruingDataCacheRepository @Inject() (
     with RepositorySupport
     with Logging {
 
-  override def getInterestAccruing(regime: Regime,
-                                   regNumber: String,
-                                   interestId: String,
-                                   paginationStart: Int,
-                                   paginationMaxRows: Int
-                                  ): Future[InterestAccruing] =
+  override def getInterestAccruingDrilldown(regime: Regime,
+                                            regNumber: String,
+                                            interestId: String,
+                                            paginationStart: Int,
+                                            paginationMaxRows: Int
+                                           ): Future[InterestAccruingDrilldown] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -68,12 +68,12 @@ class InterestAccruingDataCacheRepository @Inject() (
           cs.registerOutParameter(10, oracle.jdbc.OracleTypes.CURSOR) // OUT C_INTEREST_ACCRUING_DRILLDOWN (REF CURSOR)
           cs.execute()
 
-          val items: List[InterestAccruingItem] = {
+          val items: List[InterestAccruingDrilldownItem] = {
             val rs = cs.getObject(10).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[InterestAccruingItem]
+                val b = List.newBuilder[InterestAccruingDrilldownItem]
 
                 while (rs.next()) {
                   val maybeItem =
@@ -84,7 +84,7 @@ class InterestAccruingDataCacheRepository @Inject() (
                       noOfDays   <- optDecimalFromLabel("p_no_of_days", rs)
                       rate       <- optDecimalFromLabel("p_rate", rs)
                       amount     <- optDecimalFromLabel("p_amount", rs)
-                    yield InterestAccruingItem(interestOn, dateFrom, dateTo, noOfDays, rate, amount)
+                    yield InterestAccruingDrilldownItem(interestOn, dateFrom, dateTo, noOfDays, rate, amount)
                   b.addAll(maybeItem.toList)
                 }
                 b.result()
@@ -92,7 +92,7 @@ class InterestAccruingDataCacheRepository @Inject() (
             }
           }
 
-          InterestAccruing(
+          InterestAccruingDrilldown(
             periodStartDate = optDate(5, cs),
             periodEndDate   = optDate(6, cs),
             total           = optDecimalFromIndex(7, cs).getOrElse(0),

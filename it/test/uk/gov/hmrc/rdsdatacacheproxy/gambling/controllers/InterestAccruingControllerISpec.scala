@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruing, InterestAccruingItem, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDrilldown, InterestAccruingDrilldownItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestAccruingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingStubData.getInterestAccruingData
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestAccruingRdsStub extends InterestAccruingDataSource {
-    override def getInterestAccruing(regime: Regime, regNumber: String, interestId: String, pageNo: Int, pageSize: Int): Future[InterestAccruing] =
+    override def getInterestAccruingDrilldown(regime: Regime, regNumber: String, interestId: String, pageNo: Int, pageSize: Int): Future[InterestAccruingDrilldown] =
       Future {
         InterestAccruingStubData.getInterestAccruingData(regNumber, interestId, pageNo, pageSize)
       }
@@ -62,7 +62,7 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestAccruing] mustBe getInterestAccruingData("XYZ00000000000")
+      response.json.as[InterestAccruingDrilldown] mustBe getInterestAccruingData("XYZ00000000000")
     }
 
     "return 200 with correct InterestAccruingData when pageNo & pageSize NOT provided" in {
@@ -72,7 +72,7 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestAccruing] mustBe getInterestAccruingData("XYZ99999999999")
+      response.json.as[InterestAccruingDrilldown] mustBe getInterestAccruingData("XYZ99999999999")
     }
 
     "return 200 with empty items when no accruing data exists for regNumber" in {
@@ -82,7 +82,7 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      (response.json \ "items").as[Seq[InterestAccruingItem]] mustBe empty
+      (response.json \ "items").as[Seq[InterestAccruingDrilldownItem]] mustBe empty
       (response.json \ "totalRecords").as[Int] mustBe 0
     }
 
@@ -90,14 +90,14 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestAccruing] mustBe getInterestAccruingData("XYZ00000000012")
+      response.json.as[InterestAccruingDrilldown] mustBe getInterestAccruingData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestAccruing] mustBe getInterestAccruingData("XYZ00000000012")
+      response.json.as[InterestAccruingDrilldown] mustBe getInterestAccruingData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

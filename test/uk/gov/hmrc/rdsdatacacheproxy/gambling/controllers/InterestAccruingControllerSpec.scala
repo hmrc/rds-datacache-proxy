@@ -37,44 +37,44 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
     val controller = new InterestAccruingController(fakeAuthAction, mockService, cc)
   }
 
-  "InterestAccruingController#getInterestAccruing" - {
+  "InterestAccruingController#getInterestAccruingDrilldown" - {
 
     "returns 200 when service succeeds" in new Setup {
-      when(mockService.getInterestAccruing(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
+      when(mockService.getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
         .thenReturn(Future.successful(Right(validResponseInterestAccruing)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getInterestAccruing(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestAccruingDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruing)
 
-      verify(mockService).getInterestAccruing(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 200 with empty response when service returns no items" in new Setup {
-      when(mockService.getInterestAccruing(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
+      when(mockService.getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
         .thenReturn(Future.successful(Right(validResponseInterestAccruingEmpty)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getInterestAccruing(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestAccruingDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruingEmpty)
 
-      verify(mockService).getInterestAccruing(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getInterestAccruing(any(), any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDrilldown(any(), any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
       val req = FakeRequest(GET, "/gambling/interest-accruing-drilldown/INVALID_REGIME/XWM00000001770/INT001")
-      val res: Future[Result] = controller.getInterestAccruing(" ", " ", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestAccruingDrilldown(" ", " ", "INT001", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -82,15 +82,15 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Invalid Regime Code"
       )
 
-      verify(mockService).getInterestAccruing(eqTo(" "), eqTo(" "), eqTo("INT001"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDrilldown(eqTo(" "), eqTo(" "), eqTo("INT001"), eqTo(1), eqTo(10))(any())
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getInterestAccruing(any(), any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDrilldown(any(), any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/InvalidRegNo/INT001")
-      val res: Future[Result] = controller.getInterestAccruing(" ", " ", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestAccruingDrilldown(" ", " ", "INT001", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -98,15 +98,15 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getInterestAccruing(eqTo(" "), eqTo(" "), eqTo("INT001"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDrilldown(eqTo(" "), eqTo(" "), eqTo("INT001"), eqTo(1), eqTo(10))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getInterestAccruing(any(), any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDrilldown(any(), any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/interest-accruing-drilldown/$validRegime/ERR00001770/INT001")
-      val res: Future[Result] = controller.getInterestAccruing(validRegime, "ERR00001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestAccruingDrilldown(validRegime, "ERR00001770", "INT001", 1, 10)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -114,7 +114,7 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getInterestAccruing(eqTo(validRegime), eqTo("ERR00001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDrilldown(eqTo(validRegime), eqTo("ERR00001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
     }
   }
 }
