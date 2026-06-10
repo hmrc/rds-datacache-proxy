@@ -21,23 +21,23 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AccountOverviewService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.StatementOverviewService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class AccountOverviewController @Inject() (
+class StatementOverviewController @Inject() (
   authorise: AuthAction,
-  service: AccountOverviewService,
+  service: StatementOverviewService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with BaseController
     with Logging {
 
-  def getAccountOverview(regime: String, regNumber: String): Action[AnyContent] =
+  def getStatementOverview(regime: String, regNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getAccountOverview(regime, regNumber).map {
+      service.getStatementOverview(regime, regNumber).map {
         case Right(overview) => Ok(Json.toJson(overview))
         case Left(error)     => handleError(error)
       }

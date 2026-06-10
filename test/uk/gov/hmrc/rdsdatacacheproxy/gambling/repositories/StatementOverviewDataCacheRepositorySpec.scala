@@ -23,18 +23,18 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AccountOverview, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, StatementOverview}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import java.sql.{CallableStatement, Connection, Date}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   private var mgdDb: MGDDatabase = _
   private var gtrDb: GTRDatabase = _
-  var repository: AccountOverviewDataCacheRepository = _
+  var repository: StatementOverviewDataCacheRepository = _
   private var mgdMockConnection: Connection = _
   private var gtrMockConnection: Connection = _
   private var mockCsMgd: CallableStatement = _
@@ -66,7 +66,7 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
     when(mgdMockConnection.prepareCall(mgdCall)).thenReturn(mockCsMgd)
     when(gtrMockConnection.prepareCall(gtrCall)).thenReturn(mockCsGtr)
 
-    repository = new AccountOverviewDataCacheRepository(mgdDb = mgdDb, gtrDb = gtrDb)
+    repository = new StatementOverviewDataCacheRepository(mgdDb = mgdDb, gtrDb = gtrDb)
   }
 
   private def stubFullResponse(cs: CallableStatement): Unit = {
@@ -85,7 +85,7 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
     when(cs.getBigDecimal(14)).thenReturn(null)
   }
 
-  private val expectedOverview = AccountOverview(
+  private val expectedOverview = StatementOverview(
     gtrPeriodStartDate = Some(LocalDate.of(2013, 1, 1)),
     gtrPeriodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total              = BigDecimal("-15562.47"),
@@ -101,12 +101,12 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
     repayments         = None
   )
 
-  "getAccountOverview" should {
+  "getStatementOverview" should {
 
-    "return Some(AccountOverview) for MGD regime when stored procedure returns data" in {
+    "return Some(StatementOverview) for MGD regime when stored procedure returns data" in {
       stubFullResponse(mockCsMgd)
 
-      val result = repository.getAccountOverview(Regime.MGD, regNumber).futureValue
+      val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
       result shouldBe Some(expectedOverview)
 
@@ -132,7 +132,7 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       when(mockCsMgd.getBigDecimal(4)).thenReturn(null)
       when(mockCsMgd.getObject(4)).thenReturn(null)
 
-      val result = repository.getAccountOverview(Regime.MGD, regNumber).futureValue
+      val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
       result shouldBe None
 
@@ -144,7 +144,7 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       stubFullResponse(mockCsMgd)
       when(mockCsMgd.getBigDecimal(14)).thenReturn(java.math.BigDecimal.valueOf(-350.00))
 
-      val result = repository.getAccountOverview(Regime.MGD, regNumber).futureValue
+      val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
       result.flatMap(_.repayments) shouldBe Some(BigDecimal("-350.0"))
     }
@@ -154,17 +154,17 @@ class AccountOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers w
       when(mockCsMgd.getDate(2)).thenReturn(null)
       when(mockCsMgd.getDate(3)).thenReturn(null)
 
-      val result = repository.getAccountOverview(Regime.MGD, regNumber).futureValue
+      val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
       result.map(_.gtrPeriodStartDate) shouldBe Some(None)
       result.map(_.gtrPeriodEndDate)   shouldBe Some(None)
     }
 
     Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
-      s"return Some(AccountOverview) for $regime regime using the GTR stored procedure" in {
+      s"return Some(StatementOverview) for $regime regime using the GTR stored procedure" in {
         stubFullResponse(mockCsGtr)
 
-        val result = repository.getAccountOverview(regime, regNumber).futureValue
+        val result = repository.getStatementOverview(regime, regNumber).futureValue
 
         result shouldBe Some(expectedOverview)
 

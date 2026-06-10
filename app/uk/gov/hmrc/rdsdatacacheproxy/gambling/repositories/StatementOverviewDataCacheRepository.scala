@@ -18,26 +18,26 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{AccountOverview, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, StatementOverview}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait AccountOverviewDataSource {
-  def getAccountOverview(regime: Regime, regNumber: String): Future[Option[AccountOverview]]
+trait StatementOverviewDataSource {
+  def getStatementOverview(regime: Regime, regNumber: String): Future[Option[StatementOverview]]
 }
 
 @Singleton
-class AccountOverviewDataCacheRepository @Inject() (
+class StatementOverviewDataCacheRepository @Inject() (
   @NamedDatabase("gambling") mgdDb: MGDDatabase,
   @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
 )(implicit ec: ExecutionContext)
-    extends AccountOverviewDataSource
+    extends StatementOverviewDataSource
     with RepositorySupport
     with Logging {
 
-  override def getAccountOverview(regime: Regime, regNumber: String): Future[Option[AccountOverview]] =
+  override def getStatementOverview(regime: Regime, regNumber: String): Future[Option[StatementOverview]] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -67,7 +67,7 @@ class AccountOverviewDataCacheRepository @Inject() (
             case None => None
             case Some(total) =>
               Some(
-                AccountOverview(
+                StatementOverview(
                   gtrPeriodStartDate = optDate(2, cs),
                   gtrPeriodEndDate   = optDate(3, cs),
                   total              = total,

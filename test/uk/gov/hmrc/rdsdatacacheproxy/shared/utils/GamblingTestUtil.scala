@@ -270,7 +270,7 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseAccountOverview = AccountOverview(
+  val validResponseStatementOverview = StatementOverview(
     gtrPeriodStartDate = Some(LocalDate.of(2013, 1, 1)),
     gtrPeriodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total              = BigDecimal("-15562.47"),
