@@ -23,7 +23,6 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.euvat.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.euvat.models.responses.TradersKnownFacts
 
 import java.sql.{CallableStatement, ResultSet}
@@ -37,7 +36,6 @@ class EuVatCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndA
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
-  var mockConfig: AppConfig = _
 
   before {
     // Mocking the database connection and callable statement
@@ -45,7 +43,6 @@ class EuVatCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndA
     mockConnection        = mock(classOf[java.sql.Connection])
     mockCallableStatement = mock(classOf[CallableStatement])
     mockResultSet         = mock(classOf[ResultSet])
-    mockConfig            = mock(classOf[AppConfig])
 
     // When db.withConnection is called, it should invoke the passed-in function and return the result
     when(db.withConnection(any())).thenAnswer { invocation =>

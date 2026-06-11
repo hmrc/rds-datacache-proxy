@@ -27,10 +27,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Using
 
-trait EuVatCacheDataSource {
-  def getTraderByVrn(vrn: String): Future[Option[TradersKnownFacts]]
-}
-class EuVatCacheRepository @Inject() (@NamedDatabase("euvat") db: Database)(implicit ec: ExecutionContext) extends EuVatCacheDataSource with Logging {
+class EuVatCacheRepository @Inject() (@NamedDatabase("euvat") db: Database)(implicit ec: ExecutionContext) extends Logging {
 
   def getTraderByVrn(vrn: String): Future[Option[TradersKnownFacts]] = {
     logger.info(s"************* calling stored procedure getTraderByVrn for VRN: $vrn")
