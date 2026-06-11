@@ -21,6 +21,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
+import uk.gov.hmrc.rdsdatacacheproxy.euvat.actions.{DefaultEuVatAuthAction, EuVatAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
@@ -37,6 +38,7 @@ class Module extends AppModule:
 
     List(
       bind[AuthAction].to(classOf[DefaultAuthAction]),
+      bind[EuVatAuthAction].to(classOf[DefaultEuVatAuthAction]),
       bind[DirectDebitController].toSelf,
       bind[RdsDataSource].to(datasource),
       bind[CharitiesDataSource].to(classOf[CharitiesDatacacheRepository]),
