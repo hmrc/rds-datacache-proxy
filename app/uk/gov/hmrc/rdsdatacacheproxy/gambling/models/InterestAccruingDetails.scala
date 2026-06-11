@@ -21,9 +21,9 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 final case class InterestAccruingDetailsItem(
-  descriptionCode: Option[Int],
-  amount: Option[BigDecimal],
-  interestId: Option[String],
+  descriptionCode: Int,
+  amount: BigDecimal,
+  interestId: String,
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate]
 )
@@ -35,8 +35,8 @@ object InterestAccruingDetailsItem {
 final case class InterestAccruingDetails(
   periodStartDate: Option[LocalDate],
   periodEndDate: Option[LocalDate],
-  total: Option[BigDecimal],
-  totalRecords: Option[Int],
+  total: BigDecimal,
+  totalRecords: Int,
   items: Seq[InterestAccruingDetailsItem]
 )
 

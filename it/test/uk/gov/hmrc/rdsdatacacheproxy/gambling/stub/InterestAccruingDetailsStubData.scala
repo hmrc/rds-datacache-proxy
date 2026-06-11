@@ -28,35 +28,35 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(0.00),
-          totalRecords    = Some(0),
+          total           = 0.00,
+          totalRecords    = 0,
           items           = Seq()
         )
       case "XYZ00000000001" =>
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(-24500.00),
-          totalRecords    = Some(3),
+          total           = -24500.00,
+          totalRecords    = 3,
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode = Some(1),
-              amount          = Some(-9500.00),
-              interestId      = Some("SAFE-CHG-00001"),
+              descriptionCode = 1,
+              amount          = -9500.00,
+              interestId      = "SAFE-CHG-00001",
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(2),
-              amount          = Some(-8000.00),
-              interestId      = Some("SAFE-CHG-00002"),
+              descriptionCode = 2,
+              amount          = -8000.00,
+              interestId      = "SAFE-CHG-00002",
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(3),
-              amount          = Some(-7000.00),
-              interestId      = Some("SAFE-CHG-00003"),
+              descriptionCode = 3,
+              amount          = -7000.00,
+              interestId      = "SAFE-CHG-00003",
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -66,13 +66,13 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(-1000.00),
-          totalRecords    = Some(1),
+          total           = -1000.00,
+          totalRecords    = 1,
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode = Some(1),
-              amount          = Some(-9500.00),
-              interestId      = Some("SAFE-CHG-00001"),
+              descriptionCode = 1,
+              amount          = -9500.00,
+              interestId      = "SAFE-CHG-00001",
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             )
@@ -82,34 +82,34 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(-34500.00),
-          totalRecords    = Some(4),
+          total           = -34500.00,
+          totalRecords    = 4,
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode = Some(1),
-              amount          = Some(-9500.00),
-              interestId      = Some("SAFE-CHG-00001"),
+              descriptionCode = 1,
+              amount          = -9500.00,
+              interestId      = "SAFE-CHG-00001",
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(2),
-              amount          = Some(-8000.00),
-              interestId      = Some("SAFE-CHG-00002"),
+              descriptionCode = 2,
+              amount          = -8000.00,
+              interestId      = "SAFE-CHG-00002",
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(3),
-              amount          = Some(-7000.00),
-              interestId      = Some("SAFE-CHG-00003"),
+              descriptionCode = 3,
+              amount          = -7000.00,
+              interestId      = "SAFE-CHG-00003",
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(4),
-              amount          = Some(5555.00),
-              interestId      = Some("SAFE-CHG-00004"),
+              descriptionCode = 4,
+              amount          = 5555.00,
+              interestId      = "SAFE-CHG-00004",
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -119,27 +119,27 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(-44500.00),
-          totalRecords    = Some(3),
+          total           = -44500.00,
+          totalRecords    = 3,
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode = Some(1),
-              amount          = Some(-9500.00),
-              interestId      = Some("SAFE-CHG-00001"),
+              descriptionCode = 1,
+              amount          = -9500.00,
+              interestId      = "SAFE-CHG-00001",
               periodStartDate = Some(LocalDate.of(2014, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 6, 30))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(2),
-              amount          = Some(-8000.00),
-              interestId      = Some("SAFE-CHG-00002"),
+              descriptionCode = 2,
+              amount          = -8000.00,
+              interestId      = "SAFE-CHG-00002",
               periodStartDate = Some(LocalDate.of(2014, 1, 1)),
               periodEndDate   = Some(LocalDate.of(2014, 3, 31))
             ),
             InterestAccruingDetailsItem(
-              descriptionCode = Some(3),
-              amount          = Some(-7000.00),
-              interestId      = Some("SAFE-CHG-00003"),
+              descriptionCode = 3,
+              amount          = -7000.00,
+              interestId      = "SAFE-CHG-00003",
               periodStartDate = Some(LocalDate.of(2013, 10, 1)),
               periodEndDate   = Some(LocalDate.of(2013, 12, 31))
             )
@@ -149,8 +149,8 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
-          total           = Some(999.00),
-          totalRecords    = Some(99),
+          total           = 999.00,
+          totalRecords    = 99,
           items           = Seq()
         )
       case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
@@ -158,13 +158,13 @@ object InterestAccruingDetailsStubData {
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2024, 3, 11)),
-          total           = Some(-4500.00),
-          totalRecords    = Some(1),
+          total           = -4500.00,
+          totalRecords    = 1,
           items = Seq(
             InterestAccruingDetailsItem(
-              descriptionCode = Some(1),
-              amount          = Some(-4500.00),
-              interestId      = Some("SAFE-CHG-DEFAULT"),
+              descriptionCode = 1,
+              amount          = -4500.00,
+              interestId      = "SAFE-CHG-DEFAULT",
               periodStartDate = Some(LocalDate.of(2024, 4, 1)),
               periodEndDate   = Some(LocalDate.of(2024, 6, 30))
             )

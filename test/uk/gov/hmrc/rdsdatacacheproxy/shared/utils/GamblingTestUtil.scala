@@ -375,27 +375,27 @@ object GamblingTestUtil {
   val validResponseInterestAccruingDetails = InterestAccruingDetails(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
-    total           = Some(BigDecimal(7500.00)),
-    totalRecords    = Some(3),
+    total           = BigDecimal(7500.00),
+    totalRecords    = 3,
     items = Seq(
       InterestAccruingDetailsItem(
-        descriptionCode = Some(1),
-        amount          = Some(3000.00),
-        interestId      = Some("SAFE-CHG-00001"),
+        descriptionCode = 1,
+        amount          = 3000.00,
+        interestId      = "SAFE-CHG-00001",
         periodStartDate = Some(LocalDate.of(2014, 10, 1)),
         periodEndDate   = Some(LocalDate.of(2014, 10, 31))
       ),
       InterestAccruingDetailsItem(
-        descriptionCode = Some(2),
-        amount          = Some(5000.00),
-        interestId      = Some("SAFE-CHG-00002"),
+        descriptionCode = 2,
+        amount          = 5000.00,
+        interestId      = "SAFE-CHG-00002",
         periodStartDate = Some(LocalDate.of(2014, 7, 15)),
         periodEndDate   = Some(LocalDate.of(2014, 7, 31))
       ),
       InterestAccruingDetailsItem(
-        descriptionCode = Some(3),
-        amount          = Some(-500.00),
-        interestId      = Some("SAFE-CHG-00003"),
+        descriptionCode = 3,
+        amount          = -500.00,
+        interestId      = "SAFE-CHG-00003",
         periodStartDate = Some(LocalDate.of(2013, 6, 1)),
         periodEndDate   = Some(LocalDate.of(2013, 6, 30))
       )
@@ -405,13 +405,13 @@ object GamblingTestUtil {
   val validResponseInterestAccruingDetailsSmall = InterestAccruingDetails(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
-    total           = Some(BigDecimal(3000.00)),
-    totalRecords    = Some(1),
+    total           = BigDecimal(3000.00),
+    totalRecords    = 1,
     items = Seq(
       InterestAccruingDetailsItem(
-        descriptionCode = Some(1),
-        amount          = Some(3000.00),
-        interestId      = Some("SAFE-CHG-00001"),
+        descriptionCode = 1,
+        amount          = BigDecimal(3000.00),
+        interestId      = "SAFE-CHG-00001",
         periodStartDate = Some(LocalDate.of(2014, 10, 1)),
         periodEndDate   = Some(LocalDate.of(2014, 10, 31))
       )

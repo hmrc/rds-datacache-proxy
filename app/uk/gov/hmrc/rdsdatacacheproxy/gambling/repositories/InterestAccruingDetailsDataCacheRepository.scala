@@ -68,9 +68,9 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
                 val b = List.newBuilder[InterestAccruingDetailsItem]
                 while (rs.next()) {
                   b += InterestAccruingDetailsItem(
-                    descriptionCode = Option(rs.getInt("p_desc_code")),
-                    amount          = optDecimalFromLabel("p_amount", rs),
-                    interestId      = Option(rs.getString("p_interest_id")),
+                    descriptionCode = rs.getInt("p_desc_code"),
+                    amount          = rs.getBigDecimal("p_amount"),
+                    interestId      = rs.getString("p_interest_id"),
                     periodStartDate = Option(rs.getDate("p_period_start")).map(_.toLocalDate),
                     periodEndDate   = Option(rs.getDate("p_period_end")).map(_.toLocalDate)
                   )
@@ -83,8 +83,8 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
           InterestAccruingDetails(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
-            total           = optDecimalFromIndex(6, cs),
-            totalRecords    = optInt(7, cs),
+            total           = cs.getBigDecimal(6),
+            totalRecords    = cs.getInt(7),
             items           = interestAccruingDetails
           )
 

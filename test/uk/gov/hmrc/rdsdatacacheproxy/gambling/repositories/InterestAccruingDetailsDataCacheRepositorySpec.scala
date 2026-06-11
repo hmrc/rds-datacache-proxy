@@ -74,17 +74,16 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
 
       val regNumber = "XWM12345678901"
 
-      // Match validResponseInterestAccruingDetailsSmall
       when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
       when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
       when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(3000.00))
-      when(mockCsMgd.getObject(7)).thenReturn(1)
+      when(mockCsMgd.getInt(7)).thenReturn(1)
       when(mockCsMgd.getObject(8)).thenReturn(interestAccruingRs)
 
       when(interestAccruingRs.next()).thenReturn(true, false)
 
       when(interestAccruingRs.getInt("p_desc_code")).thenReturn(1)
-      when(interestAccruingRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
+      when(interestAccruingRs.getBigDecimal("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
       when(interestAccruingRs.getString("p_interest_id")).thenReturn("SAFE-CHG-00001")
       when(interestAccruingRs.getDate("p_period_start")).thenReturn(Date.valueOf("2014-10-01"))
       when(interestAccruingRs.getDate("p_period_end")).thenReturn(Date.valueOf("2014-10-31"))
@@ -106,13 +105,13 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
 
       verify(mockCsMgd).getDate(4)
       verify(mockCsMgd).getDate(5)
-      verify(mockCsMgd).getBigDecimal(6) // FIXED
-      verify(mockCsMgd).getObject(7)
+      verify(mockCsMgd).getBigDecimal(6)
+      verify(mockCsMgd).getInt(7)
       verify(mockCsMgd).getObject(8)
 
       verify(interestAccruingRs, times(2)).next()
       verify(interestAccruingRs).getInt("p_desc_code")
-      verify(interestAccruingRs).getObject("p_amount")
+      verify(interestAccruingRs).getBigDecimal("p_amount")
       verify(interestAccruingRs).getString("p_interest_id")
       verify(interestAccruingRs).getDate("p_period_start")
       verify(interestAccruingRs).getDate("p_period_end")
@@ -124,9 +123,14 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
     "return empty InterestAccruingDetails when regNumber is null" in {
       val regNumber: Null = null
 
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.ZERO)
+      when(mockCsMgd.getInt(7)).thenReturn(0)
+      when(mockCsMgd.getObject(8)).thenReturn(interestAccruingRs)
+      when(interestAccruingRs.next()).thenReturn(false)
+
       val result = repository.getInterestAccruingDetails(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result       shouldBe InterestAccruingDetails(None, None, None, None, List())
+      result       shouldBe InterestAccruingDetails(None, None, BigDecimal(0), 0, List())
       result.items shouldBe empty
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -139,10 +143,10 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
     "return Empty List when InterestAccruingDetails result set is empty" in {
       val regNumber = "XWM00000001770"
 
-      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-02-29"))
-      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-06-15"))
-      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(-301.56))
-      when(mockCsMgd.getObject(7)).thenReturn(0)
+      when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2016-2-29"))
+      when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2017-6-15"))
+      when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.ZERO)
+      when(mockCsMgd.getInt(7)).thenReturn(0)
       when(mockCsMgd.getObject(8)).thenReturn(interestAccruingRs)
       when(interestAccruingRs.next()).thenReturn(false)
 
@@ -151,8 +155,8 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
       result shouldBe InterestAccruingDetails(
         Some(LocalDate.of(2016, 2, 29)),
         Some(LocalDate.of(2017, 6, 15)),
-        Some(-301.56),
-        Some(0),
+        0,
+        0,
         List()
       )
 
@@ -165,16 +169,15 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
 
         val regNumber = "XWM12345678901"
 
-        // Match validResponseInterestAccruingDetailsSmall for GTR too
         when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
         when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
         when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(3000.00))
-        when(mockCsGtr.getObject(7)).thenReturn(1)
+        when(mockCsGtr.getInt(7)).thenReturn(1)
         when(mockCsGtr.getObject(8)).thenReturn(interestAccruingRs)
 
         when(interestAccruingRs.next()).thenReturn(true, false)
         when(interestAccruingRs.getInt("p_desc_code")).thenReturn(1)
-        when(interestAccruingRs.getObject("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
+        when(interestAccruingRs.getBigDecimal("p_amount")).thenReturn(java.math.BigDecimal.valueOf(3000.00))
         when(interestAccruingRs.getString("p_interest_id")).thenReturn("SAFE-CHG-00001")
         when(interestAccruingRs.getDate("p_period_start")).thenReturn(Date.valueOf("2014-10-01"))
         when(interestAccruingRs.getDate("p_period_end")).thenReturn(Date.valueOf("2014-10-31"))
