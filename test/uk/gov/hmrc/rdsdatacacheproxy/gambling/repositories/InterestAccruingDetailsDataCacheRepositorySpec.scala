@@ -77,7 +77,7 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
       when(mockCsMgd.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
       when(mockCsMgd.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
       when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(3000.00))
-      when(mockCsMgd.getInt(7)).thenReturn(1)
+      when(mockCsMgd.getObject(7)).thenReturn(java.math.BigDecimal.valueOf(1))
       when(mockCsMgd.getObject(8)).thenReturn(interestAccruingRs)
 
       when(interestAccruingRs.next()).thenReturn(true, false)
@@ -106,7 +106,7 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
       verify(mockCsMgd).getDate(4)
       verify(mockCsMgd).getDate(5)
       verify(mockCsMgd).getBigDecimal(6)
-      verify(mockCsMgd).getInt(7)
+      verify(mockCsMgd).getObject(7)
       verify(mockCsMgd).getObject(8)
 
       verify(interestAccruingRs, times(2)).next()
@@ -124,7 +124,7 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
       val regNumber: Null = null
 
       when(mockCsMgd.getBigDecimal(6)).thenReturn(java.math.BigDecimal.ZERO)
-      when(mockCsMgd.getInt(7)).thenReturn(0)
+      when(mockCsMgd.getObject(7)).thenReturn(java.math.BigDecimal.valueOf(0))
       when(mockCsMgd.getObject(8)).thenReturn(interestAccruingRs)
       when(interestAccruingRs.next()).thenReturn(false)
 
@@ -172,7 +172,7 @@ class InterestAccruingDetailsDataCacheRepositorySpec extends AnyWordSpec with Ma
         when(mockCsGtr.getDate(4)).thenReturn(Date.valueOf("2013-01-01"))
         when(mockCsGtr.getDate(5)).thenReturn(Date.valueOf("2014-11-03"))
         when(mockCsGtr.getBigDecimal(6)).thenReturn(java.math.BigDecimal.valueOf(3000.00))
-        when(mockCsGtr.getInt(7)).thenReturn(1)
+        when(mockCsGtr.getObject(7)).thenReturn(java.math.BigDecimal.valueOf(1))
         when(mockCsGtr.getObject(8)).thenReturn(interestAccruingRs)
 
         when(interestAccruingRs.next()).thenReturn(true, false)

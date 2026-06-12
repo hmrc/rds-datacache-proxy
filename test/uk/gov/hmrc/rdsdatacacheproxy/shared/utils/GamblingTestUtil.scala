@@ -382,22 +382,22 @@ object GamblingTestUtil {
         descriptionCode = 1,
         amount          = 3000.00,
         interestId      = "SAFE-CHG-00001",
-        periodStartDate = Some(LocalDate.of(2014, 10, 1)),
-        periodEndDate   = Some(LocalDate.of(2014, 10, 31))
+        periodStartDate = LocalDate.of(2014, 10, 1),
+        periodEndDate   = LocalDate.of(2014, 10, 31)
       ),
       InterestAccruingDetailsItem(
         descriptionCode = 2,
         amount          = 5000.00,
         interestId      = "SAFE-CHG-00002",
-        periodStartDate = Some(LocalDate.of(2014, 7, 15)),
-        periodEndDate   = Some(LocalDate.of(2014, 7, 31))
+        periodStartDate = LocalDate.of(2014, 7, 15),
+        periodEndDate   = LocalDate.of(2014, 7, 31)
       ),
       InterestAccruingDetailsItem(
         descriptionCode = 3,
         amount          = -500.00,
         interestId      = "SAFE-CHG-00003",
-        periodStartDate = Some(LocalDate.of(2013, 6, 1)),
-        periodEndDate   = Some(LocalDate.of(2013, 6, 30))
+        periodStartDate = LocalDate.of(2013, 6, 1),
+        periodEndDate   = LocalDate.of(2013, 6, 30)
       )
     )
   )
@@ -412,8 +412,8 @@ object GamblingTestUtil {
         descriptionCode = 1,
         amount          = BigDecimal(3000.00),
         interestId      = "SAFE-CHG-00001",
-        periodStartDate = Some(LocalDate.of(2014, 10, 1)),
-        periodEndDate   = Some(LocalDate.of(2014, 10, 31))
+        periodStartDate = LocalDate.of(2014, 10, 1),
+        periodEndDate   = LocalDate.of(2014, 10, 31)
       )
     )
   )

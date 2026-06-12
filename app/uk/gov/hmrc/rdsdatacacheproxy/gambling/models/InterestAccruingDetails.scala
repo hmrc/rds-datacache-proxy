@@ -24,8 +24,8 @@ final case class InterestAccruingDetailsItem(
   descriptionCode: Int,
   amount: BigDecimal,
   interestId: String,
-  periodStartDate: Option[LocalDate],
-  periodEndDate: Option[LocalDate]
+  periodStartDate: LocalDate,
+  periodEndDate: LocalDate
 )
 
 object InterestAccruingDetailsItem {

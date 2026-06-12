@@ -43,22 +43,22 @@ object InterestAccruingDetailsStubData {
               descriptionCode = 1,
               amount          = -9500.00,
               interestId      = "SAFE-CHG-00001",
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 2,
               amount          = -8000.00,
               interestId      = "SAFE-CHG-00002",
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 3,
               amount          = -7000.00,
               interestId      = "SAFE-CHG-00003",
-              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 12, 31))
+              periodStartDate = LocalDate.of(2013, 10, 1),
+              periodEndDate   = LocalDate.of(2013, 12, 31)
             )
           )
         )
@@ -73,8 +73,8 @@ object InterestAccruingDetailsStubData {
               descriptionCode = 1,
               amount          = -9500.00,
               interestId      = "SAFE-CHG-00001",
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             )
           )
         )
@@ -89,29 +89,29 @@ object InterestAccruingDetailsStubData {
               descriptionCode = 1,
               amount          = -9500.00,
               interestId      = "SAFE-CHG-00001",
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 2,
               amount          = -8000.00,
               interestId      = "SAFE-CHG-00002",
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 3,
               amount          = -7000.00,
               interestId      = "SAFE-CHG-00003",
-              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 12, 31))
+              periodStartDate = LocalDate.of(2013, 10, 1),
+              periodEndDate   = LocalDate.of(2013, 12, 31)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 4,
               amount          = 5555.00,
               interestId      = "SAFE-CHG-00004",
-              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 12, 31))
+              periodStartDate = LocalDate.of(2013, 10, 1),
+              periodEndDate   = LocalDate.of(2013, 12, 31)
             )
           )
         )
@@ -126,22 +126,22 @@ object InterestAccruingDetailsStubData {
               descriptionCode = 1,
               amount          = -9500.00,
               interestId      = "SAFE-CHG-00001",
-              periodStartDate = Some(LocalDate.of(2014, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 6, 30))
+              periodStartDate = LocalDate.of(2014, 4, 1),
+              periodEndDate   = LocalDate.of(2014, 6, 30)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 2,
               amount          = -8000.00,
               interestId      = "SAFE-CHG-00002",
-              periodStartDate = Some(LocalDate.of(2014, 1, 1)),
-              periodEndDate   = Some(LocalDate.of(2014, 3, 31))
+              periodStartDate = LocalDate.of(2014, 1, 1),
+              periodEndDate   = LocalDate.of(2014, 3, 31)
             ),
             InterestAccruingDetailsItem(
               descriptionCode = 3,
               amount          = -7000.00,
               interestId      = "SAFE-CHG-00003",
-              periodStartDate = Some(LocalDate.of(2013, 10, 1)),
-              periodEndDate   = Some(LocalDate.of(2013, 12, 31))
+              periodStartDate = LocalDate.of(2013, 10, 1),
+              periodEndDate   = LocalDate.of(2013, 12, 31)
             )
           )
         )
@@ -165,8 +165,8 @@ object InterestAccruingDetailsStubData {
               descriptionCode = 1,
               amount          = -4500.00,
               interestId      = "SAFE-CHG-DEFAULT",
-              periodStartDate = Some(LocalDate.of(2024, 4, 1)),
-              periodEndDate   = Some(LocalDate.of(2024, 6, 30))
+              periodStartDate = LocalDate.of(2024, 4, 1),
+              periodEndDate   = LocalDate.of(2024, 6, 30)
             )
           )
         )

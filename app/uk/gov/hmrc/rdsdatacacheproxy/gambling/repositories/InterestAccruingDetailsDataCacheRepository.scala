@@ -66,15 +66,27 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
             else {
               try {
                 val b = List.newBuilder[InterestAccruingDetailsItem]
+
                 while (rs.next()) {
-                  b += InterestAccruingDetailsItem(
-                    descriptionCode = rs.getInt("p_desc_code"),
-                    amount          = rs.getBigDecimal("p_amount"),
-                    interestId      = rs.getString("p_interest_id"),
-                    periodStartDate = Option(rs.getDate("p_period_start")).map(_.toLocalDate),
-                    periodEndDate   = Option(rs.getDate("p_period_end")).map(_.toLocalDate)
-                  )
+
+                  val maybeItem =
+                    for
+                      descriptionCode <- Option(rs.getInt("p_desc_code"))
+                      amount          <- Option(rs.getBigDecimal("p_amount"))
+                      interestId      <- Option(rs.getString("p_interest_id"))
+                      periodStartDate <- Option(rs.getDate("p_period_start").toLocalDate)
+                      periodEndDate   <- Option(rs.getDate("p_period_end").toLocalDate)
+                    yield InterestAccruingDetailsItem(
+                      descriptionCode,
+                      amount,
+                      interestId,
+                      periodStartDate,
+                      periodEndDate
+                    )
+
+                  b.addAll(maybeItem.toList)
                 }
+
                 b.result()
               } finally closeQuietly(rs)
             }
@@ -83,8 +95,8 @@ class InterestAccruingDetailsDataCacheRepository @Inject() (
           InterestAccruingDetails(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
-            total           = cs.getBigDecimal(6),
-            totalRecords    = cs.getInt(7),
+            total           = optDecimalFromIndex(6, cs).getOrElse(0),
+            totalRecords    = optInt(7, cs).getOrElse(0),
             items           = interestAccruingDetails
           )
 
