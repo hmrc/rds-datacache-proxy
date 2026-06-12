@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseInterest, validResponseInterestDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseInterestDetails, validResponseInterestDrilldown}
 
 import scala.concurrent.Future
 
@@ -82,11 +82,11 @@ final class InterestServiceSpec extends SpecBase {
 
     "return validResponseInterest when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
-        .thenReturn(Future.successful(validResponseInterest))
+        .thenReturn(Future.successful(validResponseInterestDrilldown))
 
       val result = service.getInterestDrilldown(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
 
-      result mustBe Right(validResponseInterest)
+      result mustBe Right(validResponseInterestDrilldown)
       verify(repository).getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }

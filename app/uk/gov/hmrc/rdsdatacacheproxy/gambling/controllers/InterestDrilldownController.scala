@@ -26,13 +26,13 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestService
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestController @Inject() (authorise: AuthAction, service: InterestService, cc: ControllerComponents)(implicit
+class InterestDrilldownController @Inject() (authorise: AuthAction, service: InterestService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
-  def getInterest(regime: String, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
+  def getInterestDrilldown(regime: String, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getInterestDrilldown(regime, regNumber, interestId, paginationStart, paginationMaxRows).map {
         case Right(interest) => Ok(Json.toJson(interest))

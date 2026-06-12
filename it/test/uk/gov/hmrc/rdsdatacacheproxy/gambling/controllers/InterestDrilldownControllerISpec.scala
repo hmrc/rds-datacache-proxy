@@ -25,19 +25,19 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, InterestDrilldownItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestStubData.getInterestData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData.getInterestDrilldownData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InterestControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestRdsStub extends InterestDataSource {
     override def getInterestDrilldown(regime: Regime, regNumber: String, interestId: String, pageNo: Int, pageSize: Int): Future[InterestDrilldown] =
       Future {
-        InterestStubData.getInterestData(regNumber, interestId, pageNo, pageSize)
+        InterestDrilldownStubData.getInterestDrilldownData(regNumber, interestId, pageNo, pageSize)
       }
 
     override def getInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails] =
@@ -52,11 +52,11 @@ class InterestControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       )
       .build()
 
-  private final val endpoint   = "/gambling/interest-drilldown"
-  private final val GBD        = "gbd"
+  private final val endpoint = "/gambling/interest-drilldown"
+  private final val GBD = "gbd"
   private final val interestId = "INT001"
 
-  "GET /gambling/interest (stubbed repo, no DB)" should {
+  "GET /gambling/interest-drilldown (stubbed repo, no DB)" should {
 
     "return 200 with correct InterestData" in {
       AuthStub.authorised()
@@ -65,7 +65,7 @@ class InterestControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestDrilldown] mustBe getInterestData("XYZ00000000000")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000000")
     }
 
     "return 200 with correct InterestData when pageNo & pageSize NOT provided" in {
@@ -75,7 +75,7 @@ class InterestControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestDrilldown] mustBe getInterestData("XYZ99999999999")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ99999999999")
     }
 
     "return 200 with empty items when no interest data exists for regNumber" in {
@@ -93,14 +93,14 @@ class InterestControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDrilldown] mustBe getInterestData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDrilldown] mustBe getInterestData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

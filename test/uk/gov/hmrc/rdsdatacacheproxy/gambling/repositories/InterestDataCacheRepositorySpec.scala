@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseInterest, validResponseInterestDetailsSmall}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseInterestDetailsSmall, validResponseInterestDrilldown}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
@@ -252,7 +252,7 @@ class InterestDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
 
       val result = repository.getInterestDrilldown(Regime.MGD, regNumber, interestId, 1, 10).futureValue
 
-      result            shouldBe validResponseInterest
+      result            shouldBe validResponseInterestDrilldown
       result.items.size shouldBe 1
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -385,7 +385,7 @@ class InterestDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
 
         val result = repository.getInterestDrilldown(regime, regNumber, interestId, 1, 10).futureValue
 
-        result            shouldBe validResponseInterest
+        result            shouldBe validResponseInterestDrilldown
         result.items.size shouldBe 1
 
         verify(mockCsGtr).setString(1, regNumber)

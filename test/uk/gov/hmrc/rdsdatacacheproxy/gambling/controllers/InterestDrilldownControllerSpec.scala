@@ -26,29 +26,29 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterest, validResponseInterestEmpty}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestDrilldown, validResponseInterestDrilldownEmpty}
 
 import scala.concurrent.Future
 
-class InterestControllerSpec extends SpecBase with MockitoSugar {
+class InterestDrilldownControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: InterestService = mock[InterestService]
-    val controller = new InterestController(fakeAuthAction, mockService, cc)
+    val controller = new InterestDrilldownController(fakeAuthAction, mockService, cc)
   }
 
-  "InterestController#getInterest" - {
+  "InterestDrilldownController#getInterest" - {
 
     "returns 200 when service succeeds" in new Setup {
       when(mockService.getInterestDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterest)))
+        .thenReturn(Future.successful(Right(validResponseInterestDrilldown)))
 
       val req = FakeRequest(GET, s"/gambling/interest/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getInterest(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterest)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestDrilldown)
 
       verify(mockService).getInterestDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
@@ -56,14 +56,14 @@ class InterestControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 with empty response when service returns no items" in new Setup {
       when(mockService.getInterestDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterestEmpty)))
+        .thenReturn(Future.successful(Right(validResponseInterestDrilldownEmpty)))
 
       val req = FakeRequest(GET, s"/gambling/interest/$validRegime/XWM00000001770/INT001?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getInterest(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestDrilldown(validRegime, "XWM00000001770", "INT001", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterestEmpty)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestDrilldownEmpty)
 
       verify(mockService).getInterestDrilldown(eqTo(validRegime), eqTo("XWM00000001770"), eqTo("INT001"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
@@ -74,7 +74,7 @@ class InterestControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
       val req = FakeRequest(GET, "/gambling/interest/INVALID_REGIME/XWM00000001770/INT001")
-      val res: Future[Result] = controller.getInterest(" ", " ", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestDrilldown(" ", " ", "INT001", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -90,7 +90,7 @@ class InterestControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/interest/$validRegime/InvalidRegNo/INT001")
-      val res: Future[Result] = controller.getInterest(" ", " ", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestDrilldown(" ", " ", "INT001", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -106,7 +106,7 @@ class InterestControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/interest/$validRegime/ERR00001770/INT001")
-      val res: Future[Result] = controller.getInterest(validRegime, "ERR00001770", "INT001", 1, 10)(req)
+      val res: Future[Result] = controller.getInterestDrilldown(validRegime, "ERR00001770", "INT001", 1, 10)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
