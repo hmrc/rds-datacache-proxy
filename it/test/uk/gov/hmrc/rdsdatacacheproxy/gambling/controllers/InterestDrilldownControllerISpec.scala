@@ -23,24 +23,24 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, InterestDrilldownItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData.getInterestDetailsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData.getInterestDrilldownData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class InterestDetailsRdsStub extends InterestDataSource {
-    override def getInterestDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
+  class InterestRdsStub extends InterestDataSource {
+    override def getInterestDrilldown(regime: Regime, regNumber: String, interestId: String, pageNo: Int, pageSize: Int): Future[InterestDrilldown] =
       Future {
-        InterestDetailsStubData.getInterestDetailsData(regNumber, pageNo, pageSize)
+        InterestDrilldownStubData.getInterestDrilldownData(regNumber, interestId, pageNo, pageSize)
       }
 
-    override def getInterestDrilldown(regime: Regime, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDrilldown] =
+    override def getInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails] =
       Future.failed(new UnsupportedOperationException("Not required for this test suite"))
   }
 
@@ -48,86 +48,96 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestDataSource].toInstance(new InterestDetailsRdsStub)
+        bind[InterestDataSource].toInstance(new InterestRdsStub)
       )
       .build()
 
-  private final val endpoint = "/gambling/interest-details"
+  private final val endpoint = "/gambling/interest-drilldown"
   private final val GBD = "gbd"
+  private final val interestId = "INT001"
 
-  "GET /gambling/interest-details (stubbed repo, no DB)" should {
+  "GET /gambling/interest-drilldown (stubbed repo, no DB)" should {
 
-    "return 200 with correct InterestDetailsData" in {
+    "return 200 with correct InterestData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId?pageNo=1&pageSize=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000000")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000000")
     }
 
-    "return 200 with correct InterestDetailsData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct InterestData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ99999999999/$interestId").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ99999999999")
+    }
 
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ99999999999")
+    "return 200 with empty items when no interest data exists for regNumber" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+      (response.json \ "items").as[Seq[InterestDrilldownItem]] mustBe empty
+      (response.json \ "totalRecords").as[Int] mustBe 0
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
+      val response = get(s"$endpoint/$GBD/xyz00000000012 /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
+      val response = get(s"$endpoint/$GBD/   XYZ00000000012   /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/$GBD/XYZ00000000012").futureValue
-      val res2 = get(s"$endpoint/$GBD/XYZ00000000012").futureValue
+      val res1 = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
+      val res2 = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
       response.contentType mustBe "application/json"
     }
 
     "return 400 for partially valid regNumber (wrong length)" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XYZ123?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ123/$interestId?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
-    "return 400 for invalid regime)" in {
+    "return 400 for invalid regime" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012/$interestId?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
     "return 400 for regNumber with special characters" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000@00000").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ00000@00000/$interestId").futureValue
       response.status mustBe BAD_REQUEST
     }
 
     "return 400 for invalid regNumber format" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/INVALID").futureValue
+      val response = get(s"$endpoint/$GBD/INVALID/$interestId").futureValue
       response.status mustBe BAD_REQUEST
       (response.json \ "code").as[String] mustBe "INVALID_REG_NUMBER"
       (response.json \ "message").as[String] mustBe "regNumber has invalid format"
@@ -135,7 +145,7 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
+      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
@@ -145,26 +155,12 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
       response.status mustBe NOT_FOUND
     }
 
-    "return 404 for whitespace-only regNumber" in {
-      AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/   ").futureValue
-      response.status mustBe NOT_FOUND
-    }
-
-    "return 500 when stub simulates failure" in {
-      AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/ERR00000000000").futureValue
-      response.status mustBe INTERNAL_SERVER_ERROR
-      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
-    }
-
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$endpoint/$GBD/ERR00000000000/$interestId").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
   }
 }
