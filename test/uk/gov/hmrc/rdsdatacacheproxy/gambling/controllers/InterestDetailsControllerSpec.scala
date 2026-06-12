@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestDetailsService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestDetails}
 
 import scala.concurrent.Future
@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class InterestDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockService: InterestDetailsService = mock[InterestDetailsService]
+    val mockService: InterestService = mock[InterestService]
     val controller = new InterestDetailsController(fakeAuthAction, mockService, cc)
   }
 

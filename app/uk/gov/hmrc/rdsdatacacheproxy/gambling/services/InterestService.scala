@@ -18,14 +18,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDetailsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class InterestDetailsService @Inject() (
-  repository: InterestDetailsDataSource
+class InterestService @Inject() (
+  repository: InterestDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
@@ -34,5 +34,12 @@ class InterestDetailsService @Inject() (
   ): Future[Either[StatementError, InterestDetails]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getInterestDetails")(
       repository.getInterestDetails
+    )
+
+  def getInterestDrilldown(regime: String, rawRegNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[StatementError, InterestDrilldown]] =
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, interestId, paginationStart, paginationMaxRows, "getInterestDrilldown")(
+      repository.getInterestDrilldown
     )
 }

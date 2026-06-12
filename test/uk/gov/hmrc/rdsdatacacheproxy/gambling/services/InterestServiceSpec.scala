@@ -22,15 +22,15 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDetailsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseInterestDetails
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseInterest, validResponseInterestDetails}
 
 import scala.concurrent.Future
 
-final class InterestDetailsServiceSpec extends SpecBase {
+final class InterestServiceSpec extends SpecBase {
 
-  private val repository = mock[InterestDetailsDataSource]
-  private val service = new InterestDetailsService(repository)
+  private val repository = mock[InterestDataSource]
+  private val service = new InterestService(repository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -40,8 +40,9 @@ final class InterestDetailsServiceSpec extends SpecBase {
   private val validRegime = Regime.values.head
   private val lowercaseRegNumber = "xwm12345678901 "
   private val normalisedRegNumber = "XWM12345678901"
+  private val interestId = "INT001"
 
-  "InterestDetailsService#getInterestDetails" - {
+  "InterestService#getInterestDetails" - {
 
     "return validResponseInterestDetails when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getInterestDetails(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10)))
@@ -73,6 +74,44 @@ final class InterestDetailsServiceSpec extends SpecBase {
       val result = service.getInterestDetails(validRegime.toString, lowercaseRegNumber, 1, 10).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getInterestDetails(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(1), eqTo(10))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
+  "InterestService#getInterestDrilldown" - {
+
+    "return validResponseInterest when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
+      when(repository.getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
+        .thenReturn(Future.successful(validResponseInterest))
+
+      val result = service.getInterestDrilldown(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
+
+      result mustBe Right(validResponseInterest)
+      verify(repository).getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidRegimeError and not call repository when Regime input is invalid" in {
+      val result = service.getInterestDrilldown("INVALID", lowercaseRegNumber, interestId, 1, 10).futureValue
+      result mustBe Left(InvalidRegimeCode)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
+      val invalidRegNumber = "xwm12345678"
+      val result = service.getInterestDrilldown(validRegime.toString, invalidRegNumber, interestId, 1, 10).futureValue
+      result mustBe Left(InvalidRegNumber)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository throws exception" in {
+      when(repository.getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
+
+      val result = service.getInterestDrilldown(validRegime.toString, lowercaseRegNumber, interestId, 1, 10).futureValue
+
+      result mustBe Left(UnexpectedError)
+      verify(repository).getInterestDrilldown(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(interestId), eqTo(1), eqTo(10))
       verifyNoMoreInteractions(repository)
     }
   }
