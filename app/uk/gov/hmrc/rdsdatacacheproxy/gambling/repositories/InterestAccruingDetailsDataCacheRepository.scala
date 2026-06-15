@@ -18,30 +18,36 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetailItem, InterestDetails, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetails, InterestAccruingDetailsItem, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait InterestDetailsDataSource {
-  def getInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails]
+trait InterestAccruingDetailsDataSource {
+  def getInterestAccruingDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestAccruingDetails]
 }
 
 @Singleton
-class InterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDatabase, @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase)(
-  implicit ec: ExecutionContext
-) extends InterestDetailsDataSource
+class InterestAccruingDetailsDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") mgdDb: MGDDatabase,
+  @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
+)(implicit ec: ExecutionContext)
+    extends InterestAccruingDetailsDataSource
     with RepositorySupport
     with Logging {
 
-  override def getInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails] =
+  override def getInterestAccruingDetails(regime: Regime,
+                                          regNumber: String,
+                                          paginationStart: Int,
+                                          paginationMaxRows: Int
+                                         ): Future[InterestAccruingDetails] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
           regime match
-            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDInterestDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
-            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRInterestDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case Regime.MGD => connection.prepareCall("{ call MGD_LNP_PK.getMGDInterestAccruingDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
+            case _          => connection.prepareCall("{ call GTR_LNP_PK.getGTRInterestAccruingDetails(?, ?, ?, ?, ?, ?, ?, ?) }")
 
         try {
           cs.setString(1, regNumber) // IN  P_REG_NUMBER
@@ -51,38 +57,47 @@ class InterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gambling") m
           cs.registerOutParameter(5, java.sql.Types.DATE) // OUT P_GTR_PERIOD_END_DATE
           cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (NUMBER)
           cs.registerOutParameter(7, java.sql.Types.NUMERIC) // OUT P_TOTAL_RECORDS (NUMBER)
-          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_INTEREST_DETAILS (REF CURSOR)
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_INTEREST_ACCRUING_DETAILS (REF CURSOR)
           cs.execute()
 
-          val interestDetails: List[InterestDetailItem] = {
+          val interestAccruingDetails: List[InterestAccruingDetailsItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[InterestDetailItem]
+                val b = List.newBuilder[InterestAccruingDetailsItem]
 
                 while (rs.next()) {
+
                   val maybeItem =
                     for
                       descriptionCode <- Option(rs.getInt("p_desc_code"))
-                      amount          <- optDecimalFromLabel("p_amount", rs)
+                      amount          <- Option(rs.getBigDecimal("p_amount"))
                       interestId      <- Option(rs.getString("p_interest_id"))
                       periodStartDate <- Option(rs.getDate("p_period_start").toLocalDate)
                       periodEndDate   <- Option(rs.getDate("p_period_end").toLocalDate)
-                    yield InterestDetailItem(descriptionCode, amount, interestId, periodStartDate, periodEndDate)
+                    yield InterestAccruingDetailsItem(
+                      descriptionCode,
+                      amount,
+                      interestId,
+                      periodStartDate,
+                      periodEndDate
+                    )
+
                   b.addAll(maybeItem.toList)
                 }
+
                 b.result()
               } finally closeQuietly(rs)
             }
           }
 
-          InterestDetails(
+          InterestAccruingDetails(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
             total           = optDecimalFromIndex(6, cs).getOrElse(0),
             totalRecords    = optInt(7, cs).getOrElse(0),
-            items           = interestDetails
+            items           = interestAccruingDetails
           )
 
         } finally {

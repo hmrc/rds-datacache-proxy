@@ -23,41 +23,38 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData.getInterestDetailsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetails, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestAccruingDetailsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingDetailsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingDetailsStubData.getInterestAccruingDetailsData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestAccruingDetailsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class InterestDetailsRdsStub extends InterestDataSource {
-    override def getInterestDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
+  class InterestAccruingDetailsRdsStub extends InterestAccruingDetailsDataSource {
+    override def getInterestAccruingDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int) =
       Future {
-        InterestDetailsStubData.getInterestDetailsData(regNumber, pageNo, pageSize)
+        InterestAccruingDetailsStubData.getInterestAccruingDetailsData(regNumber, pageNo, pageSize)
       }
-
-    override def getInterestDrilldown(regime: Regime, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDrilldown] =
-      Future.failed(new UnsupportedOperationException("Not required for this test suite"))
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestDataSource].toInstance(new InterestDetailsRdsStub)
+        bind[InterestAccruingDetailsDataSource].toInstance(new InterestAccruingDetailsRdsStub)
       )
       .build()
 
-  private final val endpoint = "/gambling/interest-details"
+  private final val endpoint = "/gambling/interest-accruing-details"
   private final val GBD = "gbd"
 
-  "GET /gambling/interest-details (stubbed repo, no DB)" should {
+  "GET /gambling/interest-accruing-details (stubbed repo, no DB)" should {
 
-    "return 200 with correct InterestDetailsData" in {
+    "return 200 with correct InterestAccruingDetailsData" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
@@ -65,10 +62,10 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000000")
+      response.json.as[InterestAccruingDetails] mustBe getInterestAccruingDetailsData("XYZ00000000000")
     }
 
-    "return 200 with correct InterestDetailsData when pageNo & pageSize NOT provided" in {
+    "return 200 with correct InterestAccruingDetailsData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
@@ -76,21 +73,21 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ99999999999")
+      response.json.as[InterestAccruingDetails] mustBe getInterestAccruingDetailsData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestAccruingDetails] mustBe getInterestAccruingDetailsData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestAccruingDetails] mustBe getInterestAccruingDetailsData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

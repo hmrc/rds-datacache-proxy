@@ -23,23 +23,26 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, Regime}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData.*
 
 import scala.concurrent.Future
 
-class InterestDetailsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
+class InterestDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
-  class InterestDetailsRdsStub extends InterestDetailsDataSource {
+  class InterestRdsStub extends InterestDataSource {
     override def getInterestDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[InterestDetails] =
       Future.successful(getInterestDetailsData(regNumber, pageNo, pageSize))
+
+    override def getInterestDrilldown(regime: Regime, regNumber: String, interestId: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDrilldown] =
+      Future.failed(new UnsupportedOperationException("Not required for this test suite"))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[InterestDetailsDataSource].toInstance(new InterestDetailsRdsStub))
+    .overrides(bind[InterestDataSource].toInstance(new InterestRdsStub))
     .build()
 
-  private lazy val repository: InterestDetailsDataSource = app.injector.instanceOf[InterestDetailsDataSource]
+  private lazy val repository: InterestDataSource = app.injector.instanceOf[InterestDataSource]
 
   "getInterestDetails (stubbed repository)" should {
 

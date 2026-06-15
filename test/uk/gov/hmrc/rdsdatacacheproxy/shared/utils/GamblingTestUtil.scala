@@ -372,6 +372,79 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseInterestDrilldown = InterestDrilldown(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(1250.50),
+    totalRecords    = 1,
+    descCode        = Some(42),
+    items = Seq(
+      InterestDrilldownItem(
+        interestOn = BigDecimal(1000.00),
+        dateFrom   = LocalDate.of(2013, 6, 1),
+        dateTo     = LocalDate.of(2014, 6, 1),
+        noOfDays   = BigDecimal(365),
+        rate       = BigDecimal(2.5),
+        amount     = BigDecimal(1250.50)
+      )
+    )
+  )
+
+  val validResponseInterestDrilldownEmpty = InterestDrilldown(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(0.00),
+    totalRecords    = 0,
+    descCode        = None,
+    items           = Seq.empty
+  )
+
+  val validResponseInterestAccruingDetails = InterestAccruingDetails(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(7500.00),
+    totalRecords    = 3,
+    items = Seq(
+      InterestAccruingDetailsItem(
+        descriptionCode = 1,
+        amount          = 3000.00,
+        interestId      = "SAFE-CHG-00001",
+        periodStartDate = LocalDate.of(2014, 10, 1),
+        periodEndDate   = LocalDate.of(2014, 10, 31)
+      ),
+      InterestAccruingDetailsItem(
+        descriptionCode = 2,
+        amount          = 5000.00,
+        interestId      = "SAFE-CHG-00002",
+        periodStartDate = LocalDate.of(2014, 7, 15),
+        periodEndDate   = LocalDate.of(2014, 7, 31)
+      ),
+      InterestAccruingDetailsItem(
+        descriptionCode = 3,
+        amount          = -500.00,
+        interestId      = "SAFE-CHG-00003",
+        periodStartDate = LocalDate.of(2013, 6, 1),
+        periodEndDate   = LocalDate.of(2013, 6, 30)
+      )
+    )
+  )
+
+  val validResponseInterestAccruingDetailsSmall = InterestAccruingDetails(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = BigDecimal(3000.00),
+    totalRecords    = 1,
+    items = Seq(
+      InterestAccruingDetailsItem(
+        descriptionCode = 1,
+        amount          = BigDecimal(3000.00),
+        interestId      = "SAFE-CHG-00001",
+        periodStartDate = LocalDate.of(2014, 10, 1),
+        periodEndDate   = LocalDate.of(2014, 10, 31)
+      )
+    )
+  )
+
   val validResponseSubmittedReturns = SubmittedReturns(
     items = Seq(
       SubmittedReturnsItem(

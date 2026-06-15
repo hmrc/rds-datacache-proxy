@@ -27,42 +27,42 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestAccruingDetailsService
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseInterestAccruingDetails}
 
 import scala.concurrent.Future
 
-class InterestDetailsControllerSpec extends SpecBase with MockitoSugar {
+class InterestAccruingDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockService: InterestService = mock[InterestService]
-    val controller = new InterestDetailsController(fakeAuthAction, mockService, cc)
+    val mockService: InterestAccruingDetailsService = mock[InterestAccruingDetailsService]
+    val controller = new InterestAccruingDetailsController(fakeAuthAction, mockService, cc)
   }
 
-  "InterestDetailsController#getInterestDetails" - {
+  "InterestAccruingDetailsController#getInterestAccruingDetails" - {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.getInterestDetails(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
-        .thenReturn(Future.successful(Right(validResponseInterestDetails)))
+      when(mockService.getInterestAccruingDetails(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any()))
+        .thenReturn(Future.successful(Right(validResponseInterestAccruingDetails)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-details/$validRegime/XWM00000001770?pageNo=1&pageSize=10")
-      val res: Future[Result] = controller.getInterestDetails(validRegime, "XWM00000001770", 1, 10)(req)
+      val req = FakeRequest(GET, s"/gambling/interest-accruing-details/$validRegime/XWM00000001770?pageNo=1&pageSize=10")
+      val res: Future[Result] = controller.getInterestAccruingDetails(validRegime, "XWM00000001770", 1, 10)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseInterestDetails)
+      contentAsJson(res) mustBe Json.toJson(validResponseInterestAccruingDetails)
 
-      verify(mockService).getInterestDetails(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDetails(eqTo(validRegime), eqTo("XWM00000001770"), eqTo(1), eqTo(10))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getInterestDetails(any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDetails(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
 
-      val req = FakeRequest(GET, "/gambling/interest-details/INVALID_REGIME/XWM00000001770")
-      val res: Future[Result] = controller.getInterestDetails(" ", " ", 1, 10)(req)
+      val req = FakeRequest(GET, "/gambling/interest-accruing-details/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getInterestAccruingDetails(" ", " ", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -70,15 +70,15 @@ class InterestDetailsControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Invalid Regime Code"
       )
 
-      verify(mockService).getInterestDetails(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDetails(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getInterestDetails(any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDetails(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-details/$validRegime/InvalidRegNo")
-      val res: Future[Result] = controller.getInterestDetails(" ", " ", 1, 10)(req)
+      val req = FakeRequest(GET, s"/gambling/interest-accruing-details/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getInterestAccruingDetails(" ", " ", 1, 10)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -86,15 +86,15 @@ class InterestDetailsControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getInterestDetails(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDetails(eqTo(" "), eqTo(" "), eqTo(1), eqTo(10))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getInterestDetails(any(), any(), any(), any())(any()))
+      when(mockService.getInterestAccruingDetails(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, s"/gambling/interest-details/$validRegime/ERR00001770")
-      val res: Future[Result] = controller.getInterestDetails(validRegime, "ERR00001770", 1, 10)(req)
+      val req = FakeRequest(GET, s"/gambling/interest-accruing-details/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getInterestAccruingDetails(validRegime, "ERR00001770", 1, 10)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -102,7 +102,7 @@ class InterestDetailsControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getInterestDetails(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
+      verify(mockService).getInterestAccruingDetails(eqTo(validRegime), eqTo("ERR00001770"), eqTo(1), eqTo(10))(any())
     }
   }
 }
