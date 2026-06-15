@@ -60,6 +60,7 @@ GET        /gambling/statement-overview/:regime/:regNumber          uk.gov.hmrc.
 GET        /gambling/interest-overview/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestOverviewController.getInterestOverview(regime: String, regNumber: String)
 GET        /gambling/interest-accruing-drilldown/:regime/:regNumber/:interestId  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestAccruingController.getInterestAccruingDrilldown(regime: String, regNumber: String, interestId: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/interest-details/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestDetailsController.getInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/submitted-returns/:regNumber                  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 
 #EUVAT routes
 GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn

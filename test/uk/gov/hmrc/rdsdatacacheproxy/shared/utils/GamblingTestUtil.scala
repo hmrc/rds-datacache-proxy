@@ -372,4 +372,37 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseSubmittedReturns = SubmittedReturns(
+    items = Seq(
+      SubmittedReturnsItem(
+        consec_no      = 12345,
+        mgd_period     = "01/01/2025 - 30/03/2025",
+        submitted_date = LocalDate.of(2025, 4, 1),
+        ack_ref        = "123456789012345"
+      ),
+      SubmittedReturnsItem(
+        consec_no      = 22345,
+        mgd_period     = "01/04/2025 - 30/06/2025",
+        submitted_date = LocalDate.of(2025, 7, 1),
+        ack_ref        = "12345"
+      ),
+      SubmittedReturnsItem(
+        consec_no      = 111222,
+        mgd_period     = "10/02/2024 - 29/04/2024",
+        submitted_date = LocalDate.of(2024, 5, 1),
+        ack_ref        = "111222111222"
+      )
+    )
+  )
+
+  val validResponseSubmittedReturnsSmall = SubmittedReturns(
+    items = Seq(
+      SubmittedReturnsItem(
+        consec_no      = 12345,
+        mgd_period     = "01/01/2025 - 30/03/2025",
+        submitted_date = LocalDate.of(2025, 4, 1),
+        ack_ref        = "123456789012345"
+      )
+    )
+  )
 }

@@ -112,4 +112,43 @@ trait BaseService extends Logging {
         logger.error(s"[$baseText] Invalid Regime Code $regime")
         Future.successful(Left(error))
     }
+
+  def withValidParams[T](
+    regNumber: String,
+    sortByOption: Option[Int],
+    orderByOption: Option[String],
+    baseText: String
+  )(
+    ifValid: (String, Int, String) => Future[T]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    lazy val reqText = s"regNumber=$regNumber sortByOption=$sortByOption orderByOption=$orderByOption"
+    logger.info(s"[$baseText] $reqText")
+    val PERIOD_START_DATE = 1
+    val SUBMITTED_DATE = 2
+    val PERIOD_END_DATE = 3
+
+    if (!regNumberPattern.matcher(regNumber).matches())
+      logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
+      Future.successful(Left(InvalidRegNumber))
+    else {
+      val sortBy = sortByOption match {
+        case Some(1) => PERIOD_START_DATE
+        case Some(2) => SUBMITTED_DATE
+        case _       => PERIOD_END_DATE
+      }
+
+      val orderBy = orderByOption.map(_.trim.toUpperCase()) match {
+        case Some("DESC") => "DESC"
+        case _            => "ASC"
+      }
+
+      logger.info(s"[$baseText] $reqText sortBy=$sortBy orderBy=$orderBy")
+
+      ifValid(regNumber, sortBy, orderBy)
+        .map(summary => Right(summary))
+        .recover { case ex: Exception =>
+          logger.error(s"[$baseText] Unexpected error $reqText", ex)
+          Left(UnexpectedError)
+        }
+    }
 }
