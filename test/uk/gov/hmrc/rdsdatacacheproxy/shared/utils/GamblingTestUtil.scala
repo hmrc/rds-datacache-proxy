@@ -445,27 +445,27 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseRepaymentInterestDetails = RepaymentInterestDetails(
+  val validResponseRepaymentInterestDetails = InterestDetails(
     periodStartDate = Some(LocalDate.of(2013, 3, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
     total           = BigDecimal(-2600.00),
     totalRecords    = 3,
     items = Seq(
-      RepaymentInterestDetailItem(
+      InterestDetailItem(
         descriptionCode = 2740,
         amount          = -800.00,
         interestId      = "SAFE-CHG-00003",
         periodStartDate = LocalDate.of(2014, 1, 1),
         periodEndDate   = LocalDate.of(2014, 3, 31)
       ),
-      RepaymentInterestDetailItem(
+      InterestDetailItem(
         descriptionCode = 2740,
         amount          = -400.00,
         interestId      = "SAFE-CHG-00004",
         periodStartDate = LocalDate.of(2014, 10, 1),
         periodEndDate   = LocalDate.of(2014, 12, 31)
       ),
-      RepaymentInterestDetailItem(
+      InterestDetailItem(
         descriptionCode = 2740,
         amount          = -1400.00,
         interestId      = "SAFE-CHG-00005",
@@ -475,13 +475,13 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseRepaymentInterestDetailsSmall = RepaymentInterestDetails(
+  val validResponseRepaymentInterestDetailsSmall = InterestDetails(
     periodStartDate = Some(LocalDate.of(2013, 1, 1)),
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total           = -45.00,
     totalRecords    = 1,
     items = Seq(
-      RepaymentInterestDetailItem(
+      InterestDetailItem(
         descriptionCode = 2740,
         amount          = -45.00,
         interestId      = "SAFE-CHG-00001",

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.RepaymentInterestDetails
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.InterestDetails
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentInterestDetailsDataSource
 
@@ -31,7 +31,7 @@ class RepaymentInterestDetailsService @Inject() (
 
   def getRepaymentInterestDetails(regime: String, rawRegNumber: String, paginationStart: Int, paginationMaxRows: Int)(implicit
     hc: HeaderCarrier
-  ): Future[Either[StatementError, RepaymentInterestDetails]] =
+  ): Future[Either[StatementError, InterestDetails]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, paginationStart, paginationMaxRows, "getRepaymentInterestDetails")(
       repository.getRepaymentInterestDetails
     )

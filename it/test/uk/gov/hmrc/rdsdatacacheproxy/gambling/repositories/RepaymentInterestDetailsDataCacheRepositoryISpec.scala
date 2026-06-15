@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentInterestDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentInterestDetailsStubData.getRepaymentInterestDetailsData
 
 import scala.concurrent.Future
@@ -36,7 +36,7 @@ class RepaymentInterestDetailsDataCacheRepositoryISpec
     with GuiceOneAppPerSuite {
 
   class RepaymentInterestDetailsRdsStub extends RepaymentInterestDetailsDataSource {
-    override def getRepaymentInterestDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[RepaymentInterestDetails] =
+    override def getRepaymentInterestDetails(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[InterestDetails] =
       Future.successful(getRepaymentInterestDetailsData(regNumber, pageNo, pageSize))
   }
 

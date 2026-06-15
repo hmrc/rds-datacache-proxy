@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentInterestDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentInterestDetailsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentInterestDetailsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentInterestDetailsStubData.getRepaymentInterestDetailsData
@@ -62,7 +62,7 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[RepaymentInterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000000")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000000")
     }
 
     "return 200 with correct RepaymentInterestDetailsData when pageNo & pageSize NOT provided" in {
@@ -73,21 +73,21 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[RepaymentInterestDetails] mustBe getRepaymentInterestDetailsData("XYZ99999999999")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/xyz00000000012 ").futureValue
       response.status mustBe OK
-      response.json.as[RepaymentInterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/   XYZ00000000012   ").futureValue
       response.status mustBe OK
-      response.json.as[RepaymentInterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
     }
 
     "return consistent results across multiple calls" in {

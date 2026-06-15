@@ -124,7 +124,7 @@ class RepaymentInterestDetailsDataCacheRepositorySpec extends AnyWordSpec with M
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getRepaymentInterestDetails(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result       shouldBe RepaymentInterestDetails(None, None, BigDecimal(0), 0, List())
+      result       shouldBe InterestDetails(None, None, BigDecimal(0), 0, List())
       result.items shouldBe empty
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -156,7 +156,7 @@ class RepaymentInterestDetailsDataCacheRepositorySpec extends AnyWordSpec with M
 
       val result = repository.getRepaymentInterestDetails(Regime.MGD, regNumber, 1, 10).futureValue
 
-      result shouldBe RepaymentInterestDetails(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
+      result shouldBe InterestDetails(Some(LocalDate.of(2016, 2, 29)), Some(LocalDate.of(2017, 6, 15)), -301.56, 0, List())
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 1)

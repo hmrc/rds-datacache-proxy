@@ -18,14 +18,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, RepaymentInterestDetailItem, RepaymentInterestDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetailItem, InterestDetails, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RepaymentInterestDetailsDataSource {
-  def getRepaymentInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[RepaymentInterestDetails]
+  def getRepaymentInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails]
 }
 
 @Singleton
@@ -37,11 +37,7 @@ class RepaymentInterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gam
     with RepositorySupport
     with Logging {
 
-  override def getRepaymentInterestDetails(regime: Regime,
-                                           regNumber: String,
-                                           paginationStart: Int,
-                                           paginationMaxRows: Int
-                                          ): Future[RepaymentInterestDetails] =
+  override def getRepaymentInterestDetails(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[InterestDetails] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -60,12 +56,12 @@ class RepaymentInterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gam
           cs.registerOutParameter(8, oracle.jdbc.OracleTypes.CURSOR) // OUT C_REPAYMENT_INTEREST_DETAILS (REF CURSOR)
           cs.execute()
 
-          val repaymentInterestDetails: List[RepaymentInterestDetailItem] = {
+          val repaymentInterestDetails: List[InterestDetailItem] = {
             val rs = cs.getObject(8).asInstanceOf[java.sql.ResultSet]
             if (rs == null) Nil
             else {
               try {
-                val b = List.newBuilder[RepaymentInterestDetailItem]
+                val b = List.newBuilder[InterestDetailItem]
 
                 while (rs.next()) {
                   val maybeItem =
@@ -75,7 +71,7 @@ class RepaymentInterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gam
                       interestId      <- Option(rs.getString("p_interest_id"))
                       periodStartDate <- Option(rs.getDate("p_period_start").toLocalDate)
                       periodEndDate   <- Option(rs.getDate("p_period_end").toLocalDate)
-                    yield RepaymentInterestDetailItem(descriptionCode, amount, interestId, periodStartDate, periodEndDate)
+                    yield InterestDetailItem(descriptionCode, amount, interestId, periodStartDate, periodEndDate)
                   b.addAll(maybeItem.toList)
                 }
                 b.result()
@@ -83,7 +79,7 @@ class RepaymentInterestDetailsDataCacheRepository @Inject() (@NamedDatabase("gam
             }
           }
 
-          RepaymentInterestDetails(
+          InterestDetails(
             periodStartDate = optDate(4, cs),
             periodEndDate   = optDate(5, cs),
             total           = optDecimalFromIndex(6, cs).getOrElse(0),
