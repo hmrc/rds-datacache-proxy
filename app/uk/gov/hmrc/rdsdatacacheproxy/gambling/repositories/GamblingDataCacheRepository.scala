@@ -715,8 +715,8 @@ class GamblingDataCacheRepository @Inject() (
   }
 
   override def getCorrespondenceDetails(
-                                          mgdRegNumber: String
-                                        ): Future[CorrespondenceDetails] = {
+    mgdRegNumber: String
+  ): Future[CorrespondenceDetails] = {
 
     logger.info(
       s"[GamblingDataCacheRepository][getCorrespondenceDetails] mgdRegNumber=$mgdRegNumber"
@@ -750,22 +750,22 @@ class GamblingDataCacheRepository @Inject() (
           if (rs == null) {
 
             CorrespondenceDetails(
-              mgdRegNumber = "",
-              nameLine1 = None,
-              nameLine2 = None,
-              phoneNumber = None,
+              mgdRegNumber      = "",
+              nameLine1         = None,
+              nameLine2         = None,
+              phoneNumber       = None,
               mobilePhoneNumber = None,
-              faxNumber = None,
-              emailAddr = None,
-              adi = None,
-              address1 = None,
-              address2 = None,
-              address3 = None,
-              address4 = None,
-              postcode = None,
-              country = None,
-              iomOrCiFlag = None,
-              systemDate = None
+              faxNumber         = None,
+              emailAddr         = None,
+              adi               = None,
+              address1          = None,
+              address2          = None,
+              address3          = None,
+              address4          = None,
+              postcode          = None,
+              country           = None,
+              iomOrCiFlag       = None,
+              systemDate        = None
             )
 
           } else {
@@ -787,41 +787,41 @@ class GamblingDataCacheRepository @Inject() (
                   mgdRegNumber = Option(rs.getString("mgd_reg_number"))
                     .map(_.trim)
                     .getOrElse(""),
-                  nameLine1 = optString("name_line_1"),
-                  nameLine2 = optString("name_line_2"),
-                  phoneNumber = optString("phone_number"),
+                  nameLine1         = optString("name_line_1"),
+                  nameLine2         = optString("name_line_2"),
+                  phoneNumber       = optString("phone_number"),
                   mobilePhoneNumber = optString("mobile_phone_number"),
-                  faxNumber = optString("fax_number"),
-                  emailAddr = optString("email_addr"),
-                  adi = optString("adi"),
-                  address1 = optString("address_1"),
-                  address2 = optString("address_2"),
-                  address3 = optString("address_3"),
-                  address4 = optString("address_4"),
-                  postcode = optString("postcode"),
-                  country = optString("country"),
-                  iomOrCiFlag = optString("iom_or_ci_flag"),
-                  systemDate = optDate("system_date")
+                  faxNumber         = optString("fax_number"),
+                  emailAddr         = optString("email_addr"),
+                  adi               = optString("adi"),
+                  address1          = optString("address_1"),
+                  address2          = optString("address_2"),
+                  address3          = optString("address_3"),
+                  address4          = optString("address_4"),
+                  postcode          = optString("postcode"),
+                  country           = optString("country"),
+                  iomOrCiFlag       = optString("iom_or_ci_flag"),
+                  systemDate        = optDate("system_date")
                 )
 
               } else {
                 CorrespondenceDetails(
-                  mgdRegNumber = "",
-                  nameLine1 = None,
-                  nameLine2 = None,
-                  phoneNumber = None,
+                  mgdRegNumber      = "",
+                  nameLine1         = None,
+                  nameLine2         = None,
+                  phoneNumber       = None,
                   mobilePhoneNumber = None,
-                  faxNumber = None,
-                  emailAddr = None,
-                  adi = None,
-                  address1 = None,
-                  address2 = None,
-                  address3 = None,
-                  address4 = None,
-                  postcode = None,
-                  country = None,
-                  iomOrCiFlag = None,
-                  systemDate = None
+                  faxNumber         = None,
+                  emailAddr         = None,
+                  adi               = None,
+                  address1          = None,
+                  address2          = None,
+                  address3          = None,
+                  address4          = None,
+                  postcode          = None,
+                  country           = None,
+                  iomOrCiFlag       = None,
+                  systemDate        = None
                 )
               }
 

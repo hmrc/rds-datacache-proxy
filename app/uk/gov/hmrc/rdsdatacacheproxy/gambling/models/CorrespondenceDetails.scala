@@ -21,23 +21,23 @@ import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 final case class CorrespondenceDetails(
-                                         mgdRegNumber: String,
-                                         nameLine1: Option[String],
-                                         nameLine2: Option[String],
-                                         phoneNumber: Option[String],
-                                         mobilePhoneNumber: Option[String],
-                                         faxNumber: Option[String],
-                                         emailAddr: Option[String],
-                                         adi: Option[String],
-                                         address1: Option[String],
-                                         address2: Option[String],
-                                         address3: Option[String],
-                                         address4: Option[String],
-                                         postcode: Option[String],
-                                         country: Option[String],
-                                         iomOrCiFlag: Option[String],
-                                         systemDate: Option[LocalDate]
-                                       )
+  mgdRegNumber: String,
+  nameLine1: Option[String],
+  nameLine2: Option[String],
+  phoneNumber: Option[String],
+  mobilePhoneNumber: Option[String],
+  faxNumber: Option[String],
+  emailAddr: Option[String],
+  adi: Option[String],
+  address1: Option[String],
+  address2: Option[String],
+  address3: Option[String],
+  address4: Option[String],
+  postcode: Option[String],
+  country: Option[String],
+  iomOrCiFlag: Option[String],
+  systemDate: Option[LocalDate]
+)
 
 object CorrespondenceDetails {
   implicit val format: OFormat[CorrespondenceDetails] =
