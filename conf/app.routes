@@ -43,6 +43,7 @@ GET        /gambling/business-name/:mgdRegNumber                 uk.gov.hmrc.rds
 GET        /gambling/business-contact-details/mgd/:mgdRegNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessContactDetails(mgdRegNumber: String)
 GET        /gambling/mgd-details/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getMgdDetails(mgdRegNumber: String)
 GET        /gambling/trade-class/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getTradeClass(mgdRegNumber: String)
+GET        /gambling/correspondence-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getCorrespondenceDetails(mgdRegNumber: String)
 
 #Gambling Returns routes
 GET        /gambling/returns-submitted/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingReturnsController.getReturnsSubmitted(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)

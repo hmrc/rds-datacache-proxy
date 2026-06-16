@@ -57,7 +57,11 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] =
       Future.successful(GamblingStubData.getMgdDetails(mgdRegNumber))
-  }
+
+    override def getCorrespondenceDetails(
+                                            mgdRegNumber: String
+                                          ): Future[CorrespondenceDetails] =
+      Future.successful(GamblingStubData.getCorrespondenceDetails(mgdRegNumber))  }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
@@ -651,6 +655,70 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         faxNumber         = None,
         emailAddr         = None,
         systemDate        = None
+      )
+    }
+  }
+
+  "getCorrespondenceDetails (stubbed repository)" should {
+
+    "return correspondence details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getCorrespondenceDetails("XYZ00000000001").futureValue
+
+      result mustBe CorrespondenceDetails(
+        mgdRegNumber = "XYZ00000000001",
+        nameLine1 = Some("foo"),
+        nameLine2 = Some("foo"),
+        phoneNumber = Some("07618728019"),
+        mobilePhoneNumber = Some("018937617281"),
+        faxNumber = Some("foo"),
+        emailAddr = Some("foo@mail.com"),
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getCorrespondenceDetails("ERR00000000000")
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getCorrespondenceDetails("UNKNOWN").futureValue
+
+      result mustBe CorrespondenceDetails(
+        mgdRegNumber = "UNKNOWN",
+        nameLine1 = None,
+        nameLine2 = None,
+        phoneNumber = None,
+        mobilePhoneNumber = None,
+        faxNumber = None,
+        emailAddr = None,
+        adi = None,
+        address1 = None,
+        address2 = None,
+        address3 = None,
+        address4 = None,
+        postcode = None,
+        country = None,
+        iomOrCiFlag = None,
+        systemDate = Some(LocalDate.now())
       )
     }
   }
