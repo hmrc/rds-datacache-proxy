@@ -541,18 +541,18 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     "return 200 with correspondence details" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/XYZ00000000001").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000012"
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000001"
     }
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/XYZ00000000001").futureValue
 
       response.status mustBe UNAUTHORIZED
     }
