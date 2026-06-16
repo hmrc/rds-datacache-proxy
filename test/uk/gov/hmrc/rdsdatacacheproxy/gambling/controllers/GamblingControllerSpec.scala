@@ -452,4 +452,104 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "GamblingController#getCorrespondenceDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = CorrespondenceDetails(
+        mgdRegNumber = "XYZ00000000001",
+        nameLine1 = Some("foo"),
+        nameLine2 = Some("foo"),
+        phoneNumber = Some("07618728019"),
+        mobilePhoneNumber = Some("018937617281"),
+        faxNumber = Some("foo"),
+        emailAddr = Some("foo@mail.com"),
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+
+      when(mockService.getCorrespondenceDetails(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val res = controller.getCorrespondenceDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getCorrespondenceDetails(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = CorrespondenceDetails(
+        mgdRegNumber = "XYZ00000000001",
+        nameLine1 = Some("foo"),
+        nameLine2 = Some("foo"),
+        phoneNumber = Some("07618728019"),
+        mobilePhoneNumber = Some("018937617281"),
+        faxNumber = Some("foo"),
+        emailAddr = Some("foo@mail.com"),
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+
+      when(mockService.getCorrespondenceDetails(any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val res = controller.getCorrespondenceDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getCorrespondenceDetails(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getCorrespondenceDetails(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/bad")
+      val res = controller.getCorrespondenceDetails("bad")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getCorrespondenceDetails(eqTo("bad"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getCorrespondenceDetails(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/ERR00001770")
+      val res = controller.getCorrespondenceDetails("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getCorrespondenceDetails(eqTo("ERR00001770"))(any())
+    }
+  }
+
 }

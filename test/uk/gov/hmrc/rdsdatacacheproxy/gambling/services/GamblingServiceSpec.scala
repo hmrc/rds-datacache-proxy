@@ -467,4 +467,61 @@ final class GamblingServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
   }
+
+  "GamblingService#getCorrespondenceDetails" - {
+
+    "return Right(details) when repository succeeds" in {
+
+      val details = GamblingStubData.getCorrespondenceDetails(validMgdRegNumber)
+
+      when(repository.getCorrespondenceDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getCorrespondenceDetails(validMgdRegNumber).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getCorrespondenceDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input before calling repository" in {
+
+      val raw = "  xwm12345678901  "
+
+      val details = GamblingStubData.getCorrespondenceDetails(normalisedMgdRegNumber)
+
+      when(repository.getCorrespondenceDetails(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getCorrespondenceDetails(raw).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getCorrespondenceDetails(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber when input invalid" in {
+
+      val result = service.getCorrespondenceDetails("bad").futureValue
+
+      result mustBe Left(InvalidMgdRegNumber)
+
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getCorrespondenceDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("fail")))
+
+      val result = service.getCorrespondenceDetails(validMgdRegNumber).futureValue
+
+      result mustBe Left(UnexpectedError)
+
+      verify(repository).getCorrespondenceDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
 }
