@@ -445,6 +445,52 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseRepaymentInterestDetails = InterestDetails(
+    periodStartDate = Some(LocalDate.of(2013, 3, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
+    total           = BigDecimal(-2600.00),
+    totalRecords    = 3,
+    items = Seq(
+      InterestDetailItem(
+        descriptionCode = 2740,
+        amount          = -800.00,
+        interestId      = "SAFE-CHG-00003",
+        periodStartDate = LocalDate.of(2014, 1, 1),
+        periodEndDate   = LocalDate.of(2014, 3, 31)
+      ),
+      InterestDetailItem(
+        descriptionCode = 2740,
+        amount          = -400.00,
+        interestId      = "SAFE-CHG-00004",
+        periodStartDate = LocalDate.of(2014, 10, 1),
+        periodEndDate   = LocalDate.of(2014, 12, 31)
+      ),
+      InterestDetailItem(
+        descriptionCode = 2740,
+        amount          = -1400.00,
+        interestId      = "SAFE-CHG-00005",
+        periodStartDate = LocalDate.of(2013, 4, 1),
+        periodEndDate   = LocalDate.of(2013, 6, 30)
+      )
+    )
+  )
+
+  val validResponseRepaymentInterestDetailsSmall = InterestDetails(
+    periodStartDate = Some(LocalDate.of(2013, 1, 1)),
+    periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
+    total           = -45.00,
+    totalRecords    = 1,
+    items = Seq(
+      InterestDetailItem(
+        descriptionCode = 2740,
+        amount          = -45.00,
+        interestId      = "SAFE-CHG-00001",
+        periodStartDate = LocalDate.of(2014, 7, 22),
+        periodEndDate   = LocalDate.of(2014, 10, 31)
+      )
+    )
+  )
+
   val validResponseSubmittedReturns = SubmittedReturns(
     items = Seq(
       SubmittedReturnsItem(

@@ -44,6 +44,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var mgdRs: ResultSet = _
   var tradeClassRs: ResultSet = _
   var businessContactRs: ResultSet = _
+  var correspondenceRs: ResultSet = _
 
   before {
     db                = mock(classOf[Database])
@@ -58,6 +59,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     mgdRs             = mock(classOf[ResultSet])
     tradeClassRs      = mock(classOf[ResultSet])
     businessContactRs = mock(classOf[ResultSet])
+    correspondenceRs  = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -311,6 +313,59 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).execute()
     verify(businessContactRs).close()
+    verify(mockCs).close()
+  }
+
+  "getCorrespondenceDetails" should "return CorrespondenceDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(correspondenceRs)
+    when(correspondenceRs.next()).thenReturn(true)
+
+    when(correspondenceRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(correspondenceRs.getString("name_line_1")).thenReturn("foo")
+    when(correspondenceRs.getString("name_line_2")).thenReturn("foo")
+    when(correspondenceRs.getString("phone_number")).thenReturn("07618728019")
+    when(correspondenceRs.getString("mobile_phone_number")).thenReturn("018937617281")
+    when(correspondenceRs.getString("fax_number")).thenReturn("foo")
+    when(correspondenceRs.getString("email_addr")).thenReturn("foo@mail.com")
+    when(correspondenceRs.getString("adi")).thenReturn("none")
+    when(correspondenceRs.getString("address_1")).thenReturn("random street")
+    when(correspondenceRs.getString("address_2")).thenReturn("bar")
+    when(correspondenceRs.getString("address_3")).thenReturn("bar")
+    when(correspondenceRs.getString("address_4")).thenReturn("bar")
+    when(correspondenceRs.getString("postcode")).thenReturn("SR1 4DE")
+    when(correspondenceRs.getString("country")).thenReturn("Ingerland!")
+    when(correspondenceRs.getString("iom_or_ci_flag")).thenReturn("true")
+    when(correspondenceRs.getDate("system_date")).thenReturn(Date.valueOf("2026-05-13"))
+
+    val result =
+      repository.getCorrespondenceDetails(mgdRegNumber).futureValue
+
+    result shouldBe CorrespondenceDetails(
+      mgdRegNumber      = "XWM00000001770",
+      nameLine1         = Some("foo"),
+      nameLine2         = Some("foo"),
+      phoneNumber       = Some("07618728019"),
+      mobilePhoneNumber = Some("018937617281"),
+      faxNumber         = Some("foo"),
+      emailAddr         = Some("foo@mail.com"),
+      adi               = Some("none"),
+      address1          = Some("random street"),
+      address2          = Some("bar"),
+      address3          = Some("bar"),
+      address4          = Some("bar"),
+      postcode          = Some("SR1 4DE"),
+      country           = Some("Ingerland!"),
+      iomOrCiFlag       = Some("true"),
+      systemDate        = Some(LocalDate.of(2026, 5, 13))
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(correspondenceRs).close()
     verify(mockCs).close()
   }
 
