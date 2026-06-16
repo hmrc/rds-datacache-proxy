@@ -53,29 +53,28 @@ object GamblingStubData {
   }
 
   def getCorrespondenceDetails(
-                                 mgdRegNumber: String
-                               ): CorrespondenceDetails =
+    mgdRegNumber: String
+  ): CorrespondenceDetails =
     mgdRegNumber match {
 
       case "XYZ00000000001" =>
-
         CorrespondenceDetails(
-          mgdRegNumber = mgdRegNumber,
-          nameLine1 = Some("foo"),
-          nameLine2 = Some("foo"),
-          phoneNumber = Some("07618728019"),
+          mgdRegNumber      = mgdRegNumber,
+          nameLine1         = Some("foo"),
+          nameLine2         = Some("foo"),
+          phoneNumber       = Some("07618728019"),
           mobilePhoneNumber = Some("018937617281"),
-          faxNumber = Some("foo"),
-          emailAddr = Some("foo@mail.com"),
-          adi = Some("none"),
-          address1 = Some("random street"),
-          address2 = Some("bar"),
-          address3 = Some("bar"),
-          address4 = Some("bar"),
-          postcode = Some("SR1 4DE"),
-          country = Some("Ingerland!"),
-          iomOrCiFlag = Some("true"),
-          systemDate = Some(LocalDate.now())
+          faxNumber         = Some("foo"),
+          emailAddr         = Some("foo@mail.com"),
+          adi               = Some("none"),
+          address1          = Some("random street"),
+          address2          = Some("bar"),
+          address3          = Some("bar"),
+          address4          = Some("bar"),
+          postcode          = Some("SR1 4DE"),
+          country           = Some("Ingerland!"),
+          iomOrCiFlag       = Some("true"),
+          systemDate        = Some(LocalDate.now())
         )
 
       case "ERR00000000000" =>
@@ -83,25 +82,24 @@ object GamblingStubData {
 
       case _ =>
         CorrespondenceDetails(
-          mgdRegNumber = "UNKNOWN",
-          nameLine1 = None,
-          nameLine2 = None,
-          phoneNumber = None,
+          mgdRegNumber      = "UNKNOWN",
+          nameLine1         = None,
+          nameLine2         = None,
+          phoneNumber       = None,
           mobilePhoneNumber = None,
-          faxNumber = None,
-          emailAddr = None,
-          adi = None,
-          address1 = None,
-          address2 = None,
-          address3 = None,
-          address4 = None,
-          postcode = None,
-          country = None,
-          iomOrCiFlag = None,
-          systemDate = Some(LocalDate.now())
+          faxNumber         = None,
+          emailAddr         = None,
+          adi               = None,
+          address1          = None,
+          address2          = None,
+          address3          = None,
+          address4          = None,
+          postcode          = None,
+          country           = None,
+          iomOrCiFlag       = None,
+          systemDate        = Some(LocalDate.now())
         )
     }
-  
 
   // -------------------------
   // OperatorDetails

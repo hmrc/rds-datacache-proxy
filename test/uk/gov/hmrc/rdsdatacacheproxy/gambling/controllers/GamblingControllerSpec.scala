@@ -456,22 +456,22 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
       val details = CorrespondenceDetails(
-        mgdRegNumber = "XYZ00000000001",
-        nameLine1 = Some("foo"),
-        nameLine2 = Some("foo"),
-        phoneNumber = Some("07618728019"),
+        mgdRegNumber      = "XYZ00000000001",
+        nameLine1         = Some("foo"),
+        nameLine2         = Some("foo"),
+        phoneNumber       = Some("07618728019"),
         mobilePhoneNumber = Some("018937617281"),
-        faxNumber = Some("foo"),
-        emailAddr = Some("foo@mail.com"),
-        adi = Some("none"),
-        address1 = Some("random street"),
-        address2 = Some("bar"),
-        address3 = Some("bar"),
-        address4 = Some("bar"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        iomOrCiFlag = Some("true"),
-        systemDate = Some(LocalDate.now())
+        faxNumber         = Some("foo"),
+        emailAddr         = Some("foo@mail.com"),
+        adi               = Some("none"),
+        address1          = Some("random street"),
+        address2          = Some("bar"),
+        address3          = Some("bar"),
+        address4          = Some("bar"),
+        postcode          = Some("SR1 4DE"),
+        country           = Some("Ingerland!"),
+        iomOrCiFlag       = Some("true"),
+        systemDate        = Some(LocalDate.now())
       )
 
       when(mockService.getCorrespondenceDetails(eqTo("XWM00000001770"))(any()))
@@ -490,22 +490,22 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "allows request through AuthAction" in new Setup {
       val details = CorrespondenceDetails(
-        mgdRegNumber = "XYZ00000000001",
-        nameLine1 = Some("foo"),
-        nameLine2 = Some("foo"),
-        phoneNumber = Some("07618728019"),
+        mgdRegNumber      = "XYZ00000000001",
+        nameLine1         = Some("foo"),
+        nameLine2         = Some("foo"),
+        phoneNumber       = Some("07618728019"),
         mobilePhoneNumber = Some("018937617281"),
-        faxNumber = Some("foo"),
-        emailAddr = Some("foo@mail.com"),
-        adi = Some("none"),
-        address1 = Some("random street"),
-        address2 = Some("bar"),
-        address3 = Some("bar"),
-        address4 = Some("bar"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        iomOrCiFlag = Some("true"),
-        systemDate = Some(LocalDate.now())
+        faxNumber         = Some("foo"),
+        emailAddr         = Some("foo@mail.com"),
+        adi               = Some("none"),
+        address1          = Some("random street"),
+        address2          = Some("bar"),
+        address3          = Some("bar"),
+        address4          = Some("bar"),
+        postcode          = Some("SR1 4DE"),
+        country           = Some("Ingerland!"),
+        iomOrCiFlag       = Some("true"),
+        systemDate        = Some(LocalDate.now())
       )
 
       when(mockService.getCorrespondenceDetails(any())(any()))
@@ -528,7 +528,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "INVALID_MGD_REG_NUMBER",
+        "code"    -> "INVALID_MGD_REG_NUMBER",
         "message" -> "mgdRegNumber does not exist"
       )
 
@@ -544,7 +544,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "UNEXPECTED_ERROR",
+        "code"    -> "UNEXPECTED_ERROR",
         "message" -> "Unexpected error occurred"
       )
 

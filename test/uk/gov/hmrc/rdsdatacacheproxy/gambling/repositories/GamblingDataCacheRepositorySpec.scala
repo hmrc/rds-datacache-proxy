@@ -59,7 +59,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     mgdRs             = mock(classOf[ResultSet])
     tradeClassRs      = mock(classOf[ResultSet])
     businessContactRs = mock(classOf[ResultSet])
-    correspondenceRs = mock(classOf[ResultSet])
+    correspondenceRs  = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -344,22 +344,22 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getCorrespondenceDetails(mgdRegNumber).futureValue
 
     result shouldBe CorrespondenceDetails(
-      mgdRegNumber = "XWM00000001770",
-      nameLine1 = Some("foo"),
-      nameLine2 = Some("foo"),
-      phoneNumber = Some("07618728019"),
+      mgdRegNumber      = "XWM00000001770",
+      nameLine1         = Some("foo"),
+      nameLine2         = Some("foo"),
+      phoneNumber       = Some("07618728019"),
       mobilePhoneNumber = Some("018937617281"),
-      faxNumber = Some("foo"),
-      emailAddr = Some("foo@mail.com"),
-      adi = Some("none"),
-      address1 = Some("random street"),
-      address2 = Some("bar"),
-      address3 = Some("bar"),
-      address4 = Some("bar"),
-      postcode = Some("SR1 4DE"),
-      country = Some("Ingerland!"),
-      iomOrCiFlag = Some("true"),
-      systemDate = Some(LocalDate.of(2026, 5, 13))
+      faxNumber         = Some("foo"),
+      emailAddr         = Some("foo@mail.com"),
+      adi               = Some("none"),
+      address1          = Some("random street"),
+      address2          = Some("bar"),
+      address3          = Some("bar"),
+      address4          = Some("bar"),
+      postcode          = Some("SR1 4DE"),
+      country           = Some("Ingerland!"),
+      iomOrCiFlag       = Some("true"),
+      systemDate        = Some(LocalDate.of(2026, 5, 13))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
