@@ -115,36 +115,31 @@ trait BaseService extends Logging {
 
   def withValidParams[T](
     regNumber: String,
-    sortByOption: Option[Int],
-    orderByOption: Option[String],
+    sortBy: Option[Int],
+    orderBy: Option[String],
     baseText: String
   )(
     ifValid: (String, Int, String) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regNumber=$regNumber sortByOption=$sortByOption orderByOption=$orderByOption"
+    lazy val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
-    val PERIOD_START_DATE = 1
-    val SUBMITTED_DATE = 2
-    val PERIOD_END_DATE = 3
 
     if (!regNumberPattern.matcher(regNumber).matches())
       logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
       Future.successful(Left(InvalidRegNumber))
     else {
-      val sortBy = sortByOption match {
-        case Some(1) => PERIOD_START_DATE
-        case Some(2) => SUBMITTED_DATE
-        case _       => PERIOD_END_DATE
+      val sort = sortBy match { // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
+        case s @ (Some(1) | Some(2)) => s.get
+        case _                       => 3
       }
 
-      val orderBy = orderByOption.map(_.trim.toUpperCase()) match {
+      val order = orderBy.map(_.trim.toUpperCase()) match {
         case Some("DESC") => "DESC"
         case _            => "ASC"
       }
 
-      logger.info(s"[$baseText] $reqText sortBy=$sortBy orderBy=$orderBy")
-
-      ifValid(regNumber, sortBy, orderBy)
+      logger.info(s"[$baseText] $reqText sort=$sort order=$order")
+      ifValid(regNumber, sort, order)
         .map(summary => Right(summary))
         .recover { case ex: Exception =>
           logger.error(s"[$baseText] Unexpected error $reqText", ex)
