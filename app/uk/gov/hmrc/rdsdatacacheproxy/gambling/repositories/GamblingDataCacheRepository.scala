@@ -784,24 +784,24 @@ class GamblingDataCacheRepository @Inject() (
                     .map(_.toLocalDate)
 
                 CorrespondenceDetails(
-                  mgdRegNumber = Option(rs.getString("mgd_reg_number"))
+                  mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  nameLine1         = optString("name_line_1"),
-                  nameLine2         = optString("name_line_2"),
-                  phoneNumber       = optString("phone_number"),
-                  mobilePhoneNumber = optString("mobile_phone_number"),
-                  faxNumber         = optString("fax_number"),
-                  emailAddr         = optString("email_addr"),
-                  adi               = optString("adi"),
-                  address1          = optString("address_1"),
-                  address2          = optString("address_2"),
-                  address3          = optString("address_3"),
-                  address4          = optString("address_4"),
-                  postcode          = optString("postcode"),
-                  country           = optString("country"),
-                  iomOrCiFlag       = optString("iom_or_ci_flag"),
-                  systemDate        = optDate("system_date")
+                  nameLine1         = optString("NAME_LINE1"),
+                  nameLine2         = optString("NAME_LINE2"),
+                  phoneNumber       = optString("PHONE_NUMBER"),
+                  mobilePhoneNumber = optString("MOBILE_PHONE_NUMBER"),
+                  faxNumber         = optString("FAX_NUMBER"),
+                  emailAddr         = optString("EMAIL_ADDR"),
+                  adi               = optString("ADI"),
+                  address1          = optString("ADDRESS_1"),
+                  address2          = optString("ADDRESS_2"),
+                  address3          = optString("ADDRESS_3"),
+                  address4          = optString("ADDRESS_4"),
+                  postcode          = optString("POSTCODE"),
+                  country           = optString("COUNTRY"),
+                  iomOrCiFlag       = optString("IOM_OR_CI_FLAG"),
+                  systemDate        = optDate("SYS_DATE")
                 )
 
               } else {
