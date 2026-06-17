@@ -57,7 +57,7 @@ class Module extends AppModule:
       bind[InterestDataSource].to(classOf[InterestDataCacheRepository]),
       bind[StatementOverviewDataSource].to(classOf[StatementOverviewDataCacheRepository]),
       bind[InterestOverviewDataSource].to(classOf[InterestOverviewDataCacheRepository]),
-      bind[InterestOverviewDataSource].to(classOf[InterestOverviewDataCacheRepository]),
       bind[InterestAccruingDetailsDataSource].to(classOf[InterestAccruingDetailsDataCacheRepository]),
-      bind[RepaymentInterestDetailsDataSource].to(classOf[RepaymentInterestDetailsDataCacheRepository])
+      bind[RepaymentInterestDetailsDataSource].to(classOf[RepaymentInterestDetailsDataCacheRepository]),
+      bind[SubmittedReturnsDataSource].to(classOf[SubmittedReturnsDataCacheRepository])
     )
