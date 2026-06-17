@@ -324,8 +324,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(correspondenceRs.next()).thenReturn(true)
 
     when(correspondenceRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
-    when(correspondenceRs.getString("NAME_LINE_1")).thenReturn("foo")
-    when(correspondenceRs.getString("NAME_LINE_2")).thenReturn("foo")
+    when(correspondenceRs.getString("NAME_LINE1")).thenReturn("foo")
+    when(correspondenceRs.getString("NAME_LINE2")).thenReturn("foo")
     when(correspondenceRs.getString("PHONE_NUMBER")).thenReturn("07618728019")
     when(correspondenceRs.getString("MOBILE_PHONE_NUMBER")).thenReturn("018937617281")
     when(correspondenceRs.getString("FAX_NUMBER")).thenReturn("foo")

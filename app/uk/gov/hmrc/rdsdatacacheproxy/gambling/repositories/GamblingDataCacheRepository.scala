@@ -787,8 +787,8 @@ class GamblingDataCacheRepository @Inject() (
                   mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  nameLine1         = optString("NAME_LINE_1"),
-                  nameLine2         = optString("NAME_LINE_2"),
+                  nameLine1         = optString("NAME_LINE1"),
+                  nameLine2         = optString("NAME_LINE2"),
                   phoneNumber       = optString("PHONE_NUMBER"),
                   mobilePhoneNumber = optString("MOBILE_PHONE_NUMBER"),
                   faxNumber         = optString("FAX_NUMBER"),
