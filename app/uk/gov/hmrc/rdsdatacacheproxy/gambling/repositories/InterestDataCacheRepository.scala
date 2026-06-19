@@ -148,13 +148,12 @@ class InterestDataCacheRepository @Inject() (
               } finally closeQuietly(rs)
             }
           }
-
           InterestDrilldown(
             periodStartDate = optDate(5, cs),
             periodEndDate   = optDate(6, cs),
             total           = optDecimalFromIndex(7, cs).getOrElse(0),
             totalRecords    = optInt(8, cs).getOrElse(0),
-            descCode        = optInt(9, cs),
+            descriptionCode = optInt(9, cs),
             items           = items
           )
 

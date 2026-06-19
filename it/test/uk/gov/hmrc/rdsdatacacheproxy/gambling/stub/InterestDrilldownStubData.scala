@@ -30,7 +30,7 @@ object InterestDrilldownStubData {
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(0.00),
           totalRecords    = 0,
-          descCode        = None,
+          descriptionCode        = None,
           items           = Seq.empty
         )
 
@@ -40,7 +40,7 @@ object InterestDrilldownStubData {
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(1250.50),
           totalRecords    = 1,
-          descCode        = Some(42),
+          descriptionCode        = Some(42),
           items = Seq(
             InterestDrilldownItem(
               interestOn = BigDecimal(1000.00),
@@ -59,7 +59,7 @@ object InterestDrilldownStubData {
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
           total           = BigDecimal(999.00),
           totalRecords    = 99,
-          descCode        = Some(10),
+          descriptionCode        = Some(10),
           items           = Seq.empty
         )
 
@@ -71,7 +71,7 @@ object InterestDrilldownStubData {
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
           total           = BigDecimal(500.00),
           totalRecords    = 2,
-          descCode        = Some(5),
+          descriptionCode        = Some(5),
           items = Seq(
             InterestDrilldownItem(
               interestOn = BigDecimal(200.00),

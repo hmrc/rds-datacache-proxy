@@ -377,7 +377,7 @@ object GamblingTestUtil {
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total           = BigDecimal(1250.50),
     totalRecords    = 1,
-    descCode        = Some(42),
+    descriptionCode = Some(42),
     items = Seq(
       InterestDrilldownItem(
         interestOn = BigDecimal(1000.00),
@@ -395,7 +395,7 @@ object GamblingTestUtil {
     periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
     total           = BigDecimal(0.00),
     totalRecords    = 0,
-    descCode        = None,
+    descriptionCode = None,
     items           = Seq.empty
   )
 
