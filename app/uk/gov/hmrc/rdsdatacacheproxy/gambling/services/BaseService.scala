@@ -154,7 +154,7 @@ trait BaseService extends Logging {
   )(
     ifValid: (String, Int) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"egNumber=$regNumber consecNo=$consecNo"
+    lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
 
     if (!regNumberPattern.matcher(regNumber).matches())
