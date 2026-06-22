@@ -524,4 +524,23 @@ object GamblingTestUtil {
       )
     )
   )
+
+  val validResponseSubmittedReturnSingle = SubmittedReturnSingle(
+    consecNo                     = 23,
+    mgdPeriod                    = "01/01/2025 - 30/03/2025",
+    submittedDate                = LocalDate.of(2025, 5, 1),
+    ackRef                       = "123456789012345",
+    noOfMachines                 = 5,
+    netTakingsHigherRate         = 100.10,
+    netTakingsStdRate            = 20.00,
+    netTakingsLowerRate          = 200.20,
+    totalDueHigherRate           = 10.00,
+    totalDueStdRate              = 300.30,
+    totalDueLowerRate            = 5.00,
+    dutyPayable                  = 35.00,
+    underDeclaredDuty            = 40.00,
+    previousReturnAmount         = 100.00,
+    negativeAmountCarriedForward = 99.99,
+    totalNetDutyPayable          = 75.49
+  )
 }

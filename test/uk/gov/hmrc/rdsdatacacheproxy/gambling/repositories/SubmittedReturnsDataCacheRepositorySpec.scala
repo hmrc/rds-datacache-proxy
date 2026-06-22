@@ -64,7 +64,7 @@ class SubmittedReturnsDataCacheRepositorySpec extends AnyWordSpec with Matchers 
   }
 
   "getSubmittedReturns" should {
-    "return SubmittedReturns for MGD regime when stored procedure returns data" in {
+    "return SubmittedReturns when stored procedure returns data" in {
 
       val regNumber = "XWM12345678901"
 

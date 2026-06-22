@@ -18,9 +18,9 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.Logging
 import play.api.mvc.*
-import uk.gov.hmrc.auth.core.retrieve.~
 import play.api.mvc.Results.Unauthorized
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -49,3 +49,24 @@ class DefaultAuthAction @Inject() (
     }
 
 trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
+
+//import play.api.Logging
+//import play.api.mvc.*
+//import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
+//import uk.gov.hmrc.http.SessionId
+//
+//import javax.inject.Inject
+//import scala.concurrent.{ExecutionContext, Future}
+//
+//class DefaultAuthAction @Inject() (
+//  override val authConnector: AuthConnector,
+//  val parser: BodyParsers.Default
+//)(implicit val executionContext: ExecutionContext)
+//    extends AuthAction
+//    with AuthorisedFunctions
+//    with Logging:
+//
+//  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
+//    block(AuthenticatedRequest(request, "internalId", "credentials.providerId", SessionId("sessionId")))
+//
+//trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
