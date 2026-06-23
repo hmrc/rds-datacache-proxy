@@ -56,12 +56,12 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct SubmittedReturnSingleData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001?consecNo=23").futureValue
+      val response = get(s"$endpoint/XYZ00000000001/23").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000001", 1)
+      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000001", 23)
     }
 
     "return 404 when consecNo NOT provided" in {
@@ -74,47 +74,47 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/xyz00000000012?consecNo=23").futureValue
+      val response = get(s"$endpoint/xyz00000000012/23").futureValue
       response.status mustBe OK
       response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000012", 23)
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/   XYZ00000000012   ?consecNo=23").futureValue
+      val response = get(s"$endpoint/   XYZ00000000012   /23").futureValue
       response.status mustBe OK
       response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000012", 23)
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/XYZ00000000012?consecNo=23").futureValue
-      val res2 = get(s"$endpoint/XYZ00000000012?consecNo=23").futureValue
+      val res1 = get(s"$endpoint/XYZ00000000012/23").futureValue
+      val res2 = get(s"$endpoint/XYZ00000000012/23").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XYZ00000000012?consecNo=23").futureValue
+      val response = get(s"$endpoint/XYZ00000000012/23").futureValue
       response.contentType mustBe "application/json"
     }
 
     "return 400 for partially valid regNumber (wrong length)" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XYZ123?consecNo=23").futureValue
+      val response = get(s"$endpoint/XYZ123/23").futureValue
       response.status mustBe BAD_REQUEST
     }
 
     "return 400 for regNumber with special characters" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XYZ00000@00000?consecNo=23").futureValue
+      val response = get(s"$endpoint/XYZ00000@00000/23").futureValue
       response.status mustBe BAD_REQUEST
     }
 
     "return 400 for invalid regNumber format" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/INVALID?consecNo=23").futureValue
+      val response = get(s"$endpoint/INVALID/23").futureValue
       response.status mustBe BAD_REQUEST
       (response.json \ "code").as[String] mustBe "INVALID_REG_NUMBER"
       (response.json \ "message").as[String] mustBe "regNumber has invalid format"
@@ -122,7 +122,7 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/XYZ00000000000?consecNo=23").futureValue
+      val response = get(s"$endpoint/XYZ00000000000/23").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
@@ -140,14 +140,14 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000?consecNo=23").futureValue
+      val response = get(s"$endpoint/ERR00000000000/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000?consecNo=23").futureValue
+      val response = get(s"$endpoint/ERR00000000000/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

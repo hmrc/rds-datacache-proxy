@@ -46,8 +46,8 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturnSingle(eqTo("XWM00000001770"), eqTo(3))(any()))
         .thenReturn(Future.successful(Right(validResponseSubmittedReturnSingle)))
 
-      val req = FakeRequest(GET, s"/gambling/submitted-return-details/XWM00000001770?consecNo=3")
-      val res: Future[Result] = controller.getSubmittedReturnSingle("XWM00000001770", Some(3))(req)
+      val req = FakeRequest(GET, s"/gambling/submitted-return-details/XWM00000001770/3")
+      val res: Future[Result] = controller.getSubmittedReturnSingle("XWM00000001770", 3)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -61,8 +61,8 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturnSingle(any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/submitted-return-details/InvalidRegNo")
-      val res: Future[Result] = controller.getSubmittedReturnSingle(" ", Some(1))(req)
+      val req = FakeRequest(GET, s"/gambling/submitted-return-details/InvalidRegNo/1")
+      val res: Future[Result] = controller.getSubmittedReturnSingle(" ", 1)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -77,8 +77,8 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getSubmittedReturnSingle(any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, s"/gambling/submitted-return-details/ERR00001770")
-      val res: Future[Result] = controller.getSubmittedReturnSingle("ERR00001770", Some(1))(req)
+      val req = FakeRequest(GET, s"/gambling/submitted-return-details/ERR00001770/1")
+      val res: Future[Result] = controller.getSubmittedReturnSingle("ERR00001770", 1)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(

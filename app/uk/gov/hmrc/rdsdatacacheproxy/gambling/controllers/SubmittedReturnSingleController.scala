@@ -24,7 +24,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.SubmittedReturnSingleService
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class SubmittedReturnSingleController @Inject() (authorise: AuthAction, service: SubmittedReturnSingleService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
@@ -32,15 +32,11 @@ class SubmittedReturnSingleController @Inject() (authorise: AuthAction, service:
     with BaseController
     with Logging {
 
-  def getSubmittedReturnSingle(regNumber: String, consecNo: Option[Int]): Action[AnyContent] =
+  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Action[AnyContent] =
     authorise.async { implicit request =>
-      consecNo match {
-        case Some(c) =>
-          service.getSubmittedReturnSingle(regNumber, c).map {
-            case Right(single) => Ok(Json.toJson(single))
-            case Left(error)   => handleError(error)
-          }
-        case None => Future.successful(NotFound(Json.obj("message" -> s"consecNo Invalid")))
+      service.getSubmittedReturnSingle(regNumber, consecNo).map {
+        case Right(single) => Ok(Json.toJson(single))
+        case Left(error)   => handleError(error)
       }
     }
 }
