@@ -38,12 +38,12 @@ class EuVatControllerSpec extends SpecBase with MockitoSugar {
     "retrieveTraderKnownFacts" - {
       "return 200 and a successful response when DB returns records" in new SetUp {
         when(mockEuVatService.retrieveTraderByVrn(any[String]))
-          .thenReturn(Future.successful(Some(KnownFactsResponse)))
+          .thenReturn(Future.successful(Some(knownFactsResponse)))
         val result: Future[Result] = controller.retrieveTraderByVrn()(fakeRequest)
 
         status(result)        shouldBe OK
         contentType(result)   shouldBe Some("application/json")
-        contentAsJson(result) shouldBe Json.toJson(KnownFactsResponse)
+        contentAsJson(result) shouldBe Json.toJson(knownFactsResponse)
       }
 
       "return 200 and an empty records when no data returned from DB" in new SetUp {
@@ -72,23 +72,22 @@ class EuVatControllerSpec extends SpecBase with MockitoSugar {
     val mockEuVatService: EuVatService = mock[EuVatService]
 
     val emptyKnownFactsResponse: TradersKnownFacts =
-      TradersKnownFacts(0, "", "", "", "", "", "", "", "", LocalDateTime.MIN, LocalDateTime.MIN, "", 0)
+      TradersKnownFacts(0, None, None, None, None, None, None, None, None, None, None, None)
 
-    val KnownFactsResponse: TradersKnownFacts =
+    val knownFactsResponse: TradersKnownFacts =
       TradersKnownFacts(
         123456789,
-        "TestData",
-        "Line 1",
-        "Line 2",
-        "Line 3",
-        "Line 4",
-        "Line 5",
-        "NE3 9TG",
-        "7020",
-        LocalDateTime.of(2025, 1, 11, 10, 38),
-        LocalDateTime.of(2026, 1, 11, 10, 38),
-        "N",
-        1
+        Some("TestData"),
+        Some("Line 1"),
+        Some("Line 2"),
+        Some("Line 3"),
+        Some("Line 4"),
+        Some("Line 5"),
+        Some("NE3 9TG"),
+        Some("7020"),
+        Some(LocalDateTime.of(2025, 1, 11, 10, 38)),
+        Some(LocalDateTime.of(2026, 1, 11, 10, 38)),
+        Some("N")
       )
 
     val controller = new EuVatController(fakeAuthAction, mockEuVatService, cc)
