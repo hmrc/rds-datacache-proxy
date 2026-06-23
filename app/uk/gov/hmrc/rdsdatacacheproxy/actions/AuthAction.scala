@@ -18,9 +18,9 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.Logging
 import play.api.mvc.*
-import uk.gov.hmrc.auth.core.retrieve.~
 import play.api.mvc.Results.Unauthorized
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions}
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter

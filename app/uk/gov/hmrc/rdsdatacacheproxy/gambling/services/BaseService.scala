@@ -146,4 +146,26 @@ trait BaseService extends Logging {
           Left(UnexpectedError)
         }
     }
+
+  def withValidParams[T](
+    regNumber: String,
+    consecNo: Int,
+    baseText: String
+  )(
+    ifValid: (String, Int) => Future[T]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
+    logger.info(s"[$baseText] $reqText")
+
+    if (!regNumberPattern.matcher(regNumber).matches())
+      logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
+      Future.successful(Left(InvalidRegNumber))
+    else
+      ifValid(regNumber, consecNo)
+        .map(single => Right(single))
+        .recover { case ex: Exception =>
+          logger.error(s"[$baseText] Unexpected error $reqText", ex)
+          Left(UnexpectedError)
+        }
+
 }
