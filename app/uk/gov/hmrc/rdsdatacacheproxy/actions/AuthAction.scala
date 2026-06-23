@@ -49,24 +49,3 @@ class DefaultAuthAction @Inject() (
     }
 
 trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
-
-//import play.api.Logging
-//import play.api.mvc.*
-//import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions}
-//import uk.gov.hmrc.http.SessionId
-//
-//import javax.inject.Inject
-//import scala.concurrent.{ExecutionContext, Future}
-//
-//class DefaultAuthAction @Inject() (
-//  override val authConnector: AuthConnector,
-//  val parser: BodyParsers.Default
-//)(implicit val executionContext: ExecutionContext)
-//    extends AuthAction
-//    with AuthorisedFunctions
-//    with Logging:
-//
-//  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
-//    block(AuthenticatedRequest(request, "internalId", "credentials.providerId", SessionId("sessionId")))
-//
-//trait AuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
