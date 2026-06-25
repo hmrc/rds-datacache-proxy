@@ -25,7 +25,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SubmittedReturnSingleDataSource {
-  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[SubmittedReturnSingle]
+  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]]
 }
 
 @Singleton
@@ -37,7 +37,7 @@ class SubmittedReturnSingleDataCacheRepository @Inject() (@NamedDatabase("gambli
     with RepositorySupport
     with Logging {
 
-  override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[SubmittedReturnSingle] =
+  override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]] =
     Future {
       getDb(Regime.MGD, mgdDb, gtrDb).underlying.withConnection { conn =>
         val cs = conn.prepareCall("{ call MGD_DC_RTN_PCK.GET_SINGLE_RETURN_V2(?, ?, ?) }")
@@ -49,12 +49,6 @@ class SubmittedReturnSingleDataCacheRepository @Inject() (@NamedDatabase("gambli
           cs.execute()
 
           val rs = cs.getObject(3).asInstanceOf[java.sql.ResultSet]
-
-          if (rs == null) {
-            val msg = s"Null cursor returned for regNumber=$regNumber"
-            logger.error(s"[SubmittedReturnSingleDataCacheRepository] $msg")
-            throw new RuntimeException(msg)
-          }
 
           try {
             if (rs.next()) {
@@ -94,18 +88,10 @@ class SubmittedReturnSingleDataCacheRepository @Inject() (@NamedDatabase("gambli
                 negativeAmountCarriedForward,
                 totalNetDutyPayable
               )
-              result match {
-                case Some(_) => result.get
-                case None =>
-                  val msg = s"Unable to create SubmittedReturnSingle for regNumber=$regNumber"
-                  logger.error(s"[SubmittedReturnSingleDataCacheRepository] $msg")
-                  throw new RuntimeException(msg)
-              }
-
+              result
             } else {
-              val msg = s"Empty result set for regNumber=$regNumber"
-              logger.error(s"[SubmittedReturnSingleDataCacheRepository] $msg")
-              throw new RuntimeException(msg)
+              logger.info(s"[getSubmittedReturnSingle] Empty result set for regNumber=$regNumber consecNo=$consecNo")
+              None
             }
           } finally {
             rs.close()
