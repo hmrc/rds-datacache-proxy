@@ -36,8 +36,8 @@ class SubmittedReturnSingleDataCacheRepositoryISpec
     with GuiceOneAppPerSuite {
 
   class SubmittedReturnSingleRdsStub extends SubmittedReturnSingleDataSource {
-    override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[SubmittedReturnSingle] =
-      Future.successful(getSubmittedReturnSingleData(regNumber, consecNo))
+    override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]] =
+      Future.successful(Some(getSubmittedReturnSingleData(regNumber, consecNo)))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -51,7 +51,7 @@ class SubmittedReturnSingleDataCacheRepositoryISpec
     "return correct SubmittedReturnSingleData" in {
       val result = repository.getSubmittedReturnSingle("XYZ00000000001", 23).futureValue
 
-      result mustBe getSubmittedReturnSingleData("XYZ00000000001", 23)
+      result mustBe Some(getSubmittedReturnSingleData("XYZ00000000001", 23))
     }
 
     "return consistent results across multiple calls" in {

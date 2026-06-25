@@ -91,7 +91,7 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
 
       val result = repository.getSubmittedReturnSingle(regNumber, 23).futureValue
 
-      result shouldBe validResponseSubmittedReturnSingle
+      result shouldBe Some(validResponseSubmittedReturnSingle)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 23)
@@ -122,14 +122,14 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
       verify(mockCsMgd).close()
     }
 
-    "return empty SubmittedReturnSingle when regNumber is null" in {
+    "return error when regNumber is null" in {
       val regNumber: Null = null
       when(mockCsMgd.getObject(3)).thenReturn(null)
 
       val ex = intercept[RuntimeException] {
         repository.getSubmittedReturnSingle(regNumber, 3).futureValue
       }
-      ex.getMessage should include("Null cursor returned for regNumber=")
+      ex.getMessage should include("Cannot invoke \"java.sql.ResultSet.close()\" because \"rs\" is null.")
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 3)
@@ -143,14 +143,14 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
       verify(mockCsMgd).close()
     }
 
-    "return Empty List when SubmittedReturnSingle result set is empty" in {
+    "return error result set is empty" in {
       val regNumber = "XWM00000001770"
       when(SubmittedReturnSingleRs.next()).thenReturn(false)
 
       val ex = intercept[RuntimeException] {
         repository.getSubmittedReturnSingle(regNumber, 3).futureValue
       }
-      ex.getMessage should include("Null cursor returned for regNumber=")
+      ex.getMessage should include("Cannot invoke \"java.sql.ResultSet.close()\" because \"rs\" is null.")
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 3)
@@ -172,13 +172,12 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
 
       when(SubmittedReturnSingleRs.next()).thenReturn(true, false)
 
-      val ex = intercept[RuntimeException] {
-        repository.getSubmittedReturnSingle(regNumber, 3).futureValue
-      }
-      ex.getMessage should include("Unable to create SubmittedReturnSingle for regNumber=")
+      val result = repository.getSubmittedReturnSingle(regNumber, 23).futureValue
+
+      result shouldBe None
 
       verify(mockCsMgd).setString(1, regNumber)
-      verify(mockCsMgd).setInt(2, 3)
+      verify(mockCsMgd).setInt(2, 23)
       verify(mockCsMgd).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
       verify(mockCsMgd).execute()
 
