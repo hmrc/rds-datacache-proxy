@@ -37,7 +37,7 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
   class SubmittedReturnSingleRdsStub extends SubmittedReturnSingleDataSource {
     override def getSubmittedReturnSingle(regNumber: String, consecNo: Int) =
       Future {
-        SubmittedReturnSingleStubData.getSubmittedReturnSingleData(regNumber, consecNo)
+        Some(SubmittedReturnSingleStubData.getSubmittedReturnSingleData(regNumber, consecNo))
       }
   }
 
