@@ -64,18 +64,17 @@ class EuVatCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndA
     val knownFactsResponse: TradersKnownFacts =
       TradersKnownFacts(
         123456789,
-        "TestData",
-        "Line 1",
-        "Line 2",
-        "Line 3",
-        "Line 4",
-        "Line 5",
-        "NE3 9TG",
-        "7020",
-        LocalDateTime.of(2025, 1, 11, 10, 38),
-        LocalDateTime.of(2026, 1, 11, 10, 38),
-        "N",
-        1
+        Some("TestData"),
+        Some("Line 1"),
+        Some("Line 2"),
+        Some("Line 3"),
+        Some("Line 4"),
+        Some("Line 5"),
+        Some("NE3 9TG"),
+        Some("7020"),
+        Some(LocalDateTime.of(2025, 1, 11, 10, 38)),
+        Some(LocalDateTime.of(2026, 1, 11, 10, 38)),
+        Some("N")
       )
 
     // Mocking stored procedure behavior for pTotalRecords and pDDSummary
@@ -96,7 +95,6 @@ class EuVatCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndA
     when(mockResultSet.getTimestamp("date_of_reg")).thenReturn(java.sql.Timestamp.valueOf(LocalDateTime.of(2025, 1, 11, 10, 38)))
     when(mockResultSet.getTimestamp("date_of_dereg")).thenReturn(java.sql.Timestamp.valueOf(LocalDateTime.of(2026, 1, 11, 10, 38)))
     when(mockResultSet.getString("missing_trader_ind")).thenReturn("N")
-    when(mockResultSet.getInt("ph_sem_trader_ind")).thenReturn(1)
 
     // Act
     val result = repository.getTraderByVrn(vrn).futureValue

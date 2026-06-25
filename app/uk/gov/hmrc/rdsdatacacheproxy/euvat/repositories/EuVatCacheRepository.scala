@@ -22,7 +22,6 @@ import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.euvat.models.responses.TradersKnownFacts
 
 import java.sql.ResultSet
-import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Using
@@ -48,18 +47,17 @@ class EuVatCacheRepository @Inject() (@NamedDatabase("euvat") db: Database)(impl
               Some(
                 TradersKnownFacts(
                   vatRegNumber           = cursor.getInt("vat_reg_number"),
-                  traderName             = Option(cursor.getString("trader_name")).orNull,
-                  addressLine1           = Option(cursor.getString("bus_address_1")).orNull,
-                  addressLine2           = Option(cursor.getString("bus_address_2")).orNull,
-                  addressLine3           = Option(cursor.getString("bus_address_3")).orNull,
-                  addressLine4           = Option(cursor.getString("bus_address_4")).orNull,
-                  addressLine5           = Option(cursor.getString("bus_address_5")).orNull,
-                  postCode               = Option(cursor.getString("bus_postcode")).orNull,
-                  tradeClass             = Option(cursor.getString("trade_class")).getOrElse(""),
-                  dateOfRegistration     = Option(cursor.getTimestamp("date_of_reg")).map(_.toLocalDateTime).getOrElse(LocalDateTime.MIN),
-                  dateOfDeregistration   = Option(cursor.getTimestamp("date_of_dereg")).map(_.toLocalDateTime).getOrElse(LocalDateTime.MIN),
-                  missingTraderIndicator = Option(cursor.getString("missing_trader_ind")).orNull,
-                  singleMarketIndicator  = cursor.getInt("ph_sem_trader_ind")
+                  traderName             = Option(cursor.getString("trader_name")),
+                  addressLine1           = Option(cursor.getString("bus_address_1")),
+                  addressLine2           = Option(cursor.getString("bus_address_2")),
+                  addressLine3           = Option(cursor.getString("bus_address_3")),
+                  addressLine4           = Option(cursor.getString("bus_address_4")),
+                  addressLine5           = Option(cursor.getString("bus_address_5")),
+                  postCode               = Option(cursor.getString("bus_postcode")),
+                  tradeClass             = Option(cursor.getString("trade_class")),
+                  dateOfRegistration     = Option(cursor.getTimestamp("date_of_reg")).map(_.toLocalDateTime),
+                  dateOfDeregistration   = Option(cursor.getTimestamp("date_of_dereg")).map(_.toLocalDateTime),
+                  missingTraderIndicator = Option(cursor.getString("missing_trader_ind"))
                 )
               )
             }

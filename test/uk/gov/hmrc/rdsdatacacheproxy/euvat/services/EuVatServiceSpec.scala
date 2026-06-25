@@ -36,23 +36,22 @@ class EuVatServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with 
   private val service = new EuVatService(mockConnector)
 
   val emptyKnownFactsResponse: TradersKnownFacts =
-    TradersKnownFacts(0, "", "", "", "", "", "", "", "", LocalDateTime.MIN, LocalDateTime.MIN, "", 0)
+    TradersKnownFacts(0, None, None, None, None, None, None, None, None, Some(LocalDateTime.MIN), Some(LocalDateTime.MIN), None)
 
-  val KnownFactsResponse: TradersKnownFacts =
+  val knownFactsResponse: TradersKnownFacts =
     TradersKnownFacts(
       123456789,
-      "TestData",
-      "Line 1",
-      "Line 2",
-      "Line 3",
-      "Line 4",
-      "Line 5",
-      "NE3 9TG",
-      "7020",
-      LocalDateTime.of(2025, 1, 11, 10, 38),
-      LocalDateTime.of(2026, 1, 11, 10, 38),
-      "N",
-      1
+      Some("TestData"),
+      Some("Line 1"),
+      Some("Line 2"),
+      Some("Line 3"),
+      Some("Line 4"),
+      Some("Line 5"),
+      Some("NE3 9TG"),
+      Some("7020"),
+      Some(LocalDateTime.of(2025, 1, 11, 10, 38)),
+      Some(LocalDateTime.of(2026, 1, 11, 10, 38)),
+      Some("N")
     )
 
   "EuVatService" should:
@@ -66,9 +65,9 @@ class EuVatServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with 
 
       "retrieving traders known facts" in:
         when(mockConnector.getTraderByVrn(any()))
-          .thenReturn(Future.successful(Some(KnownFactsResponse)))
+          .thenReturn(Future.successful(Some(knownFactsResponse)))
         val result = service.retrieveTraderByVrn("123").futureValue
-        result shouldBe Some(KnownFactsResponse)
+        result shouldBe Some(knownFactsResponse)
 
     "fail" when:
       "retrieving Direct Debits" in:

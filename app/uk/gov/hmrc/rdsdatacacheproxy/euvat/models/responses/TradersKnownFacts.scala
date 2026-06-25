@@ -16,41 +16,25 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.euvat.models.responses
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.{Format, __}
+import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDateTime
 
 case class TradersKnownFacts(
   vatRegNumber: Int,
-  traderName: String,
-  addressLine1: String,
-  addressLine2: String,
-  addressLine3: String,
-  addressLine4: String,
-  addressLine5: String,
-  postCode: String,
-  tradeClass: String,
-  dateOfRegistration: LocalDateTime,
-  dateOfDeregistration: LocalDateTime,
-  missingTraderIndicator: String,
-  singleMarketIndicator: Int
+  traderName: Option[String] = None,
+  addressLine1: Option[String] = None,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  addressLine4: Option[String] = None,
+  addressLine5: Option[String] = None,
+  postCode: Option[String] = None,
+  tradeClass: Option[String] = None,
+  dateOfRegistration: Option[LocalDateTime] = None,
+  dateOfDeregistration: Option[LocalDateTime] = None,
+  missingTraderIndicator: Option[String] = None,
+  singleMarketIndicator: Option[Int] = None
 )
 
 object TradersKnownFacts:
-  implicit val format: Format[TradersKnownFacts] =
-    (
-      (__ \ "vatRegNumber").format[Int] and
-        (__ \ "traderName").format[String] and
-        (__ \ "addressLine1").format[String] and
-        (__ \ "addressLine2").format[String] and
-        (__ \ "addressLine3").format[String] and
-        (__ \ "addressLine4").format[String] and
-        (__ \ "addressLine5").format[String] and
-        (__ \ "postCode").format[String] and
-        (__ \ "tradeClass").format[String] and
-        (__ \ "dateOfRegistration").format[LocalDateTime] and
-        (__ \ "dateOfDeregistration").format[LocalDateTime] and
-        (__ \ "missingTraderIndicator").format[String] and
-        (__ \ "singleMarketIndicator").format[Int]
-    )(TradersKnownFacts.apply, o => Tuple.fromProductTyped(o))
+  given OFormat[TradersKnownFacts] = Json.format[TradersKnownFacts]
