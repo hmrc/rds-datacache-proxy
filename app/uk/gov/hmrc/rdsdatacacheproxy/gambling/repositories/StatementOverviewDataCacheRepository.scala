@@ -18,6 +18,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.StatementNotFound
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, StatementOverview}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -25,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait StatementOverviewDataSource {
-  def getStatementOverview(regime: Regime, regNumber: String): Future[Option[StatementOverview]]
+  def getStatementOverview(regime: Regime, regNumber: String): Future[Either[StatementError, StatementOverview]]
 }
 
 @Singleton
@@ -37,7 +39,7 @@ class StatementOverviewDataCacheRepository @Inject() (
     with RepositorySupport
     with Logging {
 
-  override def getStatementOverview(regime: Regime, regNumber: String): Future[Option[StatementOverview]] =
+  override def getStatementOverview(regime: Regime, regNumber: String): Future[Either[StatementError, StatementOverview]] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -64,9 +66,9 @@ class StatementOverviewDataCacheRepository @Inject() (
 
           // P_TOTAL being null signals operator not registered → 404
           optDecimalFromIndex(4, cs) match {
-            case None => None
+            case None => Left(StatementNotFound)
             case Some(total) =>
-              Some(
+              Right(
                 StatementOverview(
                   gtrPeriodStartDate = optDate(2, cs),
                   gtrPeriodEndDate   = optDate(3, cs),

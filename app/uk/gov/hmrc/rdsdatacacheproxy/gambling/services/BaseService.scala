@@ -33,7 +33,7 @@ trait BaseService extends Logging {
     baseText: String
   )(
     ifValid: (Regime, String) => Future[T]
-  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
     lazy val reqText = s"regime=$regime regNumber=$regNumber"
     logger.info(s"[$baseText] $reqText")
 
@@ -44,10 +44,10 @@ trait BaseService extends Logging {
           Future.successful(Left(InvalidRegNumber))
         else
           ifValid(regime, regNumber)
-            .map(summary => Right(summary))
+            .map(summary => summary)
             .recover { case ex: Exception =>
               logger.error(s"[$baseText] Unexpected error $reqText", ex)
-              Left(UnexpectedError)
+              Future.successful(Left(UnexpectedError))
             }
       case Left(error) =>
         logger.error(s"[$baseText] Invalid Regime Code $regime")

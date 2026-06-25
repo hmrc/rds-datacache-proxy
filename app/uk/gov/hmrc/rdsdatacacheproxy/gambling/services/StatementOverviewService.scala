@@ -35,9 +35,12 @@ class StatementOverviewService @Inject() (
   ): Future[Either[StatementError, StatementOverview]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, "getStatementOverview")(
       repository.getStatementOverview
-    ).map {
-      case Right(Some(overview)) => Right(overview)
-      case Right(None)           => Left(StatementNotFound)
-      case Left(error)           => Left(error)
-    }
+    )  //.map(a => a)
+
+  // ALL OF THE BELOW MIGHT NOT BE NEEDED
+//      .map {
+//      case Right(Some(overview)) => Right(overview)
+//      case Right(None)           => Left(StatementNotFound)
+//      case Left(error)           => Left(error)
+//    }
 }
