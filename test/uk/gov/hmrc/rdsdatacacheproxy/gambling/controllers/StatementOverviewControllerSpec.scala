@@ -26,7 +26,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, StatementNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, RecordNotFound, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.StatementOverviewService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseStatementOverview}
 
@@ -90,7 +90,7 @@ class StatementOverviewControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 404 when NotFound" in new Setup {
       when(mockService.getStatementOverview(any(), any())(any()))
-        .thenReturn(Future.successful(Left(StatementNotFound)))
+        .thenReturn(Future.successful(Left(RecordNotFound)))
 
       val req = FakeRequest(GET, s"/gambling/statement-overview/$validRegime/XWM00000001770")
       val res: Future[Result] = controller.getStatementOverview(validRegime, "XWM00000001770")(req)
@@ -98,7 +98,7 @@ class StatementOverviewControllerSpec extends SpecBase with MockitoSugar {
       status(res) mustBe NOT_FOUND
       contentAsJson(res) mustBe Json.obj(
         "code"    -> "NOT_FOUND",
-        "message" -> "No statement overview found for the given registration number"
+        "message" -> "No record found for the given registration number"
       )
 
       verify(mockService).getStatementOverview(eqTo(validRegime), eqTo("XWM00000001770"))(any())

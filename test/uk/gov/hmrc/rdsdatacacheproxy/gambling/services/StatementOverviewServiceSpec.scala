@@ -21,7 +21,7 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, StatementNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, RecordNotFound, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.StatementOverviewDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseStatementOverview
 
@@ -60,7 +60,7 @@ final class StatementOverviewServiceSpec extends SpecBase {
 
       val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
-      result mustBe Left(StatementNotFound)
+      result mustBe Left(RecordNotFound)
       verify(repository).getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }

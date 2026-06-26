@@ -38,9 +38,13 @@ object StatementError {
     val message = "Invalid Regime Code"
   }
 
-  case object StatementNotFound extends StatementError {
+  case object RecordNotFound extends StatementError {
     val code = "NOT_FOUND"
-    val message = "No statement overview found for the given registration number"
+    val message = "No record found for the given registration number"
   }
 
+  case object BadData extends StatementError {
+    val code = "BAD_DATA"
+    val message = "Bad data record for the given registration number"
+  }
 }

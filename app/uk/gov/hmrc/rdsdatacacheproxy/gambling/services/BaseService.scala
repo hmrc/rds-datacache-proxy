@@ -152,7 +152,7 @@ trait BaseService extends Logging {
     consecNo: Int,
     baseText: String
   )(
-    ifValid: (String, Int) => Future[T]
+    ifValid: (String, Int) => Future[Either[StatementError, T]]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
     lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
@@ -162,7 +162,7 @@ trait BaseService extends Logging {
       Future.successful(Left(InvalidRegNumber))
     else
       ifValid(regNumber, consecNo)
-        .map(single => Right(single))
+        .map(single => single)
         .recover { case ex: Exception =>
           logger.error(s"[$baseText] Unexpected error $reqText", ex)
           Left(UnexpectedError)

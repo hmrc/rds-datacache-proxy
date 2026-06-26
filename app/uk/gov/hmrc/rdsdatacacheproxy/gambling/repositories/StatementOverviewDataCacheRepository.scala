@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 import play.api.Logging
 import play.api.db.NamedDatabase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.StatementNotFound
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.RecordNotFound
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, StatementOverview}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -66,7 +66,7 @@ class StatementOverviewDataCacheRepository @Inject() (
 
           // P_TOTAL being null signals operator not registered → 404
           optDecimalFromIndex(4, cs) match {
-            case None => Left(StatementNotFound)
+            case None => Left(RecordNotFound)
             case Some(total) =>
               Right(
                 StatementOverview(
