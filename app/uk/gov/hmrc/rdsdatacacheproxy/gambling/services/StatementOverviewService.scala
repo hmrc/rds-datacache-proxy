@@ -19,7 +19,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.StatementOverview
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.StatementNotFound
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.StatementOverviewDataSource
 
 import javax.inject.Inject
@@ -35,9 +34,26 @@ class StatementOverviewService @Inject() (
   ): Future[Either[StatementError, StatementOverview]] =
     withValidParams(regime, rawRegNumber.trim.toUpperCase, "getStatementOverview")(
       repository.getStatementOverview
-    ).map {
-      case Right(Some(overview)) => Right(overview)
-      case Right(None)           => Left(StatementNotFound)
-      case Left(error)           => Left(error)
-    }
+    ) // .map(a => a)
+
+  // ALL OF THE BELOW MIGHT NOT BE NEEDED - see "RESULTS OF TESTING" below
+//      .map {
+//      case Right(Some(overview)) => Right(overview)
+//      case Right(None)           => Left(StatementNotFound)
+//      case Left(error)           => Left(error)
+//    }
+
+  /*  RESULTS OF TESTING
+
+curl http://localhost:6992/rds-datacache-proxy/gambling/statement-overview/gbd/XAM00003402079
+{"gtrPeriodStartDate":"2013-10-01","gtrPeriodEndDate":"2014-12-31","total":-1439.4,"balance":-1350,"amountDeclared":0,"assessments":0,"penalties":0,"adjustments":0,"reallocations":0,"otherAssessments":0,"interest":-89.4,"payments":0}
+
+curl http://localhost:6992/rds-datacache-proxy/gambling/statement-overview/gbd/XAM0000999999
+{"code":"INVALID_REG_NUMBER","message":"regNumber has invalid format"}
+
+curl http://localhost:6992/rds-datacache-proxy/gambling/statement-overview/gbd/XAM00009999999
+{"code":"NOT_FOUND","message":"No statement overview found for the given registration number"}
+
+
+   */
 }
