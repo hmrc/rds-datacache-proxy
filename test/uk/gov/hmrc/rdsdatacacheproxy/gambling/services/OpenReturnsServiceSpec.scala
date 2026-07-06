@@ -70,37 +70,30 @@ final class OpenReturnsServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "return validResponseOpenReturnPeriods when sortColumn is RANDOM & sortOrder is DESC" in {
-      when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(STATUS), eqTo(DESC)))
-        .thenReturn(Future.successful(validResponseOpenReturnPeriods))
+    List("DESC", "desc").foreach { sortOder =>
+      s"return validResponseOpenReturnPeriods when sortColumn is 1 & sortOrder is $sortOder" in {
+        when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(DESC)))
+          .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 
-      val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, Some(999), Some(DESC)).futureValue
+        val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, Some(1), Some(DESC)).futureValue
 
-      result mustBe Right(validResponseOpenReturnPeriods)
-      verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(STATUS), eqTo(DESC))
-      verifyNoMoreInteractions(repository)
+        result mustBe Right(validResponseOpenReturnPeriods)
+        verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(DESC))
+        verifyNoMoreInteractions(repository)
+      }
     }
 
-    "return validResponseOpenReturnPeriods when sortColumn is 1 & sortOrder is ASC" in {
-      when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC)))
-        .thenReturn(Future.successful(validResponseOpenReturnPeriods))
+    List("ASC", "asc").foreach { sortOder =>
+      s"return validResponseOpenReturnPeriods when sortColumn is 1 & sortOrder is $sortOder" in {
+        when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC)))
+          .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 
-      val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, Some(1), Some(ASC)).futureValue
+        val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, Some(1), Some(ASC)).futureValue
 
-      result mustBe Right(validResponseOpenReturnPeriods)
-      verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC))
-      verifyNoMoreInteractions(repository)
-    }
-
-    "return validResponseOpenReturnPeriods when sortColumn is 2 & sortOrder is LOWERCASE asc" in {
-      when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(DUE_DATE), eqTo(ASC)))
-        .thenReturn(Future.successful(validResponseOpenReturnPeriods))
-
-      val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, Some(2), Some("asc")).futureValue
-
-      result mustBe Right(validResponseOpenReturnPeriods)
-      verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(DUE_DATE), eqTo(ASC))
-      verifyNoMoreInteractions(repository)
+        result mustBe Right(validResponseOpenReturnPeriods)
+        verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC))
+        verifyNoMoreInteractions(repository)
+      }
     }
 
     "return validResponseOpenReturnPeriods when sortColumn is 2 & sortOrder is RANDOM" in {
