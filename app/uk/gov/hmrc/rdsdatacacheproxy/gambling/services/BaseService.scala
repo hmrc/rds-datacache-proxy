@@ -165,8 +165,8 @@ trait BaseService extends Logging {
           logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
           Future.successful(Left(InvalidRegNumber))
         else
-          // 1=period, 2=due date, else status
-          val sort = sortBy.filter(s => s == 1 || s == 2).getOrElse(3)
+          // 1=period, 2=due date, 3=status, default to period
+          val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(1)
           val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
 
           logger.info(s"[$baseText] $reqText sort=$sort order=$order")

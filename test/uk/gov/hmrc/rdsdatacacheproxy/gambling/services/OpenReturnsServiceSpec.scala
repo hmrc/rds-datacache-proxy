@@ -59,19 +59,19 @@ final class OpenReturnsServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "return validResponseOpenReturnPeriods with CORRECT DEFAULTS when sortColumn & sortOrder are NONE" in {
-      when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(STATUS), eqTo(ASC)))
+    "return validResponseOpenReturnPeriods with CORRECT DEFAULTS when sortBy & orderBy are NONE" in {
+      when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 
       val result = service.getOpenReturnPeriods(validRegime.toString, lowercaseRegNumber, None, None).futureValue
 
       result mustBe Right(validResponseOpenReturnPeriods)
-      verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(STATUS), eqTo(ASC))
+      verify(repository).getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC))
       verifyNoMoreInteractions(repository)
     }
 
-    List("DESC", "desc").foreach { sortOder =>
-      s"return validResponseOpenReturnPeriods when sortColumn is 1 & sortOrder is $sortOder" in {
+    List("DESC", "desc").foreach { orderBy =>
+      s"return validResponseOpenReturnPeriods when sortBy is 1 & orderBy is $orderBy" in {
         when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(DESC)))
           .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 
@@ -83,8 +83,8 @@ final class OpenReturnsServiceSpec extends SpecBase {
       }
     }
 
-    List("ASC", "asc").foreach { sortOder =>
-      s"return validResponseOpenReturnPeriods when sortColumn is 1 & sortOrder is $sortOder" in {
+    List("ASC", "asc").foreach { orderBy =>
+      s"return validResponseOpenReturnPeriods when sortBy is 1 & orderBy is $orderBy" in {
         when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(PERIOD), eqTo(ASC)))
           .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 
@@ -96,7 +96,7 @@ final class OpenReturnsServiceSpec extends SpecBase {
       }
     }
 
-    "return validResponseOpenReturnPeriods when sortColumn is 2 & sortOrder is RANDOM" in {
+    "return validResponseOpenReturnPeriods when sortBy is 2 & orderBy is RANDOM" in {
       when(repository.getOpenReturnPeriods(eqTo(validRegime), eqTo(normalisedRegNumber), eqTo(DUE_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseOpenReturnPeriods))
 

@@ -32,9 +32,9 @@ class OpenReturnsController @Inject() (authorise: AuthAction, service: OpenRetur
     with BaseController
     with Logging {
 
-  def getOpenReturnPeriods(regime: String, regNumber: String, sortColumn: Option[Int], sortOrder: Option[String]): Action[AnyContent] =
+  def getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String]): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getOpenReturnPeriods(regime, regNumber, sortColumn, sortOrder).map {
+      service.getOpenReturnPeriods(regime, regNumber, sortBy, orderBy).map {
         case Right(openReturnPeriods) => Ok(Json.toJson(openReturnPeriods))
         case Left(error)              => handleError(error)
       }
