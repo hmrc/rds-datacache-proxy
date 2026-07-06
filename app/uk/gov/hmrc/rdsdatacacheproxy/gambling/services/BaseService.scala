@@ -148,6 +148,40 @@ trait BaseService extends Logging {
     }
 
   def withValidParams[T](
+    regime: String,
+    regNumber: String,
+    sortBy: Option[Int],
+    orderBy: Option[String],
+    baseText: String
+  )(
+    ifValid: (Regime, String, Int, String) => Future[T]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    lazy val reqText = s"regime=$regime regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
+    logger.info(s"[$baseText] $reqText")
+
+    Regime.fromString(regime.trim) match {
+      case Right(regime) =>
+        if (!regNumberPattern.matcher(regNumber).matches())
+          logger.warn(s"[$baseText] Invalid pattern for regNumber=$regNumber")
+          Future.successful(Left(InvalidRegNumber))
+        else
+          // 1=period, 2=due date, else status
+          val sort = sortBy.filter(s => s == 1 || s == 2).getOrElse(3)
+          val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
+
+          logger.info(s"[$baseText] $reqText sort=$sort order=$order")
+          ifValid(regime, regNumber, sort, order)
+            .map(summary => Right(summary))
+            .recover { case ex: Exception =>
+              logger.error(s"[$baseText] Unexpected error $reqText", ex)
+              Left(UnexpectedError)
+            }
+      case Left(error) =>
+        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        Future.successful(Left(error))
+    }
+
+  def withValidParams[T](
     regNumber: String,
     consecNo: Int,
     baseText: String
