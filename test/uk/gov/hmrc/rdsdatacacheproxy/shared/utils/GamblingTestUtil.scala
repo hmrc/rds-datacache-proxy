@@ -525,6 +525,34 @@ object GamblingTestUtil {
     )
   )
 
+  val validResponseOpenReturnPeriods = OpenReturnPeriods(
+    openPeriods = Seq(
+      OpenReturnPeriodItem(
+        consecNo = 12345,
+        period   = "01/07/2025 - 30/09/2025",
+        dueDate  = LocalDate.of(2025, 10, 30),
+        status   = 1
+      ),
+      OpenReturnPeriodItem(
+        consecNo = 22345,
+        period   = "01/04/2025 - 30/06/2025",
+        dueDate  = LocalDate.of(2025, 7, 30),
+        status   = 2
+      )
+    )
+  )
+
+  val validResponseOpenReturnPeriodsSmall = OpenReturnPeriods(
+    openPeriods = Seq(
+      OpenReturnPeriodItem(
+        consecNo = 12345,
+        period   = "01/07/2025 - 30/09/2025",
+        dueDate  = LocalDate.of(2025, 10, 30),
+        status   = 1
+      )
+    )
+  )
+
   val validResponseSubmittedReturnSingle = SubmittedReturnSingle(
     consecNo                     = 23,
     mgdPeriod                    = "01/01/2025 - 30/03/2025",
