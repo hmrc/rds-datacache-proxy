@@ -173,6 +173,12 @@ Data is sourced via Oracle stored procedure:
 #### Sample Response
 
 
+#### Corporation Tax
+Sample GET request from local::
+
+`curl http://localhost:6992/rds-datacache-proxy/corporation-tax/penalty-transactions/1543423743/3`
+
+
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

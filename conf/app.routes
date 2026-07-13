@@ -72,3 +72,6 @@ GET        /gambling/open-periods/:regime/:regNumber                       uk.go
 
 #EUVAT routes
 GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
+
+#CT-Core routes
+GET        /corporation-tax/penalty-transactions/:taxRef/:accPeriod   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
