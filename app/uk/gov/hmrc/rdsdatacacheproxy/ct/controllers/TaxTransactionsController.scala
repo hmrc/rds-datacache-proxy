@@ -20,19 +20,20 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactions
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.TaxTransactionsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class TaxTransactionsController @Inject() (service: TaxTransactionsService, cc: ControllerComponents)(implicit
+class TaxTransactionsController @Inject() (authorise: AuthAction, service: TaxTransactionsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with Logging {
 
   def getTaxTransactions(taxRef: Long, accPeriod: Long): Action[AnyContent] =
-    Action.async { implicit request =>
+    authorise.async { implicit request =>
       service
         .getTaxTransactions(taxRef, accPeriod)
         .map { taxTransactions =>
