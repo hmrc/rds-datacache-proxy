@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.models
+package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 
 import play.api.libs.json.{Json, OFormat}
 

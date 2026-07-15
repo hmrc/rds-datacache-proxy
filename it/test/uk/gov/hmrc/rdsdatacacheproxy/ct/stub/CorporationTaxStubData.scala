@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PenaltyTransaction
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PenaltyTransaction, TaxTransactionsItem}
+
 import java.time.LocalDate
 
 object CorporationTaxStubData {
@@ -35,5 +36,16 @@ object CorporationTaxStubData {
       case _ => penaltiesEmptyList
     }
   }
+
+  def getTaxTransactions(taxRef: Long, accPeriod: Long): List[TaxTransactionsItem] =
+    (taxRef, accPeriod) match {
+      case (1, _) => List(
+        TaxTransactionsItem(currentAmount = 123.44, assessmentType = "A", taxDate = LocalDate.of(2026, 1, 1), correctionClaimSignal = Some("1")),
+        TaxTransactionsItem(currentAmount = 1234.94, assessmentType = "D", taxDate = LocalDate.of(2026, 2, 1), correctionClaimSignal = Some("1")),
+        TaxTransactionsItem(currentAmount = 463.23, assessmentType = "E", taxDate = LocalDate.of(2026, 3, 1), correctionClaimSignal = Some("1"))
+      )
+      case (2, _) => List.empty
+      case (99, _) => throw new Error("Downstream error")
+    }
 
 }

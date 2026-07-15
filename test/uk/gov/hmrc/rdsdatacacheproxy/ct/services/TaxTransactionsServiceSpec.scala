@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.services
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, verifyNoMoreInteractions, when}
@@ -23,15 +23,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.TaxTransactionsItem
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories.TaxTransactionsDataCacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactionsItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.TaxTransactionsDataCacheRepository
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class TaxTransactionsServiceSpec {}
-
-class InterestChargeServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar {
+class TaxTransactionsServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar {
 
   private class Setup {
     val mockRepository: TaxTransactionsDataCacheRepository = mock[TaxTransactionsDataCacheRepository]

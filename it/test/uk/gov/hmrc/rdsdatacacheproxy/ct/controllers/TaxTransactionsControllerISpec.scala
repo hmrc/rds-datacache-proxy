@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.JSON
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.{TaxTransactions, TaxTransactionsItem}
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories.TaxTransactionsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.stubs.CorporationTaxStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{TaxTransactions, TaxTransactionsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.TaxTransactionsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.CorporationTaxStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future

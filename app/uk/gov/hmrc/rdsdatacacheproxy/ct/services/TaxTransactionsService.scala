@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.services
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.TaxTransactionsItem
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories.TaxTransactionsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactionsItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.TaxTransactionsDataSource
 
 import javax.inject.Inject
 import scala.concurrent.Future

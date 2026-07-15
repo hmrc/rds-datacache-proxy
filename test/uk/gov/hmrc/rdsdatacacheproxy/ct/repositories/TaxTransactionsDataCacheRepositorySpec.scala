@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
 import oracle.jdbc.OracleTypes
 import org.mockito.ArgumentMatchers.any
@@ -25,7 +25,7 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.TaxTransactionsItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactionsItem
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate

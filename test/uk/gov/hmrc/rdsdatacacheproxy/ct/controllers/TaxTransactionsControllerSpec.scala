@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -25,8 +25,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.{TaxTransactions, TaxTransactionsItem}
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.services.TaxTransactionsService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{TaxTransactions, TaxTransactionsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.TaxTransactionsService
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.UnexpectedError
 
 import java.time.LocalDate

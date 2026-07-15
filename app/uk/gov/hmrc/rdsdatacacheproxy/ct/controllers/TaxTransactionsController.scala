@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.TaxTransactions
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.services.TaxTransactionsService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactions
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.TaxTransactionsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

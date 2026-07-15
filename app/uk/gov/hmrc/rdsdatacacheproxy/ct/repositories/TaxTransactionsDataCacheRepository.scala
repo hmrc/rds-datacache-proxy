@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.TaxTransactionsItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.TaxTransactionsItem
 
 import java.sql.ResultSet
 import javax.inject.{Inject, Singleton}
