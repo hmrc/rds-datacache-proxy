@@ -75,3 +75,4 @@ GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.
 
 #CT-Core routes
 GET        /corporation-tax/penalty-transactions/:taxRef/:accPeriod   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
+GET       /corporation-tax/interest-charge-summary/:taxPayerReference  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:String)
