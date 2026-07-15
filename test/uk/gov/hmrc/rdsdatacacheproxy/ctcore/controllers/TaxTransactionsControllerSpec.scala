@@ -26,7 +26,8 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ctcore.models.{TaxTransactions, TaxTransactionsItem}
-import uk.gov.hmrc.rdsdatacacheproxy.ctcore.repositories.TaxTransactionsDataCacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ctcore.services.TaxTransactionsService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.UnexpectedError
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -34,23 +35,32 @@ import scala.concurrent.Future
 class TaxTransactionsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockRepository: TaxTransactionsDataCacheRepository = mock[TaxTransactionsDataCacheRepository]
-    val controller = new TaxTransactionsController(fakeAuthAction, mockRepository, cc)
+    val mockService: TaxTransactionsService = mock[TaxTransactionsService]
+    val controller = new TaxTransactionsController(fakeAuthAction, mockService, cc)
   }
 
   val taxTransactions: List[TaxTransactionsItem] = List(
-    TaxTransactionsItem(currentAmount = BigDecimal(123.44), assessmentType = "A", taxDate = LocalDate.of(2026, 1, 1), correctionClaimSignal = Some("0")),
-    TaxTransactionsItem(currentAmount = BigDecimal(123.44), assessmentType = "D", taxDate = LocalDate.of(2026, 2, 1), correctionClaimSignal = Some("2")),
-    TaxTransactionsItem(currentAmount = BigDecimal(123.44), assessmentType = "E", taxDate = LocalDate.of(2026, 3, 1), correctionClaimSignal = None))
+    TaxTransactionsItem(currentAmount         = BigDecimal(123.44),
+                        assessmentType        = "A",
+                        taxDate               = LocalDate.of(2026, 1, 1),
+                        correctionClaimSignal = Some("0")
+                       ),
+    TaxTransactionsItem(currentAmount         = BigDecimal(123.44),
+                        assessmentType        = "D",
+                        taxDate               = LocalDate.of(2026, 2, 1),
+                        correctionClaimSignal = Some("2")
+                       ),
+    TaxTransactionsItem(currentAmount = BigDecimal(123.44), assessmentType = "E", taxDate = LocalDate.of(2026, 3, 1), correctionClaimSignal = None)
+  )
 
   val emptyTaxTransactions: List[TaxTransactionsItem] = List.empty
 
   "TaxTransactionsController getTaxTransactions" - {
 
-    "returns 200 when " in new Setup {
+    "returns 200 when Tax Transactions retrieved from repository" in new Setup {
 
-      when(mockRepository.getTaxTransactions(any[Long], any[Long]))
-        .thenReturn(Future.successful((taxTransactions)))
+      when(mockService.getTaxTransactions(any[Long], any[Long]))
+        .thenReturn(Future.successful(taxTransactions))
 
       val result: Future[Result] = controller.getTaxTransactions(1, 1)(fakeRequest)
 
@@ -58,13 +68,13 @@ class TaxTransactionsControllerSpec extends SpecBase with MockitoSugar {
       contentType(result) mustBe Some(JSON)
       contentAsJson(result) mustBe Json.toJson(TaxTransactions(taxTransactions))
 
-      verify(mockRepository).getTaxTransactions(1,1)
+      verify(mockService).getTaxTransactions(1, 1)
     }
 
-    "returns 200 when empty" in new Setup {
+    "returns 200 when empty Tax Transactions retrieved from repository" in new Setup {
 
-      when(mockRepository.getTaxTransactions(any[Long], any[Long]))
-        .thenReturn(Future.successful((emptyTaxTransactions)))
+      when(mockService.getTaxTransactions(any[Long], any[Long]))
+        .thenReturn(Future.successful(emptyTaxTransactions))
 
       val result: Future[Result] = controller.getTaxTransactions(1, 1)(fakeRequest)
 
@@ -72,7 +82,19 @@ class TaxTransactionsControllerSpec extends SpecBase with MockitoSugar {
       contentType(result) mustBe Some(JSON)
       contentAsJson(result) mustBe Json.toJson(TaxTransactions(emptyTaxTransactions))
 
-      verify(mockRepository).getTaxTransactions(1, 1)
+      verify(mockService).getTaxTransactions(1, 1)
+    }
+
+    "returns 500 when unexpected error" in new Setup {
+
+      when(mockService.getTaxTransactions(any[Long], any[Long]))
+        .thenReturn(Future.successful(UnexpectedError))
+
+      val result: Future[Result] = controller.getTaxTransactions(1, 1)(fakeRequest)
+
+      status(result) mustBe INTERNAL_SERVER_ERROR
+
+      verify(mockService).getTaxTransactions(1, 1)
     }
   }
 }
