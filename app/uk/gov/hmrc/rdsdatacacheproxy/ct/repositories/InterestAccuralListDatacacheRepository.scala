@@ -20,60 +20,23 @@ import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccural, PenaltyTransaction}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccural
 
 import java.sql.*
 import javax.inject.Inject
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[CorporationTaxDatacacheRepositoryImpl])
-trait CorporationTaxDatacacheRepository {
-  def getPenaltyTransactionList(taxRef: Long, accPeriod: Long): Future[List[PenaltyTransaction]]
+@ImplementedBy(classOf[InterestAccuralListDatacacheRepositoryImpl])
+trait InterestAccuralListDatacacheRepository {
   def getInterestAccuralList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccural]]
 }
 
-class CorporationTaxDatacacheRepositoryImpl @Inject() (
+class InterestAccuralListDatacacheRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
-    extends CorporationTaxDatacacheRepository
+    extends InterestAccuralListDatacacheRepository
     with Logging {
-
-  def getPenaltyTransactionList(taxRef: Long, accPeriod: Long): Future[List[PenaltyTransaction]] = {
-    logger.info(s"Input request: taxRef, accPeriod: <$taxRef>, <$accPeriod>")
-    Future {
-      db.withConnection { connection =>
-        val storedProcedure = connection.prepareCall("{call CT_DC_PK.getPenaltyTransactionList(?, ?, ?)}")
-
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR) // p_list
-
-        storedProcedure.execute()
-
-        val pListRs = storedProcedure.getObject(3, classOf[ResultSet])
-
-        try {
-          val penalties = Option(pListRs).map(readPenaltiesTransaction).getOrElse(List.empty)
-          penalties
-        } finally {
-          storedProcedure.close()
-        }
-      }
-    }
-  }
-
-  private def readPenaltiesTransaction(rs: ResultSet): List[PenaltyTransaction] = {
-    val buffer = ListBuffer[PenaltyTransaction]()
-    while (rs.next()) {
-      buffer += PenaltyTransaction(
-        penaltyDate   = Option(rs.getDate("penalty_date")).map(_.toLocalDate).get,
-        `type`        = rs.getString("type"),
-        postingAmount = rs.getBigDecimal("posting_amount")
-      )
-    }
-    buffer.toList
-  }
 
   def getInterestAccuralList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccural]] = {
     Future {
