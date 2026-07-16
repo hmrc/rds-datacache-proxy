@@ -77,3 +77,4 @@ GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.
 GET        /corporation-tax/penalty-transactions/:taxRef/:accPeriod   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/interest-charge-summary/:taxPayerReference  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:String)
 GET        /corporation-tax/tax-transactions/:taxRef/:accPeriod     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
+GET        /corporation-tax/adjustment-transactions/:taxRef/:accPeriod       uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AdjustmentTransactionsController.getAdjustmentTransactions(taxRef: Long, accPeriod: Long)
