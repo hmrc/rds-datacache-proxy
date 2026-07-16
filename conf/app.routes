@@ -71,4 +71,4 @@ GET        /gambling/submitted-return-details/:regNumber/:consecNo           uk.
 GET        /gambling/open-periods/:regime/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 
 #EUVAT routes
-GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
+GET        /euvat/traders/get-known-facts       uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
