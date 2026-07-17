@@ -53,7 +53,7 @@ object SubmittedReturnsStubData {
             )
           )
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XVM33333333333" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         SubmittedReturns(
           items = Seq(

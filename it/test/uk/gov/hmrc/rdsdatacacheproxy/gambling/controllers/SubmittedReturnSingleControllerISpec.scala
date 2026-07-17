@@ -56,46 +56,46 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct SubmittedReturnSingleData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001/23").futureValue
+      val response = get(s"$endpoint/XGM00003122200/23").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000001", 23)
+      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XGM00003122200", 23)
     }
 
     "return 404 when consecNo NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001").futureValue
+      val response = get(s"$endpoint/XGM00003122200").futureValue
 
       response.status mustBe NOT_FOUND
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/xyz00000000012/23").futureValue
+      val response = get(s"$endpoint/xgm00003122200/23").futureValue
       response.status mustBe OK
-      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000012", 23)
+      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XGM00003122200", 23)
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/   XYZ00000000012   /23").futureValue
+      val response = get(s"$endpoint/   XGM00003122200   /23").futureValue
       response.status mustBe OK
-      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XYZ00000000012", 23)
+      response.json.as[SubmittedReturnSingle] mustBe getSubmittedReturnSingleData("XGM00003122200", 23)
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/XYZ00000000012/23").futureValue
-      val res2 = get(s"$endpoint/XYZ00000000012/23").futureValue
+      val res1 = get(s"$endpoint/XGM00003122200/23").futureValue
+      val res2 = get(s"$endpoint/XGM00003122200/23").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XYZ00000000012/23").futureValue
+      val response = get(s"$endpoint/XGM00003122200/23").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -140,14 +140,14 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000/23").futureValue
+      val response = get(s"$endpoint/XVM33333333333/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000/23").futureValue
+      val response = get(s"$endpoint/XVM33333333333/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

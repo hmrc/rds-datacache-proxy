@@ -23,7 +23,7 @@ import java.time.LocalDate
 object RepaymentsStubData {
   def getRepaymentsSummaryData(regNumber: String): RepaymentsSummary =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         RepaymentsSummary(
           periodStartDate                = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate                  = Some(LocalDate.of(2014, 3, 11)),
@@ -32,7 +32,7 @@ object RepaymentsStubData {
           total                          = BigDecimal(36.08)
         )
 
-      case "XYZ99999999999" =>
+      case "XGM00003155555" =>
         RepaymentsSummary(
           periodStartDate                = Some(LocalDate.of(2023, 3, 1)),
           periodEndDate                  = Some(LocalDate.of(2024, 3, 11)),
@@ -40,7 +40,7 @@ object RepaymentsStubData {
           repaymentsInterestRepaidAmount = BigDecimal(0),
           total                          = BigDecimal(0)
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         RepaymentsSummary(
           periodStartDate                = Some(LocalDate.of(2013, 3, 1)),
@@ -53,7 +53,7 @@ object RepaymentsStubData {
 
   def getActualRepaymentsData(regNumber: String): ActualRepayments =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         ActualRepayments(
           periodStartDate  = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate    = Some(LocalDate.of(2014, 11, 3)),
@@ -73,7 +73,7 @@ object RepaymentsStubData {
           totalRecords     = 0,
           items = Seq.empty
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ActualRepayments(
           periodStartDate  = Some(LocalDate.of(2013, 1, 1)),

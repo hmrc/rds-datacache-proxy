@@ -23,7 +23,7 @@ import java.time.LocalDate
 object PaymentsStubData {
   def getPaymentsData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Payments =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         Payments(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
@@ -131,7 +131,7 @@ object PaymentsStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         Payments(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),

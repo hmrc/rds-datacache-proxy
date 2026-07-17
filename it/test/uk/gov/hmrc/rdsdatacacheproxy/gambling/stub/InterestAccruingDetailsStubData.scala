@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetailsItem, InterestAccruingDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDetails, InterestAccruingDetailsItem}
 
 import java.time.LocalDate
 
@@ -153,7 +153,7 @@ object InterestAccruingDetailsStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),

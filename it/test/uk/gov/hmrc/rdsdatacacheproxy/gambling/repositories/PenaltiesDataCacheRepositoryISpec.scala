@@ -70,7 +70,7 @@ class PenaltiesDataCacheRepositoryISpec extends AnyWordSpec with Matchers with S
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getPenalties(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+        repository.getPenalties(Regime.MGD, "XXM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

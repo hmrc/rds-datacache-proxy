@@ -75,7 +75,7 @@ class RepaymentInterestDetailsDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getRepaymentInterestDetails(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+        repository.getRepaymentInterestDetails(Regime.MGD, "XXM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

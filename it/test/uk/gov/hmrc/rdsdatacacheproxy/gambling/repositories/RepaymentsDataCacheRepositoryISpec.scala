@@ -47,25 +47,25 @@ class RepaymentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with 
   "getRepaymentsSummary (stubbed repository)" should {
 
     "return correct RepaymentsStubData" in {
-      val result = repository.getRepaymentsSummary(Regime.MGD, "XYZ00000000000").futureValue
+      val result = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
 
-      result mustBe getRepaymentsSummaryData("XYZ00000000000")
+      result mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "return correct data when values are 0" in {
-      val result = repository.getRepaymentsSummary(Regime.MGD, "XYZ99999999999").futureValue
-      result mustBe getRepaymentsSummaryData("XYZ99999999999")
+      val result = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
+      result mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getRepaymentsSummary(Regime.MGD, "XYZ00000000000").futureValue
-      val result2 = repository.getRepaymentsSummary(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
+      val result2 = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getRepaymentsSummary(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
       val result2 = repository.getRepaymentsSummary(Regime.MGD, "XYZ99999999999").futureValue
 
       result1 must not be result2
@@ -73,7 +73,7 @@ class RepaymentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with 
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getRepaymentsSummary(Regime.MGD, "ERR00000000000").futureValue
+        repository.getRepaymentsSummary(Regime.MGD, "XXM33333066666").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

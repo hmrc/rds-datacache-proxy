@@ -23,7 +23,7 @@ import java.time.LocalDate
 object GamblingReturnsStubData {
   def getReturnsSubmittedData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): ReturnsSubmitted =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         ReturnsSubmitted(
           periodStartDate    = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate      = Some(LocalDate.of(2014, 3, 11)),
@@ -130,7 +130,7 @@ object GamblingReturnsStubData {
           totalPeriodRecords = Some(99),
           amountDeclared     = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReturnsSubmitted(
           periodStartDate    = Some(LocalDate.of(2023, 3, 1)),

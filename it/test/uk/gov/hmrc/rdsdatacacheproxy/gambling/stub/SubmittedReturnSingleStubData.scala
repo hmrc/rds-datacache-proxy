@@ -43,7 +43,7 @@ object SubmittedReturnSingleStubData {
           negativeAmountCarriedForward = 99.99,
           totalNetDutyPayable          = 75.49
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XVM33333333333" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         SubmittedReturnSingle(
           consecNo                     = 123,
