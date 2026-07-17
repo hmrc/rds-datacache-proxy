@@ -50,7 +50,7 @@ class InterestAccuralListDatacacheRepositoryImpl @Inject() (
 
         storedProcedure.execute()
 
-        val results = storedProcedure.getObject(3, classOf[ResultSet])
+        val results = storedProcedure.getObject(4, classOf[ResultSet])
 
         try {
           val interestAccuralLists = Option(results).map(readInterestAccuralListTransaction).getOrElse(List.empty)
