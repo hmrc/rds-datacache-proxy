@@ -23,7 +23,7 @@ import java.time.LocalDate
 object GamblingReallocationsStubData {
   def getReallocationsInData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): Reallocations =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
@@ -111,7 +111,7 @@ object GamblingReallocationsStubData {
             )
           )
         )
-      case "XYZ99999999999" =>
+      case "XHM00003133333" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
@@ -119,7 +119,7 @@ object GamblingReallocationsStubData {
           totalRecords    = Some(99),
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
@@ -137,7 +137,7 @@ object GamblingReallocationsStubData {
 
   def getReallocationsOutData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): ReallocationsOut =
     regNumber match {
-      case "XYZ00000000000" => ReallocationsOut.empty
+      case "XGM00003122200ZZZ" => ReallocationsOut.empty
       case "XYZ00000000001" =>
         ReallocationsOut(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
@@ -218,7 +218,7 @@ object GamblingReallocationsStubData {
             )
           )
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReallocationsOut(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
@@ -236,7 +236,7 @@ object GamblingReallocationsStubData {
 
   def getReallocationsDetailData(regNumber: String): ReallocationsDetails =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         ReallocationsDetails(
           periodStartDate        = Option(LocalDate.of(2023, 3, 1)),
           periodEndDate          = Option(LocalDate.of(2024, 3, 11)),
@@ -244,7 +244,7 @@ object GamblingReallocationsStubData {
           reallocationsOutAmount = 0.00,
           total                  = 0.00
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReallocationsDetails(
           periodStartDate        = Option(LocalDate.of(2023, 3, 1)),

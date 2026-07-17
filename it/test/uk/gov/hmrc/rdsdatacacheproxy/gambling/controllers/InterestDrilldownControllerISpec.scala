@@ -61,27 +61,27 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
     "return 200 with correct InterestData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200/$interestId?pageNo=1&pageSize=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000000")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XGM00003122200")
     }
 
     "return 200 with correct InterestData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ99999999999/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200/$interestId").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ99999999999")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XGM00003122200")
     }
 
     "return 200 with empty items when no interest data exists for regNumber" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XHM00003133333/$interestId").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -91,28 +91,28 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/xyz00000000012 /$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/xgm00003122200 /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/   XYZ00000000012   /$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/   XGM00003122200   /$interestId").futureValue
       response.status mustBe OK
-      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XYZ00000000012")
+      response.json.as[InterestDrilldown] mustBe getInterestDrilldownData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
-      val res2 = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
+      val res1 = get(s"$endpoint/$GBD/XGM00003122200/$interestId").futureValue
+      val res2 = get(s"$endpoint/$GBD/XGM00003122200/$interestId").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000000012/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200/$interestId").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -124,7 +124,7 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
 
     "return 400 for invalid regime" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012/$interestId?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/BAD_REGIME/XGM00003122200/$interestId?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -145,7 +145,7 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000000000/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200/$interestId").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
@@ -157,7 +157,7 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/ERR00000000000/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XXM33333066666/$interestId").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

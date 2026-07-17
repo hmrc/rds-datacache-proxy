@@ -64,49 +64,49 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct getReallocationsInData" in {
       AuthStub.authorised()
 
-      val response = get(s"$inEndpoint/$GBD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$inEndpoint/$GBD/XGM00003122200?pageNo=1&pageSize=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000000")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XGM00003122200")
     }
 
     "return 200 with correct getReallocationsInData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$inEndpoint/$GBD/XYZ99999999999").futureValue
+      val response = get(s"$inEndpoint/$GBD/XHM00003133333").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ99999999999")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XHM00003133333")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/xyz00000000012 ").futureValue
+      val response = get(s"$inEndpoint/$GBD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000012")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/   XYZ00000000012   ").futureValue
+      val response = get(s"$inEndpoint/$GBD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[Reallocations] mustBe getReallocationsInData("XYZ00000000012")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$inEndpoint/$GBD/XYZ00000000012").futureValue
-      val res2 = get(s"$inEndpoint/$GBD/XYZ00000000012").futureValue
+      val res1 = get(s"$inEndpoint/$GBD/XGM00003122200").futureValue
+      val res2 = get(s"$inEndpoint/$GBD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/XYZ00000000012").futureValue
+      val response = get(s"$inEndpoint/$GBD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -118,7 +118,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/BAD_REGIME/XYZ00000000012?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$inEndpoint/BAD_REGIME/XGM00003122200?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -157,14 +157,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$inEndpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$inEndpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -176,49 +176,49 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct getReallocationsOutData" in {
       AuthStub.authorised()
 
-      val response = get(s"$outEndpoint/$MGD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$outEndpoint/$MGD/XGM00003122200?pageNo=1&pageSize=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XYZ00000000000")
+      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XGM00003122200")
     }
 
     "return 200 with correct getReallocationsOutData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$outEndpoint/$MGD/XYZ00000000000").futureValue
+      val response = get(s"$outEndpoint/$MGD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XYZ00000000000")
+      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XGM00003122200")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/xyz00000000012 ").futureValue
+      val response = get(s"$outEndpoint/$MGD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XYZ00000000012")
+      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/   XYZ00000000012   ").futureValue
+      val response = get(s"$outEndpoint/$MGD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XYZ00000000012")
+      response.json.as[ReallocationsOut] mustBe getReallocationsOutData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$outEndpoint/$MGD/XYZ00000000012").futureValue
-      val res2 = get(s"$outEndpoint/$MGD/XYZ00000000012").futureValue
+      val res1 = get(s"$outEndpoint/$MGD/XGM00003122200").futureValue
+      val res2 = get(s"$outEndpoint/$MGD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/XYZ00000000012").futureValue
+      val response = get(s"$outEndpoint/$MGD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -230,7 +230,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/BAD_REGIME/XYZ00000000012?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$outEndpoint/BAD_REGIME/XGM00003122200?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -269,14 +269,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$outEndpoint/$MGD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$outEndpoint/$MGD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -288,49 +288,49 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct getReallocationsDetailData" in {
       AuthStub.authorised()
 
-      val response = get(s"$detailsEndpoint/$MGD/XYZ00000000000").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XYZ00000000000")
+      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XGM00003122200")
     }
 
     "return 200 with correct getReallocationsDetailData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$detailsEndpoint/$MGD/XYZ00000000000").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XYZ00000000000")
+      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XGM00003122200")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/xyz00000000012 ").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XYZ00000000012")
+      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/   XYZ00000000012   ").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XYZ00000000012")
+      response.json.as[ReallocationsDetails] mustBe getReallocationsDetailData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$detailsEndpoint/$MGD/XYZ00000000012").futureValue
-      val res2 = get(s"$detailsEndpoint/$MGD/XYZ00000000012").futureValue
+      val res1 = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
+      val res2 = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/XYZ00000000012").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -342,7 +342,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/BAD_REGIME/XYZ00000000012").futureValue
+      val response = get(s"$detailsEndpoint/BAD_REGIME/XGM00003122200").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -381,14 +381,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

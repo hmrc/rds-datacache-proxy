@@ -55,25 +55,25 @@ class GamblingReallocationsDataCacheRepositoryISpec
   "getReallocationsIn (stubbed repository)" should {
 
     "return correct ReallocationsInData" in {
-      val result = repository.getReallocationsIn(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
+      val result = repository.getReallocationsIn(Regime.MGD, "XGM00003122200", 1, 10).futureValue
 
-      result mustBe getReallocationsInData("XYZ00000000000")
+      result mustBe getReallocationsInData("XGM00003122200")
     }
 
     "return correct data when paginationStart is 1" in {
-      val result = repository.getReallocationsIn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
-      result mustBe getReallocationsInData("XYZ00000000001")
+      val result = repository.getReallocationsIn(Regime.MGD, "XGM00003122200", 1, 10).futureValue
+      result mustBe getReallocationsInData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
+      val result1 = repository.getReallocationsIn(Regime.MGD, "XGM00003122200", 1, 10).futureValue
+      val result2 = repository.getReallocationsIn(Regime.MGD, "XGM00003122200", 1, 10).futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000010", 1, 10).futureValue
+      val result1 = repository.getReallocationsIn(Regime.MGD, "XGM00003122200", 1, 10).futureValue
       val result2 = repository.getReallocationsIn(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
 
       result1 must not be result2
@@ -81,7 +81,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReallocationsIn(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+        repository.getReallocationsIn(Regime.MGD, "XXM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -104,7 +104,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getReallocationsDetails(Regime.MGD, "XGM00003122200").futureValue
       val result2 = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000001").futureValue
 
       result1 must not be result2
@@ -112,7 +112,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReallocationsDetails(Regime.MGD, "ERR00000000000").futureValue
+        repository.getReallocationsDetails(Regime.MGD, "XXM33333066666").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
