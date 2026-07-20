@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 import java.time.LocalDate
 
 case class InterestAccuralList(interestAccuralList: List[InterestAccural])
 
 object InterestAccuralList {
-  implicit val format: Format[InterestAccuralList] = Json.format[InterestAccuralList]
+  implicit val format: OFormat[InterestAccuralList] = Json.format[InterestAccuralList]
 }
 
 case class InterestAccural(
@@ -35,5 +35,5 @@ case class InterestAccural(
 )
 
 object InterestAccural {
-  implicit val format: Format[InterestAccural] = Json.format[InterestAccural]
+  implicit val format: OFormat[InterestAccural] = Json.format[InterestAccural]
 }

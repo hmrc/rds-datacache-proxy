@@ -24,7 +24,7 @@ object InterestAccuralListStubData {
 
   val interestAccuralListEmpty: List[InterestAccural] = List.empty
 
-  val interestAccuralListItems:  List[InterestAccural] = List(
+  val interestAccuralListSingleItem:  List[InterestAccural] = List(
     InterestAccural(
       computationAmount = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
@@ -35,11 +35,31 @@ object InterestAccuralListStubData {
     )
   )
 
+  val interestAccuralListMultipleItems: List[InterestAccural] = List(
+    InterestAccural(
+      computationAmount = 1,
+      interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+      interestAccrualToDate = LocalDate.of(2021, 5, 7),
+      interestRate = 2,
+      interestAmount = 10,
+      apEndDate = LocalDate.of(2021, 6, 7)
+    ),
+    InterestAccural(
+      computationAmount = 1,
+      interestAccrualFromDate = LocalDate.of(2021, 6, 10),
+      interestAccrualToDate = LocalDate.of(2021, 8, 10),
+      interestRate = 3,
+      interestAmount = 23,
+      apEndDate = LocalDate.of(2021, 9, 10)
+    )
+  )
+
   def getAccuralInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): List[InterestAccural] = {
     taxRef match {
-      case 1L  => interestAccuralListItems
+      case 1L  => interestAccuralListSingleItem
+      case 2L  => interestAccuralListMultipleItems
       case 99L => throw new Error("Simulated downstream failure")
-      case _ => interestAccuralListItems
+      case _ => interestAccuralListEmpty
     }
   }
 

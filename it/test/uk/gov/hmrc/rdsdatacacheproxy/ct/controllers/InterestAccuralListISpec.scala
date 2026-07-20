@@ -62,7 +62,7 @@ class InterestAccuralListISpec extends AnyWordSpec with Matchers with ScalaFutur
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[List[InterestAccural]] mustBe InterestAccuralListStubData.interestAccuralListItems
+      response.json.as[List[InterestAccural]] mustBe InterestAccuralListStubData.interestAccuralListMultipleItems
     }
 
     "return 200 with InterestAccural empty list" in {
