@@ -23,7 +23,7 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, inject}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccural, InterestAccuralList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccural
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccuralListDatacacheRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestAccuralListStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
