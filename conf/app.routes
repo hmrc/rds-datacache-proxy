@@ -61,19 +61,20 @@ GET        /gambling/interest-accruing-drilldown/:regime/:regNumber/:interestId 
 GET        /gambling/interest-drilldown/:regime/:regNumber/:interestId           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestDrilldownController.getInterestDrilldown(regime: String, regNumber: String, interestId: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/statement-overview/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.StatementOverviewController.getStatementOverview(regime: String, regNumber: String)
 GET        /gambling/interest-overview/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestOverviewController.getInterestOverview(regime: String, regNumber: String)
-GET        /gambling/interest-details/:regime/:regNumber           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestDetailsController.getInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
-GET        /gambling/interest-accruing-details/:regime/:regNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestAccruingDetailsController.getInterestAccruingDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/interest-details/:regime/:regNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestDetailsController.getInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/interest-accruing-details/:regime/:regNumber   uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestAccruingDetailsController.getInterestAccruingDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/repayment-interest-details/:regime/:regNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentInterestDetailsController.getRepaymentInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 
 #Filing routes
-GET        /gambling/submitted-returns/:regNumber                  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
-GET        /gambling/submitted-return-details/:regNumber/:consecNo           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getSubmittedReturnSingle(regNumber: String, consecNo: Int)
-GET        /gambling/open-periods/:regime/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
+GET        /gambling/submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
+GET        /gambling/submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getSubmittedReturnSingle(regNumber: String, consecNo: Int)
+GET        /gambling/open-periods/:regime/:regNumber                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 
 #EUVAT routes
-GET        /euvat/traders/getKnownFacts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
+GET        /euvat/traders/get-known-facts               uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn
 
 #CT-Core routes
-GET        /corporation-tax/penalty-transactions/:taxRef/:accPeriod   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
+GET        /corporation-tax/penalty-transactions/:taxRef/:accPeriod     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/interest-charge-summary/:taxPayerReference  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:String)
-GET        /corporation-tax/tax-transactions/:taxRef/:accPeriod     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
+GET        /corporation-tax/tax-transactions/:taxRef/:accPeriod         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
+GET        /corporation-tax/adjustment-transactions/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AdjustmentTransactionsController.getAdjustmentTransactions(taxRef: Long, accPeriod: Long)
