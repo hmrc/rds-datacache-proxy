@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccuralList
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccural
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccuralListDatacacheRepository
 
@@ -38,8 +38,8 @@ class InterestAccuralListController @Inject() (
   def getInterestAccuralList(taxRef: Long, accPeriod: Long, interestType: String): Action[AnyContent] = authorise.async { implicit request =>
     ctCoreDatacacheRepository
       .getInterestAccuralList(taxRef, accPeriod, interestType)
-      .map { interestAccuralLists =>
-        Ok(Json.toJson(InterestAccuralList(interestAccuralLists)))
+      .map { interestAccurals =>
+        Ok(Json.toJson(List(interestAccurals)))
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving interest accural list", ex)

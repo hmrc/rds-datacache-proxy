@@ -57,7 +57,7 @@ class InterestAccuralListISpec extends AnyWordSpec with Matchers with ScalaFutur
     "return 200 with InterestAccural list contains two items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/interest-accural-list/1/2/IDE").futureValue
+      val response = get(s"$endpoint/interest-accural-list/2/2/IDE").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
