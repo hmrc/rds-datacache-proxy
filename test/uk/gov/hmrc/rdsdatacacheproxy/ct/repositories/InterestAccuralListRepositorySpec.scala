@@ -78,7 +78,7 @@ class InterestAccuralListRepositorySpec extends AnyFlatSpec with Matchers with B
 
     verify(mockCallableStatement).execute()
 
-    verify(rs, times(2)).next()
+    verify(rs, times(1)).next()
 
     verify(mockCallableStatement).close()
   }

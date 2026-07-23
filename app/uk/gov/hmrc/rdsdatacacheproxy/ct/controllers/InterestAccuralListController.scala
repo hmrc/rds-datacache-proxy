@@ -22,21 +22,21 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccural
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccuralListDatacacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccuralService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class InterestAccuralListController @Inject() (
   authorise: AuthAction,
-  ctCoreDatacacheRepository: InterestAccuralListDatacacheRepository,
+  interestAccuralService: InterestAccuralService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
   def getInterestAccuralList(taxRef: Long, accPeriod: Long, interestType: String): Action[AnyContent] = authorise.async { implicit request =>
-    ctCoreDatacacheRepository
+    interestAccuralService
       .getInterestAccuralList(taxRef, accPeriod, interestType)
       .map { interestAccurals =>
         Ok(Json.toJson(List(interestAccurals)))

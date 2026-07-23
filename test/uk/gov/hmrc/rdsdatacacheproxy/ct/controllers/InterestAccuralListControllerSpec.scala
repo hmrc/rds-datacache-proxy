@@ -26,15 +26,15 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccural
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccuralListDatacacheRepositoryImpl
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccuralService
 
 import scala.concurrent.Future
 
 class InterestAccuralListControllerSpec extends SpecBase with MockitoSugar {
 
   private class SetUp {
-    val mockInterestAccuralListDatacacheRepository: InterestAccuralListDatacacheRepositoryImpl = mock[InterestAccuralListDatacacheRepositoryImpl]
-    val controller: InterestAccuralListController = new InterestAccuralListController(fakeAuthAction, mockInterestAccuralListDatacacheRepository, cc)
+    val mockService: InterestAccuralService = mock[InterestAccuralService]
+    val controller: InterestAccuralListController = new InterestAccuralListController(fakeAuthAction, mockService, cc)
 
     val emptyInterestAccuralList: List[InterestAccural] = List[InterestAccural]()
 
@@ -46,14 +46,14 @@ class InterestAccuralListControllerSpec extends SpecBase with MockitoSugar {
     val interestType: String = "IDE"
 
     "return 200 and a successful response when repository return empty interest accural list " in new SetUp {
-      when(mockInterestAccuralListDatacacheRepository.getInterestAccuralList(any[Long], any[Long], any[String]))
+      when(mockService.getInterestAccuralList(any[Long], any[Long], any[String]))
         .thenReturn(Future.successful(emptyInterestAccuralList))
 
       val result: Future[Result] = controller.getInterestAccuralList(taxRef, accPeriod, interestType)(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockInterestAccuralListDatacacheRepository).getInterestAccuralList(taxRef, accPeriod, interestType)
+      verify(mockService).getInterestAccuralList(taxRef, accPeriod, interestType)
     }
 
   }
