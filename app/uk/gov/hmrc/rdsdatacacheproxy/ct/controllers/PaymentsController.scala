@@ -22,13 +22,13 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.Payments
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataCacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataSource
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PaymentsController @Inject()(authorise: AuthAction, repository: PaymentsDataCacheRepository, cc: ControllerComponents)(implicit
-                                                                                                                             ec: ExecutionContext
+class PaymentsController @Inject() (authorise: AuthAction, repository: PaymentsDataSource, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
 ) extends BackendController(cc)
     with Logging {
 

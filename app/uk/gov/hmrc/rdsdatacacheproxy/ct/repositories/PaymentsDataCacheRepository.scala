@@ -68,9 +68,9 @@ private def collectPayments(rs: ResultSet): List[PaymentTransactions] = {
     .takeWhile(identity)
     .map(_ =>
       PaymentTransactions(
-        amount         = Option(rs.getBigDecimal("amount")),
-        paymentType        = Option(rs.getString("payment_type")),
-        effectiveDateOfPayment               = Option(rs.getDate("effective_date_of_payment").toLocalDate)
+        amount                 = Option(rs.getBigDecimal("amount")),
+        paymentType            = Option(rs.getString("payment_type")),
+        effectiveDateOfPayment = Option(rs.getDate("effective_date_of_payment").toLocalDate)
       )
     )
     .toList
