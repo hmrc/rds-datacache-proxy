@@ -24,7 +24,7 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.JSON
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{TaxTransactions, TaxTransactionsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PaymentTransactions, Payments}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.CorporationTaxStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -34,15 +34,15 @@ import scala.concurrent.Future
 class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class CorporationTaxDataSource extends PaymentsDataSource {
-    override def getPayments(taxRef: Long, accPeriod: Long): Future[List[TaxTransactionsItem]] = {
-        Future.successful(CorporationTaxStubData.getTaxTransactions(taxRef, accPeriod))      }
+    override def getPayments(taxRef: Long, accPeriod: Long): Future[List[PaymentTransactions]] = {
+        Future.successful(CorporationTaxStubData.getPayments(taxRef, accPeriod))      }
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[TaxTransactionsDataSource].toInstance(new CorporationTaxDataSource)
+        bind[PaymentsDataSource].toInstance(new CorporationTaxDataSource)
       )
       .build()
 
@@ -51,26 +51,26 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
   private final val taxRef2: Long = 2
   private final val accPeriod1: Long = 1
 
-  "GET /corporation-tax/tax-transactions (stubbed repo, no DB)" should {
+  "GET /corporation-tax/payment-transactions (stubbed repo, no DB)" should {
 
-    "return 200 with correct Tax Transactions data" in {
+    "return 200 with correct Payment Transactions data" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/1/1").futureValue
 
       response.status mustBe OK
       response.contentType mustBe JSON
-      response.json.as[TaxTransactions] mustBe TaxTransactions(CorporationTaxStubData.getTaxTransactions(taxRef1, accPeriod1))
+      response.json.as[Payments] mustBe Payments(CorporationTaxStubData.getPayments(taxRef1, accPeriod1))
     }
 
-    "return 200 with correct Tax Transactions data for empty list" in {
+    "return 200 with correct Payment Transactions data for empty list" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/2/1").futureValue
 
       response.status mustBe OK
       response.contentType mustBe JSON
-      response.json.as[TaxTransactions] mustBe TaxTransactions(CorporationTaxStubData.getTaxTransactions(taxRef2, accPeriod1))
+      response.json.as[Payments] mustBe Payments(CorporationTaxStubData.getPayments(taxRef2, accPeriod1))
     }
     "return 500 with when a downstream error occurs" in {
       AuthStub.authorised()
