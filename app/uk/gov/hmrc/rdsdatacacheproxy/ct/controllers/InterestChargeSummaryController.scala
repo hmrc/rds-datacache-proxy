@@ -26,7 +26,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestChargeService
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class InterestChargeSummaryController @Inject() (
   cc: ControllerComponents,
@@ -37,19 +37,15 @@ class InterestChargeSummaryController @Inject() (
     with I18nSupport
     with Logging {
 
-  def getInterestController(taxPayerReference: String): Action[AnyContent] =
+  def getInterestController(taxPayerReference: Long): Action[AnyContent] =
     authorise.async { implicit request =>
-      if (taxPayerReference.isEmpty)
-        Future.successful(BadRequest(Json.obj("message" -> "taxPayerReference must be provided")))
-      else {
-        service
-          .getInterestSummaryList(taxPayerReference)
-          .map((payload: InterestCharges) => Ok(Json.toJson(payload)))
-          .recover { case ex: Throwable =>
-            logger.error("[InterestChargeSummaryController][getInterestController] Error while retrieving agent name from oracle database", ex)
-            InternalServerError(Json.obj("message" -> "Unexpected error"))
-          }
-      }
+      service
+        .getInterestSummaryList(taxPayerReference)
+        .map((payload: InterestCharges) => Ok(Json.toJson(payload)))
+        .recover { case ex: Throwable =>
+          logger.error("[InterestChargeSummaryController][getInterestController] Error while retrieving agent name from oracle database", ex)
+          InternalServerError(Json.obj("message" -> "Unexpected error"))
+        }
 
     }
 

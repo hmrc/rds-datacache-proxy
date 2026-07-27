@@ -60,7 +60,7 @@ class InterestChargesSummaryDataCacheRepositorySpec extends AnyFlatSpec with Mat
   }
 
   "getInterestSummary" should "return empty InterestCharges with correct data" in {
-    val interestChargesRequest = "123456789"
+    val interestChargesRequest = 123456789L
 
     val taxPayerReference = interestChargesRequest.toLong
 
@@ -87,9 +87,7 @@ class InterestChargesSummaryDataCacheRepositorySpec extends AnyFlatSpec with Mat
 
   }
   "getInterestSummary" should "return a List containing only one InterestCharges with correct data" in {
-    val interestChargesRequest = "123456789"
-
-    val taxPayerReference = interestChargesRequest.toLong
+    val taxPayerReference = 123456789L
 
     when(mockCallableStatement.getObject(eqTo(2), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
 
@@ -101,7 +99,7 @@ class InterestChargesSummaryDataCacheRepositorySpec extends AnyFlatSpec with Mat
 
     val expectedOutput = List(InterestChargesResponse(accountingPeriod = 12, interestChargeSummary = 245.67))
 
-    val result = repository.getInterestSummary(interestChargesRequest).futureValue.interestCharges
+    val result = repository.getInterestSummary(taxPayerReference).futureValue.interestCharges
 
     result shouldBe expectedOutput
 
@@ -119,7 +117,7 @@ class InterestChargesSummaryDataCacheRepositorySpec extends AnyFlatSpec with Mat
 
   }
   "getInterestSummary" should "return a List containing multiple InterestCharges with correct data" in {
-    val interestChargesRequest = "123456789"
+    val interestChargesRequest = 123456789L
 
     val taxPayerReference = interestChargesRequest.toLong
 
