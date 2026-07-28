@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
@@ -53,7 +53,7 @@ class InterestChargeSummaryControllerSpec extends SpecBase with MockitoSugar {
   "getInterestController" - {
 
     "returns 200 with List of InterestCharges when the services succeeds" in new Setup {
-      val taxPayerReference: String = "11237658"
+      val taxPayerReference: Long = 11237658L
 
       when(mockService.getInterestSummaryList(taxPayerReference)).thenReturn(Future.successful(interestCharges))
 
@@ -69,7 +69,7 @@ class InterestChargeSummaryControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "returns 200 with empty response when service returns no items " in new Setup {
-      val taxPayerReference: String = "11237658"
+      val taxPayerReference: Long = 11237658L
 
       when(mockService.getInterestSummaryList(taxPayerReference)).thenReturn(Future.successful(emptyInterestCharges))
 
@@ -83,17 +83,8 @@ class InterestChargeSummaryControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService, times(1)).getInterestSummaryList(taxPayerReference)
     }
 
-    "returns 400 when TaxPayerReference is missing" in new Setup {
-
-      val result: Future[Result] = mockController.getInterestController("")(fakeRequest)
-
-      status(result) shouldBe BAD_REQUEST
-
-      verify(mockService, times(0)).getInterestSummaryList("")
-    }
-
     "returns 500 with generic message on unexpected exception" in new Setup {
-      val taxPayerReference: String = "11237658"
+      val taxPayerReference: Long = 11237658L
       when(mockService.getInterestSummaryList(taxPayerReference)).thenReturn(Future.failed(new RuntimeException("Database error")))
 
       val result: Future[Result] = mockController.getInterestController(taxPayerReference)(fakeRequest)

@@ -40,7 +40,7 @@ class InterestChargeSummaryDataCacheRepositoryISpec
     with ApplicationWithWiremock {
 
   class InterestChargesSummaryDataCacheRepositoryStub extends InterestChargeSummaryDataCacheRepository {
-    override def getInterestSummary(request: String): Future[InterestCharges] =
+    override def getInterestSummary(request: Long): Future[InterestCharges] =
       Future {
         InterestChargesStubData.getInterestCharges(request)
       }
@@ -60,7 +60,7 @@ class InterestChargeSummaryDataCacheRepositoryISpec
 
     "return InterestCharges with containing 3 items" in {
 
-      val result = repository.getInterestSummary("12").futureValue
+      val result = repository.getInterestSummary(12L).futureValue
 
       result mustBe InterestChargesStubData.interestCharges
 
@@ -68,7 +68,7 @@ class InterestChargeSummaryDataCacheRepositoryISpec
 
     "return empty InterestCharges" in {
 
-      val result = repository.getInterestSummary("16").futureValue
+      val result = repository.getInterestSummary(16L).futureValue
 
       result mustBe InterestChargesStubData.emptyInterestCharges
 
@@ -76,7 +76,7 @@ class InterestChargeSummaryDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getInterestSummary("invalidTaxPayerReference").futureValue
+        repository.getInterestSummary(9798L).futureValue
       }
 
       exception.getMessage must include("Error from downstream")

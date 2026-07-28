@@ -60,7 +60,7 @@ class InterestChargeServiceSpec extends AnyFreeSpec with Matchers with ScalaFutu
     val mockRepository: InterestChargeSummaryDataCacheRepositoryImpl = mock[InterestChargeSummaryDataCacheRepositoryImpl]
     val service = new InterestChargeService(mockRepository)
 
-    val taxPayerReference: String = "123456"
+    val taxPayerReference: Long = 123456L
 
     val interestCharges: InterestCharges = InterestCharges(
       List(

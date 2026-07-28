@@ -25,7 +25,7 @@ import scala.concurrent.Future
 
 class InterestChargeService @Inject() (interestChargeRepository: InterestChargeSummaryDataCacheRepository) extends Logging {
 
-  def getInterestSummaryList(requestReference: String): Future[InterestCharges] = {
+  def getInterestSummaryList(requestReference: Long): Future[InterestCharges] = {
     logger.info(s"[InterestChargeService][getInterestSummaryList] Calling repository for taxPayerReference: $requestReference")
     interestChargeRepository.getInterestSummary(requestReference)
   }

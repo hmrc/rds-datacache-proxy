@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class InterestChargeControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestChargesStub extends InterestChargeSummaryDataCacheRepository {
-    override def getInterestSummary(request: String): Future[InterestCharges] =
+    override def getInterestSummary(request: Long): Future[InterestCharges] =
       Future {
         InterestChargesStubData.getInterestCharges(request)
       }
@@ -82,7 +82,7 @@ class InterestChargeControllerISpec extends AnyWordSpec with Matchers with Scala
 
       AuthStub.authorised()
       
-      val invalidTaxPayerReference = "invalidTaxPayerReference"
+      val invalidTaxPayerReference:Long = 9798L
 
       val response = get(s"$endpoint/interest-charge-summary/$invalidTaxPayerReference").futureValue
 

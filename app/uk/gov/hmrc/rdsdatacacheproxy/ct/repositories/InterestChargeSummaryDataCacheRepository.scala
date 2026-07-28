@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[InterestChargeSummaryDataCacheRepositoryImpl])
 trait InterestChargeSummaryDataCacheRepository {
-  def getInterestSummary(request: String): Future[InterestCharges]
+  def getInterestSummary(request: Long): Future[InterestCharges]
 }
 
 class InterestChargeSummaryDataCacheRepositoryImpl @Inject() (
@@ -38,7 +38,7 @@ class InterestChargeSummaryDataCacheRepositoryImpl @Inject() (
     extends InterestChargeSummaryDataCacheRepository
     with Logging {
 
-  override def getInterestSummary(taxPayerReference: String): Future[InterestCharges] = {
+  override def getInterestSummary(taxPayerReference: Long): Future[InterestCharges] = {
 
     logger.info(s"[InterestChargeSummaryDataCacheRepository][getInterestSummary] taxPayerReference: $taxPayerReference")
 
@@ -46,7 +46,7 @@ class InterestChargeSummaryDataCacheRepositoryImpl @Inject() (
       db.withConnection { conn =>
         callGetInterestSummary(
           conn,
-          taxPayerReference.toLong
+          taxPayerReference
         )
       }
     }
