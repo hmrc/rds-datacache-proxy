@@ -26,7 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AdjustmentTransactions, AdjustmentTransactionsList}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AdjustmentTransactionsRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.*
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AdjustmentTransactionsStubData
 import scala.concurrent.Future
 
 class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
