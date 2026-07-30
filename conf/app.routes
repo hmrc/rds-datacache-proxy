@@ -79,3 +79,4 @@ GET        /corporation-tax/interest-charge-summary/:taxPayerReference  uk.gov.h
 GET        /corporation-tax/tax-transactions/:taxRef/:accPeriod         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/adjustment-transactions/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AdjustmentTransactionsController.getAdjustmentTransactions(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/administrative-rule/:adminRule              uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GetAdministrativeRuleController.getAdministrativeRule(adminRule: String)
+GET        /corporation-tax/interest-accrual-list/:taxRef/:accPeriod/:interestType     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestAccrualListController.getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String)
