@@ -122,4 +122,54 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
 
     verify(mockCallableStatement).close()
   }
+
+  "getInterestAccrualList" should "return Accrual Interest list with multiple items" in {
+    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(rs)
+    when(rs.next()).thenReturn(true, true, false)
+
+    when(rs.getBigDecimal("computation_amount")).thenReturn(scala.math.BigDecimal(1).bigDecimal, scala.math.BigDecimal(1).bigDecimal)
+    when(rs.getDate("interest_accrual_from_date")).thenReturn(java.sql.Date.valueOf("2021-03-07"), java.sql.Date.valueOf("2021-06-10"))
+    when(rs.getDate("interest_accrual_to_date")).thenReturn(java.sql.Date.valueOf("2021-05-07"), java.sql.Date.valueOf("2021-08-10"))
+    when(rs.getBigDecimal("interest_rate")).thenReturn(scala.math.BigDecimal(2).bigDecimal, scala.math.BigDecimal(3).bigDecimal)
+    when(rs.getBigDecimal("interest_amount")).thenReturn(scala.math.BigDecimal(10).bigDecimal, scala.math.BigDecimal(23).bigDecimal)
+    when(rs.getDate("ap_end_date")).thenReturn(java.sql.Date.valueOf("2021-06-07"), java.sql.Date.valueOf("2021-09-10"))
+
+    val taxRef: Long = 2L
+    val accPeriod: Long = 2L
+    val interestType: String = "IDE"
+
+    val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
+    result shouldBe List(
+      InterestAccrual(
+        computationAmount       = 1,
+        interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+        interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+        interestRate            = 2,
+        interestAmount          = 10,
+        apEndDate               = LocalDate.of(2021, 6, 7)
+      ),
+      InterestAccrual(
+        computationAmount       = 1,
+        interestAccrualFromDate = LocalDate.of(2021, 6, 10),
+        interestAccrualToDate   = LocalDate.of(2021, 8, 10),
+        interestRate            = 3,
+        interestAmount          = 23,
+        apEndDate               = LocalDate.of(2021, 9, 10)
+      )
+    )
+
+    verify(mockConnection).prepareCall("{call CT_DC_PK.getInterestAccrualList(?, ?, ?, ?)}")
+
+    verify(mockCallableStatement).setLong(1, taxRef)
+    verify(mockCallableStatement).setLong(2, accPeriod)
+    verify(mockCallableStatement).setString(3, interestType)
+
+    verify(mockCallableStatement).registerOutParameter(4, OracleTypes.CURSOR)
+    verify(mockCallableStatement).execute()
+
+    verify(rs, times(3)).next()
+
+    verify(mockCallableStatement).close()
+  }
+
 }

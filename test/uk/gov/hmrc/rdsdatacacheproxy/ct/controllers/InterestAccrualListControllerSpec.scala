@@ -40,7 +40,7 @@ class InterestAccrualListControllerSpec extends SpecBase with MockitoSugar {
 
   }
 
-  "CorporationTaxController#getInterestAccrualList" - {
+  "InterestAccrualListControllerSpec" - {
     val taxRef: Long = 17L
     val accPeriod: Long = 2L
     val interestType: String = "IDE"
@@ -54,6 +54,17 @@ class InterestAccrualListControllerSpec extends SpecBase with MockitoSugar {
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
       verify(mockService).getInterestAccrualList(taxRef, accPeriod, interestType)
+    }
+
+    "return 500 and when repository call fails" in new SetUp {
+      when(mockService.getInterestAccrualList(any[Long], any[Long], any[String]))
+        .thenReturn(Future.failed(new RuntimeException("Error")))
+
+      val result: Future[Result] = controller.getInterestAccrualList(99L, 1L, "IDB")(fakeRequest)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      verify(mockService).getInterestAccrualList(99L, 1L, "IDB")
     }
 
   }

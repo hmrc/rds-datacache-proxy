@@ -61,10 +61,7 @@ class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutur
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-
-      println("Debug JSON:")
-      println(response.json)
-
+      
       response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 
@@ -76,9 +73,6 @@ class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutur
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-
-      println("Debug JSON:")
-      println(response.json);
 
       response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
     }
