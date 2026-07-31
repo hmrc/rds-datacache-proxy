@@ -25,8 +25,8 @@ object PayRepayReallocationsList {
 }
 
 case class PayRepayReallocations(
-  totalAmountReoRfrRto: BigDecimal,
-  totalAmountPayments: BigDecimal
+  totalAmountReoRfrRto: Option[BigDecimal],
+  totalAmountPayments: Option[BigDecimal]
 )
 
 object PayRepayReallocations {

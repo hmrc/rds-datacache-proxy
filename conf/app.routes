@@ -83,3 +83,5 @@ GET        /corporation-tax/administrative-rule/:adminRule              uk.gov.h
 GET        /corporation-tax/interest-accrual-list/:taxRef/:accPeriod/:interestType     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestAccrualListController.getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String)
 GET        /corporation-tax/reallocation-to-accounting-period/:taxRef/:accPeriod    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationController.getByAccountingPeriod(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/reallocation-from-accounting-period/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationFromAccPeriodController.getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long)
+
+GET        /corporation-tax/total-amount-payment-repayment-reallocation/:taxRef/:accPeriod      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PayRepayReallocationController.getTotalAmounts(taxRef: Long, accPeriod: Long)

@@ -25,9 +25,9 @@ import scala.concurrent.Future
 
 class PayRepayReallocationService @Inject() (payRepayReallocationRepository: PayRepayReallocationRepository) extends Logging {
 
-  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[Option[PayRepayReallocationsList]] = {
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] = {
     logger.info(s"Calling repository for taxRef: $taxRef and accPeriod: $accPeriod")
 
-    payRepayReallocationRepository.getTotalAmounts(taxRef, accPeriod).map(_.getOrElse(None))
+    payRepayReallocationRepository.getTotalAmounts(taxRef, accPeriod)
   }
 }

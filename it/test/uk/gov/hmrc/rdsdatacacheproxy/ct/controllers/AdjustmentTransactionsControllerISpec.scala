@@ -53,7 +53,7 @@ class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers wi
     "return 200 with adjustment transactions list with two items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/adjustment-transactions/10/2").futureValue
+      val response = get(s"$endpoint/adjustment-transactions/10/3").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"

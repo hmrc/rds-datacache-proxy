@@ -39,11 +39,8 @@ class PayRepayReallocationController @Inject() (
   def getTotalAmounts(taxRef: Long, accPeriod: Long): Action[AnyContent] = authorise.async { implicit request =>
     payRepayReallocationService
       .getTotalAmounts(taxRef, accPeriod)
-      .map {
-        case Some(payRepayReallocationsList) =>
-          Ok(Json.toJson(payRepayReallocationsList))
-        case None =>
-          NotFound
+      .map { payRepayReallocationsList =>
+        Ok(Json.toJson(payRepayReallocationsList))
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving the payment repayment allocations list", ex)

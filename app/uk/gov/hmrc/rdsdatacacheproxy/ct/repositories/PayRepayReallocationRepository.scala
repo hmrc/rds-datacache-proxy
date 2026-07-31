@@ -37,7 +37,7 @@ class PayRepayReallocationRepositoryImpl @Inject() (
     extends PayRepayReallocationRepository
     with Logging {
 
-  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[Option[PayRepayReallocationsList]] = {
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] = {
     Future {
       db.withConnection { connect =>
         val storedProcedure = connect.prepareCall("{call CT_DC_PK.getTotAmntsForPayRepayRealloc(?, ?, ?)}")
@@ -51,7 +51,7 @@ class PayRepayReallocationRepositoryImpl @Inject() (
         val payRepayReallocationsList = storedProcedure.getObject(3, classOf[ResultSet])
 
         try {
-          val payRepayReallocations =
+          val payRepayReallocations: PayRepayReallocationsList =
             Option(payRepayReallocationsList).map(readPayRepayReallocations).getOrElse(PayRepayReallocationsList(List.empty))
           payRepayReallocations
         } finally {
@@ -65,8 +65,8 @@ class PayRepayReallocationRepositoryImpl @Inject() (
     val buffer = ListBuffer[PayRepayReallocations]()
     while (rs.next()) {
       buffer += PayRepayReallocations(
-        totalAmountReoRfrRto = rs.getBigDecimal("totalAmountReoRfrRto"),
-        totalAmountPayments  = rs.getBigDecimal("totalAmountPayments")
+        totalAmountReoRfrRto = Some(Option(rs.getBigDecimal("totalAmountReoRfrRto")).map(BigDecimal(_)).getOrElse(BigDecimal(0))),
+        totalAmountPayments  = Some(Option(rs.getBigDecimal("totalAmountPayments")).map(BigDecimal(_)).getOrElse(BigDecimal(0)))
       )
     }
     PayRepayReallocationsList(buffer.toList)

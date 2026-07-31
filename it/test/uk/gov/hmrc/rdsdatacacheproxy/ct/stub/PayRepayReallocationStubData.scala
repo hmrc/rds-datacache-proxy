@@ -16,30 +16,31 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocationsList
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PayRepayReallocationsList, PayRepayReallocations}
+
 
 object PayRepayReallocationStubData {
 
   val payRepayReallocationsList: PayRepayReallocationsList = PayRepayReallocationsList(
     List(
       PayRepayReallocations(
-        totalAmountReoRfrRto = BigDecimal(10),
-        totalAmountPayments = BigDecimal(20)
+        totalAmountReoRfrRto = Some(BigDecimal(10)),
+        totalAmountPayments = Some(BigDecimal(20))
       ),
       PayRepayReallocations(
-        totalAmountReoRfrRto = BigDecimal(30),
-        totalAmountPayments = BigDecimal(40)
+        totalAmountReoRfrRto = Some(BigDecimal(30)),
+        totalAmountPayments = Some(BigDecimal(40))
       ),
       PayRepayReallocations(
-        totalAmountReoRfrRto = BigDecimal(50),
-        totalAmountPayments = BigDecimal(60)
+        totalAmountReoRfrRto = Some(BigDecimal(50)),
+        totalAmountPayments = Some(BigDecimal(60))
       )
     )
   )
 
-  val emptyPayRepayReallocationsList: PayRepayReallocationsList = List.empty
+  val emptyPayRepayReallocationsList: PayRepayReallocationsList = PayRepayReallocationsList(List.empty)
 
-  def getPayRepayReallocationsList(taxRef: Long, accPeriod: Long): PayRepayReallocationsList = {
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): PayRepayReallocationsList = {
     taxRef match {
       case 10L  => payRepayReallocationsList
       case 200L => throw new RuntimeException("Downstream error")
