@@ -17,17 +17,16 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestChargeSummaryDataCacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.AdminRule
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AdministrativeRuleRepository
 
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class InterestChargeService @Inject() (interestChargeRepository: InterestChargeSummaryDataCacheRepository) extends Logging {
+class AdministrativeRuleService @Inject() (repository: AdministrativeRuleRepository) extends Logging {
 
-  def getInterestSummaryList(requestReference: Long): Future[InterestCharges] = {
-    logger.info(s"[InterestChargeService][getInterestSummaryList] Calling repository for taxPayerReference: $requestReference")
-    interestChargeRepository.getInterestSummary(requestReference)
+  def getAdminRule(adminRuleKey: String): Future[AdminRule] = {
+    logger.info(s"[AdministrationRuleService][getAdminRule] Calling AdministrationRuleRepository, adminRuleKey: $adminRuleKey")
+    repository.getAdminRule(adminRuleKey)
   }
-
 }

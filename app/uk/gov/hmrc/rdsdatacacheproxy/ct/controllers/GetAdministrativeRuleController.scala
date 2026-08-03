@@ -15,38 +15,39 @@
  */
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
-
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestChargeService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.AdministrativeRuleService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestChargeSummaryController @Inject() (
-  cc: ControllerComponents,
+class GetAdministrativeRuleController @Inject() (
+  val cc: ControllerComponents,
   authorise: AuthAction,
-  service: InterestChargeService
+  service: AdministrativeRuleService
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with I18nSupport
     with Logging {
 
-  def getInterestController(taxPayerReference: Long): Action[AnyContent] =
-    authorise.async { implicit request =>
+  def getAdministrativeRule(adminRuleKey: String): Action[AnyContent] = {
+    authorise.async { request =>
+      logger.info(s"[GetAdministrativeRuleController][getAdministrativeRule]")
       service
-        .getInterestSummaryList(taxPayerReference)
-        .map((payload: InterestCharges) => Ok(Json.toJson(payload)))
-        .recover { case ex: Throwable =>
-          logger.error("[InterestChargeSummaryController][getInterestController] Error while retrieving agent name from oracle database", ex)
-          InternalServerError(Json.obj("message" -> "Unexpected error"))
+        .getAdminRule(adminRuleKey)
+        .map { adminRule =>
+          Ok(Json.toJson(adminRule))
         }
-
+        .recover { case ex: Exception =>
+          logger.error(s"[GetAdministrativeRuleController][getAdministrativeRule] Unexpected Exception: $ex")
+          InternalServerError(Json.obj("message" -> "Unable to Retrieve adminRule"))
+        }
     }
+  }
 
 }

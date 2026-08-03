@@ -39,10 +39,10 @@ object InterestChargesStubData {
 
   val emptyInterestCharges: InterestCharges = InterestCharges(interestCharges = List.empty)
 
-  def getInterestCharges(taxPayerReference: String): InterestCharges = {
+  def getInterestCharges(taxPayerReference: Long): InterestCharges = {
     taxPayerReference match {
-      case "12"          => interestCharges
-      case "invalidTaxPayerReference" =>         throw new RuntimeException("Error from downstream")
+      case 12L          => interestCharges
+      case 9798L =>         throw new RuntimeException("Error from downstream")
       case _               => emptyInterestCharges
     }
   }

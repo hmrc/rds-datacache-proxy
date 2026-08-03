@@ -26,9 +26,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PenaltyTransaction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PenaltiesDatacacheRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.CorporationTaxStubData
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
 
 import scala.concurrent.Future
 

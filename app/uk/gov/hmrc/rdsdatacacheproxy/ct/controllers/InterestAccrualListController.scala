@@ -17,36 +17,34 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import play.api.Logging
-import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestChargeService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccrualService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestChargeSummaryController @Inject() (
-  cc: ControllerComponents,
+class InterestAccrualListController @Inject() (
   authorise: AuthAction,
-  service: InterestChargeService
+  interestAccrualService: InterestAccrualService,
+  cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
-    with I18nSupport
     with Logging {
 
-  def getInterestController(taxPayerReference: Long): Action[AnyContent] =
-    authorise.async { implicit request =>
-      service
-        .getInterestSummaryList(taxPayerReference)
-        .map((payload: InterestCharges) => Ok(Json.toJson(payload)))
-        .recover { case ex: Throwable =>
-          logger.error("[InterestChargeSummaryController][getInterestController] Error while retrieving agent name from oracle database", ex)
-          InternalServerError(Json.obj("message" -> "Unexpected error"))
-        }
-
-    }
+  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Action[AnyContent] = authorise.async { implicit request =>
+    interestAccrualService
+      .getInterestAccrualList(taxRef, accPeriod, interestType)
+      .map { interestAccruals =>
+        Ok(Json.toJson(interestAccruals))
+      }
+      .recover { case ex: Exception =>
+        logger.error("Error while retrieving interest accrual list", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve  interest accrual list"))
+      }
+  }
 
 }

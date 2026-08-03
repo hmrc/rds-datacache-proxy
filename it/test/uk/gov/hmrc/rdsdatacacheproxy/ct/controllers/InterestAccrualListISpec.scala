@@ -23,68 +23,65 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, inject}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestChargeSummaryDataCacheRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestChargesStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccrualList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccrualListDatacacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestAccrualListStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class InterestChargeControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class InterestChargesStub extends InterestChargeSummaryDataCacheRepository {
-    override def getInterestSummary(request: Long): Future[InterestCharges] =
-      Future {
-        InterestChargesStubData.getInterestCharges(request)
-      }
+  class InterestAccrualListStub extends InterestAccrualListDatacacheRepository {
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] = {
+      Future.successful(InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType))
+    }
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestChargeSummaryDataCacheRepository].toInstance(new InterestChargesStub)
+        bind[InterestAccrualListDatacacheRepository].toInstance(new InterestAccrualListStub)
       )
       .build()
 
+  private val endpoint = "/corporation-tax"
+  private final val taxRef1: Long = 1
+  private final val accPeriod1: Long = 1
+  private final val interestType: String = "IDB";
 
-   private val endpoint = "/corporation-tax"
+  "GET /corporation-tax/interest-accrual-list" should {
 
-
-  "GET /corporation-tax/interest-charge-summary" should {
-
-    "return 200 with InterestCharges list contains two items" in {
+    "return 200 with InterestAccrual list contains two items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/interest-charge-summary/12").futureValue
+      val response = get(s"$endpoint/interest-accrual-list/1/2/IDE").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-
-      response.json.as[InterestCharges] mustBe InterestChargesStubData.interestCharges
+      
+      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 
-    "return 200 with InterestCharges empty list" in {
+    "return 200 with InterestAccrual empty list" in {
 
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/interest-charge-summary/31").futureValue
+      val response = get(s"$endpoint/interest-accrual-list/19/2/IDE").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestCharges] mustBe InterestChargesStubData.emptyInterestCharges
-
+      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
     }
 
     "return 500 when stub simulates failure" in {
 
       AuthStub.authorised()
-      
-      val invalidTaxPayerReference:Long = 9798L
 
-      val response = get(s"$endpoint/interest-charge-summary/$invalidTaxPayerReference").futureValue
+      val response = get(s"$endpoint/interest-accrual-list/99/99/NON").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
 
@@ -94,11 +91,10 @@ class InterestChargeControllerISpec extends AnyWordSpec with Matchers with Scala
 
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/interest-charge-summary/3").futureValue
+      val response = get(s"$endpoint/interest-accrual-list/1/2/IDE").futureValue
 
       response.status mustBe UNAUTHORIZED
     }
   }
-
 
 }

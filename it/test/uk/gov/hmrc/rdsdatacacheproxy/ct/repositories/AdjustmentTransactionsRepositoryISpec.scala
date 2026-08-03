@@ -23,63 +23,59 @@ import play.api.inject.bind
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestCharges
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestChargesStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.AdjustmentTransactions
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AdjustmentTransactionsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
 import scala.concurrent.Future
 
-class InterestChargeSummaryDataCacheRepositoryISpec
-    extends AnyWordSpec
+class AdjustmentTransactionsRepositoryISpec
+  extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneAppPerSuite
     with ApplicationWithWiremock {
 
-  class InterestChargesSummaryDataCacheRepositoryStub extends InterestChargeSummaryDataCacheRepository {
-    override def getInterestSummary(request: Long): Future[InterestCharges] =
-      Future {
-        InterestChargesStubData.getInterestCharges(request)
-      }
+  class AdjustmentTransactionsRepositoryStub extends AdjustmentTransactionsRepository {
+
+    override def getAdjustmentTransactions(taxRef: Long, accPeriod: Long): Future[List[AdjustmentTransactions]] =
+      Future.successful(AdjustmentTransactionsStubData.getAdjustmentTransactions(taxRef: Long, accPeriod: Long))
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestChargeSummaryDataCacheRepository].toInstance(new InterestChargesSummaryDataCacheRepositoryStub)
+        bind[AdjustmentTransactionsRepository].toInstance(new AdjustmentTransactionsRepositoryStub)
       )
       .build()
 
-  private lazy val repository = app.injector.instanceOf[InterestChargeSummaryDataCacheRepository]
+  private lazy val repo = app.injector.instanceOf[AdjustmentTransactionsRepository]
 
-  "getInterestSummary" should {
+  "getAdjustmentTransactions" should {
 
-    "return InterestCharges with containing 3 items" in {
+    "return adjustment transactions containing 3 items" in {
 
-      val result = repository.getInterestSummary(12L).futureValue
+      val result = repo.getAdjustmentTransactions(1L, 2L).futureValue
 
-      result mustBe InterestChargesStubData.interestCharges
+      result mustBe AdjustmentTransactionsStubData.getAdjustmentTransactions(1L, 2L)
+    }
+
+    "return empty adjustment transactions" in {
+
+      val result = repo.getAdjustmentTransactions(2L, 3L).futureValue
+
+      result mustBe AdjustmentTransactionsStubData.emptyAdjustmentTransactions
 
     }
 
-    "return empty InterestCharges" in {
-
-      val result = repository.getInterestSummary(16L).futureValue
-
-      result mustBe InterestChargesStubData.emptyInterestCharges
-
-    }
-
-    "propagate downstream failure from stub" in {
+    "return downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getInterestSummary(9798L).futureValue
+        repo.getAdjustmentTransactions(200L, 2L).futureValue
       }
 
-      exception.getMessage must include("Error from downstream")
+      exception.getMessage must include("Downstream error")
     }
 
   }
