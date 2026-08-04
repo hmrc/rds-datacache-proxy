@@ -50,14 +50,12 @@ class PayRepayReallocationRepositoryImpl @Inject() (
 
           storedProcedure.execute()
 
-          val x = PayRepayReallocations(
+          PayRepayReallocations(
             totalAmountReoRfrRto = optBigDecimal(3, storedProcedure),
             totalAmountPayments  = optBigDecimal(4, storedProcedure)
           )
 
-          x
         } finally {
-
           storedProcedure.close()
         }
       }
