@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PenaltyTransaction, TaxTransactionsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PenaltyTransaction, ReallocationRow, TaxTransactionsItem}
 
 import java.time.LocalDate
 
 object CorporationTaxStubData {
 
+  // Penalties
   val penaltiesEmptyList: List[PenaltyTransaction] = List.empty
 
   val penaltiesItems: List[PenaltyTransaction] = List(
@@ -31,7 +32,7 @@ object CorporationTaxStubData {
 
   def getPenaltiesItems(taxRef: Long): List[PenaltyTransaction] = {
     taxRef match {
-      case 1L  => penaltiesItems
+      case 1L => penaltiesItems
       case 19L => throw new Error("Simulated downstream failure")
       case _ => penaltiesEmptyList
     }
@@ -48,4 +49,38 @@ object CorporationTaxStubData {
       case (99, _) => throw new Error("Downstream error")
     }
 
+  // Reallocations
+  val reallocationsEmpty: Seq[ReallocationRow] = Seq[ReallocationRow]()
+  val reallocationsSingleItem: Seq[ReallocationRow] = Seq[ReallocationRow](
+    ReallocationRow(
+      amount = BigDecimal(117.01),
+      reallocationDate = LocalDate.of(2025, 5, 1),
+      sourceApEndDate = LocalDate.of(2026, 7, 1),
+      sourceTaxpayerReference = "9369369363"
+    )
+  )
+
+  val reallocationsTwoItems: Seq[ReallocationRow] = Seq[ReallocationRow](
+    ReallocationRow(
+      amount = BigDecimal(117.01),
+      reallocationDate = LocalDate.of(2025, 5, 1),
+      sourceApEndDate = LocalDate.of(2026, 7, 1),
+      sourceTaxpayerReference = "9369369363"
+    ),
+    ReallocationRow(
+      amount = BigDecimal(27.89),
+      reallocationDate = LocalDate.of(2015, 1, 1),
+      sourceApEndDate = LocalDate.of(2025, 11, 8),
+      sourceTaxpayerReference = "9369369361"
+    )
+  )
+
+  def getReallocations(taxRef: Long, accPeriod: Long): Seq[ReallocationRow] =
+    (taxRef, accPeriod) match {
+      case (0, _) =>
+        reallocationsEmpty
+      case (1, _) => reallocationsSingleItem
+      case (2, _) => reallocationsTwoItems
+      case (_, _) => throw new Error("Simulated downstream failure")
+    }
 }
