@@ -49,13 +49,15 @@ class PayRepayReallocationRepositoryImpl @Inject() (
           storedProcedure.registerOutParameter(4, java.sql.Types.NUMERIC)
 
           storedProcedure.execute()
-
-          PayRepayReallocations(
+          println("TEST: " + storedProcedure)
+          val x = PayRepayReallocations(
             totalAmountReoRfrRto = optBigDecimal(3, storedProcedure),
             totalAmountPayments  = optBigDecimal(4, storedProcedure)
           )
 
+          x
         } finally {
+
           storedProcedure.close()
         }
       }

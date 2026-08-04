@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PayRepayReallocations, PayRepayReallocationsList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.PayRepayReallocationStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
@@ -39,7 +39,7 @@ class PayRepayReallocationRepositoryISpec
 
   class PayRepayReallocationRepositoryStub extends PayRepayReallocationRepository {
 
-    override def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] =
+    override def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations] =
       Future.successful(PayRepayReallocationStubData.getTotalAmounts(taxRef: Long, accPeriod: Long))
   }
 
@@ -55,18 +55,18 @@ class PayRepayReallocationRepositoryISpec
 
   "getTotalAmounts" should {
 
-    "return payment repayment reallocations containing 3 items" in {
+    "return payment repayment reallocations" in {
 
-      val result = repo.getTotalAmounts(1L, 2L).futureValue
+      val result = repo.getTotalAmounts(6212811176L, 2L).futureValue
 
-      result mustBe PayRepayReallocationStubData.getTotalAmounts(1L, 2L)
+      result mustBe PayRepayReallocationStubData.getTotalAmounts(6212811176L, 2L)
     }
 
     "return empty payment repayment reallocations" in {
 
-      val result = repo.getTotalAmounts(120983L, 3L).futureValue
+      val result = repo.getTotalAmounts(1L, 3L).futureValue
 
-      result mustBe PayRepayReallocationStubData.emptyPayRepayReallocationsList
+      result mustBe PayRepayReallocationStubData.emptyPayRepayReallocations
 
     }
 

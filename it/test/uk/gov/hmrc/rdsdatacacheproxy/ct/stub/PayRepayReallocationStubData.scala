@@ -25,9 +25,7 @@ object PayRepayReallocationStubData {
     PayRepayReallocations(
         totalAmountReoRfrRto = Some(BigDecimal(10)),
         totalAmountPayments = Some(BigDecimal(20))
-      )
     )
-  )
 
   val emptyPayRepayReallocations: PayRepayReallocations = PayRepayReallocations(Some(0), Some(0))
 
