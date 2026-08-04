@@ -22,11 +22,10 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PayRepayReallocations, PayRepayReallocationsList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.PayRepayReallocationService
 
 import scala.concurrent.Future
@@ -37,36 +36,23 @@ class PayRepayReallocationControllerSpec extends SpecBase with MockitoSugar {
     val mockService: PayRepayReallocationService = mock[PayRepayReallocationService]
     val controller: PayRepayReallocationController = new PayRepayReallocationController(fakeAuthAction, mockService, cc)
 
-    val emptyPayRepayReallocationsList: PayRepayReallocationsList = PayRepayReallocationsList(List.empty)
-    val payRepayReallocationsList: PayRepayReallocationsList = PayRepayReallocationsList(
-      List(
-        PayRepayReallocations(totalAmountReoRfrRto = Some(BigDecimal(50.00)), totalAmountPayments  = Some(BigDecimal(60.00))),
-        PayRepayReallocations(totalAmountReoRfrRto = Some(BigDecimal(100.00)), totalAmountPayments = Some(BigDecimal(110.00)))
+    val emptyPayRepayReallocations: PayRepayReallocations = PayRepayReallocations(Some(0), Some(0))
+    val payRepayReallocations: PayRepayReallocations =
+      PayRepayReallocations(
+        totalAmountReoRfrRto = Some(BigDecimal(50.00)),
+        totalAmountPayments  = Some(BigDecimal(60.00))
       )
-    )
   }
 
   "PayRepayReallocationControllerSpec" - {
-    "return a 200 and a successful response when retrieving payment repayment reallocation list" in new Setup {
+    "return a 200 and a successful response when retrieving payment repayment reallocation" in new Setup {
       when(mockService.getTotalAmounts(any[Long], any[Long]))
-        .thenReturn(Future.successful(emptyPayRepayReallocationsList))
+        .thenReturn(Future.successful(emptyPayRepayReallocations))
 
       val result: Future[Result] = controller.getTotalAmounts(1L, 2L)(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getTotalAmounts(1L, 2L)
-    }
-
-    "return 200 and a successful response when repository return payment repayment reallocation list with two items " in new Setup {
-      when(mockService.getTotalAmounts(any[Long], any[Long]))
-        .thenReturn(Future.successful(payRepayReallocationsList))
-
-      val result: Future[Result] = controller.getTotalAmounts(1L, 2L)(fakeRequest)
-
-      status(result)        shouldBe OK
-      contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(payRepayReallocationsList)
       verify(mockService).getTotalAmounts(1L, 2L)
     }
 

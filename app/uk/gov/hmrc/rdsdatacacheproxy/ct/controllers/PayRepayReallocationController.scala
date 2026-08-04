@@ -22,7 +22,7 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocationsList
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.PayRepayReallocationService
 
 import javax.inject.Inject
@@ -39,12 +39,12 @@ class PayRepayReallocationController @Inject() (
   def getTotalAmounts(taxRef: Long, accPeriod: Long): Action[AnyContent] = authorise.async { implicit request =>
     payRepayReallocationService
       .getTotalAmounts(taxRef, accPeriod)
-      .map { payRepayReallocationsList =>
-        Ok(Json.toJson(payRepayReallocationsList))
+      .map { payRepayReallocations =>
+        Ok(Json.toJson(payRepayReallocations))
       }
       .recover { case ex: Exception =>
-        logger.error("Error while retrieving the payment repayment allocations list", ex)
-        InternalServerError(Json.obj("error" -> "Failed to retrieve the payment repayment allocations list"))
+        logger.error("Error while retrieving the payment repayment allocations", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve the payment repayment allocations"))
       }
   }
 }

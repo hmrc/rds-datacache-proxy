@@ -18,12 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class PayRepayReallocationsList(payRepayReallocationsList: List[PayRepayReallocations])
-
-object PayRepayReallocationsList {
-  implicit val format: OFormat[PayRepayReallocationsList] = Json.format[PayRepayReallocationsList]
-}
-
 case class PayRepayReallocations(
   totalAmountReoRfrRto: Option[BigDecimal],
   totalAmountPayments: Option[BigDecimal]

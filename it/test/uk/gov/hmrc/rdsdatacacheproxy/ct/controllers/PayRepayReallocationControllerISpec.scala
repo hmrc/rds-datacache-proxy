@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocationsList
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PayRepayReallocationRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.PayRepayReallocationStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -34,7 +34,7 @@ class PayRepayReallocationControllerISpec extends AnyWordSpec with Matchers with
 
   class PayRepayReallocationRepositoryStub extends PayRepayReallocationRepository {
 
-    override def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] = {
+    override def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations] = {
       Future.successful(PayRepayReallocationStubData.getTotalAmounts(taxRef: Long, accPeriod: Long))
     }
   }
@@ -51,7 +51,7 @@ class PayRepayReallocationControllerISpec extends AnyWordSpec with Matchers with
 
   "GET /corporation-tax/total-amount-payment-repayment-reallocation" should {
 
-    "return 200 with payment repayment reallocation list with two items" in {
+    "return 200 with payment repayment reallocation" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/10/2").futureValue
@@ -59,10 +59,10 @@ class PayRepayReallocationControllerISpec extends AnyWordSpec with Matchers with
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PayRepayReallocationsList] mustBe PayRepayReallocationStubData.getTotalAmounts(10L, 2L)
+      response.json.as[PayRepayReallocations] mustBe PayRepayReallocationStubData.getTotalAmounts(10L, 2L)
     }
 
-    "return 200 with payment repayment reallocation empty list" in {
+    "return 200 with empty payment repayment reallocation" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/1/2").futureValue
@@ -70,7 +70,7 @@ class PayRepayReallocationControllerISpec extends AnyWordSpec with Matchers with
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PayRepayReallocationsList] mustBe PayRepayReallocationStubData.emptyPayRepayReallocationsList
+      response.json.as[PayRepayReallocations] mustBe PayRepayReallocationStubData.emptyPayRepayReallocations
     }
 
     "return 500 when stub fails" in {

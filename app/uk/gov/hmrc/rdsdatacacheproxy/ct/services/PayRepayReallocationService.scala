@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocationsList
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PayRepayReallocationRepository
 
 import javax.inject.Inject
@@ -25,7 +25,7 @@ import scala.concurrent.Future
 
 class PayRepayReallocationService @Inject() (payRepayReallocationRepository: PayRepayReallocationRepository) extends Logging {
 
-  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] = {
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations] = {
     logger.info(s"Calling repository for taxRef: $taxRef and accPeriod: $accPeriod")
 
     payRepayReallocationRepository.getTotalAmounts(taxRef, accPeriod)

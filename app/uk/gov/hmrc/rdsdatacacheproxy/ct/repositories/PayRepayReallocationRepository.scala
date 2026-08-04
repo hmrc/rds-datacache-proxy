@@ -17,58 +17,48 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
 import com.google.inject.ImplementedBy
-import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PayRepayReallocations, PayRepayReallocationsList}
-import java.sql.*
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
 import javax.inject.Inject
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[PayRepayReallocationRepositoryImpl])
 trait PayRepayReallocationRepository {
-  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList]
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations]
 }
 
 class PayRepayReallocationRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
     extends PayRepayReallocationRepository
+    with RepositoryDataSupport
     with Logging {
 
-  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocationsList] = {
+  def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations] = {
     Future {
       db.withConnection { connect =>
-        val storedProcedure = connect.prepareCall("{call CT_DC_PK.getTotAmntsForPayRepayRealloc(?, ?, ?)}")
 
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
-
-        storedProcedure.execute()
-
-        val payRepayReallocationsList = storedProcedure.getObject(3, classOf[ResultSet])
+        val storedProcedure = connect.prepareCall("{call CT_DC_PK.getTotAmntsForPayRepayRealloc(?, ?, ?, ?)}")
 
         try {
-          val payRepayReallocations: PayRepayReallocationsList =
-            Option(payRepayReallocationsList).map(readPayRepayReallocations).getOrElse(PayRepayReallocationsList(List.empty))
-          payRepayReallocations
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+
+          storedProcedure.registerOutParameter(3, java.sql.Types.NUMERIC)
+          storedProcedure.registerOutParameter(4, java.sql.Types.NUMERIC)
+
+          storedProcedure.execute()
+
+          PayRepayReallocations(
+            totalAmountReoRfrRto = optBigDecimal(3, storedProcedure),
+            totalAmountPayments  = optBigDecimal(4, storedProcedure)
+          )
+
         } finally {
           storedProcedure.close()
         }
       }
     }
-  }
-
-  private def readPayRepayReallocations(rs: ResultSet): PayRepayReallocationsList = {
-    val buffer = ListBuffer[PayRepayReallocations]()
-    while (rs.next()) {
-      buffer += PayRepayReallocations(
-        totalAmountReoRfrRto = Some(Option(rs.getBigDecimal("totalAmountReoRfrRto")).map(BigDecimal(_)).getOrElse(BigDecimal(0))),
-        totalAmountPayments  = Some(Option(rs.getBigDecimal("totalAmountPayments")).map(BigDecimal(_)).getOrElse(BigDecimal(0)))
-      )
-    }
-    PayRepayReallocationsList(buffer.toList)
   }
 }
