@@ -53,9 +53,9 @@ class ReallocationFromAccPeriodRepositoryImpl @Inject() (
   private def processReallocationFromAccPeriod(rs: ResultSet): ReallocationFromAccDetails =
     ReallocationFromAccDetails(
       amount                       = Option(rs.getBigDecimal("AMOUNT")),
-      reallocationDate             = Option(rs.getDate("REALLOCATION_DATE")).map(_.toLocalDate),
+      reallocationDate             = rs.getDate("REALLOCATION_DATE").toLocalDate,
       destinationApEndDate         = Option(rs.getDate("DESTINATION_AP_END_DATE")).map(_.toLocalDate),
-      destinationTaxPayerReference = Option(rs.getString("DESTINATION_TAXPAYER_REFERENCE"))
+      destinationTaxPayerReference = rs.getString("DESTINATION_TAXPAYER_REFERENCE")
     )
 
   private def retrieveReallocationFromDB(conn: Connection, taxRef: Long, accPeriod: Long): ReallocationFromAccPeriod = {

@@ -43,15 +43,15 @@ class ReallocationFromAccPeriodServiceSpec extends AnyFreeSpec with Matchers wit
       List(
         ReallocationFromAccDetails(
           Some(BigDecimal(12390)),
-          Some(LocalDate.of(2026, 12, 27)),
+          LocalDate.of(2026, 12, 27),
           Some(LocalDate.of(204, 2, 2)),
-          Some("18969779586")
+          "18969779586"
         ),
         ReallocationFromAccDetails(
           Some(BigDecimal(12345)),
-          Some(LocalDate.of(2026, 12, 27)),
+          LocalDate.of(2026, 12, 27),
           Some(LocalDate.of(204, 2, 2)),
-          Some("18969779586")
+          "18969779586"
         )
       )
     )

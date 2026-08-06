@@ -72,9 +72,9 @@ class ReallocationFromAccPeriodRepositorySpec extends AnyFlatSpec with Matchers 
     val reallocationFromAccPeriod = List(
       ReallocationFromAccDetails(
         amount                       = Some(BigDecimal(7600.45)),
-        reallocationDate             = Some(LocalDate.of(2019, 12, 7)),
+        reallocationDate             = LocalDate.of(2019, 12, 7),
         destinationApEndDate         = Some(LocalDate.of(2016, 11, 9)),
-        destinationTaxPayerReference = Some("8754000057")
+        destinationTaxPayerReference = "8754000057"
       )
     )
 
@@ -139,15 +139,15 @@ class ReallocationFromAccPeriodRepositorySpec extends AnyFlatSpec with Matchers 
     val reallocationFromAccPeriodList = List(
       ReallocationFromAccDetails(
         amount                       = Some(BigDecimal(7600.45)),
-        reallocationDate             = Some(LocalDate.of(2019, 12, 7)),
+        reallocationDate             = LocalDate.of(2019, 12, 7),
         destinationApEndDate         = Some(LocalDate.of(2016, 11, 9)),
-        destinationTaxPayerReference = Some("8754000057")
+        destinationTaxPayerReference = "8754000057"
       ),
       ReallocationFromAccDetails(
         amount                       = Some(BigDecimal(8700.25)),
-        reallocationDate             = Some(LocalDate.of(2020, 12, 8)),
+        reallocationDate             = LocalDate.of(2020, 12, 8),
         destinationApEndDate         = Some(LocalDate.of(2020, 11, 9)),
-        destinationTaxPayerReference = Some("9875786242")
+        destinationTaxPayerReference = "9875786242"
       )
     )
 
