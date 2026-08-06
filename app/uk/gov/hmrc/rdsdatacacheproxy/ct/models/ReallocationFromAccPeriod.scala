@@ -27,9 +27,9 @@ object ReallocationFromAccPeriod {
 }
 
 case class ReallocationFromAccDetails(amount: Option[BigDecimal],
-                                      reallocationDate: Option[LocalDate],
+                                      reallocationDate: LocalDate,
                                       destinationApEndDate: Option[LocalDate],
-                                      destinationTaxPayerReference: Option[String]
+                                      destinationTaxPayerReference: String
                                      )
 
 object ReallocationFromAccDetails {
