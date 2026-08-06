@@ -97,7 +97,6 @@ class GetAdministrativeRuleControllerSpec extends SpecBase with MockitoSugar wit
 
       status(result)      shouldBe INTERNAL_SERVER_ERROR
       contentType(result) shouldBe Some("application/json")
-      println(s"Result: ${contentType(result)}")
       (contentAsJson(result) \ "message").as[String] shouldBe "Unable to Retrieve adminRule"
 
       verify(mockService).getAdminRule(adminRuleKey)

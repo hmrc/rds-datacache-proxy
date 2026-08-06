@@ -47,6 +47,17 @@ class PayRepayReallocationControllerSpec extends SpecBase with MockitoSugar {
   "PayRepayReallocationControllerSpec" - {
     "return a 200 and a successful response when retrieving payment repayment reallocation" in new Setup {
       when(mockService.getTotalAmounts(any[Long], any[Long]))
+        .thenReturn(Future.successful(payRepayReallocations))
+
+      val result: Future[Result] = controller.getTotalAmounts(6212811176L, 2L)(fakeRequest)
+
+      status(result)      shouldBe OK
+      contentType(result) shouldBe Some("application/json")
+      verify(mockService).getTotalAmounts(6212811176L, 2L)
+    }
+
+    "return a 200 and a successful response when retrieving empty payment repayment reallocation" in new Setup {
+      when(mockService.getTotalAmounts(any[Long], any[Long]))
         .thenReturn(Future.successful(emptyPayRepayReallocations))
 
       val result: Future[Result] = controller.getTotalAmounts(1L, 2L)(fakeRequest)
