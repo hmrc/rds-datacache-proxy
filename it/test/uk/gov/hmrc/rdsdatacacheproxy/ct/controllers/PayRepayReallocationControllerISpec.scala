@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -23,18 +23,19 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AdjustmentTransactions, AdjustmentTransactionsList}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AdjustmentTransactionsRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PayRepayReallocations
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PayRepayReallocationRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.PayRepayReallocationStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AdjustmentTransactionsStubData
+
 import scala.concurrent.Future
 
-class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class PayRepayReallocationControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class AdjustmentTransactionsRepositoryStub extends AdjustmentTransactionsRepository {
+  class PayRepayReallocationRepositoryStub extends PayRepayReallocationRepository {
 
-    override def getAdjustmentTransactions(taxRef: Long, accPeriod: Long): Future[List[AdjustmentTransactions]] = {
-      Future.successful(AdjustmentTransactionsStubData.getAdjustmentTransactions(taxRef: Long, accPeriod: Long))
+    override def getTotalAmounts(taxRef: Long, accPeriod: Long): Future[PayRepayReallocations] = {
+      Future.successful(PayRepayReallocationStubData.getTotalAmounts(taxRef: Long, accPeriod: Long))
     }
   }
 
@@ -42,46 +43,46 @@ class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers wi
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AdjustmentTransactionsRepository].toInstance(new AdjustmentTransactionsRepositoryStub())
+        bind[PayRepayReallocationRepository].toInstance(new PayRepayReallocationRepositoryStub())
       )
       .build()
 
   private final val endpoint = "/corporation-tax"
 
-  "GET /corporation-tax/adjustment-transactions" should {
+  "GET /corporation-tax/total-amount-payment-repayment-reallocation" should {
 
-    "return 200 with adjustment transactions list with two items" in {
+    "return 200 with payment repayment reallocation" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/adjustment-transactions/10/3").futureValue
+      val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/10/2").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[AdjustmentTransactionsList] mustBe AdjustmentTransactionsList(AdjustmentTransactionsStubData.getAdjustmentTransactions(10L, 3L))
+      response.json.as[PayRepayReallocations] mustBe PayRepayReallocationStubData.getTotalAmounts(10L, 2L)
     }
 
-    "return 200 with adjustment transactions empty list" in {
+    "return 200 with empty payment repayment reallocation" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/adjustment-transactions/1/2").futureValue
+      val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/1/2").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[AdjustmentTransactionsList] mustBe AdjustmentTransactionsList(adjustmentTransactionsList = List[AdjustmentTransactions]())
+      response.json.as[PayRepayReallocations] mustBe PayRepayReallocationStubData.emptyPayRepayReallocations
     }
 
     "return 500 when stub fails" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/adjustment-transactions/200/3").futureValue
+      val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/200/3").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/adjustment-transactions/30/4").futureValue
+      val response = get(s"$endpoint/total-amount-payment-repayment-reallocation/30/4").futureValue
       response.status mustBe UNAUTHORIZED
     }
   }
