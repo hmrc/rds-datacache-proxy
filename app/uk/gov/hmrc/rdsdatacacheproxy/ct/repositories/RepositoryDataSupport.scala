@@ -16,13 +16,32 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
-import java.sql.CallableStatement
+import play.api.Logging
+
+import java.sql.{CallableStatement, ResultSet}
 import java.time.LocalDate
 
-trait RepositoryDataSupport {
+trait RepositoryDataSupport extends Logging {
 
   def optDate(i: Int, cs: CallableStatement): Option[LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
 
   def optBigDecimal(i: Int, cs: CallableStatement): Option[BigDecimal] = Option(cs.getBigDecimal(i))
+
+  def processResultSetList[T](cs: CallableStatement, position: Int, processor: ResultSet => T, context: String): List[T] = {
+    val rs = cs.getObject(position, classOf[ResultSet])
+    try
+      if (rs != null) {
+        val buffer = scala.collection.mutable.ListBuffer[T]()
+        while (rs.next())
+          buffer += processor(rs)
+        buffer.toList
+      } else {
+        logger.info(s"$context, No result set found at position: $position null cursor")
+        logger.info(s"$context, Returning empty list ")
+        List.empty
+      }
+    finally
+      if (rs != null) rs.close()
+  }
 
 }

@@ -64,6 +64,7 @@ GET        /gambling/interest-overview/:regime/:regNumber           uk.gov.hmrc.
 GET        /gambling/interest-details/:regime/:regNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestDetailsController.getInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/interest-accruing-details/:regime/:regNumber   uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestAccruingDetailsController.getInterestAccruingDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /gambling/repayment-interest-details/:regime/:regNumber  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentInterestDetailsController.getRepaymentInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
+GET        /gambling/partner-details/:regime/:regNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.PartnerDetailsController.getPartnerDetails(regime: String, regNumber: String)
 
 #Filing routes
 GET        /gambling/submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
@@ -79,3 +80,8 @@ GET        /corporation-tax/interest-charge-summary/:taxPayerReference  uk.gov.h
 GET        /corporation-tax/tax-transactions/:taxRef/:accPeriod         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/adjustment-transactions/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AdjustmentTransactionsController.getAdjustmentTransactions(taxRef: Long, accPeriod: Long)
 GET        /corporation-tax/administrative-rule/:adminRule              uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GetAdministrativeRuleController.getAdministrativeRule(adminRule: String)
+GET        /corporation-tax/interest-accrual-list/:taxRef/:accPeriod/:interestType     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestAccrualListController.getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String)
+GET        /corporation-tax/reallocation-to-accounting-period/:taxRef/:accPeriod    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationController.getByAccountingPeriod(taxRef: Long, accPeriod: Long)
+GET        /corporation-tax/reallocation-from-accounting-period/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationFromAccPeriodController.getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long)
+
+GET        /corporation-tax/total-amount-payment-repayment-reallocation/:taxRef/:accPeriod      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PayRepayReallocationController.getTotalAmounts(taxRef: Long, accPeriod: Long)
