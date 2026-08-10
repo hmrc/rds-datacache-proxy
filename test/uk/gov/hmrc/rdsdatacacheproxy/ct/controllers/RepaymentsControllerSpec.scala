@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{RepaymentsDetails, Repayments}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Repayments, RepaymentsDetails}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.RepaymentsService
 
 import java.time.LocalDate
@@ -41,7 +41,7 @@ class RepaymentsControllerSpec extends SpecBase with MockitoSugar {
     val repaymentsWithOneItem: Repayments = Repayments(
       List(
         RepaymentsDetails(
-          amount = Some(BigDecimal(10)),
+          amount        = Some(BigDecimal(10)),
           repaymentType = "S",
           repaymentDate = LocalDate.of(2026, 7, 24)
         )
@@ -51,12 +51,12 @@ class RepaymentsControllerSpec extends SpecBase with MockitoSugar {
     val repaymentsWithMultipleItems: Repayments = Repayments(
       List(
         RepaymentsDetails(
-          amount = Some(BigDecimal(20)),
+          amount        = Some(BigDecimal(20)),
           repaymentType = "S",
           repaymentDate = LocalDate.of(2027, 7, 24)
         ),
         RepaymentsDetails(
-          amount = Some(BigDecimal(30)),
+          amount        = Some(BigDecimal(30)),
           repaymentType = "T",
           repaymentDate = LocalDate.of(2028, 7, 24)
         )
@@ -82,7 +82,7 @@ class RepaymentsControllerSpec extends SpecBase with MockitoSugar {
 
       val result: Future[Result] = controller.getRepayments(6212811176L, 2L)(fakeRequest)
 
-      status(result) shouldBe OK
+      status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
       verify(mockService).getRepayments(6212811176L, 2L)
     }
