@@ -260,8 +260,8 @@ class GamblingService @Inject() (
   }
 
   def getBusinessAddressDetails(
-                                rawMgdRegNumber: String
-                              )(implicit hc: HeaderCarrier): Future[Either[GamblingError, BusinessAddressDetails]] = {
+    rawMgdRegNumber: String
+  )(implicit hc: HeaderCarrier): Future[Either[GamblingError, BusinessAddressDetails]] = {
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 

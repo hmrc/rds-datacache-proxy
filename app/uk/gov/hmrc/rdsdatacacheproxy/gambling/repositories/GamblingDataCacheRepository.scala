@@ -839,10 +839,9 @@ class GamblingDataCacheRepository @Inject() (
     })(ec)
   }
 
-
   override def getBusinessAddressDetails(
-                                         mgdRegNumber: String
-                                       ): Future[BusinessAddressDetails] = {
+    mgdRegNumber: String
+  ): Future[BusinessAddressDetails] = {
 
     logger.info(
       s"[GamblingDataCacheRepository][getBusinessAddressDetails] mgdRegNumber=$mgdRegNumber"
@@ -877,15 +876,15 @@ class GamblingDataCacheRepository @Inject() (
 
             BusinessAddressDetails(
               mgdRegNumber = "",
-              adi = None,
-              address1 = None,
-              address2 = None,
-              address3 = None,
-              address4 = None,
-              postcode = None,
-              country = None,
-              iomOrCiFlag = None,
-              systemDate = None
+              adi          = None,
+              address1     = None,
+              address2     = None,
+              address3     = None,
+              address4     = None,
+              postcode     = None,
+              country      = None,
+              iomOrCiFlag  = None,
+              systemDate   = None
             )
 
           } else {
@@ -907,29 +906,29 @@ class GamblingDataCacheRepository @Inject() (
                   mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  adi = optString("ADI"),
-                  address1 = optString("ADDRESS_1"),
-                  address2 = optString("ADDRESS_2"),
-                  address3 = optString("ADDRESS_3"),
-                  address4 = optString("ADDRESS_4"),
-                  postcode = optString("POSTCODE"),
-                  country = optString("COUNTRY"),
+                  adi         = optString("ADI"),
+                  address1    = optString("ADDRESS_1"),
+                  address2    = optString("ADDRESS_2"),
+                  address3    = optString("ADDRESS_3"),
+                  address4    = optString("ADDRESS_4"),
+                  postcode    = optString("POSTCODE"),
+                  country     = optString("COUNTRY"),
                   iomOrCiFlag = optString("IOM_OR_CI_FLAG"),
-                  systemDate = optDate("SYS_DATE")
+                  systemDate  = optDate("SYS_DATE")
                 )
 
               } else {
                 BusinessAddressDetails(
                   mgdRegNumber = "",
-                  adi = None,
-                  address1 = None,
-                  address2 = None,
-                  address3 = None,
-                  address4 = None,
-                  postcode = None,
-                  country = None,
-                  iomOrCiFlag = None,
-                  systemDate = None
+                  adi          = None,
+                  address1     = None,
+                  address2     = None,
+                  address3     = None,
+                  address4     = None,
+                  postcode     = None,
+                  country      = None,
+                  iomOrCiFlag  = None,
+                  systemDate   = None
                 )
               }
 
