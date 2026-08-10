@@ -552,4 +552,93 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+
+  "GamblingController#getBusinessAddressDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = BusinessAddressDetails(
+        mgdRegNumber = "XYZ00000000001",
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+
+      when(mockService.getBusinessAddressDetails(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val res = controller.getBusinessAddressDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getBusinessAddressDetails(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = BusinessAddressDetails(
+        mgdRegNumber = "XYZ00000000001",
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+
+      when(mockService.getBusinessAddressDetails(any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val res = controller.getBusinessAddressDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getBusinessAddressDetails(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getBusinessAddressDetails(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/bad")
+      val res = controller.getBusinessAddressDetails("bad")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getBusinessAddressDetails(eqTo("bad"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getBusinessAddressDetails(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/correspondence-details/ERR00001770")
+      val res = controller.getBusinessAddressDetails("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getBusinessAddressDetails(eqTo("ERR00001770"))(any())
+    }
+  }
+
 }

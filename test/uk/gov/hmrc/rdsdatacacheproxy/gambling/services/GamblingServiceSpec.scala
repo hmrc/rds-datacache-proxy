@@ -524,4 +524,62 @@ final class GamblingServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
   }
+
+
+  "GamblingService#getBusinessAddressDetails" - {
+
+    "return Right(details) when repository succeeds" in {
+
+      val details = GamblingStubData.getBusinessAddressDetails(validMgdRegNumber)
+
+      when(repository.getBusinessAddressDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getBusinessAddressDetails(validMgdRegNumber).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getBusinessAddressDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input before calling repository" in {
+
+      val raw = "  xwm12345678901  "
+
+      val details = GamblingStubData.getBusinessAddressDetails(normalisedMgdRegNumber)
+
+      when(repository.getBusinessAddressDetails(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getBusinessAddressDetails(raw).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getBusinessAddressDetails(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber when input invalid" in {
+
+      val result = service.getBusinessAddressDetails("bad").futureValue
+
+      result mustBe Left(InvalidMgdRegNumber)
+
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getBusinessAddressDetails(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("fail")))
+
+      val result = service.getBusinessAddressDetails(validMgdRegNumber).futureValue
+
+      result mustBe Left(UnexpectedError)
+
+      verify(repository).getBusinessAddressDetails(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
 }
