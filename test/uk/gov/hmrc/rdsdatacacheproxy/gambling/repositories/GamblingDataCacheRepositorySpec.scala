@@ -394,15 +394,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result shouldBe BusinessAddressDetails(
       mgdRegNumber = "XWM00000001770",
-      adi = Some("none"),
-      address1 = Some("random street"),
-      address2 = Some("bar"),
-      address3 = Some("bar"),
-      address4 = Some("bar"),
-      postcode = Some("SR1 4DE"),
-      country = Some("Ingerland!"),
-      iomOrCiFlag = Some("true"),
-      systemDate = Some(LocalDate.of(2026, 5, 13))
+      adi          = Some("none"),
+      address1     = Some("random street"),
+      address2     = Some("bar"),
+      address3     = Some("bar"),
+      address4     = Some("bar"),
+      postcode     = Some("SR1 4DE"),
+      country      = Some("Ingerland!"),
+      iomOrCiFlag  = Some("true"),
+      systemDate   = Some(LocalDate.of(2026, 5, 13))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)

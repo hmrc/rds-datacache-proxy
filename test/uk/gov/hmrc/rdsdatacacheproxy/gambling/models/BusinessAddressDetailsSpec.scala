@@ -29,16 +29,16 @@ class BusinessAddressDetailsSpec extends AnyFreeSpec with Matchers {
     "serialises to JSON correctly" in {
 
       val model = BusinessAddressDetails(
-        mgdRegNumber      = "XWM00000001770",
-        adi               = Some("none"),
-        address1          = Some("random street"),
-        address2          = Some("bar"),
-        address3          = Some("bar"),
-        address4          = Some("bar"),
-        postcode          = Some("SR1 4DE"),
-        country           = Some("Ingerland!"),
-        iomOrCiFlag       = Some("true"),
-        systemDate        = Some(LocalDate.of(2026, 5, 13))
+        mgdRegNumber = "XWM00000001770",
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.of(2026, 5, 13))
       )
 
       val json: JsValue = Json.toJson(model)
@@ -79,32 +79,32 @@ class BusinessAddressDetailsSpec extends AnyFreeSpec with Matchers {
       val result = json.as[BusinessAddressDetails]
 
       result mustBe BusinessAddressDetails(
-        mgdRegNumber      = "XWM00000001770",
-        adi               = Some("none"),
-        address1          = Some("random street"),
-        address2          = Some("bar"),
-        address3          = Some("bar"),
-        address4          = Some("bar"),
-        postcode          = Some("SR1 4DE"),
-        country           = Some("Ingerland!"),
-        iomOrCiFlag       = Some("true"),
-        systemDate        = Some(LocalDate.of(2026, 5, 13))
+        mgdRegNumber = "XWM00000001770",
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.of(2026, 5, 13))
       )
     }
 
     "supports round-trip conversion" in {
 
       val model = BusinessAddressDetails(
-        mgdRegNumber      = "XWM00000001770",
-        adi               = Some("none"),
-        address1          = Some("random street"),
-        address2          = Some("bar"),
-        address3          = Some("bar"),
-        address4          = Some("bar"),
-        postcode          = Some("SR1 4DE"),
-        country           = Some("Ingerland!"),
-        iomOrCiFlag       = Some("true"),
-        systemDate        = Some(LocalDate.of(2026, 5, 13))
+        mgdRegNumber = "XWM00000001770",
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.of(2026, 5, 13))
       )
 
       val json = Json.toJson(model)

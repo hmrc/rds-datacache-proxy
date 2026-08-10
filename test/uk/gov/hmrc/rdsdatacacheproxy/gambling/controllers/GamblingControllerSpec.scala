@@ -552,21 +552,20 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-
   "GamblingController#getBusinessAddressDetails" - {
 
     "returns 200 when service succeeds" in new Setup {
       val details = BusinessAddressDetails(
         mgdRegNumber = "XYZ00000000001",
-        adi = Some("none"),
-        address1 = Some("random street"),
-        address2 = Some("bar"),
-        address3 = Some("bar"),
-        address4 = Some("bar"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        iomOrCiFlag = Some("true"),
-        systemDate = Some(LocalDate.now())
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.now())
       )
 
       when(mockService.getBusinessAddressDetails(eqTo("XWM00000001770"))(any()))
@@ -586,15 +585,15 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     "allows request through AuthAction" in new Setup {
       val details = BusinessAddressDetails(
         mgdRegNumber = "XYZ00000000001",
-        adi = Some("none"),
-        address1 = Some("random street"),
-        address2 = Some("bar"),
-        address3 = Some("bar"),
-        address4 = Some("bar"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        iomOrCiFlag = Some("true"),
-        systemDate = Some(LocalDate.now())
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.now())
       )
 
       when(mockService.getBusinessAddressDetails(any())(any()))
@@ -617,7 +616,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "INVALID_MGD_REG_NUMBER",
+        "code"    -> "INVALID_MGD_REG_NUMBER",
         "message" -> "mgdRegNumber does not exist"
       )
 
@@ -633,7 +632,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "UNEXPECTED_ERROR",
+        "code"    -> "UNEXPECTED_ERROR",
         "message" -> "Unexpected error occurred"
       )
 

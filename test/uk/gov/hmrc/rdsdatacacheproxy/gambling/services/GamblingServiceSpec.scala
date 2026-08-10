@@ -525,7 +525,6 @@ final class GamblingServiceSpec extends SpecBase {
     }
   }
 
-
   "GamblingService#getBusinessAddressDetails" - {
 
     "return Right(details) when repository succeeds" in {
