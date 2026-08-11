@@ -55,7 +55,7 @@ final case class Partner(
   phoneNumber: Option[String],
   mobilePhoneNumber: Option[String],
   faxNumber: Option[String],
-  emailAddress: Option[String],
+  emailAddr: Option[String],
   isFutureLeaveDate: Option[Int],
   isFutureJoinDate: Option[Int],
   businessType: Option[Int]

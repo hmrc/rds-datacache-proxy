@@ -87,7 +87,7 @@ class PartnerDetailsCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb:
                       phoneNumber            = Option(rs.getString("PHONE_NUMBER")),
                       mobilePhoneNumber      = Option(rs.getString("MOBILE_PHONE_NUMBER")),
                       faxNumber              = Option(rs.getString("FAX_NUMBER")),
-                      emailAddress           = Option(rs.getString("EMAIL_ADDR")),
+                      emailAddr              = Option(rs.getString("EMAIL_ADDR")),
                       isFutureLeaveDate      = Option(rs.getInt("IS_FUTURE_LEAVE_DATE")),
                       isFutureJoinDate       = Option(rs.getInt("IS_FUTURE_JOIN_DATE")),
                       businessType           = Option(rs.getInt("BUSINESS_TYPE"))
