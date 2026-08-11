@@ -1,0 +1,13 @@
+# microservice specific routes
+
+GET        /penalty-transactions/:taxRef/:accPeriod                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
+GET        /interest-charge-summary/:taxPayerReference                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:Long)
+GET        /tax-transactions/:taxRef/:accPeriod                             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
+GET        /adjustment-transactions/:taxRef/:accPeriod                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AdjustmentTransactionsController.getAdjustmentTransactions(taxRef: Long, accPeriod: Long)
+GET        /administrative-rule/:adminRule                                  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GetAdministrativeRuleController.getAdministrativeRule(adminRule: String)
+GET        /interest-accrual-list/:taxRef/:accPeriod/:interestType          uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestAccrualListController.getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String)
+GET        /reallocation-to-accounting-period/:taxRef/:accPeriod            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationController.getByAccountingPeriod(taxRef: Long, accPeriod: Long)
+GET        /reallocation-from-accounting-period/:taxRef/:accPeriod          uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationFromAccPeriodController.getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long)
+
+GET        /total-amount-payment-repayment-reallocation/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PayRepayReallocationController.getTotalAmounts(taxRef: Long, accPeriod: Long)
+GET        /accounting-period-details/:taxRef/:accPeriod    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountingPeriodDetailsController.getIsAPBalanced(taxRef: Long, accPeriod: Long)

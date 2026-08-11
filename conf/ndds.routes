@@ -1,0 +1,10 @@
+# microservice specific routes
+
+GET        /                                                                                      uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebits()
+POST       /direct-debit-reference                                                                uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.generateDDIReference()
+GET        /:directDebitReference/payment-plans                                                   uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrieveDirectDebitPaymentPlans(directDebitReference: String)
+GET        /:directDebitReference/payment-plans/:paymentPlanReference                             uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.retrievePaymentPlanDetails(directDebitReference: String, paymentPlanReference: String)
+PUT        /:directDebitReference/payment-plans/:paymentPlanReference/lock                        uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.lockPaymentPlan(directDebitReference: String, paymentPlanReference: String)
+POST       /:directDebitReference/duplicate-plan-check                                            uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.isDuplicatePaymentPlan(directDebitReference: String)
+POST       /future-working-days                                                                   uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.workingDaysOffset()
+GET        /:directDebitReference/payment-plans/:paymentPlanReference/advance-notice-details      uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.isAdvanceNoticePresent(directDebitReference: String, paymentPlanReference: String)
