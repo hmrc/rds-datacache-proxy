@@ -1,5 +1,0 @@
-# microservice specific routes
-
-POST       /direct-debit-reference          uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController.generateDDIReference()
-POST       /cis-taxpayer                    uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.CisTaxpayerController.getCisTaxpayerByTaxReference
-

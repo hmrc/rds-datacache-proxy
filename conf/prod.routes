@@ -1,11 +1,12 @@
 # Add all the application routes to the respective service routes file
 
-->         /                                        health.Routes
-->         /rds-datacache-proxy                     app.Routes
-->         /rds-datacache-proxy/charities           charities.Routes
-->         /rds-datacache-proxy/cis                 cis.Routes
-->         /rds-datacache-proxy/corporation-tax     ct.Routes
-->         /rds-datacache-proxy/euvat               euvat.Routes
-->         /rds-datacache-proxy/gambling            mgd.Routes
-->         /rds-datacache-proxy/direct-debits       ndds.Routes
-->         /rds-datacache-proxy/nova                nova.Routes
+->         /                                            health.Routes
+->         /rds-datacache-proxy/charities               charities.Routes
+->         /rds-datacache-proxy/cis                     cis.Routes
+->         /rds-datacache-proxy/cis-taxpayer            cis.Routes
+->         /rds-datacache-proxy/corporation-tax         ct.Routes
+->         /rds-datacache-proxy/euvat                   euvat.Routes
+->         /rds-datacache-proxy/gambling                mgd.Routes
+->         /rds-datacache-proxy                         ndds.Routes
+->         /rds-datacache-proxy/direct-debits           ndds.Routes
+->         /rds-datacache-proxy/nova                    nova.Routes
