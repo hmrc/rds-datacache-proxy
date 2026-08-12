@@ -45,6 +45,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var tradeClassRs: ResultSet = _
   var businessContactRs: ResultSet = _
   var correspondenceRs: ResultSet = _
+  var businessAddressRs: ResultSet = _
 
   before {
     db                = mock(classOf[Database])
@@ -60,6 +61,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     tradeClassRs      = mock(classOf[ResultSet])
     businessContactRs = mock(classOf[ResultSet])
     correspondenceRs  = mock(classOf[ResultSet])
+    businessAddressRs = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -360,6 +362,47 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       country           = Some("Ingerland!"),
       iomOrCiFlag       = Some("true"),
       systemDate        = Some(LocalDate.of(2026, 5, 13))
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(correspondenceRs).close()
+    verify(mockCs).close()
+  }
+
+  "getBusinessAddressDetails" should "return BusinessAddressDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(correspondenceRs)
+    when(correspondenceRs.next()).thenReturn(true)
+
+    when(correspondenceRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
+    when(correspondenceRs.getString("ADI")).thenReturn("none")
+    when(correspondenceRs.getString("ADDRESS_1")).thenReturn("random street")
+    when(correspondenceRs.getString("ADDRESS_2")).thenReturn("bar")
+    when(correspondenceRs.getString("ADDRESS_3")).thenReturn("bar")
+    when(correspondenceRs.getString("ADDRESS_4")).thenReturn("bar")
+    when(correspondenceRs.getString("POSTCODE")).thenReturn("SR1 4DE")
+    when(correspondenceRs.getString("COUNTRY")).thenReturn("Ingerland!")
+    when(correspondenceRs.getString("IOM_OR_CI_FLAG")).thenReturn("true")
+    when(correspondenceRs.getDate("SYS_DATE")).thenReturn(Date.valueOf("2026-05-13"))
+
+    val result =
+      repository.getBusinessAddressDetails(mgdRegNumber).futureValue
+
+    result shouldBe BusinessAddressDetails(
+      mgdRegNumber = "XWM00000001770",
+      adi          = Some("none"),
+      address1     = Some("random street"),
+      address2     = Some("bar"),
+      address3     = Some("bar"),
+      address4     = Some("bar"),
+      postcode     = Some("SR1 4DE"),
+      country      = Some("Ingerland!"),
+      iomOrCiFlag  = Some("true"),
+      systemDate   = Some(LocalDate.of(2026, 5, 13))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)

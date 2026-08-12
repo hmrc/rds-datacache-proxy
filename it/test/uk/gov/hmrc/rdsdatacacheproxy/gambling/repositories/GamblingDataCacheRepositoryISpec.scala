@@ -59,9 +59,16 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       Future.successful(GamblingStubData.getMgdDetails(mgdRegNumber))
 
     override def getCorrespondenceDetails(
-                                            mgdRegNumber: String
-                                          ): Future[CorrespondenceDetails] =
-      Future.successful(GamblingStubData.getCorrespondenceDetails(mgdRegNumber))  }
+                                           mgdRegNumber: String
+                                         ): Future[CorrespondenceDetails] =
+      Future.successful(GamblingStubData.getCorrespondenceDetails(mgdRegNumber))
+
+
+
+    override def getBusinessAddressDetails(
+                                           mgdRegNumber: String
+                                         ): Future[BusinessAddressDetails] =
+      Future.successful(GamblingStubData.getBusinessAddressDetails(mgdRegNumber))}
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
@@ -710,6 +717,59 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         mobilePhoneNumber = None,
         faxNumber = None,
         emailAddr = None,
+        adi = None,
+        address1 = None,
+        address2 = None,
+        address3 = None,
+        address4 = None,
+        postcode = None,
+        country = None,
+        iomOrCiFlag = None,
+        systemDate = Some(LocalDate.now())
+      )
+    }
+  }
+
+
+  "getBusinessAddressDetails (stubbed repository)" should {
+
+    "return correspondence details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getBusinessAddressDetails("XYZ00000000001").futureValue
+
+      result mustBe BusinessAddressDetails(
+        mgdRegNumber = "XYZ00000000001",
+        adi = Some("none"),
+        address1 = Some("random street"),
+        address2 = Some("bar"),
+        address3 = Some("bar"),
+        address4 = Some("bar"),
+        postcode = Some("SR1 4DE"),
+        country = Some("Ingerland!"),
+        iomOrCiFlag = Some("true"),
+        systemDate = Some(LocalDate.now())
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getBusinessAddressDetails("ERR00000000000")
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getBusinessAddressDetails("UNKNOWN").futureValue
+
+      result mustBe BusinessAddressDetails(
+        mgdRegNumber = "UNKNOWN",
         adi = None,
         address1 = None,
         address2 = None,
