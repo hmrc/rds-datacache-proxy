@@ -43,15 +43,15 @@ class RepaymentsRepositoryImpl @Inject() (
       db.withConnection { connect =>
         val storedProcedure = connect.prepareCall("{call CT_DC_PK.getRepayments(?, ?, ?)}")
 
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
-
-        storedProcedure.execute()
-
-        val repaymentsDetails = storedProcedure.getObject(3, classOf[ResultSet])
-
         try {
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+          storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
+
+          storedProcedure.execute()
+
+          val repaymentsDetails = storedProcedure.getObject(3, classOf[ResultSet])
+          
           val repayments = Option(repaymentsDetails).map(readRepayments).getOrElse(List.empty)
 
           Repayments(
@@ -71,7 +71,7 @@ class RepaymentsRepositoryImpl @Inject() (
       buffer += RepaymentsDetails(
         amount        = Some(rs.getBigDecimal("amount")),
         repaymentType = rs.getString("repayment_type"),
-        repaymentDate = Option(rs.getDate("repayment_date")).map(_.toLocalDate).get
+        repaymentDate = rs.getDate("repayment_date").toLocalDate
       )
     }
     buffer.toList
