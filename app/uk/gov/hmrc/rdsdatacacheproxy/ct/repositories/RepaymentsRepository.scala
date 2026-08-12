@@ -51,7 +51,7 @@ class RepaymentsRepositoryImpl @Inject() (
           storedProcedure.execute()
 
           val repaymentsDetails = storedProcedure.getObject(3, classOf[ResultSet])
-          
+
           val repayments = Option(repaymentsDetails).map(readRepayments).getOrElse(List.empty)
 
           Repayments(
