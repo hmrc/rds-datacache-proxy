@@ -843,7 +843,6 @@ class GamblingDataCacheRepository @Inject() (
     mgdRegNumber: String
   ): Future[BusinessAddressDetails] = {
 
-
     Future(blocking {
 
       db.withConnection { conn =>
@@ -867,11 +866,11 @@ class GamblingDataCacheRepository @Inject() (
           cs.execute()
 
           val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
-          
-            try {
-              optionResultSet
-                .filter(_.next())
-                .map { rs =>
+
+          try {
+            optionResultSet
+              .filter(_.next())
+              .map { rs =>
 
                 def optString(col: String): Option[String] =
                   Option(rs.getString(col))
@@ -912,9 +911,9 @@ class GamblingDataCacheRepository @Inject() (
                 )
               }
 
-            } finally {
-              optionResultSet.foreach(_.close())
-            }
+          } finally {
+            optionResultSet.foreach(_.close())
+          }
 
         } finally {
           closeQuietly(cs)
