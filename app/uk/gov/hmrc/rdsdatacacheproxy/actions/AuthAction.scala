@@ -40,9 +40,10 @@ class DefaultAuthAction @Inject() (
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     val sessionId = hc.sessionId.getOrElse(throw new UnauthorizedException("Unable to retrieve session ID from headers"))
 
-    authorised().retrieve(Retrievals.internalId and Retrievals.credentials) {
-      case Some(internalId) ~ Some(credentials) => block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId))
-      case _                                    => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
+    authorised().retrieve(Retrievals.internalId and Retrievals.credentials and Retrievals.allEnrolments) {
+      case Some(internalId) ~ Some(credentials) ~ enrolments =>
+        block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId, enrolments))
+      case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
     } recover { case ae: AuthorisationException =>
       logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
       Unauthorized
