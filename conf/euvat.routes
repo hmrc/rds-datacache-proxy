@@ -1,0 +1,3 @@
+# microservice specific routes
+
+GET        /traders/get-known-facts     uk.gov.hmrc.rdsdatacacheproxy.euvat.controllers.EuVatController.retrieveTraderByVrn

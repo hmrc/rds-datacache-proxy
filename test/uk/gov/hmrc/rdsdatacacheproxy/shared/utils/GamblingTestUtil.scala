@@ -603,7 +603,7 @@ object GamblingTestUtil {
         phoneNumber            = Some("0117 555 1234"),
         mobilePhoneNumber      = Some("07700 900123"),
         faxNumber              = Some("0117 555 5678"),
-        emailAddress           = Some("amelia.hartley@example.test"),
+        emailAddr              = Some("amelia.hartley@example.test"),
         isFutureLeaveDate      = Some(1),
         isFutureJoinDate       = Some(0),
         businessType           = Some(2)
