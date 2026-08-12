@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -25,7 +26,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait InterestOverviewDataSource {
-  def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview]
+  def getInterestOverview(regime: Regime, regNumber: String): Future[Either[StatementError, InterestOverview]]
 }
 
 @Singleton
@@ -37,7 +38,7 @@ class InterestOverviewDataCacheRepository @Inject() (@NamedDatabase("gambling") 
     with RepositorySupport
     with Logging {
 
-  override def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview] =
+  override def getInterestOverview(regime: Regime, regNumber: String): Future[Either[StatementError, InterestOverview]] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -56,13 +57,15 @@ class InterestOverviewDataCacheRepository @Inject() (@NamedDatabase("gambling") 
 
           cs.execute()
 
-          InterestOverview(
-            periodStartDate         = optDate(2, cs),
-            periodEndDate           = optDate(3, cs),
-            interestAmount          = optDecimalFromIndex(4, cs).getOrElse(0),
-            interestAccruingAmount  = optDecimalFromIndex(5, cs).getOrElse(0),
-            repaymentInterestAmount = optDecimalFromIndex(6, cs).getOrElse(0),
-            total                   = optDecimalFromIndex(7, cs).getOrElse(0)
+          Right(
+            InterestOverview(
+              periodStartDate         = optDate(2, cs),
+              periodEndDate           = optDate(3, cs),
+              interestAmount          = optDecimalFromIndex(4, cs).getOrElse(0),
+              interestAccruingAmount  = optDecimalFromIndex(5, cs).getOrElse(0),
+              repaymentInterestAmount = optDecimalFromIndex(6, cs).getOrElse(0),
+              total                   = optDecimalFromIndex(7, cs).getOrElse(0)
+            )
           )
 
         } finally {

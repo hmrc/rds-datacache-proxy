@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ReallocationItem, Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -27,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait GamblingReallocationsDataSource {
   def getReallocationsIn(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[Reallocations]
   def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut]
-  def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails]
+  def getReallocationsDetails(regime: Regime, regNumber: String): Future[Either[StatementError, ReallocationsDetails]]
 }
 
 @Singleton
@@ -151,7 +152,7 @@ class GamblingReallocationsDataCacheRepository @Inject() (
     }(ec)
   }
 
-  override def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails] = {
+  override def getReallocationsDetails(regime: Regime, regNumber: String): Future[Either[StatementError, ReallocationsDetails]] = {
     logger.info(
       s"[GamblingReallocationsDataCacheRepository][ReallocationsDetails] regime= $regime, regNumber=$regNumber"
     )
@@ -172,12 +173,14 @@ class GamblingReallocationsDataCacheRepository @Inject() (
           cs.registerOutParameter(6, java.sql.Types.DECIMAL) // OUT P_TOTAL (DECIMAL)
           cs.execute()
 
-          ReallocationsDetails(
-            periodStartDate        = optDate(2, cs),
-            periodEndDate          = optDate(3, cs),
-            reallocationsInAmount  = optDecimalFromIndex(4, cs).getOrElse(0),
-            reallocationsOutAmount = optDecimalFromIndex(5, cs).getOrElse(0),
-            total                  = optDecimalFromIndex(6, cs).getOrElse(0)
+          Right(
+            ReallocationsDetails(
+              periodStartDate        = optDate(2, cs),
+              periodEndDate          = optDate(3, cs),
+              reallocationsInAmount  = optDecimalFromIndex(4, cs).getOrElse(0),
+              reallocationsOutAmount = optDecimalFromIndex(5, cs).getOrElse(0),
+              total                  = optDecimalFromIndex(6, cs).getOrElse(0)
+            )
           )
         } finally {
           closeQuietly(cs)

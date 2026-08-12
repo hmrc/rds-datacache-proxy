@@ -19,7 +19,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturnSingle
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.UnexpectedError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnSingleDataSource
 
 import javax.inject.Inject
@@ -33,9 +32,19 @@ class SubmittedReturnSingleService @Inject() (
   def getSubmittedReturnSingle(rawRegNumber: String, consecNo: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, SubmittedReturnSingle]] =
-    withValidParams(rawRegNumber.trim.toUpperCase, consecNo, "getSubmittedReturnSingle")(repository.getSubmittedReturnSingle).map {
-      case Right(Some(single)) => Right(single)
-      case Right(None)         => Left(UnexpectedError)
-      case Left(error)         => Left(error)
-    }
+    withValidParams(rawRegNumber.trim.toUpperCase, consecNo, "getSubmittedReturnSingle")(repository.getSubmittedReturnSingle)
 }
+
+/* TESTED OK
+
+curl http://localhost:6992/rds-datacache-proxy/gambling/submitted-return-details/XGM00000001201/1
+
+{"consecNo":1,"mgdPeriod":"01/02/2013 - 31/05/2013","submittedDate":"2012-12-10","ackRef":"Not applicable","noOfMachines":33,"netTakingsHigherRate":0,"netTakingsStdRate":1500,"netTakingsLowerRate":1200,"totalDueHigherRate":0,"totalDueStdRate":1400,"totalDueLowerRate":1100,"dutyPayable":2500,"underDeclaredDuty":0,"previousReturnAmount":0,"negativeAmountCarriedForward":0,"totalNetDutyPayable":2500}
+
+
+curl http://localhost:6992/rds-datacache-proxy/gambling/submitted-return-details/XGM00000009999/1
+
+{"code":"NOT_FOUND","message":"No record found for the given registration number"}
+
+
+ */

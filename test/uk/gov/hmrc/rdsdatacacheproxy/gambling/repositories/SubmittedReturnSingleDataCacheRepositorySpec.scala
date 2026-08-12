@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{BadData, RecordNotFound}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseSubmittedReturnSingle
 
@@ -91,7 +92,7 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
 
       val result = repository.getSubmittedReturnSingle(regNumber, 23).futureValue
 
-      result shouldBe Some(validResponseSubmittedReturnSingle)
+      result shouldBe Right(validResponseSubmittedReturnSingle)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 23)
@@ -164,7 +165,7 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
       verify(mockCsMgd).close()
     }
 
-    "return 'Unable to create SubmittedReturnSingle' when stored procedure returns bad data" in {
+    "return BadData when stored procedure returns bad data" in {
 
       val regNumber = "XWM12345678901"
 
@@ -174,7 +175,7 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
 
       val result = repository.getSubmittedReturnSingle(regNumber, 23).futureValue
 
-      result shouldBe None
+      result shouldBe Left(BadData)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).setInt(2, 23)
@@ -186,6 +187,19 @@ class SubmittedReturnSingleDataCacheRepositorySpec extends AnyWordSpec with Matc
       verify(SubmittedReturnSingleRs, times(1)).getInt("consec_no")
       verify(SubmittedReturnSingleRs, times(0)).getDate("submitted_date")
       verify(SubmittedReturnSingleRs, times(1)).close()
+      verify(mockCsMgd).close()
+    }
+
+    "return RecordNotFound when cursor is empty" in {
+      val regNumber = "XWM12345678901"
+      when(mockCsMgd.getObject(3)).thenReturn(SubmittedReturnSingleRs)
+      when(SubmittedReturnSingleRs.next()).thenReturn(false)
+
+      val result = repository.getSubmittedReturnSingle(regNumber, 23).futureValue
+
+      result shouldBe Left(RecordNotFound)
+
+      verify(mockCsMgd).execute()
       verify(mockCsMgd).close()
     }
   }
