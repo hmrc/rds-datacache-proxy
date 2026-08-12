@@ -571,7 +571,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getBusinessAddressDetails(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(details)))
 
-      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val req = FakeRequest(GET, "/gambling/business-address-details/XWM00000001770")
       val res = controller.getBusinessAddressDetails("XWM00000001770")(req)
 
       status(res) mustBe OK
@@ -599,7 +599,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getBusinessAddressDetails(any())(any()))
         .thenReturn(Future.successful(Right(details)))
 
-      val req = FakeRequest(GET, "/gambling/correspondence-details/XWM00000001770")
+      val req = FakeRequest(GET, "/gambling/business-address-details/XWM00000001770")
       val res = controller.getBusinessAddressDetails("XWM00000001770")(req)
 
       status(res) mustBe OK
@@ -611,7 +611,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getBusinessAddressDetails(any())(any()))
         .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
-      val req = FakeRequest(GET, "/gambling/correspondence-details/bad")
+      val req = FakeRequest(GET, "/gambling/business-address-details/bad")
       val res = controller.getBusinessAddressDetails("bad")(req)
 
       status(res) mustBe BAD_REQUEST
@@ -627,7 +627,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       when(mockService.getBusinessAddressDetails(any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, "/gambling/correspondence-details/ERR00001770")
+      val req = FakeRequest(GET, "/gambling/business-address-details/ERR00001770")
       val res = controller.getBusinessAddressDetails("ERR00001770")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR

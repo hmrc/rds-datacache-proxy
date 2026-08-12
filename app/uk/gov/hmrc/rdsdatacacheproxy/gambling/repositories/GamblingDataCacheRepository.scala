@@ -843,9 +843,6 @@ class GamblingDataCacheRepository @Inject() (
     mgdRegNumber: String
   ): Future[BusinessAddressDetails] = {
 
-    logger.info(
-      s"[GamblingDataCacheRepository][getBusinessAddressDetails] mgdRegNumber=$mgdRegNumber"
-    )
 
     Future(blocking {
 
@@ -869,29 +866,12 @@ class GamblingDataCacheRepository @Inject() (
 
           cs.execute()
 
-          val rs =
-            cs.getObject(2).asInstanceOf[java.sql.ResultSet]
-
-          if (rs == null) {
-
-            BusinessAddressDetails(
-              mgdRegNumber = "",
-              adi          = None,
-              address1     = None,
-              address2     = None,
-              address3     = None,
-              address4     = None,
-              postcode     = None,
-              country      = None,
-              iomOrCiFlag  = None,
-              systemDate   = None
-            )
-
-          } else {
-
+          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+          
             try {
-
-              if (rs.next()) {
+              optionResultSet
+                .filter(_.next())
+                .map { rs =>
 
                 def optString(col: String): Option[String] =
                   Option(rs.getString(col))
@@ -916,8 +896,8 @@ class GamblingDataCacheRepository @Inject() (
                   iomOrCiFlag = optString("IOM_OR_CI_FLAG"),
                   systemDate  = optDate("SYS_DATE")
                 )
-
-              } else {
+              }
+              .getOrElse {
                 BusinessAddressDetails(
                   mgdRegNumber = "",
                   adi          = None,
@@ -933,9 +913,8 @@ class GamblingDataCacheRepository @Inject() (
               }
 
             } finally {
-              closeQuietly(rs)
+              optionResultSet.foreach(_.close())
             }
-          }
 
         } finally {
           closeQuietly(cs)
