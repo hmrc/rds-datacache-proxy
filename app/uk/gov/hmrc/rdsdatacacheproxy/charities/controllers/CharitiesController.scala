@@ -39,16 +39,18 @@ class CharitiesController @Inject() (
     if (agentRef.trim().isEmpty) {
       Future.successful(BadRequest(Json.obj("error" -> "agentRef must be provided")))
     } else {
-      charitiesDataSource
-        .getAgentName(agentRef)
-        .map {
-          case Some(agentName) => Ok(Json.toJson(AgentNameResponse(agentName)))
-          case None            => NotFound
-        }
-        .recover { case ex: Exception =>
-          logger.error("Error while retrieving agent name from oracle database", ex)
-          InternalServerError(Json.obj("error" -> "Failed to retrieve agent name"))
-        }
+      request.whenAgentAuthorisedForCharity(agentRef) {
+        charitiesDataSource
+          .getAgentName(agentRef)
+          .map {
+            case Some(agentName) => Ok(Json.toJson(AgentNameResponse(agentName)))
+            case None            => NotFound
+          }
+          .recover { case ex: Exception =>
+            logger.error("Error while retrieving agent name from oracle database", ex)
+            InternalServerError(Json.obj("error" -> "Failed to retrieve agent name"))
+          }
+      }
     }
   }
 
@@ -56,16 +58,18 @@ class CharitiesController @Inject() (
     if (charityRef.trim().isEmpty) {
       Future.successful(BadRequest(Json.obj("error" -> "charityRef must be provided")))
     } else {
-      charitiesDataSource
-        .getOrganisationName(charityRef)
-        .map {
-          case Some(organisationName) => Ok(Json.toJson(OrganisationNameResponse(organisationName)))
-          case None                   => NotFound
-        }
-        .recover { case ex: Exception =>
-          logger.error("Error while retrieving organisation name from oracle database", ex)
-          InternalServerError(Json.obj("error" -> "Failed to retrieve organisation name"))
-        }
+      request.whenOrganisationAuthorisedForCharity(charityRef) {
+        charitiesDataSource
+          .getOrganisationName(charityRef)
+          .map {
+            case Some(organisationName) => Ok(Json.toJson(OrganisationNameResponse(organisationName)))
+            case None                   => NotFound
+          }
+          .recover { case ex: Exception =>
+            logger.error("Error while retrieving organisation name from oracle database", ex)
+            InternalServerError(Json.obj("error" -> "Failed to retrieve organisation name"))
+          }
+      }
     }
   }
 }
