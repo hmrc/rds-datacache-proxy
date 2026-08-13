@@ -378,16 +378,16 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockCs.getObject(2)).thenReturn(correspondenceRs)
     when(correspondenceRs.next()).thenReturn(true)
 
-    when(correspondenceRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
-    when(correspondenceRs.getString("ADI")).thenReturn("none")
-    when(correspondenceRs.getString("ADDRESS_1")).thenReturn("random street")
-    when(correspondenceRs.getString("ADDRESS_2")).thenReturn("bar")
-    when(correspondenceRs.getString("ADDRESS_3")).thenReturn("bar")
-    when(correspondenceRs.getString("ADDRESS_4")).thenReturn("bar")
-    when(correspondenceRs.getString("POSTCODE")).thenReturn("SR1 4DE")
-    when(correspondenceRs.getString("COUNTRY")).thenReturn("Ingerland!")
-    when(correspondenceRs.getString("IOM_OR_CI_FLAG")).thenReturn("true")
-    when(correspondenceRs.getDate("SYS_DATE")).thenReturn(Date.valueOf("2026-05-13"))
+    when(correspondenceRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(correspondenceRs.getString("adi")).thenReturn("none")
+    when(correspondenceRs.getString("address_1")).thenReturn("random street")
+    when(correspondenceRs.getString("address_2")).thenReturn("bar")
+    when(correspondenceRs.getString("address_3")).thenReturn("bar")
+    when(correspondenceRs.getString("address_4")).thenReturn("bar")
+    when(correspondenceRs.getString("postcode")).thenReturn("SR1 4DE")
+    when(correspondenceRs.getString("country")).thenReturn("Ingerland!")
+    when(correspondenceRs.getString("iom_or_ci_flag")).thenReturn("true")
+    when(correspondenceRs.getDate("system_date")).thenReturn(Date.valueOf("2026-05-13"))
 
     val result =
       repository.getBusinessAddressDetails(mgdRegNumber).futureValue
