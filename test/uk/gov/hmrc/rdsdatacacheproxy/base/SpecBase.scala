@@ -33,6 +33,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.auth.core.Enrolment
 
 trait SpecBase
     extends AnyFreeSpec
@@ -56,6 +57,9 @@ trait SpecBase
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val bodyParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
   val fakeAuthAction = new FakeAuthAction(bodyParsers)
+
+  def fakeAuthActionWithEnrolments(enrolments: Set[Enrolment]): FakeAuthAction =
+    new FakeAuthAction(bodyParsers, enrolments)
 
   def fakeRequestWithJsonBody(json: JsValue): FakeRequest[JsValue] = fakeRequestWithBody(json)
   def fakeRequestWithBody[A](body: A): FakeRequest[A] = FakeRequest("", "/", FakeHeaders(), body)
