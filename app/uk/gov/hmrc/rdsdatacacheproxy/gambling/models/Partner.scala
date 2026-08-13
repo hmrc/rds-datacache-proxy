@@ -28,6 +28,7 @@ final case class PartnerDetails(
 
 final case class Partner(
   mgdRegNumber: String,
+  businessPartnerNumber: Option[String],
   dateOfJoining: Option[LocalDate],
   dateOfLeaving: Option[LocalDate],
   solePropTitle: Option[String],
