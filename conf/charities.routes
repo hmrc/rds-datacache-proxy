@@ -1,0 +1,4 @@
+# microservice specific routes
+
+GET        /agents/:agentRef                    uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getAgentName(agentRef: String)
+GET        /organisations/:charityRef           uk.gov.hmrc.rdsdatacacheproxy.charities.controllers.CharitiesController.getOrganisationName(charityRef: String)

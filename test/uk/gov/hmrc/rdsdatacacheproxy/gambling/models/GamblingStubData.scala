@@ -101,6 +101,43 @@ object GamblingStubData {
         )
     }
 
+  def getBusinessAddressDetails(
+    mgdRegNumber: String
+  ): BusinessAddressDetails =
+    mgdRegNumber match {
+
+      case "XYZ00000000001" =>
+        BusinessAddressDetails(
+          mgdRegNumber = mgdRegNumber,
+          adi          = Some("none"),
+          address1     = Some("random street"),
+          address2     = Some("bar"),
+          address3     = Some("bar"),
+          address4     = Some("bar"),
+          postcode     = Some("SR1 4DE"),
+          country      = Some("Ingerland!"),
+          iomOrCiFlag  = Some("true"),
+          systemDate   = Some(LocalDate.now())
+        )
+
+      case "ERR00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case _ =>
+        BusinessAddressDetails(
+          mgdRegNumber = "UNKNOWN",
+          adi          = None,
+          address1     = None,
+          address2     = None,
+          address3     = None,
+          address4     = None,
+          postcode     = None,
+          country      = None,
+          iomOrCiFlag  = None,
+          systemDate   = Some(LocalDate.now())
+        )
+    }
+
   // -------------------------
   // OperatorDetails
   // -------------------------

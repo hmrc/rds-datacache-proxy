@@ -26,7 +26,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AdjustmentTransactions, AdjustmentTransactionsList}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AdjustmentTransactionsRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.*
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AdjustmentTransactionsStubData
 import scala.concurrent.Future
 
 class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
@@ -53,7 +53,7 @@ class AdjustmentTransactionsControllerISpec extends AnyWordSpec with Matchers wi
     "return 200 with adjustment transactions list with two items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/adjustment-transactions/10/2").futureValue
+      val response = get(s"$endpoint/adjustment-transactions/10/3").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
