@@ -848,7 +848,7 @@ class GamblingDataCacheRepository @Inject() (
       db.withConnection { conn =>
 
         val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS_DETAILS(?, ?) }"
+          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS(?, ?) }"
         )
 
         def closeQuietly(c: AutoCloseable): Unit =
