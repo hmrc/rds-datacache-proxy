@@ -53,6 +53,12 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
         GamblingStubData.getCorrespondenceDetails(mgdRegNumber)
       }
 
+
+    override def getBusinessAddressDetails(mgdRegNumber: String) =
+      Future {
+        GamblingStubData.getBusinessAddressDetails(mgdRegNumber)
+      }
+
     override def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails] = {
 
       if (mgdRegNumber == "ERR00000000000")
@@ -539,6 +545,30 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     val endpoint = "/gambling/correspondence-details/mgd"
 
     "return 200 with correspondence details" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/XYZ00000000001").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000001"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+
+      val response = get(s"$endpoint/XYZ00000000001").futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
+
+  "GET /gambling/business-address-details/mgd/:mgdRegNumber" should {
+
+    val endpoint = "/gambling/business-address-details/mgd"
+
+    "return 200 with business address details" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/XYZ00000000001").futureValue

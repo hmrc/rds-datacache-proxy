@@ -10,4 +10,5 @@ GET        /reallocation-to-accounting-period/:taxRef/:accPeriod            uk.g
 GET        /reallocation-from-accounting-period/:taxRef/:accPeriod          uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationFromAccPeriodController.getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long)
 
 GET        /total-amount-payment-repayment-reallocation/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PayRepayReallocationController.getTotalAmounts(taxRef: Long, accPeriod: Long)
-GET        /accounting-period-details/:taxRef/:accPeriod    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountingPeriodDetailsController.getIsAPBalanced(taxRef: Long, accPeriod: Long)
+GET        /accounting-period-details/:taxRef/:accPeriod                    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountingPeriodDetailsController.getIsAPBalanced(taxRef: Long, accPeriod: Long)
+GET        /repayments/:taxRef/:accPeriod                                   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.RepaymentsController.getRepayments(taxRef: Long, accPeriod: Long)

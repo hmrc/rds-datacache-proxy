@@ -21,14 +21,16 @@ import uk.gov.hmrc.http.SessionId
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.auth.core.Enrolments
+import uk.gov.hmrc.auth.core.Enrolment
 
-class FakeAuthAction @Inject() (bodyParsers: PlayBodyParsers) extends AuthAction {
+class FakeAuthAction @Inject() (bodyParsers: PlayBodyParsers, enrolments: Set[Enrolment] = Set.empty) extends AuthAction {
 
   override def parser: BodyParser[AnyContent] = bodyParsers.defaultBodyParser
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
     block(
-      AuthenticatedRequest(request, "internalId", "credId", SessionId("sessionId"))
+      AuthenticatedRequest(request, "internalId", "credId", SessionId("sessionId"), Enrolments(enrolments))
     )
 
   override protected def executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
