@@ -72,8 +72,9 @@ class PartnerDetailsCacheRepositorySpec extends AnyWordSpec with Matchers with B
       when(partnerDetailsResultSet.next()).thenReturn(true, false)
 
       when(partnerDetailsResultSet.getString("mgd_reg_number")).thenReturn("XWM12345678901")
+      when(partnerDetailsResultSet.getString("BUSINESS_PARTNER_NUMBER")).thenReturn("0100049899")
       when(partnerDetailsResultSet.getDate("DATE_OF_JOINING")).thenReturn(Date.valueOf("2025-01-01"))
-      when(partnerDetailsResultSet.getDate("DATE_OF_LEAVING")).thenReturn(Date.valueOf("2026-01-01"))
+      when(partnerDetailsResultSet.getString("DATE_OF_LEAVING")).thenReturn("2026-01-01")
       when(partnerDetailsResultSet.getString("SOLE_PROP_TITLE")).thenReturn("Ms")
       when(partnerDetailsResultSet.getString("SOLE_PROP_FIRST_NAME")).thenReturn("Amelia")
       when(partnerDetailsResultSet.getString("SOLE_PROP_MIDDLE_NAME")).thenReturn("Rose")
@@ -100,9 +101,25 @@ class PartnerDetailsCacheRepositorySpec extends AnyWordSpec with Matchers with B
       when(partnerDetailsResultSet.getString("MOBILE_PHONE_NUMBER")).thenReturn("07700 900123")
       when(partnerDetailsResultSet.getString("FAX_NUMBER")).thenReturn("0117 555 5678")
       when(partnerDetailsResultSet.getString("EMAIL_ADDR")).thenReturn("amelia.hartley@example.test")
-      when(partnerDetailsResultSet.getInt("IS_FUTURE_LEAVE_DATE")).thenReturn(1)
-      when(partnerDetailsResultSet.getInt("IS_FUTURE_JOIN_DATE")).thenReturn(0)
-      when(partnerDetailsResultSet.getInt("BUSINESS_TYPE")).thenReturn(2)
+      when(
+        partnerDetailsResultSet.getObject(
+          "IS_FUTURE_LEAVE_DATE",
+          classOf[java.lang.Integer]
+        )
+      ).thenReturn(Integer.valueOf(1))
+      when(
+        partnerDetailsResultSet.getObject(
+          "IS_FUTURE_JOIN_DATE",
+          classOf[java.lang.Integer]
+        )
+      ).thenReturn(Integer.valueOf(0))
+
+      when(
+        partnerDetailsResultSet.getObject(
+          "BUSINESS_TYPE",
+          classOf[java.lang.Integer]
+        )
+      ).thenReturn(Integer.valueOf(2))
 
       val result = repository.getPartnerDetails(Regime.MGD, regNumber).futureValue
 
@@ -117,8 +134,9 @@ class PartnerDetailsCacheRepositorySpec extends AnyWordSpec with Matchers with B
       verify(partnerDetailsResultSet, times(2)).next()
 
       verify(partnerDetailsResultSet).getString("mgd_reg_number")
+      verify(partnerDetailsResultSet).getString("BUSINESS_PARTNER_NUMBER")
       verify(partnerDetailsResultSet).getDate("DATE_OF_JOINING")
-      verify(partnerDetailsResultSet).getDate("DATE_OF_LEAVING")
+      verify(partnerDetailsResultSet).getString("DATE_OF_LEAVING")
       verify(partnerDetailsResultSet).getString("SOLE_PROP_TITLE")
       verify(partnerDetailsResultSet).getString("SOLE_PROP_FIRST_NAME")
       verify(partnerDetailsResultSet).getString("SOLE_PROP_MIDDLE_NAME")
@@ -145,9 +163,20 @@ class PartnerDetailsCacheRepositorySpec extends AnyWordSpec with Matchers with B
       verify(partnerDetailsResultSet).getString("MOBILE_PHONE_NUMBER")
       verify(partnerDetailsResultSet).getString("FAX_NUMBER")
       verify(partnerDetailsResultSet).getString("EMAIL_ADDR")
-      verify(partnerDetailsResultSet).getInt("IS_FUTURE_LEAVE_DATE")
-      verify(partnerDetailsResultSet).getInt("IS_FUTURE_JOIN_DATE")
-      verify(partnerDetailsResultSet).getInt("BUSINESS_TYPE")
+      verify(partnerDetailsResultSet).getObject(
+        "IS_FUTURE_LEAVE_DATE",
+        classOf[java.lang.Integer]
+      )
+
+      verify(partnerDetailsResultSet).getObject(
+        "IS_FUTURE_JOIN_DATE",
+        classOf[java.lang.Integer]
+      )
+
+      verify(partnerDetailsResultSet).getObject(
+        "BUSINESS_TYPE",
+        classOf[java.lang.Integer]
+      )
 
       verify(partnerDetailsResultSet).close()
       verify(mockCsMgd).close()
