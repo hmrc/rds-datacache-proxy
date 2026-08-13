@@ -564,9 +564,9 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     }
   }
 
-  "GET /gambling/business-address-details/mgd/:mgdRegNumber" should {
+  "GET /gambling/business-address/mgd/:mgdRegNumber" should {
 
-    val endpoint = "/gambling/business-address-details/mgd"
+    val endpoint = "/gambling/business-address/mgd"
 
     "return 200 with business address details" in {
       AuthStub.authorised()
