@@ -23,11 +23,11 @@ import java.time.LocalDate
 object PartnerDetailsStubData {
   def getPartnerDetailsData(regNumber: String): PartnerDetails =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XQZ00000000000" =>
         PartnerDetails(
           partners = List(
             Partner(
-              mgdRegNumber           = "XYZ00000000000",
+              mgdRegNumber           = "XQZ00000000000",
               dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
               dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
               solePropTitle          = Some("Ms"),
