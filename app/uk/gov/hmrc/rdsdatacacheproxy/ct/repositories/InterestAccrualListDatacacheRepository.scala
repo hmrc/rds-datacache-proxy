@@ -42,17 +42,15 @@ class InterestAccrualListDatacacheRepositoryImpl @Inject() (
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CT_DC_PK.getInterestAccrualList(?, ?, ?, ?)}")
-
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.setString(3, interestType)
-        storedProcedure.registerOutParameter(4, OracleTypes.CURSOR)
-
-        storedProcedure.execute()
-
-        val results = storedProcedure.getObject(4, classOf[ResultSet])
-
         try {
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+          storedProcedure.setString(3, interestType)
+          storedProcedure.registerOutParameter(4, OracleTypes.CURSOR)
+
+          storedProcedure.execute()
+
+          val results = storedProcedure.getObject(4, classOf[ResultSet])
           val interestAccuralLists = Option(results).map(readInterestAccuralListTransaction).getOrElse(List.empty)
           interestAccuralLists
         } finally {

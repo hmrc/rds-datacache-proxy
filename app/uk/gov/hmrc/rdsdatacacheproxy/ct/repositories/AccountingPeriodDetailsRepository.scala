@@ -39,22 +39,20 @@ class AccountingPeriodDetailsRepositoryImpl @Inject() (
     Future {
       db.withConnection { connection =>
         val cs = connection.prepareCall("{call CT_LNP_PK.isAPBalanced(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
-
-        cs.setLong(1, taxRef)
-        cs.setLong(2, accPeriod)
-
-        cs.registerOutParameter(3, java.sql.Types.VARCHAR) // p_Is_AP_Balanced
-        cs.registerOutParameter(4, java.sql.Types.VARCHAR) // p_LPI_Calc_Flag
-        cs.registerOutParameter(5, java.sql.Types.VARCHAR) // p_CR_DB_Calc_Flag
-
-        cs.registerOutParameter(6, java.sql.Types.DECIMAL) // p_CR_Interest_Amount
-        cs.registerOutParameter(7, java.sql.Types.DECIMAL) // p_DB_Interest_Amount
-        cs.registerOutParameter(8, java.sql.Types.DECIMAL) // p_LPI_Interest_Amount
-        cs.registerOutParameter(9, java.sql.Types.DECIMAL) // p_Repayment_Interest_Amount
-        cs.registerOutParameter(10, java.sql.Types.DECIMAL) // p_Amount_Due_For_AP
-        cs.execute()
-
         try {
+          cs.setLong(1, taxRef)
+          cs.setLong(2, accPeriod)
+
+          cs.registerOutParameter(3, java.sql.Types.VARCHAR) // p_Is_AP_Balanced
+          cs.registerOutParameter(4, java.sql.Types.VARCHAR) // p_LPI_Calc_Flag
+          cs.registerOutParameter(5, java.sql.Types.VARCHAR) // p_CR_DB_Calc_Flag
+
+          cs.registerOutParameter(6, java.sql.Types.DECIMAL) // p_CR_Interest_Amount
+          cs.registerOutParameter(7, java.sql.Types.DECIMAL) // p_DB_Interest_Amount
+          cs.registerOutParameter(8, java.sql.Types.DECIMAL) // p_LPI_Interest_Amount
+          cs.registerOutParameter(9, java.sql.Types.DECIMAL) // p_Repayment_Interest_Amount
+          cs.registerOutParameter(10, java.sql.Types.DECIMAL) // p_Amount_Due_For_AP
+          cs.execute()
           APBalancedItem(
             isApBalanced              = Option(cs.getString(3)),
             lpiCalcFlag               = Option(cs.getString(4)),

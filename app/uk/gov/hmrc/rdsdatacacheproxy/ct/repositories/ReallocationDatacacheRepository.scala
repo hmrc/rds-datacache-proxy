@@ -43,16 +43,14 @@ class ReallocationDatacacheRepositoryImpl @Inject() (
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CT_DC_PK.getReallocationsTo(?, ?, ?)}")
-
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
-
-        storedProcedure.execute()
-
-        val reallocationsRs = storedProcedure.getObject(3, classOf[ResultSet])
-
         try {
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+          storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
+
+          storedProcedure.execute()
+
+          val reallocationsRs = storedProcedure.getObject(3, classOf[ResultSet])
           Option(reallocationsRs).map(readReallocations).getOrElse(List.empty)
         } finally {
           storedProcedure.close()
@@ -67,7 +65,7 @@ class ReallocationDatacacheRepositoryImpl @Inject() (
       buffer += ReallocationRow(
         amount                  = rs.getBigDecimal("AMOUNT"),
         reallocationDate        = Option(rs.getDate("reallocation_date")).map(_.toLocalDate).get,
-        sourceApEndDate         = Option(rs.getDate("source_ap_end_date")).map(_.toLocalDate).get,
+        sourceApEndDate         = Option(rs.getDate("source_ap_end_date")).map(_.toLocalDate),
         sourceTaxpayerReference = rs.getString("source_taxpayer_reference")
       )
     }
