@@ -25,8 +25,10 @@ import uk.gov.hmrc.rdsdatacacheproxy.charities.models.{AgentNameResponse, Organi
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.CharitiesDataSource
 
 import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class CharitiesController @Inject() (
   authorise: AuthAction,
   charitiesDataSource: CharitiesDataSource,
@@ -58,7 +60,7 @@ class CharitiesController @Inject() (
     if (charityRef.trim().isEmpty) {
       Future.successful(BadRequest(Json.obj("error" -> "charityRef must be provided")))
     } else {
-      request.whenOrganisationAuthorisedForCharity(charityRef) {
+      request.whenUserAuthorisedForCharity(charityRef) {
         charitiesDataSource
           .getOrganisationName(charityRef)
           .map {

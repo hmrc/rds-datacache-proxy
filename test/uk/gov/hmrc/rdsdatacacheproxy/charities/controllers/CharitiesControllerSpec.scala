@@ -114,6 +114,18 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       verify(mockCharitiesDataSource).getOrganisationName("OR123")
     }
 
+    "return 200 and a successful response when repository returns Some(organisation name) and user is an agent" in new SetUp {
+      when(mockCharitiesDataSource.getOrganisationName(any[String]))
+        .thenReturn(Future.successful(Some("Test Organisation Name")))
+
+      val result: Future[Result] = controllerWithAgentEnrolment.getOrganisationName("OR123")(fakeRequest)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(OrganisationNameResponse("Test Organisation Name"))
+      verify(mockCharitiesDataSource).getOrganisationName("OR123")
+    }
+
     "return 404 when repository returns None" in new SetUp {
       when(mockCharitiesDataSource.getOrganisationName(any[String]))
         .thenReturn(Future.successful(None))
