@@ -60,8 +60,9 @@ class PartnerDetailsCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb:
                   val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
                     Partner(
                       mgdRegNumber           = mgdRegNumber,
+                      businessPartnerNumber  = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
                       dateOfJoining          = optDate("DATE_OF_JOINING", rs),
-                      dateOfLeaving          = optDate("DATE_OF_LEAVING", rs),
+                      dateOfLeaving          = optLocalDate("DATE_OF_LEAVING", rs),
                       solePropTitle          = Option(rs.getString("SOLE_PROP_TITLE")),
                       solePropFirstName      = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
                       solePropMiddleName     = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
@@ -88,9 +89,9 @@ class PartnerDetailsCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb:
                       mobilePhoneNumber      = Option(rs.getString("MOBILE_PHONE_NUMBER")),
                       faxNumber              = Option(rs.getString("FAX_NUMBER")),
                       emailAddr              = Option(rs.getString("EMAIL_ADDR")),
-                      isFutureLeaveDate      = Option(rs.getInt("IS_FUTURE_LEAVE_DATE")),
-                      isFutureJoinDate       = Option(rs.getInt("IS_FUTURE_JOIN_DATE")),
-                      businessType           = Option(rs.getInt("BUSINESS_TYPE"))
+                      isFutureLeaveDate      = Option(rs.getObject("IS_FUTURE_LEAVE_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                      isFutureJoinDate       = Option(rs.getObject("IS_FUTURE_JOIN_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                      businessType           = Option(rs.getObject("BUSINESS_TYPE", classOf[java.lang.Integer])).map(_.intValue())
                     )
                   )
                   b.addAll(maybeItem.toList)

@@ -576,6 +576,7 @@ object GamblingTestUtil {
     partners = List(
       Partner(
         mgdRegNumber           = "XWM12345678901",
+        businessPartnerNumber  = Some("0100049899"),
         dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
         dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
         solePropTitle          = Some("Ms"),
