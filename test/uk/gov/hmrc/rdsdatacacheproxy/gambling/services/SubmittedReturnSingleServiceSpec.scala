@@ -36,8 +36,8 @@ final class SubmittedReturnSingleServiceSpec extends SpecBase {
     reset(repository)
   }
 
-  private val lowercaseRegNumber = "xwm12345678901 "
-  private val normalisedRegNumber = "XWM12345678901"
+  private val lowercaseRegNumber = "xgm00003122200 "
+  private val normalisedRegNumber = "XGM00003122200"
   private val consecNo1 = 1
 
   "SubmittedReturnSingleService#getSubmittedReturnSingle" - {

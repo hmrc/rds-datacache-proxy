@@ -24,7 +24,7 @@ object InterestDrilldownStubData {
 
   def getInterestDrilldownData(regNumber: String, interestId: String = "INT001", paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestDrilldown =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XHM00003133333" =>
         InterestDrilldown(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
@@ -63,7 +63,7 @@ object InterestDrilldownStubData {
           items           = Seq.empty
         )
 
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
         InterestDrilldown(

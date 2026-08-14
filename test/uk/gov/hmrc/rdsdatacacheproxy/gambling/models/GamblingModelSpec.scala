@@ -18,6 +18,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+
 import java.time.LocalDate
 
 class GamblingModelSpec extends AnyWordSpec with Matchers {
@@ -27,7 +28,7 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
       val jsonAsString: String =
         s"""
           |{
-          |"mgdRegNumber": "XYZ00000000000",
+          |"mgdRegNumber": "XGM00003122200",
           |"returnsDue": 2,
           |"returnsOverdue": 1
           |}
@@ -37,7 +38,7 @@ class GamblingModelSpec extends AnyWordSpec with Matchers {
       val model = json.as[ReturnSummary]
 
       model mustBe ReturnSummary(
-        mgdRegNumber   = "XYZ00000000000",
+        mgdRegNumber   = "XGM00003122200",
         returnsDue     = 2,
         returnsOverdue = 1
       )

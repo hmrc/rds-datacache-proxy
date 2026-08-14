@@ -70,7 +70,7 @@ class SubmittedReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getSubmittedReturns("ERR00000000000", DEFAULT_SORT_BY, DEFAULT_ORDER_BY).futureValue
+        repository.getSubmittedReturns("XVM33333333333", DEFAULT_SORT_BY, DEFAULT_ORDER_BY).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

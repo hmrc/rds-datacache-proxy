@@ -63,56 +63,57 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
     "return 200 with correct RepaymentsStubData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XYZ00000000000")
+      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "return 200 with correct RepaymentsStubData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XYZ99999999999")
+      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/xyz00000000012 ").futureValue
+      val response = get(s"$endpoint/$GBD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XYZ00000000012")
+      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/   XYZ00000000012   ").futureValue
+      val response = get(s"$endpoint/$GBD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XYZ00000000012")
+      response.json.as[RepaymentsSummary] mustBe getRepaymentsSummaryData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
-      val res2 = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
+      val res1 = get(s"$endpoint/$GBD/XGM00003122200").futureValue
+      val res2 = get(s"$endpoint/$GBD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "handle different valid regNumbers independently" in {
-      val res1 = get(s"$endpoint/$GBD/XYZ00000000000").futureValue
-      val res2 = get(s"$endpoint/$GBD/XYZ99999999999").futureValue
+      AuthStub.authorised()
+      val res1 = get(s"$endpoint/$GBD/XGM00003122200").futureValue
+      val res2 = get(s"$endpoint/$GBD/XGM00003155555").futureValue
 
       res1 must not be res2
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/$GBD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -124,7 +125,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/BAD_REGIME/XGM00003122200").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -163,14 +164,14 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$endpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$endpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -183,56 +184,57 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
     "return 200 with correct ActualRepayments" in {
       AuthStub.authorised()
 
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000000")
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XGM00003122200")
     }
 
     "return 200 with correct ActualRepayments when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ99999999999").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ99999999999")
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XGM00003122200")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/xyz00000000012 ").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000012")
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/   XYZ00000000012   ").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XYZ00000000012")
+      response.json.as[ActualRepayments] mustBe getActualRepaymentsData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
-      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
+      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "handle different valid regNumbers independently" in {
-      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
-      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XYZ99999999999").futureValue
+      AuthStub.authorised()
+      val res1 = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
+      val res2 = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003155555").futureValue
 
       res1 must not be res2
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000012").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -244,7 +246,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/BAD_REGIME/XYZ00000000012").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/BAD_REGIME/XGM00003122200").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -265,7 +267,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XYZ00000000000").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XGM00003122200").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
@@ -283,14 +285,14 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/ERR00000000000").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XXM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
