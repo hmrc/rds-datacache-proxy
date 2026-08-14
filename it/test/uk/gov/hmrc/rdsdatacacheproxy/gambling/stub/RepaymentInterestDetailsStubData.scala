@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDetailItem}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetailItem, InterestDetails}
 
 import java.time.LocalDate
 
 object RepaymentInterestDetailsStubData {
   def getRepaymentInterestDetailsData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): InterestDetails =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         InterestDetails(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
@@ -153,7 +153,7 @@ object RepaymentInterestDetailsStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         InterestDetails(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),

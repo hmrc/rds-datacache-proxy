@@ -56,60 +56,60 @@ class SubmittedReturnsControllerISpec extends AnyWordSpec with Matchers with Sca
     "return 200 with correct SubmittedReturnsData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001?sortBy=1&orderBy=DESC").futureValue
+      val response = get(s"$endpoint/XGM00003122200?sortBy=1&orderBy=DESC").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XYZ00000000001", 1, "DESC")
+      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XGM00003122200", 1, "DESC")
     }
 
     "return 200 with correct SubmittedReturnsData with DEFAULTS when sortBy & orderBy NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001").futureValue
+      val response = get(s"$endpoint/XGM00003122200").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XYZ00000000001", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
+      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XGM00003122200", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
     }
 
     "return 200 with correct SubmittedReturnsData with DEFAULTS when sortBy & orderBy are RANDOM" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/XYZ00000000001?sortBy=999&orderBy=RANDOM").futureValue
+      val response = get(s"$endpoint/XGM00003122200?sortBy=999&orderBy=RANDOM").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XYZ00000000001", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
+      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XGM00003122200", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/xyz00000000012 ").futureValue
+      val response = get(s"$endpoint/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XYZ00000000012", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
+      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XGM00003122200", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/   XYZ00000000012   ").futureValue
+      val response = get(s"$endpoint/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XYZ00000000012", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
+      response.json.as[SubmittedReturns] mustBe getSubmittedReturnsData("XGM00003122200", DEFAULT_SORT_BY, DEFAULT_ORDER_BY)
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/XYZ00000000012").futureValue
-      val res2 = get(s"$endpoint/XYZ00000000012").futureValue
+      val res1 = get(s"$endpoint/XGM00003122200").futureValue
+      val res2 = get(s"$endpoint/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -154,14 +154,14 @@ class SubmittedReturnsControllerISpec extends AnyWordSpec with Matchers with Sca
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000").futureValue
+      val response = get(s"$endpoint/XVM33333333333").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000").futureValue
+      val response = get(s"$endpoint/XVM33333333333").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

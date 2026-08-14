@@ -49,24 +49,24 @@ class InterestOverviewDataCacheRepositoryISpec
   "getInterestOverview (stubbed repository)" should {
 
     "return correct InterestOverviewStubData" in {
-      val result = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
-      result mustBe getInterestOverviewData("XYZ00000000000")
+      val result = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
+      result mustBe getInterestOverviewData("XGM00003122200")
     }
 
     "return correct data when values are 0" in {
-      val result = repository.getInterestOverview(Regime.MGD, "XYZ99999999999").futureValue
-      result mustBe getInterestOverviewData("XYZ99999999999")
+      val result = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
+      result mustBe getInterestOverviewData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
-      val result2 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
+      val result2 = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getInterestOverview(Regime.MGD, "XYZ00000000000").futureValue
+      val result1 = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
       val result2 = repository.getInterestOverview(Regime.MGD, "XYZ99999999999").futureValue
 
       result1 must not be result2
@@ -74,7 +74,7 @@ class InterestOverviewDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getInterestOverview(Regime.MGD, "ERR00000000000").futureValue
+        repository.getInterestOverview(Regime.MGD, "XXM33333066666").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
