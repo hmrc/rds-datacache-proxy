@@ -91,7 +91,7 @@ class ReallocationDatacacheRepositorySpec extends AnyFlatSpec with Matchers with
       ReallocationRow(
         amount                  = BigDecimal(117.01),
         reallocationDate        = LocalDate.of(2025, 5, 1),
-        sourceApEndDate         = LocalDate.of(2026, 7, 1),
+        sourceApEndDate         = Some(LocalDate.of(2026, 7, 1)),
         sourceTaxpayerReference = "9369369363"
       )
     )
@@ -123,13 +123,13 @@ class ReallocationDatacacheRepositorySpec extends AnyFlatSpec with Matchers with
       ReallocationRow(
         amount                  = BigDecimal(117.01),
         reallocationDate        = LocalDate.of(2025, 5, 1),
-        sourceApEndDate         = LocalDate.of(2026, 7, 1),
+        sourceApEndDate         = Some(LocalDate.of(2026, 7, 1)),
         sourceTaxpayerReference = "9369369363"
       ),
       ReallocationRow(
         amount                  = BigDecimal(23.91),
         reallocationDate        = LocalDate.of(2021, 5, 1),
-        sourceApEndDate         = LocalDate.of(2027, 7, 1),
+        sourceApEndDate         = Some(LocalDate.of(2027, 7, 1)),
         sourceTaxpayerReference = "1369369361"
       )
     )
