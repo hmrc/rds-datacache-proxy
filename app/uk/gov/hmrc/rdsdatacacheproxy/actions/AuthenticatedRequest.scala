@@ -33,22 +33,24 @@ case class AuthenticatedRequest[A](
   enrolments: Enrolments
 ) extends WrappedRequest[A](request) {
 
-  def whenOrganisationAuthorisedForCharity(charityReference: String)(block: => Future[Result]): Future[Result] =
-    enrolments.getEnrolment(organisationEnrolmentKey) match {
-      case None =>
-        Future.successful(Results.Unauthorized)
+  def whenUserAuthorisedForCharity(charityReference: String)(block: => Future[Result]): Future[Result] =
+    if (enrolments.getEnrolment(agentEnrolmentKey).isDefined)
+      block
+    else
+      enrolments.getEnrolment(organisationEnrolmentKey) match {
+        case None =>
+          Future.successful(Results.Unauthorized)
+        case Some(enrolment) =>
+          val enrolledCharityReference =
+            enrolment.getIdentifier(organisationIdentifierKey).map(_.value.trim).filter(_.nonEmpty)
 
-      case Some(enrolment) =>
-        val enrolledCharityReference =
-          enrolment.getIdentifier(organisationIdentifierKey).map(_.value.trim).filter(_.nonEmpty)
-
-        if (enrolledCharityReference.contains(charityReference))
-          block
-        else
-          Future.successful(
-            Results.Forbidden(Json.obj("message" -> "Organisation not authorised for the requested charity reference"))
-          )
-    }
+          if (enrolledCharityReference.contains(charityReference))
+            block
+          else
+            Future.successful(
+              Results.Forbidden(Json.obj("message" -> "Not authorised for the requested charity reference"))
+            )
+      }
 
   def whenAgentAuthorisedForCharity(agentReference: String)(block: => Future[Result]): Future[Result] =
     enrolments.getEnrolment(agentEnrolmentKey) match {

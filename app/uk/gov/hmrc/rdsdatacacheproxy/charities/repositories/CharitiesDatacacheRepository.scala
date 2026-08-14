@@ -22,6 +22,7 @@ import play.api.db.Database
 
 import java.sql.Types
 import javax.inject.Inject
+import javax.inject.Singleton
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.db.NamedDatabase
 
@@ -31,6 +32,7 @@ trait CharitiesDataSource {
   def getOrganisationName(charityRef: String): Future[Option[String]]
 }
 
+@Singleton
 class CharitiesDatacacheRepository @Inject() (
   @NamedDatabase("charities") db: Database
 )(implicit ec: ExecutionContext)
