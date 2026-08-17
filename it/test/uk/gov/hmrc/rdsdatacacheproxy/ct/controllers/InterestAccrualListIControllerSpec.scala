@@ -30,7 +30,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
 
-class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestAccrualListStub extends InterestAccrualListDatacacheRepository {
     override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] = {
@@ -60,7 +60,7 @@ class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutur
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      
+
       response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 

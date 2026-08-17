@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 object InterestAccrualListStubData {
 
