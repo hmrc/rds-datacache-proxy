@@ -16,42 +16,41 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
 
 import java.time.LocalDate
-import scala.concurrent.Future
 
 object InterestAccrualListStubData {
 
   val interestAccrualListEmpty: List[InterestAccrual] = List.empty
 
-  val interestAccrualListSingleItem:  List[InterestAccrual] = List(
+  val interestAccrualListSingleItem: List[InterestAccrual] = List(
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-      interestAccrualToDate = LocalDate.of(2021, 5, 7),
-      interestRate = 2,
-      interestAmount = 10,
-      apEndDate = LocalDate.of(2021, 6, 7)
+      interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+      interestRate            = 2,
+      interestAmount          = 10,
+      apEndDate               = LocalDate.of(2021, 6, 7)
     )
   )
 
   val interestAccrualListMultipleItems: List[InterestAccrual] = List(
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-      interestAccrualToDate = LocalDate.of(2021, 5, 7),
-      interestRate = 2,
-      interestAmount = 10,
-      apEndDate = LocalDate.of(2021, 6, 7)
+      interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+      interestRate            = 2,
+      interestAmount          = 10,
+      apEndDate               = LocalDate.of(2021, 6, 7)
     ),
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 6, 10),
-      interestAccrualToDate = LocalDate.of(2021, 8, 10),
-      interestRate = 3,
-      interestAmount = 23,
-      apEndDate = LocalDate.of(2021, 9, 10)
+      interestAccrualToDate   = LocalDate.of(2021, 8, 10),
+      interestRate            = 3,
+      interestAmount          = 23,
+      apEndDate               = LocalDate.of(2021, 9, 10)
     )
   )
 
@@ -59,8 +58,8 @@ object InterestAccrualListStubData {
     taxRef match {
       case 1L  => interestAccrualListSingleItem
       case 2L  => interestAccrualListMultipleItems
-      case 99L => throw new Error("Simulated downstream failure")
-      case _ => interestAccrualListEmpty
+      case 99L => throw new RuntimeException("Simulated downstream failure")
+      case _   => interestAccrualListEmpty
     }
   }
 
