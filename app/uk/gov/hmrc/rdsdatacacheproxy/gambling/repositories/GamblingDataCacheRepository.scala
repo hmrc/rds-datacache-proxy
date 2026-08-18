@@ -848,7 +848,7 @@ class GamblingDataCacheRepository @Inject() (
       db.withConnection { conn =>
 
         val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS_DETAILS(?, ?) }"
+          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS(?, ?) }"
         )
 
         def closeQuietly(c: AutoCloseable): Unit =
@@ -882,18 +882,18 @@ class GamblingDataCacheRepository @Inject() (
                     .map(_.toLocalDate)
 
                 BusinessAddressDetails(
-                  mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
+                  mgdRegNumber = Option(rs.getString("mgd_reg_number"))
                     .map(_.trim)
                     .getOrElse(""),
-                  adi         = optString("ADI"),
-                  address1    = optString("ADDRESS_1"),
-                  address2    = optString("ADDRESS_2"),
-                  address3    = optString("ADDRESS_3"),
-                  address4    = optString("ADDRESS_4"),
-                  postcode    = optString("POSTCODE"),
-                  country     = optString("COUNTRY"),
-                  iomOrCiFlag = optString("IOM_OR_CI_FLAG"),
-                  systemDate  = optDate("SYS_DATE")
+                  adi         = optString("adi"),
+                  address1    = optString("address_1"),
+                  address2    = optString("address_2"),
+                  address3    = optString("address_3"),
+                  address4    = optString("address_4"),
+                  postcode    = optString("postcode"),
+                  country     = optString("country"),
+                  iomOrCiFlag = optString("iom_or_ci_flag"),
+                  systemDate  = optDate("system_date")
                 )
               }
               .getOrElse {

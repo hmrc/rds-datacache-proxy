@@ -153,7 +153,7 @@ object InterestDetailsStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         InterestDetails(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),

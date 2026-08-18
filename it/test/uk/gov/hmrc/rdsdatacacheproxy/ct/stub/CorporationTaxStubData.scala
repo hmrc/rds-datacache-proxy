@@ -55,7 +55,7 @@ object CorporationTaxStubData {
     ReallocationRow(
       amount = BigDecimal(117.01),
       reallocationDate = LocalDate.of(2025, 5, 1),
-      sourceApEndDate = LocalDate.of(2026, 7, 1),
+      sourceApEndDate = Some(LocalDate.of(2026, 7, 1)),
       sourceTaxpayerReference = "9369369363"
     )
   )
@@ -64,13 +64,13 @@ object CorporationTaxStubData {
     ReallocationRow(
       amount = BigDecimal(117.01),
       reallocationDate = LocalDate.of(2025, 5, 1),
-      sourceApEndDate = LocalDate.of(2026, 7, 1),
+      sourceApEndDate = Some(LocalDate.of(2026, 7, 1)),
       sourceTaxpayerReference = "9369369363"
     ),
     ReallocationRow(
       amount = BigDecimal(27.89),
       reallocationDate = LocalDate.of(2015, 1, 1),
-      sourceApEndDate = LocalDate.of(2025, 11, 8),
+      sourceApEndDate = Some(LocalDate.of(2025, 11, 8)),
       sourceTaxpayerReference = "9369369361"
     )
   )

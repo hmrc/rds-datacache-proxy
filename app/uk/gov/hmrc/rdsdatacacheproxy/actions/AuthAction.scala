@@ -27,7 +27,9 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.Singleton
 
+@Singleton
 class DefaultAuthAction @Inject() (
   override val authConnector: AuthConnector,
   val parser: BodyParsers.Default

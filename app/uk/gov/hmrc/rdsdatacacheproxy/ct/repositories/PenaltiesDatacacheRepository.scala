@@ -42,16 +42,13 @@ class PenaltiesDatacacheRepositoryImpl @Inject() (
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CT_DC_PK.getPenaltyTransactionList(?, ?, ?)}")
-
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR) // p_list
-
-        storedProcedure.execute()
-
-        val pListRs = storedProcedure.getObject(3, classOf[ResultSet])
-
         try {
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+          storedProcedure.registerOutParameter(3, OracleTypes.CURSOR) // p_list
+
+          storedProcedure.execute()
+          val pListRs = storedProcedure.getObject(3, classOf[ResultSet])
           val penalties = Option(pListRs).map(readPenaltiesTransaction).getOrElse(List.empty)
           penalties
         } finally {

@@ -24,7 +24,7 @@ case class Reallocations(reallocation: Seq[ReallocationRow])
 case class ReallocationRow(
   amount: BigDecimal,
   reallocationDate: LocalDate,
-  sourceApEndDate: LocalDate,
+  sourceApEndDate: Option[LocalDate],
   sourceTaxpayerReference: String
 )
 

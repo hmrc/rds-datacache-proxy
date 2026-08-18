@@ -44,25 +44,25 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
   "getReturnsSubmitted (stubbed repository)" should {
 
     "return correct ReturnsSubmittedData" in {
-      val result = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000000", 1, 10).futureValue
+      val result = repository.getReturnsSubmitted(Regime.MGD, "XGM00003122200", 1, 10).futureValue
 
-      result mustBe getReturnsSubmittedData("XYZ00000000000")
+      result mustBe getReturnsSubmittedData("XGM00003122200")
     }
 
     "return correct data when paginationStart is 1" in {
-      val result = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
-      result mustBe getReturnsSubmittedData("XYZ00000000001")
+      val result = repository.getReturnsSubmitted(Regime.MGD, "XGM00003122200", 1, 10).futureValue
+      result mustBe getReturnsSubmittedData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
-      val result2 = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000012", 1, 10).futureValue
+      val result1 = repository.getReturnsSubmitted(Regime.MGD, "XGM00003122200", 1, 10).futureValue
+      val result2 = repository.getReturnsSubmitted(Regime.MGD, "XGM00003122200", 1, 10).futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000010", 1, 10).futureValue
+      val result1 = repository.getReturnsSubmitted(Regime.MGD, "XGM00003122200", 1, 10).futureValue
       val result2 = repository.getReturnsSubmitted(Regime.MGD, "XYZ00000000001", 1, 10).futureValue
 
       result1 must not be result2
@@ -70,7 +70,7 @@ class GamblingReturnsDataCacheRepositoryISpec extends AnyWordSpec with Matchers 
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReturnsSubmitted(Regime.MGD, "ERR00000000000", 1, 10).futureValue
+        repository.getReturnsSubmitted(Regime.MGD, "XXM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

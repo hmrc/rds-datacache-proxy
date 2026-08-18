@@ -26,6 +26,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ndds.models.responses.*
 import java.sql.{Date, ResultSet, Types}
 import java.time.LocalDate
 import javax.inject.Inject
+import javax.inject.Singleton
 import scala.annotation.tailrec
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,6 +41,7 @@ trait RdsDataSource {
   def isAdvanceNoticePresent(paymentPlanReference: String, credId: String): Future[AdvanceNoticeResponse]
 }
 
+@Singleton
 class RdsDatacacheRepository @Inject() (db: Database, appConfig: AppConfig)(implicit ec: ExecutionContext) extends RdsDataSource with Logging:
 
   def getDirectDebits(id: String): Future[UserDebits] = {

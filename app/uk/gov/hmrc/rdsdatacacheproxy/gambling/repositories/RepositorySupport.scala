@@ -29,6 +29,9 @@ trait RepositorySupport {
 
   def optDate(col: String, rs: ResultSet): Option[LocalDate] = Option(rs.getDate(col)).map(_.toLocalDate)
 
+  def optLocalDate(col: String, rs: ResultSet): Option[LocalDate] =
+    Option(rs.getString(col)).map(LocalDate.parse)
+
   def optInt(i: Int, cs: CallableStatement): Option[Int] =
     Option(cs.getObject(i)).map {
       case bd: java.math.BigDecimal => bd.intValue()

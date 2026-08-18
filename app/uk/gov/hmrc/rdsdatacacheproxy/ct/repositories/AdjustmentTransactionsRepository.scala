@@ -41,16 +41,14 @@ class AdjustmentTransactionsRepositoryImpl @Inject() (
     Future {
       db.withConnection { connect =>
         val storedProcedure = connect.prepareCall("{call CT_DC_PK.getAdjustmentTransactionList(?, ?, ?)}")
-
-        storedProcedure.setLong(1, taxRef)
-        storedProcedure.setLong(2, accPeriod)
-        storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
-
-        storedProcedure.execute()
-
-        val adjustmentTransactionsList = storedProcedure.getObject(3, classOf[ResultSet])
-
         try {
+          storedProcedure.setLong(1, taxRef)
+          storedProcedure.setLong(2, accPeriod)
+          storedProcedure.registerOutParameter(3, OracleTypes.CURSOR)
+
+          storedProcedure.execute()
+
+          val adjustmentTransactionsList = storedProcedure.getObject(3, classOf[ResultSet])
           val adjustmentTransactions = Option(adjustmentTransactionsList).map(readAdjustmentTransactions).getOrElse(List.empty)
           adjustmentTransactions
         } finally {

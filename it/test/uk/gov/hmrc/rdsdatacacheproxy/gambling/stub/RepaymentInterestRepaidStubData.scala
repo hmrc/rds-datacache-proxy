@@ -23,7 +23,7 @@ import java.time.LocalDate
 object RepaymentInterestRepaidStubData {
   def getRepaymentInterestRepaidData(regNumber: String, paginationStart: Int = 1, paginationMaxRows: Int = 10): RepaymentInterestRepaid =
     regNumber match {
-      case "XYZ00000000000" =>
+      case "XGM00003122200" =>
         RepaymentInterestRepaid(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 11, 3)),
@@ -120,7 +120,7 @@ object RepaymentInterestRepaidStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         RepaymentInterestRepaid(
           periodStartDate = Some(LocalDate.of(2013, 1, 1)),
