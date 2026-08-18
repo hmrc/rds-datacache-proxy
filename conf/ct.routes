@@ -8,6 +8,7 @@ GET        /administrative-rule/:adminRule                                  uk.g
 GET        /interest-accrual-list/:taxRef/:accPeriod/:interestType          uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestAccrualListController.getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String)
 GET        /reallocation-to-accounting-period/:taxRef/:accPeriod            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationController.getByAccountingPeriod(taxRef: Long, accPeriod: Long)
 GET        /reallocation-from-accounting-period/:taxRef/:accPeriod          uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ReallocationFromAccPeriodController.getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long)
+GET        /payment-transactions/:taxRef/:accPeriod                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PaymentsController.getPayments(taxRef: Long, accPeriod: Long)
 
 GET        /total-amount-payment-repayment-reallocation/:taxRef/:accPeriod  uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PayRepayReallocationController.getTotalAmounts(taxRef: Long, accPeriod: Long)
 GET        /accounting-period-details/:taxRef/:accPeriod                    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountingPeriodDetailsController.getIsAPBalanced(taxRef: Long, accPeriod: Long)

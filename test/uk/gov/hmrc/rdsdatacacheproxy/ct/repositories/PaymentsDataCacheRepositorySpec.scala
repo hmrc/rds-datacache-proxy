@@ -76,7 +76,7 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
       val result: List[PaymentTransactions] = repository.getPayments(taxRef, accPeriod).futureValue
 
       result shouldBe List(
-        PaymentTransactions(amount = Some(123.44), paymentType = Some("A"), effectiveDateOfPayment = Some(LocalDate.of(2026, 1, 1)))
+        PaymentTransactions(amount = 123.44, paymentType = "A", effectiveDateOfPayment = LocalDate.of(2026, 1, 1))
       )
 
       verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentTransactionList(?, ?, ?)}")
@@ -108,8 +108,8 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
       val result: List[PaymentTransactions] = repository.getPayments(taxRef, accPeriod).futureValue
 
       result shouldBe List(
-        PaymentTransactions(amount = Some(123.44), paymentType = Some("A"), effectiveDateOfPayment = Some(LocalDate.of(2026, 1, 1))),
-        PaymentTransactions(amount = Some(456.77), paymentType = Some("D"), effectiveDateOfPayment = Some(LocalDate.of(2026, 2, 1)))
+        PaymentTransactions(amount = 123.44, paymentType = "A", effectiveDateOfPayment = LocalDate.of(2026, 1, 1)),
+        PaymentTransactions(amount = 456.77, paymentType = "D", effectiveDateOfPayment = LocalDate.of(2026, 2, 1))
       )
 
       verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentTransactionList(?, ?, ?)}")
