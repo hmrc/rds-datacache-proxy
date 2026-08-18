@@ -17,14 +17,15 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccruals
 
 import java.time.LocalDate
 
 object InterestAccrualListStubData {
 
-  val interestAccrualListEmpty: List[InterestAccrual] = List.empty
+  val interestAccrualListEmpty: InterestAccruals = InterestAccruals(List.empty)
 
-  val interestAccrualListSingleItem: List[InterestAccrual] = List(
+  val interestAccrualListSingleItem: InterestAccruals = InterestAccruals(List(
     InterestAccrual(
       computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
@@ -33,9 +34,9 @@ object InterestAccrualListStubData {
       interestAmount          = 10,
       apEndDate               = LocalDate.of(2021, 6, 7)
     )
-  )
+  ))
 
-  val interestAccrualListMultipleItems: List[InterestAccrual] = List(
+  val interestAccrualListMultipleItems: InterestAccruals = InterestAccruals(List(
     InterestAccrual(
       computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
@@ -52,14 +53,14 @@ object InterestAccrualListStubData {
       interestAmount          = 23,
       apEndDate               = LocalDate.of(2021, 9, 10)
     )
-  )
+  ))
 
-  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): List[InterestAccrual] = {
+  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): InterestAccruals = {
     taxRef match {
-      case 1L  => interestAccrualListSingleItem
-      case 2L  => interestAccrualListMultipleItems
+      case 1L => interestAccrualListSingleItem
+      case 2L => interestAccrualListMultipleItems
       case 99L => throw new RuntimeException("Simulated downstream failure")
-      case _   => interestAccrualListEmpty
+      case _ => interestAccrualListEmpty
     }
   }
 

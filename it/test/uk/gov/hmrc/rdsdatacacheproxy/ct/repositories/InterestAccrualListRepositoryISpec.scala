@@ -39,7 +39,7 @@ class InterestAccrualListRepositoryISpec
     with ApplicationWithWiremock {
 
   class InterestAccrualListCacheRepositoryStub extends InterestAccrualListDatacacheRepository {
-    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] =
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccruals] =
     Future.successful(
       InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType)
     )

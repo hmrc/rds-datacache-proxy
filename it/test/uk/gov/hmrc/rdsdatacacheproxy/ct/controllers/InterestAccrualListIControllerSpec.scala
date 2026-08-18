@@ -33,7 +33,7 @@ import scala.concurrent.Future
 class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestAccrualListStub extends InterestAccrualListDatacacheRepository {
-    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] = {
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccruals] = {
       Future.successful(InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType))
     }
   }
@@ -61,18 +61,7 @@ class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      println("Debug Response:")
-      println(response.json);      
-      
-      println("Debug List:")
-      println(InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType));
-
-      println("Debug Parse List as JSON:")
-      println(response.json.as[List[InterestAccrual]].toString());
-
-      assert(true, false)
-
-      //response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
+      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 
     "return 200 with InterestAccrual empty list" in {
