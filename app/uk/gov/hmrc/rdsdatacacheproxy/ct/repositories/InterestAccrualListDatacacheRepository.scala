@@ -51,8 +51,8 @@ class InterestAccrualListDatacacheRepositoryImpl @Inject() (
           storedProcedure.execute()
 
           val results = storedProcedure.getObject(4, classOf[ResultSet])
-          val interestAccuralLists = Option(results).map(readInterestAccuralListTransaction).getOrElse(List.empty)
-          InterestAccruals(interestAccuralLists)
+          val interestAccrualLists = Option(results).map(readInterestAccrualListTransaction).getOrElse(List.empty)
+          InterestAccruals(interestAccrualLists)
         } finally {
           storedProcedure.close()
         }
@@ -60,7 +60,7 @@ class InterestAccrualListDatacacheRepositoryImpl @Inject() (
     }
   }
 
-  private def readInterestAccuralListTransaction(rs: ResultSet): List[InterestAccrual] = {
+  private def readInterestAccrualListTransaction(rs: ResultSet): List[InterestAccrual] = {
     val buffer = ListBuffer[InterestAccrual]()
     while (rs.next()) {
       buffer += InterestAccrual(
