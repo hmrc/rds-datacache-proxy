@@ -27,7 +27,7 @@ import play.api.db.Database
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
 
 import java.time.LocalDate
 
@@ -65,7 +65,7 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe List.empty
+    result shouldBe InterestAccruals(List.empty)
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.getInterestAccrualList(?, ?, ?, ?)}")
 
@@ -98,14 +98,16 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe List(
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-        interestAccrualToDate   = LocalDate.of(2021, 5, 7),
-        interestRate            = 2,
-        interestAmount          = 10,
-        apEndDate               = LocalDate.of(2021, 6, 7)
+    result shouldBe InterestAccruals(
+      List(
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+          interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+          interestRate            = 2,
+          interestAmount          = 10,
+          apEndDate               = LocalDate.of(2021, 6, 7)
+        )
       )
     )
 
@@ -139,22 +141,24 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe List(
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-        interestAccrualToDate   = LocalDate.of(2021, 5, 7),
-        interestRate            = 2,
-        interestAmount          = 10,
-        apEndDate               = LocalDate.of(2021, 6, 7)
-      ),
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 6, 10),
-        interestAccrualToDate   = LocalDate.of(2021, 8, 10),
-        interestRate            = 3,
-        interestAmount          = 23,
-        apEndDate               = LocalDate.of(2021, 9, 10)
+    result shouldBe InterestAccruals(
+      List(
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+          interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+          interestRate            = 2,
+          interestAmount          = 10,
+          apEndDate               = LocalDate.of(2021, 6, 7)
+        ),
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 6, 10),
+          interestAccrualToDate   = LocalDate.of(2021, 8, 10),
+          interestRate            = 3,
+          interestAmount          = 23,
+          apEndDate               = LocalDate.of(2021, 9, 10)
+        )
       )
     )
 

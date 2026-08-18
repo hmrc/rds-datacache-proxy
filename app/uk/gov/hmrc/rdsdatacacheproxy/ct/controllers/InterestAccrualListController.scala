@@ -39,7 +39,7 @@ class InterestAccrualListController @Inject() (
     interestAccrualService
       .getInterestAccrualList(taxRef, accPeriod, interestType)
       .map { interestAccruals =>
-        Ok(Json.toJson(InterestAccruals(interestAccruals)))
+        Ok(Json.toJson(interestAccruals))
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving interest accrual list", ex)

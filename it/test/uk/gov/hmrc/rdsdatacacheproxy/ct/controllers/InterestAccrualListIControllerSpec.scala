@@ -61,7 +61,7 @@ class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
+      response.json.as[InterestAccruals] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 
     "return 200 with InterestAccrual empty list" in {
@@ -73,7 +73,7 @@ class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
+      response.json.as[InterestAccruals] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
     }
 
     "return 500 when stub simulates failure" in {

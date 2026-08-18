@@ -25,7 +25,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccrualService
 
 import java.time.LocalDate
@@ -37,35 +37,39 @@ class InterestAccrualListControllerSpec extends SpecBase with MockitoSugar {
     val mockService: InterestAccrualService = mock[InterestAccrualService]
     val controller: InterestAccrualListController = new InterestAccrualListController(fakeAuthAction, mockService, cc)
 
-    val emptyInterestAccrualList: List[InterestAccrual] = List[InterestAccrual]()
+    val emptyInterestAccrualList: InterestAccruals = InterestAccruals(List.empty)
 
-    val interestAccrualListSingleItem: List[InterestAccrual] = List(
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-        interestAccrualToDate   = LocalDate.of(2021, 5, 7),
-        interestRate            = 2,
-        interestAmount          = 10,
-        apEndDate               = LocalDate.of(2021, 6, 7)
+    val interestAccrualListSingleItem: InterestAccruals = InterestAccruals(
+      List(
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+          interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+          interestRate            = 2,
+          interestAmount          = 10,
+          apEndDate               = LocalDate.of(2021, 6, 7)
+        )
       )
     )
 
-    val interestAccrualListMultipleItems: List[InterestAccrual] = List(
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-        interestAccrualToDate   = LocalDate.of(2021, 5, 7),
-        interestRate            = 2,
-        interestAmount          = 10,
-        apEndDate               = LocalDate.of(2021, 6, 7)
-      ),
-      InterestAccrual(
-        computationAmount       = 1,
-        interestAccrualFromDate = LocalDate.of(2021, 6, 10),
-        interestAccrualToDate   = LocalDate.of(2021, 8, 10),
-        interestRate            = 3,
-        interestAmount          = 23,
-        apEndDate               = LocalDate.of(2021, 9, 10)
+    val interestAccrualListMultipleItems: InterestAccruals = InterestAccruals(
+      List(
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 3, 7),
+          interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+          interestRate            = 2,
+          interestAmount          = 10,
+          apEndDate               = LocalDate.of(2021, 6, 7)
+        ),
+        InterestAccrual(
+          computationAmount       = 1,
+          interestAccrualFromDate = LocalDate.of(2021, 6, 10),
+          interestAccrualToDate   = LocalDate.of(2021, 8, 10),
+          interestRate            = 3,
+          interestAmount          = 23,
+          apEndDate               = LocalDate.of(2021, 9, 10)
+        )
       )
     )
 

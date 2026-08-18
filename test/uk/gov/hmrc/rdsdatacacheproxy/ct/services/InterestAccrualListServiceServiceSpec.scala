@@ -23,7 +23,7 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccrualListDatacacheRepository
 
 import java.time.LocalDate
@@ -39,7 +39,7 @@ class InterestAccrualListServiceServiceSpec extends AnyWordSpec with Matchers wi
     val accPeriod: Long = 1L
     val interestType: String = "IDB"
 
-    val interestAccrualListItems: List[InterestAccrual] =
+    val interestAccrualListItems: InterestAccruals = InterestAccruals(
       List(
         InterestAccrual(
           computationAmount       = 1,
@@ -58,6 +58,7 @@ class InterestAccrualListServiceServiceSpec extends AnyWordSpec with Matchers wi
           apEndDate               = LocalDate.of(2021, 9, 10)
         )
       )
+    )
 
   }
 
@@ -66,7 +67,7 @@ class InterestAccrualListServiceServiceSpec extends AnyWordSpec with Matchers wi
     when(mockRepository.getInterestAccrualList(any[Long], any[Long], any[String]))
       .thenReturn(Future.successful(interestAccrualListItems))
 
-    val result: List[InterestAccrual] = service.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
+    val result: InterestAccruals = service.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
 
     result mustBe interestAccrualListItems
 
