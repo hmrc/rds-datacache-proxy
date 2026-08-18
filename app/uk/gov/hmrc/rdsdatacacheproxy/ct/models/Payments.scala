@@ -25,7 +25,7 @@ object Payments {
   implicit val format: OFormat[Payments] = Json.format[Payments]
 }
 
-case class PaymentTransactions(amount: Option[BigDecimal], paymentType: Option[String], effectiveDateOfPayment: Option[LocalDate])
+case class PaymentTransactions(amount: BigDecimal, paymentType: String, effectiveDateOfPayment: LocalDate)
 object PaymentTransactions {
   implicit val format: OFormat[PaymentTransactions] = Json.format[PaymentTransactions]
 }
