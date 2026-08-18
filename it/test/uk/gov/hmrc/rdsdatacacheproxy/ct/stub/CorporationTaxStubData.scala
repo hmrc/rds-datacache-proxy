@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PenaltyTransaction, ReallocationRow, TaxTransactionsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PenaltyTransaction, TaxTransactionsItem, ReallocationRow, PaymentTransactions}
 
 import java.time.LocalDate
 
@@ -83,4 +83,17 @@ object CorporationTaxStubData {
       case (2, _) => reallocationsTwoItems
       case (_, _) => throw new Error("Simulated downstream failure")
     }
+
+  // Payments
+  def getPayments(taxRef: Long, accPeriod: Long): List[PaymentTransactions] =
+    (taxRef, accPeriod) match {
+      case (1, _) => List(
+        PaymentTransactions(amount = 123.44, paymentType = "CP", effectiveDateOfPayment = LocalDate.of(2026, 1, 1)),
+        PaymentTransactions(amount = 3213.44, paymentType = "CP", effectiveDateOfPayment = LocalDate.of(2026, 2, 1)),
+        PaymentTransactions(amount = 56785.45, paymentType = "CP", effectiveDateOfPayment = LocalDate.of(2026, 1, 23)),
+      )
+      case (2, _) => List.empty
+      case (99, _) => throw new Error("Downstream error")
+    }
+
 }
