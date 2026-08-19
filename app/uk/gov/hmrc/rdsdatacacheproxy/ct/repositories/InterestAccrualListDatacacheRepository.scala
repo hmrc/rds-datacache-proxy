@@ -20,7 +20,7 @@ import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccrualList}
 
 import java.sql.*
 import javax.inject.Inject
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[InterestAccrualListDatacacheRepositoryImpl])
 trait InterestAccrualListDatacacheRepository {
-  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccruals]
+  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList]
 }
 
 class InterestAccrualListDatacacheRepositoryImpl @Inject() (
@@ -38,7 +38,7 @@ class InterestAccrualListDatacacheRepositoryImpl @Inject() (
     extends InterestAccrualListDatacacheRepository
     with Logging {
 
-  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccruals] = {
+  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] = {
     Future {
       db.withConnection { connection =>
         val storedProcedure = connection.prepareCall("{call CT_DC_PK.getInterestAccrualList(?, ?, ?, ?)}")
@@ -52,7 +52,7 @@ class InterestAccrualListDatacacheRepositoryImpl @Inject() (
 
           val results = storedProcedure.getObject(4, classOf[ResultSet])
           val interestAccrualLists = Option(results).map(readInterestAccrualListTransaction).getOrElse(List.empty)
-          InterestAccruals(interestAccrualLists)
+          InterestAccrualList(interestAccrualLists)
         } finally {
           storedProcedure.close()
         }

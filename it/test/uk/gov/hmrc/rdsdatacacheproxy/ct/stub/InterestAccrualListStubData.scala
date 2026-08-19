@@ -17,15 +17,15 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccruals
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 
 import java.time.LocalDate
 
 object InterestAccrualListStubData {
 
-  val interestAccrualListEmpty: InterestAccruals = InterestAccruals(List.empty)
+  val interestAccrualListEmpty: InterestAccrualList = InterestAccrualList(List.empty)
 
-  val interestAccrualListSingleItem: InterestAccruals = InterestAccruals(List(
+  val interestAccrualListSingleItem: InterestAccrualList = InterestAccrualList(List(
     InterestAccrual(
       computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
@@ -36,7 +36,7 @@ object InterestAccrualListStubData {
     )
   ))
 
-  val interestAccrualListMultipleItems: InterestAccruals = InterestAccruals(List(
+  val interestAccrualListMultipleItems: InterestAccrualList = InterestAccrualList(List(
     InterestAccrual(
       computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
@@ -55,7 +55,7 @@ object InterestAccrualListStubData {
     )
   ))
 
-  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): InterestAccruals = {
+  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): InterestAccrualList = {
     taxRef match {
       case 1L => interestAccrualListSingleItem
       case 2L => interestAccrualListMultipleItems

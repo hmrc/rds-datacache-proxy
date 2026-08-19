@@ -27,7 +27,7 @@ import play.api.db.Database
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccruals}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccrualList}
 
 import java.time.LocalDate
 
@@ -65,7 +65,7 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe InterestAccruals(List.empty)
+    result shouldBe InterestAccrualList(List.empty)
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.getInterestAccrualList(?, ?, ?, ?)}")
 
@@ -98,7 +98,7 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe InterestAccruals(
+    result shouldBe InterestAccrualList(
       List(
         InterestAccrual(
           computationAmount       = 1,
@@ -141,7 +141,7 @@ class InterestAccrualListRepositorySpec extends AnyFlatSpec with Matchers with B
     val interestType: String = "IDE"
 
     val result = repository.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
-    result shouldBe InterestAccruals(
+    result shouldBe InterestAccrualList(
       List(
         InterestAccrual(
           computationAmount       = 1,

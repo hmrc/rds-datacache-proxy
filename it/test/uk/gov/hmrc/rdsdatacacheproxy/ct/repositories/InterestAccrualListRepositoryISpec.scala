@@ -23,7 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccruals
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestAccrualListStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
@@ -38,7 +38,7 @@ class InterestAccrualListRepositoryISpec
     with ApplicationWithWiremock {
 
   class InterestAccrualListCacheRepositoryStub extends InterestAccrualListDatacacheRepository {
-    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccruals] =
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] =
     Future.successful(
       InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType)
     )
