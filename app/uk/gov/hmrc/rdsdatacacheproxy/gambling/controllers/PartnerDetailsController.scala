@@ -21,24 +21,44 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.PartnerDetailsService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PartnerDetailsController @Inject() (authorise: AuthAction, service: PartnerDetailsService, cc: ControllerComponents)(implicit
+class PartnerDetailsController @Inject() (authorise: AuthAction, service: GamblingService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
-    with BaseController
     with Logging {
 
-  def getPartnerDetails(regime: String, regNumber: String): Action[AnyContent] =
+  def getPartnerDetails(regime: String, mgdRegNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getPartnerDetails(regime, regNumber).map {
+      service.getPartnerDetails(regime, mgdRegNumber).map {
         case Right(details) =>
           Ok(Json.toJson(details))
-        case Left(error) => handleError(error)
+        case Left(error) =>
+          val logMessage = {
+            s"[PartnerDetailsController][getPartnerDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
+
+          }
+          handleError(error, logMessage)
       }
     }
 
+  private def handleError(error: GamblingError, logMessage: String) =
+    error match {
+      case InvalidMgdRegNumber =>
+        logger.warn(logMessage)
+        BadRequest(errorResponse(error))
+      case UnexpectedError =>
+        logger.error(logMessage)
+        InternalServerError(errorResponse(error))
+      case InvalidRegimeCode =>
+        logger.error(logMessage)
+        BadRequest(errorResponse(error))
+    }
+
+  private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }

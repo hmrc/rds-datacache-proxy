@@ -53,7 +53,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
         GamblingStubData.getCorrespondenceDetails(mgdRegNumber)
       }
 
-
     override def getBusinessAddressDetails(mgdRegNumber: String) =
       Future {
         GamblingStubData.getBusinessAddressDetails(mgdRegNumber)
@@ -63,32 +62,32 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
       if (mgdRegNumber == "ERR00000000000")
         Future.failed(new RuntimeException("Simulated downstream failure"))
-
       else
         Future.successful(
           TradeClassDetails(
-            mgdRegNumber = mgdRegNumber,
-            businessTradeClass = Some(1),
+            mgdRegNumber         = mgdRegNumber,
+            businessTradeClass   = Some(1),
             businessActivityDesc = "Gaming Machine Operation",
-            systemDate = Some(LocalDate.now())
+            systemDate           = Some(LocalDate.now())
           )
         )
     }
+
     override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] =
       Future.successful(
         MgdDetails(
-          mgdRegNumber = mgdRegNumber,
+          mgdRegNumber       = mgdRegNumber,
           isBusinessSeasonal = Some(1),
-          previousMgdrn1 = None,
-          previousMgdrn2 = None,
-          previousMgdrn3 = None,
-          associatedMgdrn1 = None,
-          associatedMgdrn2 = None,
-          associatedMgdrn3 = None,
-          systemDate = Some(LocalDate.now())
+          previousMgdrn1     = None,
+          previousMgdrn2     = None,
+          previousMgdrn3     = None,
+          associatedMgdrn1   = None,
+          associatedMgdrn2   = None,
+          associatedMgdrn3   = None,
+          systemDate         = Some(LocalDate.now())
         )
       )
-    
+
     override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] =
       Future.successful(
         uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessDetails(
@@ -137,9 +136,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
         GamblingStubData.getBusinessName(mgdRegNumber)
       }
 
-
-
-
     override def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate] =
       Future.successful(
         MgdCertificate(
@@ -173,6 +169,11 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
           returnPeriodEndDates = Seq.empty
         )
       )
+
+    override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] = Future {
+      GamblingStubData.getPartnerDetailsData(regNumber)
+    }
+
   }
 
   override lazy val app: Application =
@@ -586,5 +587,109 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
       response.status mustBe UNAUTHORIZED
     }
+  }
+
+  "GET /gambling/partner-details" should {
+    val endpoint = "/gambling/partner-details"
+    val MGD = "mgd"
+
+    "return 200 with correct ReturnsPartnerDetailsData" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[PartnerDetails] mustBe GamblingStubData.getPartnerDetailsData("XQZ00000000000")
+    }
+
+    "normalise lowercase input" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/xqz00000000000 ").futureValue
+      response.status mustBe OK
+      response.json.as[PartnerDetails] mustBe GamblingStubData.getPartnerDetailsData("XQZ00000000000")
+    }
+
+    "trim whitespace around regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/   XQZ00000000000   ").futureValue
+      response.status mustBe OK
+      response.json.as[PartnerDetails] mustBe GamblingStubData.getPartnerDetailsData("XQZ00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      AuthStub.authorised()
+      val res1 = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      val res2 = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      res1.json mustBe res2.json
+    }
+
+    "return JSON content type for valid response" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      response.contentType mustBe "application/json"
+    }
+
+    "return 400 for partially valid regNumber (wrong length)" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XYZ123").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regime" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for regNumber with special characters" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XYZ00000@00000").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regNumber format" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/$MGD/INVALID").futureValue
+      response.status mustBe BAD_REQUEST
+      (response.json \ "code").as[String] mustBe "INVALID_MGD_REG_NUMBER"
+      (response.json \ "message").as[String] mustBe "mgdRegNumber does not exist"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+
+    "return 404 for missing regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 404 for whitespace-only regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/   ").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 500 when stub simulates failure" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/ENR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return correct error structure for 500 response" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/ENR00000000000").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+      (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
   }
 }
