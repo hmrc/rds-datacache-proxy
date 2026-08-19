@@ -22,9 +22,9 @@ import play.api.db.{Database, NamedDatabase}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer
-import java.sql.{CallableStatement, ResultSet}
+import java.sql.{CallableStatement, ResultSet, Types}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -45,6 +45,8 @@ trait CisMonthlyReturnSource {
                                           taxOfficeReference: String,
                                           accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
+
+  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long]
 }
 
 @Singleton
@@ -356,6 +358,30 @@ class CisDatacacheRepository @Inject() (
 
             buffer.toList
           }
+        } finally cs.close()
+      }
+    }
+  }
+
+  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = {
+    logger.info(
+      s"[CIS] enqueueMessageHeader(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+    )
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, request.sender)
+          cs.setString(2, request.queueName)
+          cs.setString(3, request.replyQueue)
+          cs.setString(4, request.correlationId)
+          cs.setString(5, request.filter)
+          cs.registerOutParameter(6, Types.NUMERIC)
+          cs.execute()
+
+          cs.getLong(6)
         } finally cs.close()
       }
     }

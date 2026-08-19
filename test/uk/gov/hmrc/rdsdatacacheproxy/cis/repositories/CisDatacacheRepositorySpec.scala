@@ -23,7 +23,9 @@ import org.scalatest.OptionValues
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{any as anyArg, eq as eqTo}
 import play.api.db.Database
-import java.sql.{CallableStatement, ResultSet}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageHeaderRequest
+
+import java.sql.{CallableStatement, ResultSet, Types}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with ScalaFutures with OptionValues {
@@ -470,6 +472,45 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       )
       verify(cs).execute()
       verify(rs).close()
+      verify(cs).close()
+    }
+  }
+
+  "enqueueMessageHeader" should {
+    "return messageId" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+      val cs = mock(classOf[CallableStatement])
+
+      when(db.withConnection(anyArg())).thenAnswer { inv =>
+        val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+        f(conn)
+      }
+      when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+      when(cs.getLong(6)).thenReturn(10L)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request: EnqueueMessageHeaderRequest = EnqueueMessageHeaderRequest(
+        sender        = "Portal",
+        queueName     = "AGTAUTH",
+        replyQueue    = "",
+        correlationId = "",
+        filter        = "RemoveClient"
+      )
+
+      val out = repo.enqueueMessageHeader(request).futureValue
+      out mustBe 10L
+
+      verify(conn).prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
+      verify(cs).setString(1, "Portal")
+      verify(cs).setString(2, "AGTAUTH")
+      verify(cs).setString(3, "")
+      verify(cs).setString(4, "")
+      verify(cs).setString(5, "RemoveClient")
+      verify(cs).registerOutParameter(6, Types.NUMERIC)
+      verify(cs).execute()
+      verify(cs).getLong(6)
       verify(cs).close()
     }
   }

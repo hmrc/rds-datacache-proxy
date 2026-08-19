@@ -6,3 +6,4 @@ GET        /client-list             uk.gov.hmrc.rdsdatacacheproxy.cis.controller
 GET        /has-client              uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.ClientController.hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String)
 POST       /prepop-contractor       uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSchemePrepopByKnownFacts
 POST       /prepop-subcontractor    uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.PrepopController.getSubcontractorsPrepopByKnownFacts
+POST       /enqueue-message-header  uk.gov.hmrc.rdsdatacacheproxy.cis.controllers.UdasQueueController.enqueueMessageHeader()
