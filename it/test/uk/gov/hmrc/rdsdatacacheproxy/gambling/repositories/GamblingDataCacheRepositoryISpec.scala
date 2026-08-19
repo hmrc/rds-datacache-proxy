@@ -68,7 +68,11 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getBusinessAddressDetails(
                                            mgdRegNumber: String
                                          ): Future[BusinessAddressDetails] =
-      Future.successful(GamblingStubData.getBusinessAddressDetails(mgdRegNumber))}
+      Future.successful(GamblingStubData.getBusinessAddressDetails(mgdRegNumber))
+
+    override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
+      Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
+  }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
@@ -780,6 +784,37 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         iomOrCiFlag = None,
         systemDate = Some(LocalDate.now())
       )
+    }
+  }
+  
+  "getPartnerDetails (stubbed repository)" should {
+
+    "return correct PartnerDetailsData" in {
+      val result = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+
+      result mustBe GamblingStubData.getPartnerDetailsData("XQZ00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+      val result2 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different valid regNumbers independently" in {
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+      val result2 = repository.getPartnerDetails(Regime.MGD, "XYZ00000000001").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getPartnerDetails(Regime.MGD, "ENR00000000000").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
     }
   }
 }

@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.{GamblingError, StatementError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator.regNumberPatternGTR
@@ -285,6 +285,38 @@ class GamblingService @Inject() (
           )
           Left(UnexpectedError)
         }
+    }
+  }
+
+  def getPartnerDetails(regime: String, rawMgdRegNumber: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GamblingError, PartnerDetails]] = {
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+
+    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+      logger.warn(
+        s"[GamblingService][getPartnerDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
+      )
+
+      Future.successful(Left(InvalidMgdRegNumber))
+
+    } else {
+      Regime.fromString(regime.trim) match {
+        case Left(error) =>
+          if error.isInstanceOf[StatementError.InvalidRegimeCode.type] then Future.successful(Left(InvalidRegimeCode))
+          else Future.successful(Left(UnexpectedError))
+        case Right(regime) =>
+          repository
+            .getPartnerDetails(regime, mgdRegNumber)
+            .map(details => Right(details))
+            .recover { case ex: Exception =>
+              logger.error(
+                s"[GamblingService][getPartnerDetails] Unexpected error mgdRegNumber=$mgdRegNumber",
+                ex
+              )
+              Left(UnexpectedError)
+            }
+      }
     }
   }
 }
