@@ -35,6 +35,7 @@ trait GamblingDataSource {
   def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
+  def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
 }
 
 @Singleton
@@ -42,6 +43,7 @@ class GamblingDataCacheRepository @Inject() (
   @NamedDatabase("gambling") db: Database
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
+    with RepositorySupport
     with Logging {
 
   override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] = {
@@ -922,4 +924,79 @@ class GamblingDataCacheRepository @Inject() (
 
     })(ec)
   }
+
+  override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = {
+        regime match
+          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_PARTNERS(?, ?, ?) }")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
+      }
+      try {
+        cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PARTNERS
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.execute()
+
+        val partnerDetails: List[Partner] = {
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+          if (rs == null) Nil
+          else {
+            try {
+              val b = List.newBuilder[Partner]
+
+              while (rs.next()) {
+                val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
+                  Partner(
+                    mgdRegNumber           = mgdRegNumber,
+                    businessPartnerNumber  = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    dateOfJoining          = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving          = optLocalDate("DATE_OF_LEAVING", rs),
+                    solePropTitle          = Option(rs.getString("SOLE_PROP_TITLE")),
+                    solePropFirstName      = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
+                    solePropMiddleName     = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                    solePropLastName       = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                    businessName           = Option(rs.getString("BUSINESS_NAME")),
+                    tradingName            = Option(rs.getString("TRADING_NAME")),
+                    dateOfBirth            = optDate("DATE_OF_BIRTH", rs),
+                    nino                   = Option(rs.getString("NINO")),
+                    utr                    = Option(rs.getString("UTR")),
+                    vrn                    = Option(rs.getString("VRN")),
+                    crn                    = Option(rs.getString("CRN")),
+                    dateOfIncorporation    = optDate("DATE_OF_INCORPORATION", rs),
+                    countryOfIncorporation = Option(rs.getString("COUNTRY_OF_INCORPORATION")),
+                    foreignCorporateRef    = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    address1               = Option(rs.getString("ADDRESS_1")),
+                    address2               = Option(rs.getString("ADDRESS_2")),
+                    address3               = Option(rs.getString("ADDRESS_3")),
+                    address4               = Option(rs.getString("ADDRESS_4")),
+                    postcode               = Option(rs.getString("POSTCODE")),
+                    country                = Option(rs.getString("COUNTRY")),
+                    adi                    = Option(rs.getString("ADI")),
+                    iomOrCiFlag            = Option(rs.getString("IOM_OR_CI_FLAG")),
+                    phoneNumber            = Option(rs.getString("PHONE_NUMBER")),
+                    mobilePhoneNumber      = Option(rs.getString("MOBILE_PHONE_NUMBER")),
+                    faxNumber              = Option(rs.getString("FAX_NUMBER")),
+                    emailAddr              = Option(rs.getString("EMAIL_ADDR")),
+                    isFutureLeaveDate      = Option(rs.getObject("IS_FUTURE_LEAVE_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    isFutureJoinDate       = Option(rs.getObject("IS_FUTURE_JOIN_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    businessType           = Option(rs.getObject("BUSINESS_TYPE", classOf[java.lang.Integer])).map(_.intValue())
+                  )
+                )
+                b.addAll(maybeItem.toList)
+              }
+              b.result()
+            } finally closeQuietly(rs)
+          }
+        }
+
+        PartnerDetails(
+          partners   = partnerDetails,
+          systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
+        )
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
 }
