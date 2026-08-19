@@ -20,7 +20,7 @@ import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AccountingPeriods, AccountingPeriodsDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AccountingPeriods, AccountingPeriodsInfo}
 
 import java.sql.*
 import javax.inject.Inject
@@ -64,10 +64,10 @@ class AccountingPeriodsRepositoryImpl @Inject() (
     }
   }
 
-  private def readAccountingPeriods(rs: ResultSet): List[AccountingPeriodsDetails] = {
-    val buffer = ListBuffer[AccountingPeriodsDetails]()
+  private def readAccountingPeriods(rs: ResultSet): List[AccountingPeriodsInfo] = {
+    val buffer = ListBuffer[AccountingPeriodsInfo]()
     while (rs.next()) {
-      buffer += AccountingPeriodsDetails(
+      buffer += AccountingPeriodsInfo(
         accountingPeriod       = rs.getBigDecimal("accounting_period"),
         apStartDate            = rs.getDate("ap_start_date").toLocalDate,
         apEndDate              = rs.getDate("ap_end_date").toLocalDate,

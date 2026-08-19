@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AccountingPeriods, AccountingPeriodsDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{AccountingPeriods, AccountingPeriodsInfo}
 
 import java.time.LocalDate
 
@@ -25,7 +25,7 @@ object AccountingPeriodsStubData {
 
   val accountingPeriodsWithOneItem: AccountingPeriods = AccountingPeriods(
     List(
-      AccountingPeriodsDetails(
+      AccountingPeriodsInfo(
         accountingPeriod = BigDecimal(1),
         apStartDate = LocalDate.of(2027, 7, 24),
         apEndDate = LocalDate.of(2028, 7, 24),
@@ -45,7 +45,7 @@ object AccountingPeriodsStubData {
 
   val accountingPeriodsWithMultipleItems: AccountingPeriods = AccountingPeriods(
     List(
-      AccountingPeriodsDetails(
+      AccountingPeriodsInfo(
         accountingPeriod = BigDecimal(2),
         apStartDate = LocalDate.of(2027, 3, 5),
         apEndDate = LocalDate.of(2028, 3, 5),
@@ -60,7 +60,7 @@ object AccountingPeriodsStubData {
         repayReallocTotal = Some(BigDecimal(500)),
         adjustmentTotal = Some(BigDecimal(600))
       ),
-      AccountingPeriodsDetails(
+      AccountingPeriodsInfo(
         accountingPeriod = BigDecimal(3),
         apStartDate = LocalDate.of(2016, 11, 22),
         apEndDate = LocalDate.of(2017, 11, 22),

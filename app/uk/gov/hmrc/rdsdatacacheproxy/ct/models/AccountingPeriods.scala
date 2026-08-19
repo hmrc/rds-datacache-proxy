@@ -20,13 +20,13 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class AccountingPeriods(accountingPeriods: List[AccountingPeriodsDetails])
+case class AccountingPeriods(accountingPeriods: List[AccountingPeriodsInfo])
 
 object AccountingPeriods {
   implicit val format: OFormat[AccountingPeriods] = Json.format[AccountingPeriods]
 }
 
-case class AccountingPeriodsDetails(
+case class AccountingPeriodsInfo(
   accountingPeriod: BigDecimal,
   apStartDate: LocalDate,
   apEndDate: LocalDate,
@@ -42,6 +42,6 @@ case class AccountingPeriodsDetails(
   adjustmentTotal: Option[BigDecimal]
 )
 
-object AccountingPeriodsDetails {
-  implicit val format: OFormat[AccountingPeriodsDetails] = Json.format[AccountingPeriodsDetails]
+object AccountingPeriodsInfo {
+  implicit val format: OFormat[AccountingPeriodsInfo] = Json.format[AccountingPeriodsInfo]
 }
