@@ -25,43 +25,16 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Repayments, RepaymentsDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.RepaymentsHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.RepaymentsService
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
-class RepaymentsControllerSpec extends SpecBase with MockitoSugar {
+class RepaymentsControllerSpec extends SpecBase with MockitoSugar with RepaymentsHelper {
 
   private class Setup {
     val mockService: RepaymentsService = mock[RepaymentsService]
     val controller: RepaymentsController = new RepaymentsController(fakeAuthAction, mockService, cc)
-
-    val emptyRepayments: Repayments = Repayments(List.empty)
-    val repaymentsWithOneItem: Repayments = Repayments(
-      List(
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(10)),
-          repaymentType = "S",
-          repaymentDate = LocalDate.of(2026, 7, 24)
-        )
-      )
-    )
-
-    val repaymentsWithMultipleItems: Repayments = Repayments(
-      List(
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(20)),
-          repaymentType = "S",
-          repaymentDate = LocalDate.of(2027, 7, 24)
-        ),
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(30)),
-          repaymentType = "T",
-          repaymentDate = LocalDate.of(2028, 7, 24)
-        )
-      )
-    )
   }
 
   "RepaymentsControllerSpec" - {
