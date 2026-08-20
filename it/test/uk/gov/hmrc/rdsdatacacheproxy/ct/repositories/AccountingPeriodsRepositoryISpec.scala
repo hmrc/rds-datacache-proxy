@@ -23,13 +23,13 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.Repayments
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.RepaymentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.AccountingPeriods
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AccountingPeriodsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
 import scala.concurrent.Future
 
-class RepaymentsRepositoryISpec
+class AccountingPeriodsRepositoryISpec
   extends AnyWordSpec
     with Matchers
     with ScalaFutures
@@ -37,51 +37,51 @@ class RepaymentsRepositoryISpec
     with GuiceOneAppPerSuite
     with ApplicationWithWiremock {
 
-  class RepaymentsRepositoryStub extends RepaymentsRepository {
+  class AccountingPeriodsRepositoryStub extends AccountingPeriodsRepository {
 
-    override def getRepayments(taxRef: Long, accPeriod: Long): Future[Repayments] =
-      Future.successful(RepaymentsStubData.getRepayments(taxRef: Long, accPeriod: Long))
+    override def getAccountPeriods(taxRef: Long): Future[AccountingPeriods] =
+      Future.successful(AccountingPeriodsStubData.getAccountPeriods(taxRef: Long))
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[RepaymentsRepository].toInstance(new RepaymentsRepositoryStub)
+        bind[AccountingPeriodsRepository].toInstance(new AccountingPeriodsRepositoryStub)
       )
       .build()
 
-  private lazy val repo = app.injector.instanceOf[RepaymentsRepository]
+  private lazy val repo = app.injector.instanceOf[AccountingPeriodsRepository]
 
-  "getRepayments" should {
+  "getAccountPeriods" should {
 
-    "return repayments with one item " in {
+    "return accounting periods with one item " in {
 
-      val result = repo.getRepayments(10L, 2L).futureValue
+      val result = repo.getAccountPeriods(10L).futureValue
 
-      result mustBe RepaymentsStubData.repaymentsWithOneItem
+      result mustBe AccountingPeriodsStubData.accountingPeriodsWithOneItem
 
     }
 
-    "return repayments with multiple items " in {
+    "return accounting periods with multiple items " in {
 
-      val result = repo.getRepayments(20L, 2L).futureValue
+      val result = repo.getAccountPeriods(20L).futureValue
 
-      result mustBe RepaymentsStubData.repaymentsWithMultipleItems
+      result mustBe AccountingPeriodsStubData.accountingPeriodsWithMultipleItems
     }
 
-    "return empty repayments" in {
+    "return empty accounting periods" in {
 
-      val result = repo.getRepayments(1L, 3L).futureValue
+      val result = repo.getAccountPeriods(1L).futureValue
 
-      result mustBe RepaymentsStubData.emptyRepayments
+      result mustBe AccountingPeriodsStubData.emptyAccountingPeriods
 
     }
 
     "return downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
 
-        repo.getRepayments(200L, 2L).futureValue
+        repo.getAccountPeriods(200L).futureValue
       }
 
       exception.getMessage must include("Downstream error")

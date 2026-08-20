@@ -22,50 +22,19 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Repayments, RepaymentsDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.RepaymentsHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepaymentsRepository
 
-import java.math.BigDecimal
-import java.time.LocalDate
 import scala.concurrent.Future
 
-class RepaymentsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar {
+class RepaymentsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar with RepaymentsHelper {
 
   private trait Setup {
-
     val mockRepo: RepaymentsRepository = mock[RepaymentsRepository]
-
     val service = new RepaymentsService(mockRepo)
-
-    val emptyRepayments: Repayments = Repayments(List.empty)
-    val repaymentsWithOneItem: Repayments = Repayments(
-      List(
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(10)),
-          repaymentType = "S",
-          repaymentDate = LocalDate.of(2026, 7, 24)
-        )
-      )
-    )
-
-    val repaymentsWithMultipleItems: Repayments = Repayments(
-      List(
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(20)),
-          repaymentType = "S",
-          repaymentDate = LocalDate.of(2027, 7, 24)
-        ),
-        RepaymentsDetails(
-          amount        = Some(BigDecimal(30)),
-          repaymentType = "T",
-          repaymentDate = LocalDate.of(2028, 7, 24)
-        )
-      )
-    )
-
   }
 
-  "RepaymentsServiceServiceSpec" - {
+  "RepaymentsServiceSpec" - {
     "must return repayments with one item" in new Setup {
       when(mockRepo.getRepayments(any[Long], any[Long]))
         .thenReturn(Future.successful(repaymentsWithOneItem))

@@ -23,19 +23,19 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.Repayments
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepaymentsRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.RepaymentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.AccountingPeriods
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AccountingPeriodsRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AccountingPeriodsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
 
-class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class AccountingPeriodsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class RepaymentsRepositoryStub extends RepaymentsRepository {
+  class AccountingPeriodsRepositoryStub extends AccountingPeriodsRepository {
 
-    override def getRepayments(taxRef: Long, accPeriod: Long): Future[Repayments] = {
-      Future.successful(RepaymentsStubData.getRepayments(taxRef: Long, accPeriod: Long))
+    override def getAccountPeriods(taxRef: Long): Future[AccountingPeriods] = {
+      Future.successful(AccountingPeriodsStubData.getAccountPeriods(taxRef: Long))
     }
   }
 
@@ -43,51 +43,51 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[RepaymentsRepository].toInstance(new RepaymentsRepositoryStub())
+        bind[AccountingPeriodsRepository].toInstance(new AccountingPeriodsRepositoryStub())
       )
       .build()
 
   private final val endpoint = "/corporation-tax"
 
-  "GET /corporation-tax/repayments" should {
+  "GET /corporation-tax/accounting-periods" should {
 
-    "return 200 and repayments with one item" in {
+    "return 200 and accounting periods with one item" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/repayments/10/2").futureValue
+      val response = get(s"$endpoint/accounting-periods/10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Repayments] mustBe RepaymentsStubData.repaymentsWithOneItem
+      response.json.as[AccountingPeriods] mustBe AccountingPeriodsStubData.accountingPeriodsWithOneItem
     }
 
-    "return 200 and repayments with multiple items" in {
+    "return 200 and accounting periods with multiple items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/repayments/20/2").futureValue
+      val response = get(s"$endpoint/accounting-periods/20").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Repayments] mustBe RepaymentsStubData.repaymentsWithMultipleItems
+      response.json.as[AccountingPeriods] mustBe AccountingPeriodsStubData.accountingPeriodsWithMultipleItems
     }
 
-    "return 200 with empty repayments" in {
+    "return 200 with empty accounting periods" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/repayments/1/2").futureValue
+      val response = get(s"$endpoint/accounting-periods/1").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Repayments] mustBe RepaymentsStubData.emptyRepayments
+      response.json.as[AccountingPeriods] mustBe AccountingPeriodsStubData.emptyAccountingPeriods
     }
 
     "return 500 when stub fails" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/repayments/200/3").futureValue
+      val response = get(s"$endpoint/accounting-periods/200").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
@@ -95,7 +95,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/repayments/30/4").futureValue
+      val response = get(s"$endpoint/accounting-periods/30").futureValue
 
       response.status mustBe UNAUTHORIZED
     }

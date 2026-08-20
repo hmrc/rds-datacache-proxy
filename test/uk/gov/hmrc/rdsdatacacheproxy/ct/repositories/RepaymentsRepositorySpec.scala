@@ -25,40 +25,12 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Repayments, RepaymentsDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.RepaymentsHelper
 
-import java.math.BigDecimal
 import java.sql.{CallableStatement, Date, ResultSet}
-import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RepaymentsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter {
-
-  val emptyRepayments: Repayments = Repayments(List.empty)
-  val repaymentsWithOneItem: Repayments = Repayments(
-    List(
-      RepaymentsDetails(
-        amount        = Some(BigDecimal(10)),
-        repaymentType = "S",
-        repaymentDate = LocalDate.of(2026, 7, 24)
-      )
-    )
-  )
-
-  val repaymentsWithMultipleItems: Repayments = Repayments(
-    List(
-      RepaymentsDetails(
-        amount        = Some(BigDecimal(20)),
-        repaymentType = "S",
-        repaymentDate = LocalDate.of(2027, 7, 24)
-      ),
-      RepaymentsDetails(
-        amount        = Some(BigDecimal(30)),
-        repaymentType = "T",
-        repaymentDate = LocalDate.of(2028, 7, 24)
-      )
-    )
-  )
+class RepaymentsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with RepaymentsHelper {
 
   var db: Database = _
   var repo: RepaymentsRepositoryImpl = _
