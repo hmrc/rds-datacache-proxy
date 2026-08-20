@@ -17,48 +17,49 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 
 import java.time.LocalDate
 
 object InterestAccrualListStubData {
 
-  val interestAccrualListEmpty: List[InterestAccrual] = List.empty
+  val interestAccrualListEmpty: InterestAccrualList = InterestAccrualList(List.empty)
 
-  val interestAccrualListSingleItem:  List[InterestAccrual] = List(
+  val interestAccrualListSingleItem: InterestAccrualList = InterestAccrualList(List(
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-      interestAccrualToDate = LocalDate.of(2021, 5, 7),
-      interestRate = 2,
-      interestAmount = 10,
-      apEndDate = LocalDate.of(2021, 6, 7)
+      interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+      interestRate            = 2,
+      interestAmount          = 10,
+      apEndDate               = LocalDate.of(2021, 6, 7)
     )
-  )
+  ))
 
-  val interestAccrualListMultipleItems: List[InterestAccrual] = List(
+  val interestAccrualListMultipleItems: InterestAccrualList = InterestAccrualList(List(
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 3, 7),
-      interestAccrualToDate = LocalDate.of(2021, 5, 7),
-      interestRate = 2,
-      interestAmount = 10,
-      apEndDate = LocalDate.of(2021, 6, 7)
+      interestAccrualToDate   = LocalDate.of(2021, 5, 7),
+      interestRate            = 2,
+      interestAmount          = 10,
+      apEndDate               = LocalDate.of(2021, 6, 7)
     ),
     InterestAccrual(
-      computationAmount = 1,
+      computationAmount       = 1,
       interestAccrualFromDate = LocalDate.of(2021, 6, 10),
-      interestAccrualToDate = LocalDate.of(2021, 8, 10),
-      interestRate = 3,
-      interestAmount = 23,
-      apEndDate = LocalDate.of(2021, 9, 10)
+      interestAccrualToDate   = LocalDate.of(2021, 8, 10),
+      interestRate            = 3,
+      interestAmount          = 23,
+      apEndDate               = LocalDate.of(2021, 9, 10)
     )
-  )
+  ))
 
-  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): List[InterestAccrual] = {
+  def getAccrualInterestListItems(taxRef: Long, accPeriod: Long, interestType: String): InterestAccrualList = {
     taxRef match {
-      case 1L  => interestAccrualListSingleItem
-      case 2L  => interestAccrualListMultipleItems
-      case 99L => throw new Error("Simulated downstream failure")
+      case 1L => interestAccrualListSingleItem
+      case 2L => interestAccrualListMultipleItems
+      case 99L => throw new RuntimeException("Simulated downstream failure")
       case _ => interestAccrualListEmpty
     }
   }

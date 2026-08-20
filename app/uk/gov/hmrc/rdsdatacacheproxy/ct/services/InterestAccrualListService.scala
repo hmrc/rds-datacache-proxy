@@ -17,17 +17,17 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccrualListDatacacheRepository
 
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class InterestAccrualService @Inject() (interestAccrualListDatacacheRepository: InterestAccrualListDatacacheRepository) extends Logging {
+class InterestAccrualListService @Inject() (interestAccrualListDatacacheRepository: InterestAccrualListDatacacheRepository) extends Logging {
 
-  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] = {
+  def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] = {
     logger.info(
-      s"[InterestAccrualService][getInterestAccrualList] Calling repository for taxRef: $taxRef, accPerioud: $accPeriod, interestType: $interestType"
+      s"[InterestAccrualListService][getInterestAccrualList] Calling repository for taxRef: $taxRef, accPerioud: $accPeriod, interestType: $interestType"
     )
     interestAccrualListDatacacheRepository.getInterestAccrualList(taxRef, accPeriod, interestType)
   }
