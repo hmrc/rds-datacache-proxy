@@ -20,16 +20,16 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccrualService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.InterestAccrualListService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class InterestAccrualListController @Inject() (
   authorise: AuthAction,
-  interestAccrualService: InterestAccrualService,
+  interestAccrualService: InterestAccrualListService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
@@ -38,8 +38,8 @@ class InterestAccrualListController @Inject() (
   def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Action[AnyContent] = authorise.async { implicit request =>
     interestAccrualService
       .getInterestAccrualList(taxRef, accPeriod, interestType)
-      .map { interestAccruals =>
-        Ok(Json.toJson(interestAccruals))
+      .map { interestAccrualList =>
+        Ok(Json.toJson(interestAccrualList))
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving interest accrual list", ex)
