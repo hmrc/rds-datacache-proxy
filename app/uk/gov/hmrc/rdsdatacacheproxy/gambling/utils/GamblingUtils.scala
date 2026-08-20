@@ -19,6 +19,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.utils
 import java.util.regex.Pattern
 
 object GamblingUtils {
-  val regNumberPattern: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
-
+  val regNumberPatternGTR: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
+  val regNumberPatternMGD: Pattern = "^X[A-HJ-NP-TV-Z]M\\d{11}$".r.pattern
 }

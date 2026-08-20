@@ -121,7 +121,7 @@ trait BaseService extends Logging {
     lazy val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regNumber, baseText) match
+    GRNValidator.validateRegNum(Regime.MGD, regNumber, baseText) match
       case Left(err) => Future.successful(Left(err))
       case Right(()) =>
         val sort = sortBy match { // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
@@ -185,7 +185,7 @@ trait BaseService extends Logging {
     lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regNumber, baseText) match
+    GRNValidator.validateRegNum(Regime.MGD, regNumber, baseText) match
       case Left(err) => Future.successful(Left(err))
       case Right(()) =>
         ifValid(regNumber, consecNo)

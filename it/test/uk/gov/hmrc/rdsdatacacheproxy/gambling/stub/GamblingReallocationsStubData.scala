@@ -111,7 +111,7 @@ object GamblingReallocationsStubData {
             )
           )
         )
-      case "XHM00003133333" =>
+      case "XNM00003133333" =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2013, 3, 1)),
           periodEndDate   = Some(LocalDate.of(2014, 3, 11)),
@@ -119,7 +119,7 @@ object GamblingReallocationsStubData {
           totalRecords    = Some(99),
           items           = Seq()
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         Reallocations(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
@@ -218,7 +218,7 @@ object GamblingReallocationsStubData {
             )
           )
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReallocationsOut(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),
@@ -244,7 +244,7 @@ object GamblingReallocationsStubData {
           reallocationsOutAmount = 0.00,
           total                  = 0.00
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReallocationsDetails(
           periodStartDate        = Option(LocalDate.of(2023, 3, 1)),

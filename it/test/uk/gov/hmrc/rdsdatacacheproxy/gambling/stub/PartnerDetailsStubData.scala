@@ -23,11 +23,11 @@ import java.time.LocalDate
 object PartnerDetailsStubData {
   def getPartnerDetailsData(regNumber: String): PartnerDetails =
     regNumber match {
-      case "XQZ00000000000" =>
+      case "XYM00000000000" =>
         PartnerDetails(
           partners = List(
             Partner(
-              mgdRegNumber           = "XQZ00000000000",
+              mgdRegNumber           = "XYM00000000000",
               businessPartnerNumber         = Some("0100049899"),
               dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
               dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
@@ -105,6 +105,6 @@ object PartnerDetailsStubData {
           ),
           systemDate = Some(LocalDate.of(2026, 7, 30))
         )
-      case _ => throw new RuntimeException("Simulated downstream failure")
+      case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
 }

@@ -140,14 +140,14 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XVM33333333333/23").futureValue
+      val response = get(s"$endpoint/XEM33333333333/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/XVM33333333333/23").futureValue
+      val response = get(s"$endpoint/XEM33333333333/23").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

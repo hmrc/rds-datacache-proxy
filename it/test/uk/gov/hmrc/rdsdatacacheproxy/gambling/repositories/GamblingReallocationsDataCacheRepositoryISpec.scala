@@ -81,7 +81,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReallocationsIn(Regime.MGD, "XXM33333066666", 1, 10).futureValue
+        repository.getReallocationsIn(Regime.MGD, "XZM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -112,7 +112,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReallocationsDetails(Regime.MGD, "XXM33333066666").futureValue
+        repository.getReallocationsDetails(Regime.MGD, "XZM33333066666").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

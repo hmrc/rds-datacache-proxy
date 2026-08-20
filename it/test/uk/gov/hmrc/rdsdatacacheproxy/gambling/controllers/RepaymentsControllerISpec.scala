@@ -164,14 +164,14 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$endpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$endpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -285,14 +285,14 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$actualRepaymentsEndpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$actualRepaymentsEndpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

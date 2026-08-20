@@ -20,12 +20,12 @@ import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.{regNumberPatternGTR, regNumberPatternMGD}
 
 object GRNValidator extends Logging {
   private val REF_NO_LENGTH = 7
-//  private val regEx = "X[A-Z]{1}[A-Z]{1}[0-9]{11}"
 
+  private val WEIGHT_0 = 0
   private val WEIGHT_9 = 9
   private val WEIGHT_10 = 10
   private val WEIGHT_11 = 11
@@ -40,11 +40,25 @@ object GRNValidator extends Logging {
   private val WEIGHT_2 = 2
 
   private val weights =
-    List(WEIGHT_9, WEIGHT_10, WEIGHT_11, WEIGHT_12, WEIGHT_13, WEIGHT_8, WEIGHT_7, WEIGHT_6, WEIGHT_5, WEIGHT_4, WEIGHT_3, WEIGHT_2)
-  private val checkChars = List("A", "B", "C", "D", "E", "F", "G", "H", "X", "J", "K", "L", "M", "N", "Y", "P", "Q", "R", "S", "T", "Z", "V", "W")
+    List(WEIGHT_0,
+         WEIGHT_0,
+         WEIGHT_9,
+         WEIGHT_10,
+         WEIGHT_11,
+         WEIGHT_12,
+         WEIGHT_13,
+         WEIGHT_8,
+         WEIGHT_7,
+         WEIGHT_6,
+         WEIGHT_5,
+         WEIGHT_4,
+         WEIGHT_3,
+         WEIGHT_2
+        )
+  private val checkChars = "ABCDEFGHXJKLMNYPQRSTZVW"
 
   def validateRegNoRegime(regime: Regime, regNum: String, baseText: String): Either[StatementError, Unit] = {
-    validateRegNum(regNum, baseText) match
+    validateRegNum(regime, regNum, baseText) match
       case Left(err) => Left(err)
       case Right(()) =>
         validateRegime(regime, regNum, baseText) match
@@ -52,22 +66,44 @@ object GRNValidator extends Logging {
           case Right(()) => Right(())
   }
 
-  def validateRegNum(regNumber: String, baseText: String): Either[StatementError, Unit] = {
+  def validateRegNum(regime: Regime, regNumber: String, baseText: String): Either[StatementError, Unit] = {
     val regNum = regNumber.toUpperCase().trim
     if (regNum.length == 14) {
-      if (regNumberPattern.matcher(regNum).matches()) {
-        val char3 = (regNum.substring(2, 3).toCharArray.head.toInt - 32) * WEIGHT_9
-        val sum = List.range(1, 11).map(x => weights(x) * regNum.substring(x + 2, x + 3).toInt).sum + char3
-        val checkChar = checkChars(sum % 23)
-        if (regNum.substring(1, 2).equals(checkChar)) {
-          Right(())
+      if (regime.equals(Regime.MGD)) {
+        if (regNumberPatternMGD.matcher(regNum).matches()) {
+          val sum = List
+            .range(0, 14)
+            .map(x =>
+              if regNum.charAt(x).isDigit then weights(x) * regNum.charAt(x).asDigit
+              else weights(x) * (regNum.charAt(x) - 65 + 33)
+            )
+            .sum
+          val checkChar = checkChars.charAt(sum % 23)
+          if (regNum.charAt(1).equals(checkChar)) {
+            Right(())
+          } else {
+            logger.warn(s"[$baseText] validateRegNum MGD '$regNum' has invalid check char ${regNum.charAt(1)}, should be=$checkChar")
+            Left(InvalidRegNumber)
+          }
         } else {
-          logger.warn(s"[$baseText] validateRegNum '$regNum' has invalid check char ${regNum.substring(1, 2)}, should be=$checkChar")
+          logger.warn(s"[$baseText] validateRegNum MGD '$regNum' does not match regEx")
           Left(InvalidRegNumber)
         }
       } else {
-        logger.warn(s"[$baseText] validateRegNum '$regNum' does not match regEx")
-        Left(InvalidRegNumber)
+        if (regNumberPatternGTR.matcher(regNum).matches()) {
+          val char3 = (regNum.charAt(2).toInt - 32) * WEIGHT_9
+          val sum = List.range(3, 14).map(x => weights(x) * regNum.charAt(x).asDigit).sum + char3
+          val checkChar = checkChars.charAt(sum % 23)
+          if (regNum.charAt(1).equals(checkChar)) {
+            Right(())
+          } else {
+            logger.warn(s"[$baseText] validateRegNum GTR '$regNum' has invalid check char ${regNum.charAt(1)}, should be=$checkChar")
+            Left(InvalidRegNumber)
+          }
+        } else {
+          logger.warn(s"[$baseText] validateRegNum GTR '$regNum' does not match regEx")
+          Left(InvalidRegNumber)
+        }
       }
     } else {
       logger.warn(s"[$baseText] validateRegNum '$regNum' is not 14 chars")
@@ -78,7 +114,7 @@ object GRNValidator extends Logging {
   def validateRegime(regime: Regime, regNumber: String, baseText: String): Either[StatementError, Unit] =
     val regNum = regNumber.toUpperCase().trim
     if (!regime.equals(Regime.MGD)) {
-      if (regNumberPattern.matcher(regNum).matches()) {
+      if (regNumberPatternGTR.matcher(regNum).matches()) {
         val calculatedRegime = regimeFromRegNo(regNum.takeRight(REF_NO_LENGTH).toLong)
         if (!calculatedRegime.equals(regime.toString)) {
           logger.warn(s"[$baseText] validateRegime Regime does not match RegNum $regime calc=$calculatedRegime $regNum")
