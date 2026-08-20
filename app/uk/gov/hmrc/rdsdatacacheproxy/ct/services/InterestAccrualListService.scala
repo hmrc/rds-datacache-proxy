@@ -27,7 +27,7 @@ class InterestAccrualListService @Inject() (interestAccrualListDatacacheReposito
 
   def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] = {
     logger.info(
-      s"[InterestAccrualService][getInterestAccrualList] Calling repository for taxRef: $taxRef, accPerioud: $accPeriod, interestType: $interestType"
+      s"[InterestAccrualListService][getInterestAccrualList] Calling repository for taxRef: $taxRef, accPerioud: $accPeriod, interestType: $interestType"
     )
     interestAccrualListDatacacheRepository.getInterestAccrualList(taxRef, accPeriod, interestType)
   }
