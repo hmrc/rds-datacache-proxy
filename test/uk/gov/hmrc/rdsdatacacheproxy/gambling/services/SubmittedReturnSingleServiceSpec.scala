@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnSingleDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseSubmittedReturnSingle
@@ -46,7 +47,7 @@ final class SubmittedReturnSingleServiceSpec extends SpecBase {
       when(repository.getSubmittedReturnSingle(eqTo(normalisedRegNumber), eqTo(consecNo1)))
         .thenReturn(Future.successful(Some(validResponseSubmittedReturnSingle)))
 
-      val result = service.getSubmittedReturnSingle(lowercaseRegNumber, consecNo1).futureValue
+      val result = service.getSubmittedReturnSingle(Regime.MGD, lowercaseRegNumber, consecNo1).futureValue
 
       result mustBe Right(validResponseSubmittedReturnSingle)
       verify(repository).getSubmittedReturnSingle(eqTo(normalisedRegNumber), eqTo(consecNo1))
@@ -55,7 +56,7 @@ final class SubmittedReturnSingleServiceSpec extends SpecBase {
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getSubmittedReturnSingle(invalidRegNumber, consecNo1).futureValue
+      val result = service.getSubmittedReturnSingle(Regime.MGD, invalidRegNumber, consecNo1).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
@@ -63,7 +64,7 @@ final class SubmittedReturnSingleServiceSpec extends SpecBase {
     "return UnexpectedError when repository throws exception" in {
       when(repository.getSubmittedReturnSingle(eqTo(normalisedRegNumber), eqTo(consecNo1)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getSubmittedReturnSingle(lowercaseRegNumber, consecNo1).futureValue
+      val result = service.getSubmittedReturnSingle(Regime.MGD, lowercaseRegNumber, consecNo1).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getSubmittedReturnSingle(eqTo(normalisedRegNumber), eqTo(consecNo1))
       verifyNoMoreInteractions(repository)

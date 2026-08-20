@@ -17,8 +17,8 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturns
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, SubmittedReturns}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnsDataSource
 
 import javax.inject.Inject
@@ -29,8 +29,8 @@ class SubmittedReturnsService @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getSubmittedReturns(rawRegNumber: String, sortBy: Option[Int], orderBy: Option[String])(implicit
+  def getSubmittedReturns(regime: Regime, rawRegNumber: String, sortBy: Option[Int], orderBy: Option[String])(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, SubmittedReturns]] =
-    withValidParams(rawRegNumber.trim.toUpperCase, sortBy, orderBy, "getSubmittedReturns")(repository.getSubmittedReturns)
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, sortBy, orderBy, "getSubmittedReturns")(repository.getSubmittedReturns)
 }

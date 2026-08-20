@@ -163,4 +163,24 @@ class GRNValidatorSpec extends SpecBase {
       GRNValidator.validateRegNum(Regime.MGD, "XGM0000312220 ", "test") mustBe Left(InvalidRegNumber)
     }
   }
+
+  "GRNValidator validateRegNum for RegNos that we know are VALID in production" - {
+    "validateRegimeAndRegNo returns TRUE for GTR" in {
+      GRNValidator.validateRegNum(Regime.GBD, "XYM00003001213", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.GBD, "XTM00003000512", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.GBD, "XKM00003000195", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.PBD, "XKM00003200218", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.PBD, "XSM00003200104", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.PBD, "XSM00003200290", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.RGD, "XGM00003400594", "test") mustBe Right(()) // RGD
+      GRNValidator.validateRegNum(Regime.RGD, "XQM00003400116", "test") mustBe Right(()) // RGD
+      GRNValidator.validateRegNum(Regime.RGD, "XVM00003400600", "test") mustBe Right(()) // RGD
+    }
+    "validateRegimeAndRegNo returns TRUE for MGD" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XAM00000001414", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XEM00000000640", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XVM00000000495", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XHM00000000785", "test") mustBe Right(()) // MGD
+    }
+  }
 }

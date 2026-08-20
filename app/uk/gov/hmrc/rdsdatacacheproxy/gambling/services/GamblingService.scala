@@ -22,7 +22,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPatternGTR
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator.regNumberPatternGTR
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -26,6 +26,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.SubmittedReturnSingleService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseSubmittedReturnSingle
@@ -43,7 +44,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.getSubmittedReturnSingle(eqTo("XWM00000001770"), eqTo(3))(any()))
+      when(mockService.getSubmittedReturnSingle(eqTo(Regime.MGD), eqTo("XWM00000001770"), eqTo(3))(any()))
         .thenReturn(Future.successful(Right(validResponseSubmittedReturnSingle)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/XWM00000001770/3")
@@ -53,12 +54,12 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.toJson(validResponseSubmittedReturnSingle)
 
-      verify(mockService).getSubmittedReturnSingle(eqTo("XWM00000001770"), eqTo(3))(any())
+      verify(mockService).getSubmittedReturnSingle(eqTo(Regime.MGD), eqTo("XWM00000001770"), eqTo(3))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getSubmittedReturnSingle(any(), any())(any()))
+      when(mockService.getSubmittedReturnSingle(any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/InvalidRegNo/1")
@@ -70,11 +71,11 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getSubmittedReturnSingle(eqTo(" "), eqTo(1))(any())
+      verify(mockService).getSubmittedReturnSingle(eqTo(Regime.MGD), eqTo(" "), eqTo(1))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getSubmittedReturnSingle(any(), any())(any()))
+      when(mockService.getSubmittedReturnSingle(any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/ERR00001770/1")
@@ -86,7 +87,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getSubmittedReturnSingle(eqTo("ERR00001770"), eqTo(1))(any())
+      verify(mockService).getSubmittedReturnSingle(eqTo(Regime.MGD), eqTo("ERR00001770"), eqTo(1))(any())
     }
   }
 }

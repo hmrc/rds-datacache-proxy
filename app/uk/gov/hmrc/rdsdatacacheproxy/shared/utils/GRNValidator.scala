@@ -20,9 +20,12 @@ import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.{regNumberPatternGTR, regNumberPatternMGD}
+
+import java.util.regex.Pattern
 
 object GRNValidator extends Logging {
+  val regNumberPatternGTR: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
+  private val regNumberPatternMGD: Pattern = "^X[A-HJ-NP-TV-Z]M\\d{11}$".r.pattern
   private val REF_NO_LENGTH = 7
 
   private val WEIGHT_0 = 0
