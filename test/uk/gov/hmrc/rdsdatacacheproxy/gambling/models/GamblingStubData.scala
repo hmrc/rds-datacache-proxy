@@ -32,7 +32,7 @@ object GamblingStubData {
       case "XYZ00000000012" => ReturnSummary(mgdRegNumber, 1, 2)
       case "XYZ00000000021" => ReturnSummary(mgdRegNumber, 2, 1)
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -41,7 +41,7 @@ object GamblingStubData {
 
   def getTradeClassDetails(mgdRegNumber: String): TradeClassDetails = {
     mgdRegNumber match {
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XER00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         TradeClassDetails(
           mgdRegNumber         = mgdRegNumber,
@@ -77,7 +77,7 @@ object GamblingStubData {
           systemDate        = Some(LocalDate.now())
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -120,7 +120,7 @@ object GamblingStubData {
           systemDate   = Some(LocalDate.now())
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -144,7 +144,7 @@ object GamblingStubData {
   def getOperatorDetails(mgdRegNumber: String): OperatorDetails =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -182,7 +182,7 @@ object GamblingStubData {
   // -------------------------
   def getBusinessDetails(mgdRegNumber: String): BusinessDetails =
     mgdRegNumber match {
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -256,7 +256,7 @@ object GamblingStubData {
   def getMgdDetails(mgdRegNumber: String): MgdDetails =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -291,7 +291,7 @@ object GamblingStubData {
     val dateTimeTwo: Some[LocalDate] = Some(LocalDate.of(2026, 1, 1))
     val dateTimeThree: Some[LocalDate] = Some(LocalDate.of(1991, 1, 1))
     mgdRegNumber match {
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -381,7 +381,7 @@ object GamblingStubData {
   def getMgdCertificate(mgdRegNumber: String): MgdCertificate =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -432,7 +432,7 @@ object GamblingStubData {
           systemDate        = Some(LocalDate.of(2026, 4, 20))
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>

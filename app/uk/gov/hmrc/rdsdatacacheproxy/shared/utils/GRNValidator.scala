@@ -24,7 +24,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{Inva
 import java.util.regex.Pattern
 
 object GRNValidator extends Logging {
-  val regNumberPatternGTR: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
+  val regNumberPatternGTR: Pattern = "^X[A-Z]{1}[A-Z]{1}[0-9]{11}$".r.pattern
   private val regNumberPatternMGD: Pattern = "^X[A-HJ-NP-TV-Z]M\\d{11}$".r.pattern
   private val REF_NO_LENGTH = 7
 
