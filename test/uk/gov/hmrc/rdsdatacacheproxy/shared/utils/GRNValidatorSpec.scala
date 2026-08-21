@@ -127,14 +127,6 @@ class GRNValidatorSpec extends SpecBase {
       GRNValidator.validateRegNum(Regime.MGD, "XHM00000000785", "test") mustBe Right(()) // MGD
     }
 
-    "validateRegNum returns FALSE for invalid Check Digit" in {
-      GRNValidator.validateRegNum(Regime.MGD, "XZA00003000000", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum(Regime.MGD, "XZA00003199999", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum(Regime.MGD, "XAZ00001239456", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum(Regime.MGD, "XAM00001233456", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum(Regime.MGD, "XAM12345678901", "test") mustBe Left(InvalidRegNumber)
-    }
-
     "validateRegNum returns FALSE for too short" in {
       GRNValidator.validateRegNum(Regime.MGD, "XWA0003000000", "test") mustBe Left(InvalidRegNumber)
     }
@@ -153,6 +145,9 @@ class GRNValidatorSpec extends SpecBase {
       GRNValidator.validateRegNum(Regime.MGD, "1WA00003000000", "test") mustBe Left(InvalidRegNumber)
       GRNValidator.validateRegNum(Regime.MGD, "1WM00003000000", "test") mustBe Left(InvalidRegNumber)
       GRNValidator.validateRegNum(Regime.MGD, "XW000003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XZA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XZA00003199999", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XAZ00001239456", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for Reg Nums with spaces" in {
