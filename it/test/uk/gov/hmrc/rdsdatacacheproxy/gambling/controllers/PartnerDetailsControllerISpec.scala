@@ -57,38 +57,38 @@ class PartnerDetailsControllerISpec extends AnyWordSpec with Matchers with Scala
     "return 200 with correct ReturnsPartnerDetailsData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XQZ00000000000")
+      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XYM00000000000")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/xqz00000000000 ").futureValue
+      val response = get(s"$endpoint/$MGD/xym00000000000 ").futureValue
       response.status mustBe OK
-      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XQZ00000000000")
+      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XYM00000000000")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/   XQZ00000000000   ").futureValue
+      val response = get(s"$endpoint/$MGD/   XYM00000000000   ").futureValue
       response.status mustBe OK
-      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XQZ00000000000")
+      response.json.as[PartnerDetails] mustBe getPartnerDetailsData("XYM00000000000")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
-      val res2 = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      val res1 = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+      val res2 = get(s"$endpoint/$MGD/XYM00000000000").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -121,7 +121,7 @@ class PartnerDetailsControllerISpec extends AnyWordSpec with Matchers with Scala
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/$MGD/XQZ00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
@@ -139,14 +139,14 @@ class PartnerDetailsControllerISpec extends AnyWordSpec with Matchers with Scala
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/ENR00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XEM33333333333").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/ENR00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XEM33333333333").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

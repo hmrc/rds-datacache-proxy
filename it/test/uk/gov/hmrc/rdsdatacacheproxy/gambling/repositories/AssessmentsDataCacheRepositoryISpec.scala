@@ -70,7 +70,7 @@ class AssessmentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getOtherAssessments(Regime.MGD, "XXM33333066666", 1, 10).futureValue
+        repository.getOtherAssessments(Regime.MGD, "XZM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

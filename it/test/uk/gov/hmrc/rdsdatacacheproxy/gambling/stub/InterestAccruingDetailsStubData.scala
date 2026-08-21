@@ -153,7 +153,7 @@ object InterestAccruingDetailsStubData {
           totalRecords    = 99,
           items           = Seq()
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         InterestAccruingDetails(
           periodStartDate = Some(LocalDate.of(2023, 3, 1)),

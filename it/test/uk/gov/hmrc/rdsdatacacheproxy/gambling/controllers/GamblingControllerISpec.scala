@@ -61,7 +61,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
     override def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails] = {
 
-      if (mgdRegNumber == "ERR00000000000")
+      if (mgdRegNumber == "XER00000000000")
         Future.failed(new RuntimeException("Simulated downstream failure"))
 
       else
@@ -254,7 +254,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/ERR00000000000").futureValue
+      val response = get(s"$endpoint/XER00000000000").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
@@ -371,14 +371,14 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000").futureValue
+      val response = get(s"$endpoint/XER00000000000").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/ERR00000000000").futureValue
+      val response = get(s"$endpoint/XER00000000000").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

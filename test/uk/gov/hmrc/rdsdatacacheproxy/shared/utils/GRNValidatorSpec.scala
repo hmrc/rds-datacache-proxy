@@ -76,44 +76,106 @@ class GRNValidatorSpec extends SpecBase {
     }
   }
 
-  "ValidationUtil validateRegNum" - {
+  "ValidationUtil validateRegNum for GTR Regimes" - {
     "validateRegNum returns TRUE for valid Reg Nums" in {
-      GRNValidator.validateRegNum("XWA00003000000", "test") mustBe Right(()) // GBD
-      GRNValidator.validateRegNum("XHA00003199999", "test") mustBe Right(()) // GBD
-      GRNValidator.validateRegNum("XNA00003200000", "test") mustBe Right(()) // PBD
-      GRNValidator.validateRegNum("XEA00003400000", "test") mustBe Right(()) // RGD
-      GRNValidator.validateRegNum("XGM00003122200", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.GBD, "XWA00003000000", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.GBD, "XCA00003199999", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.PBD, "XNA00003200000", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.PBD, "XWA00003200111", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.RGD, "XEA00003400000", "test") mustBe Right(()) // RGD
+      GRNValidator.validateRegNum(Regime.RGD, "XWA00003400222", "test") mustBe Right(()) // RGD
     }
 
     "validateRegNum returns FALSE for invalid Check Digit" in {
-      GRNValidator.validateRegNum("XZA00003000000", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("XZA00003199999", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XZA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XZA00003199999", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for too short" in {
-      GRNValidator.validateRegNum("XWA0003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XWA0003000000", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for very short" in {
-      GRNValidator.validateRegNum("XWA001", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XWA001", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for too long" in {
-      GRNValidator.validateRegNum("XWA000003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XWA000003000000", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for does not match regEx" in {
-      GRNValidator.validateRegNum("XWA0000300000Z", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("1WA00003000000", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("XW000003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XWA0000300000Z", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "1WA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XW000003000000", "test") mustBe Left(InvalidRegNumber)
     }
 
     "validateRegNum returns FALSE for Reg Nums with spaces" in {
-      GRNValidator.validateRegNum(" WA00003000000", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("X A00003199999", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("XNA0000 200000", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("XEA000034000 0", "test") mustBe Left(InvalidRegNumber)
-      GRNValidator.validateRegNum("XGM0000312220 ", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, " WA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "X A00003199999", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XNA0000 200000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XEA000034000 0", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.GBD, "XGM0000312220 ", "test") mustBe Left(InvalidRegNumber)
+    }
+  }
+
+  "ValidationUtil validateRegNum for MGD Regime" - {
+    "validateRegNum returns TRUE for valid Reg Nums" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XYM00000000000", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XAM00000001414", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XEM00000000640", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XVM00000000495", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XHM00000000785", "test") mustBe Right(()) // MGD
+    }
+
+    "validateRegNum returns FALSE for too short" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XWA0003000000", "test") mustBe Left(InvalidRegNumber)
+    }
+
+    "validateRegNum returns FALSE for very short" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XWA001", "test") mustBe Left(InvalidRegNumber)
+    }
+
+    "validateRegNum returns FALSE for too long" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XWA000003000000", "test") mustBe Left(InvalidRegNumber)
+    }
+
+    "validateRegNum returns FALSE for does not match regEx" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XWA0000300000Z", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XWM0000300000Z", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "1WA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "1WM00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XW000003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XZA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XZA00003199999", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XAZ00001239456", "test") mustBe Left(InvalidRegNumber)
+    }
+
+    "validateRegNum returns FALSE for Reg Nums with spaces" in {
+      GRNValidator.validateRegNum(Regime.MGD, " WA00003000000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "X A00003199999", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XNA0000 200000", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XEA000034000 0", "test") mustBe Left(InvalidRegNumber)
+      GRNValidator.validateRegNum(Regime.MGD, "XGM0000312220 ", "test") mustBe Left(InvalidRegNumber)
+    }
+  }
+
+  "GRNValidator validateRegNum for RegNos that we know are VALID in production" - {
+    "validateRegimeAndRegNo returns TRUE for GTR" in {
+      GRNValidator.validateRegNum(Regime.GBD, "XYM00003001213", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.GBD, "XTM00003000512", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.GBD, "XKM00003000195", "test") mustBe Right(()) // GBD
+      GRNValidator.validateRegNum(Regime.PBD, "XKM00003200218", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.PBD, "XSM00003200104", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.PBD, "XSM00003200290", "test") mustBe Right(()) // PBD
+      GRNValidator.validateRegNum(Regime.RGD, "XGM00003400594", "test") mustBe Right(()) // RGD
+      GRNValidator.validateRegNum(Regime.RGD, "XQM00003400116", "test") mustBe Right(()) // RGD
+      GRNValidator.validateRegNum(Regime.RGD, "XVM00003400600", "test") mustBe Right(()) // RGD
+    }
+    "validateRegimeAndRegNo returns TRUE for MGD" in {
+      GRNValidator.validateRegNum(Regime.MGD, "XAM00000001414", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XEM00000000640", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XVM00000000495", "test") mustBe Right(()) // MGD
+      GRNValidator.validateRegNum(Regime.MGD, "XHM00000000785", "test") mustBe Right(()) // MGD
     }
   }
 }

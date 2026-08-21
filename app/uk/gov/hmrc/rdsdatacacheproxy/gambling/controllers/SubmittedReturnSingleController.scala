@@ -21,6 +21,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.SubmittedReturnSingleService
 
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class SubmittedReturnSingleController @Inject() (authorise: AuthAction, service:
 
   def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getSubmittedReturnSingle(regNumber, consecNo).map {
+      service.getSubmittedReturnSingle(Regime.MGD, regNumber, consecNo).map {
         case Right(single) => Ok(Json.toJson(single))
         case Left(error)   => handleError(error)
       }

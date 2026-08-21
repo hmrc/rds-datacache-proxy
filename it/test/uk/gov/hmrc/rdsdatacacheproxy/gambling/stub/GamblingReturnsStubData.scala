@@ -130,7 +130,7 @@ object GamblingReturnsStubData {
           totalPeriodRecords = Some(99),
           amountDeclared     = Seq()
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ReturnsSubmitted(
           periodStartDate    = Some(LocalDate.of(2023, 3, 1)),
