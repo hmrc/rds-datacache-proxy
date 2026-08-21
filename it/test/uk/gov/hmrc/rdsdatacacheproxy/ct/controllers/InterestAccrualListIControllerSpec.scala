@@ -23,17 +23,17 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, inject}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccrualListDatacacheRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestAccrualListStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
 
-class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
+class InterestAccrualListIControllerSpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class InterestAccrualListStub extends InterestAccrualListDatacacheRepository {
-    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] = {
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] = {
       Future.successful(InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType))
     }
   }
@@ -60,8 +60,8 @@ class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutur
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
-      
-      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
+
+      response.json.as[InterestAccrualList] mustBe InterestAccrualListStubData.getAccrualInterestListItems(taxRef1, accPeriod1, interestType)
     }
 
     "return 200 with InterestAccrual empty list" in {
@@ -73,7 +73,7 @@ class InterestAccrualListISpec extends AnyWordSpec with Matchers with ScalaFutur
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[List[InterestAccrual]] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
+      response.json.as[InterestAccrualList] mustBe InterestAccrualListStubData.getAccrualInterestListItems(19L, accPeriod1, interestType)
     }
 
     "return 500 when stub simulates failure" in {

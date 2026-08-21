@@ -23,23 +23,23 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{InterestAccrual, InterestAccrualList}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.InterestAccrualListDatacacheRepository
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class InterestAccrualListServiceServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar {
+class InterestAccrualListServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar {
 
   private class Setup {
     val mockRepository: InterestAccrualListDatacacheRepository = mock[InterestAccrualListDatacacheRepository]
-    val service = new InterestAccrualService(mockRepository)
+    val service = new InterestAccrualListService(mockRepository)
 
     val taxRef: Long = 1L
     val accPeriod: Long = 1L
     val interestType: String = "IDB"
 
-    val interestAccrualListItems: List[InterestAccrual] =
+    val interestAccrualListItems: InterestAccrualList = InterestAccrualList(
       List(
         InterestAccrual(
           computationAmount       = 1,
@@ -58,22 +58,23 @@ class InterestAccrualListServiceServiceSpec extends AnyWordSpec with Matchers wi
           apEndDate               = LocalDate.of(2021, 9, 10)
         )
       )
+    )
 
   }
 
-  "getInterestAcrrualList returns list of Interest Accrual List retrieved from repository" in new Setup {
+  "getInterestAccrualList returns list of Interest Accrual List retrieved from repository" in new Setup {
 
     when(mockRepository.getInterestAccrualList(any[Long], any[Long], any[String]))
       .thenReturn(Future.successful(interestAccrualListItems))
 
-    val result: List[InterestAccrual] = service.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
+    val result: InterestAccrualList = service.getInterestAccrualList(taxRef, accPeriod, interestType).futureValue
 
     result mustBe interestAccrualListItems
 
     verify(mockRepository).getInterestAccrualList(taxRef, accPeriod, interestType)
   }
 
-  "getInterestAcrrualList returns failure from repository" in new Setup {
+  "getInterestAccrualList returns failure from repository" in new Setup {
 
     val ex = new RuntimeException("boom")
 
