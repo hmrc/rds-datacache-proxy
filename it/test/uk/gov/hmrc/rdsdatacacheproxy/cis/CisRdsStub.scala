@@ -193,5 +193,5 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
 
   override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = Future.successful(1L)
 
-  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = Future.successful(1L)
+  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = Future.successful(request.messageId)
 }
