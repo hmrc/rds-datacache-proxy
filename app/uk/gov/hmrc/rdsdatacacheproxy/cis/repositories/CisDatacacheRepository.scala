@@ -22,9 +22,10 @@ import play.api.db.{Database, NamedDatabase}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer
-import java.sql.{CallableStatement, ResultSet, Types}
+import scala.util.Using
+import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueClobRequest, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -47,6 +48,8 @@ trait CisMonthlyReturnSource {
                                          ): Future[Seq[SubcontractorPrepopRecord]]
 
   def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long]
+
+  def enqueueClob(request: EnqueueClobRequest): Future[Long]
 }
 
 @Singleton
@@ -55,6 +58,9 @@ class CisDatacacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends CisMonthlyReturnSource
     with Logging {
+
+  private def withCall[A](conn: Connection, sql: String)(f: CallableStatement => A): A =
+    Using.resource(conn.prepareCall(sql))(f)
 
   private def str(rs: ResultSet, col: String): Option[String] =
     Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
@@ -363,7 +369,7 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
-  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = {
+  override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = {
     logger.info(
       s"[CIS] enqueueMessageHeader(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
     )
@@ -387,4 +393,62 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
+  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = {
+    logger.info(
+      s"[CIS] enqueueClob(messageId=${request.messageId}, sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+    )
+    Future {
+      db.withTransaction { conn =>
+
+        request.payload.foreach { case (key, value) =>
+          val messageIdOut = callEnqueueClob(
+            conn          = conn,
+            messageId     = request.messageId,
+            sender        = request.sender,
+            queueName     = request.queueName,
+            replyQueue    = request.replyQueue,
+            correlationId = request.correlationId,
+            filter        = request.filter,
+            key           = key,
+            value         = value
+          )
+
+          if (messageIdOut < 0 || messageIdOut != request.messageId) {
+            val errorMessage =
+              s"Failed to enqueue CLOB: messageIdIn=${request.messageId}, messageIdOut=$messageIdOut, key=$key"
+            logger.error(errorMessage)
+            throw new RuntimeException(errorMessage)
+          }
+        }
+        request.messageId
+      }
+    }
+  }
+
+  private def callEnqueueClob(conn: Connection,
+                              messageId: Long,
+                              sender: String,
+                              queueName: String,
+                              replyQueue: String,
+                              correlationId: String,
+                              filter: String,
+                              key: String,
+                              value: String
+                             ): Long = {
+    withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+      cs.setLong(1, messageId)
+      cs.setString(2, sender)
+      cs.setString(3, queueName)
+      cs.setString(4, replyQueue)
+      cs.setString(5, correlationId)
+      cs.setString(6, filter)
+      cs.setString(7, key)
+      cs.setString(8, value)
+      cs.registerOutParameter(9, Types.NUMERIC)
+
+      cs.execute()
+
+      cs.getLong(9)
+    }
+  }
 }

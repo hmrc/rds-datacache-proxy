@@ -22,7 +22,7 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageHeaderRequest
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueClobRequest, EnqueueMessageHeaderRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.services.UdasQueueService
 
 import javax.inject.Inject
@@ -46,6 +46,22 @@ class UdasQueueController @Inject() (
             .map(id => Ok(Json.obj("messageId" -> id)))
             .recover { case ex =>
               logger.error("[enqueueMessageHeader] failed", ex)
+              InternalServerError(Json.obj("message" -> "Unexpected error"))
+            }
+      )
+  }
+
+  def enqueueClob(): Action[JsValue] = authorise(parse.json).async { implicit request =>
+    request.body
+      .validate[EnqueueClobRequest]
+      .fold(
+        errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+        req =>
+          service
+            .enqueueClob(req)
+            .map(id => Ok(Json.obj("messageIDOut" -> id)))
+            .recover { case ex =>
+              logger.error("[enqueueClob] failed", ex)
               InternalServerError(Json.obj("message" -> "Unexpected error"))
             }
       )

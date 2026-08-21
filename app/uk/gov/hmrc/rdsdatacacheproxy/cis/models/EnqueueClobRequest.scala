@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.cis.services
+package uk.gov.hmrc.rdsdatacacheproxy.cis.models
 
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueClobRequest, EnqueueMessageHeaderRequest}
-import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
+import play.api.libs.json.{JsPath, Json, OFormat, OWrites, Reads}
 
-import javax.inject.Inject
-import scala.concurrent.Future
+final case class EnqueueClobRequest(
+  messageId: Long,
+  sender: String,
+  queueName: String,
+  replyQueue: String,
+  correlationId: String,
+  filter: String,
+  payload: Map[String, String]
+)
 
-class UdasQueueService @Inject() (cisSource: CisMonthlyReturnSource) {
+object EnqueueClobRequest {
+  implicit val reads: Reads[EnqueueClobRequest] = Json.reads[EnqueueClobRequest].filter(_.payload.nonEmpty)
 
-  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] =
-    cisSource.enqueueMessageHeader(request)
+  implicit val writes: OWrites[EnqueueClobRequest] = Json.writes[EnqueueClobRequest]
 
-  def enqueueClob(request: EnqueueClobRequest): Future[Long] =
-    cisSource.enqueueClob(request)
+  implicit val format: OFormat[EnqueueClobRequest] = OFormat(reads, writes)
 }
