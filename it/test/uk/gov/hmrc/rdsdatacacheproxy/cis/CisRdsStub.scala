@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
@@ -149,7 +149,6 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
     }
   }
 
-
   override def getSchemePrepopByKnownFacts(
     taxOfficeNumber: String,
     taxOfficeReference: String,
@@ -157,11 +156,11 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
   ): Future[Option[SchemePrepop]] = {
     if (taxOfficeNumber.trim.nonEmpty && taxOfficeReference.trim.nonEmpty && accountOfficeReference.trim.nonEmpty) {
       val scheme = SchemePrepop(
-        taxOfficeNumber    = taxOfficeNumber.trim,
-        taxOfficeReference = taxOfficeReference.trim,
-        accountOfficeReference  = accountOfficeReference.trim,
-        utr                = Some("1123456789"),
-        schemeName         = "PAL-355 Scheme"
+        taxOfficeNumber        = taxOfficeNumber.trim,
+        taxOfficeReference     = taxOfficeReference.trim,
+        accountOfficeReference = accountOfficeReference.trim,
+        utr                    = Some("1123456789"),
+        schemeName             = "PAL-355 Scheme"
       )
       Future.successful(Some(scheme))
     } else {
@@ -191,4 +190,6 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
       Future.successful(Seq.empty)
     }
   }
+
+  override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = Future.successful(1L)
 }
