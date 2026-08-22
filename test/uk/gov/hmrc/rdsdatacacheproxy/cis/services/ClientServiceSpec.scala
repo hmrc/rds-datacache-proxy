@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayerSearchResult, ClientListDownloadStatus}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisClientsSearchResultByEmpRef, CisTaxpayerSearchResult, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisDatacacheRepository
 
 import scala.concurrent.Future
@@ -356,6 +356,151 @@ final class ClientServiceSpec extends SpecBase {
         eqTo(-1),
         eqTo(0),
         eqTo("ASC")
+      )
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
+  "ClientService#getClientsByEmployersReference" - {
+
+    val irAgentId = "IR123456"
+    val credentialId = "CRED-ABC-123"
+    val employerRef = "123456"
+
+    "return client search result when repository returns data with ascending=true" in {
+      val expectedResult = CisClientsSearchResultByEmpRef(
+        clients = List(
+          CisTaxpayerSearchResult(
+            uniqueId = "1",
+            taxOfficeNumber = "123",
+            taxOfficeRef = "AB001",
+            aoDistrict = Some("456"),
+            aoPayType = Some("M"),
+            aoCheckCode = Some("XY"),
+            aoReference = Some("REF001"),
+            validBusinessAddr = Some("Y"),
+            correlation = Some("CORR001"),
+            ggAgentId = Some("GG001"),
+            employerName1 = Some("ABC Ltd"),
+            employerName2 = None,
+            agentOwnRef = Some("AGENT001"),
+            schemeName = Some("ABC")
+          )
+        ),
+        clientNameStartingCharacters = List("A")
+      )
+
+      when(repository.getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef)))
+        .thenReturn(Future.successful(expectedResult))
+
+      val result = service.getClientsByEmployersReference(irAgentId, credentialId, employerRef).futureValue
+
+      result mustBe expectedResult
+      verify(repository).getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return empty result when repository returns empty list" in {
+      val expectedResult = CisClientsSearchResultByEmpRef(
+        clients = List.empty,
+        clientNameStartingCharacters = List.empty
+      )
+
+      when(repository.getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef)))
+        .thenReturn(Future.successful(expectedResult))
+
+      val result = service.getClientsByEmployersReference(irAgentId, credentialId, employerRef).futureValue
+
+      result.clients mustBe empty
+      result.clientNameStartingCharacters mustBe empty
+      verify(repository).getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return multiple clients when repository returns multiple results" in {
+      val expectedResult = CisClientsSearchResultByEmpRef(
+        clients = List(
+          CisTaxpayerSearchResult(
+            uniqueId = "1",
+            taxOfficeNumber = "123",
+            taxOfficeRef = "AB001",
+            aoDistrict = None,
+            aoPayType = None,
+            aoCheckCode = None,
+            aoReference = None,
+            validBusinessAddr = None,
+            correlation = None,
+            ggAgentId = None,
+            employerName1 = Some("ABC Ltd"),
+            employerName2 = None,
+            agentOwnRef = None,
+            schemeName = Some("ABC")
+          ),
+          CisTaxpayerSearchResult(
+            uniqueId = "2",
+            taxOfficeNumber = "456",
+            taxOfficeRef = "CD002",
+            aoDistrict = None,
+            aoPayType = None,
+            aoCheckCode = None,
+            aoReference = None,
+            validBusinessAddr = None,
+            correlation = None,
+            ggAgentId = None,
+            employerName1 = Some("XYZ Builders"),
+            employerName2 = None,
+            agentOwnRef = None,
+            schemeName = Some("XYZ")
+          )
+        ),
+        clientNameStartingCharacters = List("A", "X")
+      )
+
+      when(repository.getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef)))
+        .thenReturn(Future.successful(expectedResult))
+
+      val result = service.getClientsByEmployersReference(irAgentId, credentialId, employerRef).futureValue
+
+      result.clients.length mustBe 2
+      result.clientNameStartingCharacters mustBe List("A", "X")
+      verify(repository).getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "propagate exceptions from repository" in {
+      val exception = new RuntimeException("Database error")
+      when(repository.getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef)))
+        .thenReturn(Future.failed(exception))
+
+      val result = service.getClientsByEmployersReference(irAgentId, credentialId, employerRef).failed.futureValue
+
+      result mustBe exception
+      verify(repository).getClientsByEmployersReference(eqTo(irAgentId), eqTo(credentialId), eqTo(employerRef))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "handle different irAgentId and credentialId values" in {
+      val expectedResult = CisClientsSearchResultByEmpRef(
+        clients = List.empty,
+        clientNameStartingCharacters = List.empty
+      )
+
+      when(
+        repository.getClientsByEmployersReference(
+          eqTo("IR-DIFFERENT"),
+          eqTo("CRED-DIFFERENT"),
+          eqTo("EMP-DIFFERENT")
+        )
+      ).thenReturn(Future.successful(expectedResult))
+
+      val result =
+        service.getClientsByEmployersReference("IR-DIFFERENT", "CRED-DIFFERENT", "EMP-DIFFERENT").futureValue
+
+      result mustBe expectedResult
+      verify(repository).getClientsByEmployersReference(
+        eqTo("IR-DIFFERENT"),
+        eqTo("CRED-DIFFERENT"),
+        eqTo("EMP-DIFFERENT")
       )
       verifyNoMoreInteractions(repository)
     }

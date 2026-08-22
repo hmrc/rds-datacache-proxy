@@ -24,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer
 import java.sql.{CallableStatement, ResultSet}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisClientsSearchResultByEmpRef, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -45,6 +45,7 @@ trait CisMonthlyReturnSource {
                                           taxOfficeReference: String,
                                           accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
+  def getClientsByEmployersReference(irAgentId: String, credentialId: String, employerRef: String): Future[CisClientsSearchResultByEmpRef]
 }
 
 @Singleton
@@ -225,6 +226,42 @@ class CisDatacacheRepository @Inject() (
       }
     }
   }
+
+  override def getClientsByEmployersReference(irAgentId: String, credentialId: String, employerRef: String): Future[CisClientsSearchResultByEmpRef] = {
+    logger.info(s"[CIS] getClientsByEmployersReference(agentId=$irAgentId, CID=$credentialId, EREF=$employerRef)")
+
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call CIS_CLIENT_SEARCH.getClientByEmployerRef(?, ?, ?) }")
+
+        try {
+          cs.setString(1, irAgentId)
+          cs.setString(2, credentialId)
+          cs.setString(3, employerRef)
+          cs.registerOutParameter(4, OracleTypes.CURSOR)
+          cs.registerOutParameter(5, OracleTypes.CURSOR)
+          cs.execute()
+
+          val clientsByEmployersRs = cs.getObject(4, classOf[ResultSet])
+          val clientNameCharsRs = cs.getObject(5, classOf[ResultSet])
+
+          try {
+            val clients = Option(clientsByEmployersRs).map(readClientList).getOrElse(List.empty)
+            val nameChars = Option(clientNameCharsRs).map(readClientNameChars).getOrElse(List.empty)
+
+            CisClientsSearchResultByEmpRef(
+              clients = clients,
+              clientNameStartingCharacters = nameChars
+            )
+          } finally {
+            if (clientsByEmployersRs != null) clientsByEmployersRs.close()
+            if (clientNameCharsRs != null) clientNameCharsRs.close()
+          }
+        } finally cs.close()
+      }
+    }
+  }    
 
   override def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean] = {
     logger.info(s"[CIS] hasClient(TON=$taxOfficeNumber, TOR=$taxOfficeReference, agentId=$irAgentId)")
