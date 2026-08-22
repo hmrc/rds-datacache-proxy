@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisClientsSearchResultByEmpRef, CisTaxpayer, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
@@ -109,6 +109,53 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
         CisClientSearchResult(
           clients                      = List.empty,
           totalCount                   = 0,
+          clientNameStartingCharacters = List.empty
+        )
+      )
+    }
+  }
+
+  override def getClientsByEmployersReference(
+                              irAgentId: String,
+                              credentialId: String,
+                              employerRef: String                             
+                            ): Future[CisClientsSearchResultByEmpRef] = {
+    val irAgentIdExists = Option(irAgentId).exists(_.trim.nonEmpty)
+    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
+    val employerRefExists = Option(employerRef).exists(_.trim.nonEmpty)
+
+    if (irAgentIdExists && credentialIdExists && employerRefExists) {
+      val clients = List(
+        stubUtils.createCisTaxpayerSearchResult(uniqueId = "1",
+          taxOfficeNumber = "123",
+          taxOfficeRef = "AB001",
+          employerName1 = Some("ABC Construction Ltd")
+        ),
+        stubUtils
+          .createCisTaxpayerSearchResult(uniqueId = "2", taxOfficeNumber = "456", taxOfficeRef = "CD002", employerName1 = Some("XYZ Builders")),
+        stubUtils
+          .createCisTaxpayerSearchResult(uniqueId = "3", taxOfficeNumber = "789", taxOfficeRef = "EF003", employerName1 = Some("Best Contractors"))
+      )
+
+      val nameChars = List("A", "B", "X")
+
+      logger.info(
+        s"[CIS-STUB] getClientsByEmployersReference -> IR_AGENT_ID=${irAgentId.trim}, CREDENTIAL_ID=${credentialId.trim}, EMPLOYER_ID=${employerRef.trim}"
+      )
+
+      Future.successful(
+        CisClientsSearchResultByEmpRef(
+          clients = clients,          
+          clientNameStartingCharacters = nameChars
+        )
+      )
+    } else {
+      logger.warn(
+        s"[CIS-STUB] getClientsByEmployersReference -> missing/blank IR_AGENT_ID/CREDENTIAL_ID/EMPLOYER_ID: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, EMPLOYER_ID=${Option(employerRef).map(_.trim).getOrElse("")}"
+      )
+      Future.successful(
+        CisClientsSearchResultByEmpRef(
+          clients = List.empty,
           clientNameStartingCharacters = List.empty
         )
       )

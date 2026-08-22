@@ -249,6 +249,169 @@ class CisDatacacheRepositoryISpec
     }
   }
 
+  "getClientsByEmployersReference (stubbed repository)" should {
+
+    "return all clients when valid irAgentId, credentialId and EmployerId are provided" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients must not be empty
+      result.clients.length mustBe 3
+      result.clientNameStartingCharacters must contain allOf("A", "B", "X")
+    }
+
+    "return clients with correct taxpayer details" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      val firstClient = result.clients.head
+      firstClient.uniqueId mustBe "1"
+      firstClient.taxOfficeNumber mustBe "123"
+      firstClient.taxOfficeRef mustBe "AB001"
+      firstClient.employerName1 mustBe Some("ABC Construction Ltd")
+    }
+
+    "return empty result when irAgentId is empty" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients mustBe empty
+      result.clientNameStartingCharacters mustBe empty
+    }
+
+    "return empty result when credentialId is empty" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients mustBe empty
+      result.clientNameStartingCharacters mustBe empty
+    }
+
+    "return empty result when employerRef is empty" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = ""
+      ).futureValue
+
+      result.clients mustBe empty
+      result.clientNameStartingCharacters mustBe empty
+    }
+
+    "return empty result when irAgentId, credentialId and employerRef are empty" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "",
+        credentialId = "",
+        employerRef = ""
+      ).futureValue
+
+      result.clients mustBe empty
+      result.clientNameStartingCharacters mustBe empty
+    }
+
+    "handle whitespace-only irAgentId" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "   ",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients mustBe empty
+    }
+
+    "handle whitespace-only credentialId" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "   ",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients mustBe empty
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      val result2 = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result1.clients.length mustBe result2.clients.length
+      result1.clientNameStartingCharacters mustBe result2.clientNameStartingCharacters
+    }
+
+    "handle special characters in irAgentId" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR-123/456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients must not be empty
+    }
+
+    "handle special characters in credentialId" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123/XYZ",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients must not be empty
+    }
+
+    "handle special characters in employerRef" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123-XYZ",
+        employerRef = "123/456"
+      ).futureValue
+
+      result.clients must not be empty
+    }
+
+    "return CisClientSearchResult with all required fields populated" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",
+        employerRef = "123456"
+      ).futureValue
+
+      result.clients.foreach { client =>
+        client.uniqueId must not be empty
+        client.taxOfficeNumber must not be empty
+        client.taxOfficeRef must not be empty
+      }
+    }
+
+    "return distinct client name starting characters" in {
+      val result = repository.getClientsByEmployersReference(
+        irAgentId = "IR123456",
+        credentialId = "CRED-ABC-123",employerRef = "123456"
+      ).futureValue
+
+      result.clientNameStartingCharacters.distinct mustBe result.clientNameStartingCharacters
+    }
+  }
+
   "hasClient (stubbed repository)" should {
 
     "return true when client exists with valid parameters" in {
