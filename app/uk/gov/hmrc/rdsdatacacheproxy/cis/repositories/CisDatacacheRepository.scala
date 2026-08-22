@@ -22,9 +22,10 @@ import play.api.db.{Database, NamedDatabase}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer
-import java.sql.{CallableStatement, ResultSet}
+import scala.util.Using
+import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueClobRequest, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -45,6 +46,10 @@ trait CisMonthlyReturnSource {
                                           taxOfficeReference: String,
                                           accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
+
+  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long]
+
+  def enqueueClob(request: EnqueueClobRequest): Future[Long]
 }
 
 @Singleton
@@ -53,6 +58,9 @@ class CisDatacacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends CisMonthlyReturnSource
     with Logging {
+
+  private def withCall[A](conn: Connection, sql: String)(f: CallableStatement => A): A =
+    Using.resource(conn.prepareCall(sql))(f)
 
   private def str(rs: ResultSet, col: String): Option[String] =
     Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
@@ -361,4 +369,86 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
+  override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = {
+    logger.info(
+      s"[CIS] enqueueMessageHeader(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+    )
+    Future {
+      db.withConnection { conn =>
+        val cs: CallableStatement =
+          conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
+
+        try {
+          cs.setString(1, request.sender)
+          cs.setString(2, request.queueName)
+          cs.setString(3, request.replyQueue)
+          cs.setString(4, request.correlationId)
+          cs.setString(5, request.filter)
+          cs.registerOutParameter(6, Types.NUMERIC)
+          cs.execute()
+
+          cs.getLong(6)
+        } finally cs.close()
+      }
+    }
+  }
+
+  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = {
+    logger.info(
+      s"[CIS] enqueueClob(messageId=${request.messageId}, sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+    )
+    Future {
+      db.withTransaction { conn =>
+
+        request.payload.foreach { case (key, value) =>
+          val messageIdOut = callEnqueueClob(
+            conn          = conn,
+            messageId     = request.messageId,
+            sender        = request.sender,
+            queueName     = request.queueName,
+            replyQueue    = request.replyQueue,
+            correlationId = request.correlationId,
+            filter        = request.filter,
+            key           = key,
+            value         = value
+          )
+
+          if (messageIdOut < 0 || messageIdOut != request.messageId) {
+            val errorMessage =
+              s"Failed to enqueue CLOB: messageIdIn=${request.messageId}, messageIdOut=$messageIdOut, key=$key"
+            logger.error(errorMessage)
+            throw new RuntimeException(errorMessage)
+          }
+        }
+        request.messageId
+      }
+    }
+  }
+
+  private def callEnqueueClob(conn: Connection,
+                              messageId: Long,
+                              sender: String,
+                              queueName: String,
+                              replyQueue: String,
+                              correlationId: String,
+                              filter: String,
+                              key: String,
+                              value: String
+                             ): Long = {
+    withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+      cs.setLong(1, messageId)
+      cs.setString(2, sender)
+      cs.setString(3, queueName)
+      cs.setString(4, replyQueue)
+      cs.setString(5, correlationId)
+      cs.setString(6, filter)
+      cs.setString(7, key)
+      cs.setString(8, value)
+      cs.registerOutParameter(9, Types.NUMERIC)
+
+      cs.execute()
+
+      cs.getLong(9)
+    }
+  }
 }
