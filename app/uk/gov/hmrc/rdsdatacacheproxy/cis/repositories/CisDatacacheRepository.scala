@@ -227,7 +227,10 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
-  override def getClientsByEmployersReference(irAgentId: String, credentialId: String, employerRef: String): Future[CisClientsSearchResultByEmpRef] = {
+  override def getClientsByEmployersReference(irAgentId: String,
+                                              credentialId: String,
+                                              employerRef: String
+                                             ): Future[CisClientsSearchResultByEmpRef] = {
     logger.info(s"[CIS] getClientsByEmployersReference(agentId=$irAgentId, CID=$credentialId, EREF=$employerRef)")
 
     Future {
@@ -251,7 +254,7 @@ class CisDatacacheRepository @Inject() (
             val nameChars = Option(clientNameCharsRs).map(readClientNameChars).getOrElse(List.empty)
 
             CisClientsSearchResultByEmpRef(
-              clients = clients,
+              clients                      = clients,
               clientNameStartingCharacters = nameChars
             )
           } finally {
@@ -261,7 +264,7 @@ class CisDatacacheRepository @Inject() (
         } finally cs.close()
       }
     }
-  }    
+  }
 
   override def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String): Future[Boolean] = {
     logger.info(s"[CIS] hasClient(TON=$taxOfficeNumber, TOR=$taxOfficeReference, agentId=$irAgentId)")

@@ -508,20 +508,20 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
       val mockResult = CisClientsSearchResultByEmpRef(
         clients = List(
           CisTaxpayerSearchResult(
-            uniqueId = "1",
-            taxOfficeNumber = "123",
-            taxOfficeRef = "AB001",
-            aoDistrict = Some("456"),
-            aoPayType = Some("M"),
-            aoCheckCode = Some("XY"),
-            aoReference = Some("REF001"),
+            uniqueId          = "1",
+            taxOfficeNumber   = "123",
+            taxOfficeRef      = "AB001",
+            aoDistrict        = Some("456"),
+            aoPayType         = Some("M"),
+            aoCheckCode       = Some("XY"),
+            aoReference       = Some("REF001"),
             validBusinessAddr = Some("Y"),
-            correlation = Some("CORR001"),
-            ggAgentId = Some("GG001"),
-            employerName1 = Some("ABC Ltd"),
-            employerName2 = None,
-            agentOwnRef = Some("AGENT001"),
-            schemeName = Some("ABC")
+            correlation       = Some("CORR001"),
+            ggAgentId         = Some("GG001"),
+            employerName1     = Some("ABC Ltd"),
+            employerName2     = None,
+            agentOwnRef       = Some("AGENT001"),
+            schemeName        = Some("ABC")
           )
         ),
         clientNameStartingCharacters = List("A")
@@ -536,7 +536,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
       ).thenReturn(Future.successful(mockResult))
 
       val req = FakeRequest(GET, "/client-empRef?irAgentId=IR123456&credentialId=CRED-ABC-123&employerRef=123456")
-      val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123","123456")(req)
+      val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123", "123456")(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -555,7 +555,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 with empty client list when no clients found" in new Setup {
       val mockResult = CisClientsSearchResultByEmpRef(
-        clients = List.empty,
+        clients                      = List.empty,
         clientNameStartingCharacters = List.empty
       )
 
@@ -579,7 +579,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
 
     "uses default parameters when not specified" in new Setup {
       val mockResult = CisClientsSearchResultByEmpRef(
-        clients = List.empty,
+        clients                      = List.empty,
         clientNameStartingCharacters = List.empty
       )
 
@@ -621,19 +621,19 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
       (contentAsJson(res) \ "error").as[String] mustBe "irAgentId, credentialId and employerRef must be provided"
       verifyNoInteractions(mockService)
     }
-      "returns 400 when employerRef is empty" in new Setup {
-        val req = FakeRequest(GET, "/c?irAgentId=IR123456&credentialId=CRED-ABC-123&employerRef=")
-        val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123", "")(req)
+    "returns 400 when employerRef is empty" in new Setup {
+      val req = FakeRequest(GET, "/c?irAgentId=IR123456&credentialId=CRED-ABC-123&employerRef=")
+      val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123", "")(req)
 
-        status(res) mustBe BAD_REQUEST
-        contentType(res) mustBe Some(JSON)
-        (contentAsJson(res) \ "error").as[String] mustBe "irAgentId, credentialId and employerRef must be provided"
-        verifyNoInteractions(mockService)
+      status(res) mustBe BAD_REQUEST
+      contentType(res) mustBe Some(JSON)
+      (contentAsJson(res) \ "error").as[String] mustBe "irAgentId, credentialId and employerRef must be provided"
+      verifyNoInteractions(mockService)
     }
 
     "returns 400 when both irAgentId, credentialId and employerRef are empty" in new Setup {
       val req = FakeRequest(GET, "/client-empRef?irAgentId=&credentialId=&employerRef=")
-      val res: Future[Result] = controller.getClientsByEmployersReference("", "","")(req)
+      val res: Future[Result] = controller.getClientsByEmployersReference("", "", "")(req)
 
       status(res) mustBe BAD_REQUEST
       contentType(res) mustBe Some(JSON)
@@ -643,7 +643,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 400 when irAgentId contains only whitespace" in new Setup {
       val req = FakeRequest(GET, "/client-empRef?irAgentId=%20%20%20&credentialId=CRED-ABC-123&employerRef=123456")
-      val res: Future[Result] = controller.getClientsByEmployersReference("   ", "CRED-ABC-123","123456")(req)
+      val res: Future[Result] = controller.getClientsByEmployersReference("   ", "CRED-ABC-123", "123456")(req)
 
       status(res) mustBe BAD_REQUEST
       contentType(res) mustBe Some(JSON)
@@ -653,7 +653,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 400 when credentialId contains only whitespace" in new Setup {
       val req = FakeRequest(GET, "/client-empRef?irAgentId=IR123456&credentialId=%20%20%20&employerRef=123456")
-      val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "   ","123456")(req)
+      val res: Future[Result] = controller.getClientsByEmployersReference("IR123456", "   ", "123456")(req)
 
       status(res) mustBe BAD_REQUEST
       contentType(res) mustBe Some(JSON)
@@ -681,7 +681,7 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
       ).thenReturn(Future.failed(new RuntimeException("Database error")))
 
       val req = FakeRequest(GET, "/client-empRef?irAgentId=IR123456&credentialId=CRED-ABC-123&employerRef=123456")
-      val res = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123","123456")(req)
+      val res = controller.getClientsByEmployersReference("IR123456", "CRED-ABC-123", "123456")(req)
 
       whenReady(res.failed) { ex =>
         ex mustBe a[RuntimeException]
@@ -693,36 +693,36 @@ class ClientControllerSpec extends SpecBase with MockitoSugar {
       val mockResult = CisClientsSearchResultByEmpRef(
         clients = List(
           CisTaxpayerSearchResult(
-            uniqueId = "1",
-            taxOfficeNumber = "123",
-            taxOfficeRef = "AB001",
-            aoDistrict = None,
-            aoPayType = None,
-            aoCheckCode = None,
-            aoReference = None,
+            uniqueId          = "1",
+            taxOfficeNumber   = "123",
+            taxOfficeRef      = "AB001",
+            aoDistrict        = None,
+            aoPayType         = None,
+            aoCheckCode       = None,
+            aoReference       = None,
             validBusinessAddr = None,
-            correlation = None,
-            ggAgentId = None,
-            employerName1 = Some("ABC Ltd"),
-            employerName2 = None,
-            agentOwnRef = None,
-            schemeName = Some("ABC")
+            correlation       = None,
+            ggAgentId         = None,
+            employerName1     = Some("ABC Ltd"),
+            employerName2     = None,
+            agentOwnRef       = None,
+            schemeName        = Some("ABC")
           ),
           CisTaxpayerSearchResult(
-            uniqueId = "2",
-            taxOfficeNumber = "456",
-            taxOfficeRef = "CD002",
-            aoDistrict = None,
-            aoPayType = None,
-            aoCheckCode = None,
-            aoReference = None,
+            uniqueId          = "2",
+            taxOfficeNumber   = "456",
+            taxOfficeRef      = "CD002",
+            aoDistrict        = None,
+            aoPayType         = None,
+            aoCheckCode       = None,
+            aoReference       = None,
             validBusinessAddr = None,
-            correlation = None,
-            ggAgentId = None,
-            employerName1 = Some("XYZ Builders"),
-            employerName2 = None,
-            agentOwnRef = None,
-            schemeName = Some("XYZ")
+            correlation       = None,
+            ggAgentId         = None,
+            employerName1     = Some("XYZ Builders"),
+            employerName2     = None,
+            agentOwnRef       = None,
+            schemeName        = Some("XYZ")
           )
         ),
         clientNameStartingCharacters = List("A", "X")

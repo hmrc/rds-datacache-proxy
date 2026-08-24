@@ -371,20 +371,20 @@ final class ClientServiceSpec extends SpecBase {
       val expectedResult = CisClientsSearchResultByEmpRef(
         clients = List(
           CisTaxpayerSearchResult(
-            uniqueId = "1",
-            taxOfficeNumber = "123",
-            taxOfficeRef = "AB001",
-            aoDistrict = Some("456"),
-            aoPayType = Some("M"),
-            aoCheckCode = Some("XY"),
-            aoReference = Some("REF001"),
+            uniqueId          = "1",
+            taxOfficeNumber   = "123",
+            taxOfficeRef      = "AB001",
+            aoDistrict        = Some("456"),
+            aoPayType         = Some("M"),
+            aoCheckCode       = Some("XY"),
+            aoReference       = Some("REF001"),
             validBusinessAddr = Some("Y"),
-            correlation = Some("CORR001"),
-            ggAgentId = Some("GG001"),
-            employerName1 = Some("ABC Ltd"),
-            employerName2 = None,
-            agentOwnRef = Some("AGENT001"),
-            schemeName = Some("ABC")
+            correlation       = Some("CORR001"),
+            ggAgentId         = Some("GG001"),
+            employerName1     = Some("ABC Ltd"),
+            employerName2     = None,
+            agentOwnRef       = Some("AGENT001"),
+            schemeName        = Some("ABC")
           )
         ),
         clientNameStartingCharacters = List("A")
@@ -402,7 +402,7 @@ final class ClientServiceSpec extends SpecBase {
 
     "return empty result when repository returns empty list" in {
       val expectedResult = CisClientsSearchResultByEmpRef(
-        clients = List.empty,
+        clients                      = List.empty,
         clientNameStartingCharacters = List.empty
       )
 
@@ -421,36 +421,36 @@ final class ClientServiceSpec extends SpecBase {
       val expectedResult = CisClientsSearchResultByEmpRef(
         clients = List(
           CisTaxpayerSearchResult(
-            uniqueId = "1",
-            taxOfficeNumber = "123",
-            taxOfficeRef = "AB001",
-            aoDistrict = None,
-            aoPayType = None,
-            aoCheckCode = None,
-            aoReference = None,
+            uniqueId          = "1",
+            taxOfficeNumber   = "123",
+            taxOfficeRef      = "AB001",
+            aoDistrict        = None,
+            aoPayType         = None,
+            aoCheckCode       = None,
+            aoReference       = None,
             validBusinessAddr = None,
-            correlation = None,
-            ggAgentId = None,
-            employerName1 = Some("ABC Ltd"),
-            employerName2 = None,
-            agentOwnRef = None,
-            schemeName = Some("ABC")
+            correlation       = None,
+            ggAgentId         = None,
+            employerName1     = Some("ABC Ltd"),
+            employerName2     = None,
+            agentOwnRef       = None,
+            schemeName        = Some("ABC")
           ),
           CisTaxpayerSearchResult(
-            uniqueId = "2",
-            taxOfficeNumber = "456",
-            taxOfficeRef = "CD002",
-            aoDistrict = None,
-            aoPayType = None,
-            aoCheckCode = None,
-            aoReference = None,
+            uniqueId          = "2",
+            taxOfficeNumber   = "456",
+            taxOfficeRef      = "CD002",
+            aoDistrict        = None,
+            aoPayType         = None,
+            aoCheckCode       = None,
+            aoReference       = None,
             validBusinessAddr = None,
-            correlation = None,
-            ggAgentId = None,
-            employerName1 = Some("XYZ Builders"),
-            employerName2 = None,
-            agentOwnRef = None,
-            schemeName = Some("XYZ")
+            correlation       = None,
+            ggAgentId         = None,
+            employerName1     = Some("XYZ Builders"),
+            employerName2     = None,
+            agentOwnRef       = None,
+            schemeName        = Some("XYZ")
           )
         ),
         clientNameStartingCharacters = List("A", "X")
@@ -481,7 +481,7 @@ final class ClientServiceSpec extends SpecBase {
 
     "handle different irAgentId and credentialId values" in {
       val expectedResult = CisClientsSearchResultByEmpRef(
-        clients = List.empty,
+        clients                      = List.empty,
         clientNameStartingCharacters = List.empty
       )
 

@@ -84,12 +84,12 @@ class ClientController @Inject() (
   }
 
   def getClientsByEmployersReference(
-                 irAgentId: String,
-                 credentialId: String,
-                 employerRef: String
-               ): Action[AnyContent] = authorise.async { implicit request =>
+    irAgentId: String,
+    credentialId: String,
+    employerRef: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
     if (irAgentId.trim().isEmpty || credentialId.trim().isEmpty || employerRef.trim().isEmpty) {
-      Future.successful(BadRequest(Json.obj("error" -> "irAgentId, credentialId and employerRef must be provided"))) 
+      Future.successful(BadRequest(Json.obj("error" -> "irAgentId, credentialId and employerRef must be provided")))
     } else {
       clientService
         .getClientsByEmployersReference(irAgentId, credentialId, employerRef)
