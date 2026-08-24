@@ -87,7 +87,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
     "return 500 when stub fails" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/repayments/999/1").futureValue
+      val response = get(s"$endpoint/display-needed/999/1").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
@@ -95,7 +95,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/repayments/999/1").futureValue
+      val response = get(s"$endpoint/display-needed/999/1").futureValue
 
       response.status mustBe UNAUTHORIZED
     }
