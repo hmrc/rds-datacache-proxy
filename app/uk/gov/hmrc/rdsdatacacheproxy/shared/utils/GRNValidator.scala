@@ -28,7 +28,6 @@ object GRNValidator extends Logging {
   private val regNumberPatternMGD: Pattern = "^X[A-Za-z]M[0-9]{11}$".r.pattern
   private val REF_NO_LENGTH = 7
 
-  private val WEIGHT_0 = 0
   private val WEIGHT_9 = 9
   private val WEIGHT_10 = 10
   private val WEIGHT_11 = 11
@@ -43,93 +42,64 @@ object GRNValidator extends Logging {
   private val WEIGHT_2 = 2
 
   private val weights =
-    List(WEIGHT_0,
-         WEIGHT_0,
-         WEIGHT_9,
-         WEIGHT_10,
-         WEIGHT_11,
-         WEIGHT_12,
-         WEIGHT_13,
-         WEIGHT_8,
-         WEIGHT_7,
-         WEIGHT_6,
-         WEIGHT_5,
-         WEIGHT_4,
-         WEIGHT_3,
-         WEIGHT_2
-        )
+    List(WEIGHT_10, WEIGHT_11, WEIGHT_12, WEIGHT_13, WEIGHT_8, WEIGHT_7, WEIGHT_6, WEIGHT_5, WEIGHT_4, WEIGHT_3, WEIGHT_2)
   private val checkChars = "ABCDEFGHXJKLMNYPQRSTZVW"
 
-  def validateRegNoRegime(regime: Regime, regNum: String, baseText: String): Either[StatementError, Unit] = {
-    validateRegNum(regime, regNum, baseText) match
+  def validateRegNoRegime(regime: Regime, regNum: String): Either[StatementError, Unit] = {
+    validateRegNum(regime, regNum) match
       case Left(err) => Left(err)
       case Right(()) =>
-        validateRegime(regime, regNum, baseText) match
+        validateRegime(regime, regNum) match
           case Left(err) => Left(err)
           case Right(()) => Right(())
   }
 
-  def validateRegNum(regime: Regime, regNumber: String, baseText: String): Either[StatementError, Unit] = {
+  def validateRegNum(regime: Regime, regNumber: String): Either[StatementError, Unit] = {
     val regNum = regNumber.toUpperCase().trim
-    if (regNum.length == 14) {
-      if (regime.equals(Regime.MGD)) {
-        if (regNumberPatternMGD.matcher(regNum).matches()) {
-          Right(())
-        } else {
-          logger.warn(s"[$baseText] validateRegNum MGD '$regNum' does not match regEx")
-          Left(InvalidRegNumber)
-        }
-      } else {
-        if (regNumberPatternGTR.matcher(regNum).matches()) {
-          val char3 = (regNum.charAt(2).toInt - 32) * WEIGHT_9
-          val sum = List.range(3, 14).map(x => weights(x) * regNum.charAt(x).asDigit).sum + char3
-          val checkChar = checkChars.charAt(sum % 23)
-          if (regNum.charAt(1).equals(checkChar)) {
-            Right(())
-          } else {
-            logger.warn(s"[$baseText] validateRegNum GTR '$regNum' has invalid check char ${regNum.charAt(1)}, should be=$checkChar")
-            Left(InvalidRegNumber)
-          }
-        } else {
-          logger.warn(s"[$baseText] validateRegNum GTR '$regNum' does not match regEx")
-          Left(InvalidRegNumber)
-        }
-      }
-    } else {
-      logger.warn(s"[$baseText] validateRegNum '$regNum' is not 14 chars")
+    if (regNum.length != 14) {
+      logger.warn(s"validateRegNum '$regNum' is not 14 chars")
       Left(InvalidRegNumber)
-    }
+    } else if (regime == Regime.MGD) mgdRegNumValid(regNum)
+    else gtrRegNumValid(regNum)
   }
 
-  def validateRegime(regime: Regime, regNumber: String, baseText: String): Either[StatementError, Unit] =
+  def validateRegime(regime: Regime, regNumber: String): Either[StatementError, Unit] =
     val regNum = regNumber.toUpperCase().trim
-    if (!regime.equals(Regime.MGD)) {
-      if (regNumberPatternGTR.matcher(regNum).matches()) {
-        val calculatedRegime = regimeFromRegNo(regNum.takeRight(REF_NO_LENGTH).toLong)
-        if (!calculatedRegime.equals(regime.toString)) {
-          logger.warn(s"[$baseText] validateRegime Regime does not match RegNum $regime calc=$calculatedRegime $regNum")
-          Left(InvalidRegimeCode)
-        } else {
-          logger.warn(s"[$baseText] validateRegime Regime matches RegNum '$regime':'$calculatedRegime' '$regNum'")
-          Right(())
-        }
-      } else {
-        logger.warn(s"[$baseText] validateRegime RegNum is invalid '$regNum'")
-        Left(InvalidRegNumber)
-      }
-    } else {
-      Right(())
+    if (regime == Regime.MGD) Right(())
+    else {
+      for {
+        _                <- ensure(regNumberPatternGTR.matcher(regNum).matches(), s"[validateRegime] RegNum is invalid '$regNum'", InvalidRegNumber)
+        calculatedRegime <- Right(Regime.fromRegNum(regNum.takeRight(REF_NO_LENGTH).toLong))
+        _ <- ensure(calculatedRegime.contains(regime),
+                    s"[validateRegime] Regime does not match RegNum $regime calc=$calculatedRegime $regNum",
+                    InvalidRegimeCode
+                   )
+      } yield ()
     }
 
-  private def regimeFromRegNo(ref: Long) = {
-    if (ref >= 3000000 && ref <= 3199999) {
-      "GBD"
-    } else if (ref >= 3200000 && ref <= 3399999) {
-      "PBD"
-    } else if (ref >= 3400000 && ref <= 3599999) {
-      "RGD"
-    } else {
-      ""
-    }
+  private def mgdRegNumValid(regNum: String): Either[StatementError, Unit] =
+    ensure(regNumberPatternMGD.matcher(regNum).matches(), s"validateRegNum MGD '$regNum' does not match regEx", InvalidRegNumber)
+
+  private def gtrRegNumValid(regNum: String): Either[StatementError, Unit] =
+    for {
+      _         <- ensure(regNumberPatternGTR.matcher(regNum).matches(), s"validateRegNum GTR '$regNum' does not match regEx", InvalidRegNumber)
+      checkChar <- Right(expectedCheckChar(regNum))
+      _ <- ensure(regNum.charAt(1) == checkChar,
+                  s"validateRegNum GTR '$regNum' has invalid check char ${regNum.charAt(1)}, should be=$checkChar",
+                  InvalidRegNumber
+                 )
+    } yield ()
+
+  private def expectedCheckChar(regNum: String): Char = {
+    val char3 = (regNum.charAt(2).toInt - 32) * WEIGHT_9
+    val sum = List.range(3, 14).map(x => weights(x - 3) * regNum.charAt(x).asDigit).sum + char3
+    checkChars.charAt(sum % 23)
   }
+
+  private def ensure(condition: Boolean, warning: String, error: StatementError): Either[StatementError, Unit] =
+    if (condition) Right(())
+    else {
+      logger.warn(warning)
+      Left(error)
+    }
 }
