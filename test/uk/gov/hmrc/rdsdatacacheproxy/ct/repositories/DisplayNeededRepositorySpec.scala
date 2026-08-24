@@ -72,10 +72,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     verify(mockCallableStatement).setLong(1, taxPayerRef)
     verify(mockCallableStatement).setLong(2, accountingPeriod)
 
-    verify(mockCallableStatement).registerOutParameter(3, java.sql.Types.BOOLEAN) // P_TAX_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.BOOLEAN) // P_INT_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.BOOLEAN) // P_PAY_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.BOOLEAN) // P_REPAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(3, java.sql.Types.VARCHAR) // P_TAX_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR) // P_INT_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.VARCHAR) // P_PAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.VARCHAR) // P_REPAY_ISDISPLAYNEEDED_FLAG
 
     verify(mockCallableStatement).execute()
 
@@ -102,10 +102,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     verify(mockCallableStatement).setLong(1, taxPayerRef)
     verify(mockCallableStatement).setLong(2, accountingPeriod)
 
-    verify(mockCallableStatement).registerOutParameter(3, java.sql.Types.BOOLEAN) // P_TAX_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.BOOLEAN) // P_INT_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.BOOLEAN) // P_PAY_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.BOOLEAN) // P_REPAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(3, oracle.jdbc.OracleTypes.VARCHAR) // P_TAX_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR) // P_INT_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR) // P_PAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(6, oracle.jdbc.OracleTypes.VARCHAR) // P_REPAY_ISDISPLAYNEEDED_FLAG
 
     verify(mockCallableStatement).execute()
 
@@ -132,10 +132,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     verify(mockCallableStatement).setLong(1, taxPayerRef)
     verify(mockCallableStatement).setLong(2, accountingPeriod)
 
-    verify(mockCallableStatement).registerOutParameter(3, java.sql.Types.BOOLEAN) // P_TAX_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.BOOLEAN) // P_INT_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.BOOLEAN) // P_PAY_ISDISPLAYNEEDED_FLAG
-    verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.BOOLEAN) // P_REPAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(3, java.sql.Types.VARCHAR) // P_TAX_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR) // P_INT_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.VARCHAR) // P_PAY_ISDISPLAYNEEDED_FLAG
+    verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.VARCHAR) // P_REPAY_ISDISPLAYNEEDED_FLAG
 
     verify(mockCallableStatement).execute()
 
