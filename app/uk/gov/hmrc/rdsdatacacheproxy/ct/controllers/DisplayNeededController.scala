@@ -44,7 +44,7 @@ class DisplayNeededController @Inject() (
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving display needed", ex)
-        InternalServerError(Json.obj("error" -> "Failed to Customize Toolbar…"))
+        InternalServerError(Json.obj("error" -> "Failed to retrieve display needed"))
       }
   }
 }

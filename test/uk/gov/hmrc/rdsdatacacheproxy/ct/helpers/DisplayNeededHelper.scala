@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
+package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
 
-object DisplayNeededStubData {
-
+trait DisplayNeededHelper {
   val displayNeededItemAllFalse: DisplayNeededItem = DisplayNeededItem(
     taxIsDisplayNeededFlag          = false,
     interestIsDisplayNeededFlag     = false,
@@ -42,20 +41,10 @@ object DisplayNeededStubData {
   )
 
   val displayNeededItemDefault: DisplayNeededItem = DisplayNeededItem(
-    taxIsDisplayNeededFlag = true,
-    interestIsDisplayNeededFlag = false,
-    paymentIsDisplayNeededFlag = false,
+    taxIsDisplayNeededFlag          = true,
+    interestIsDisplayNeededFlag     = false,
+    paymentIsDisplayNeededFlag      = false,
     repayReallocIsDisplayNeededFlag = false
   )
-  
-  def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeededItem = {
-    taxRef match {
-      case 10L  => displayNeededItemAllFalse
-      case 20L  => displayNeededItemAllTrue
-      case 30L  => displayNeededItemMixed
-      case 999L => throw new RuntimeException("Error from downstream")
-      case _    => displayNeededItemDefault
-    }
-  }
 
 }
