@@ -44,10 +44,10 @@ class DisplayNeededImpl @Inject() (
           storedProcedure.setLong(1, taxRef)
           storedProcedure.setLong(2, accPeriod)
 
-          storedProcedure.registerOutParameter(3, java.sql.Types.BOOLEAN) // P_TAX_ISDISPLAYNEEDED_FLAG
-          storedProcedure.registerOutParameter(4, java.sql.Types.BOOLEAN) // P_INT_ISDISPLAYNEEDED_FLAG
-          storedProcedure.registerOutParameter(5, java.sql.Types.BOOLEAN) // P_PAY_ISDISPLAYNEEDED_FLAG
-          storedProcedure.registerOutParameter(6, java.sql.Types.BOOLEAN) // P_REPAY_ISDISPLAYNEEDED_FLAG
+          storedProcedure.registerOutParameter(3, java.sql.Types.VARCHAR) // P_TAX_ISDISPLAYNEEDED_FLAG
+          storedProcedure.registerOutParameter(4, java.sql.Types.VARCHAR) // P_INT_ISDISPLAYNEEDED_FLAG
+          storedProcedure.registerOutParameter(5, java.sql.Types.VARCHAR) // P_PAY_ISDISPLAYNEEDED_FLAG
+          storedProcedure.registerOutParameter(6, java.sql.Types.VARCHAR) // P_REPAY_ISDISPLAYNEEDED_FLAG
 
           storedProcedure.execute()
 
