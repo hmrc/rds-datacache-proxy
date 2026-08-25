@@ -44,20 +44,20 @@ class PartnerDetailsCacheRepositoryISpec extends AnyWordSpec with Matchers with 
   "getPartnerDetails (stubbed repository)" should {
 
     "return correct PartnerDetailsData" in {
-      val result = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+      val result = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
 
-      result mustBe getPartnerDetailsData("XQZ00000000000")
+      result mustBe getPartnerDetailsData("XYM00000000000")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
-      val result2 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
+      val result2 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getPartnerDetails(Regime.MGD, "XQZ00000000000").futureValue
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
       val result2 = repository.getPartnerDetails(Regime.MGD, "XYZ00000000001").futureValue
 
       result1 must not be result2
@@ -65,7 +65,7 @@ class PartnerDetailsCacheRepositoryISpec extends AnyWordSpec with Matchers with 
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getPartnerDetails(Regime.MGD, "ENR00000000000").futureValue
+        repository.getPartnerDetails(Regime.MGD, "XEM33333333333").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

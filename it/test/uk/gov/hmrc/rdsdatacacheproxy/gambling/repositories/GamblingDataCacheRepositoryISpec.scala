@@ -104,7 +104,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure" in {
       val exception = intercept[RuntimeException] {
-        repository.getOperatorDetails("ERR00000000000").futureValue
+        repository.getOperatorDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -172,7 +172,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "propagate downstream failure from stub" in {
 
       val exception = intercept[RuntimeException] {
-        repository.getTradeClassDetails("ERR00000000000").futureValue
+        repository.getTradeClassDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -242,7 +242,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "propagate downstream failure from stub" in {
 
       val exception = intercept[RuntimeException] {
-        repository.getMgdDetails("ERR00000000000").futureValue
+        repository.getMgdDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -299,7 +299,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessDetails("ERR00000000000").futureValue
+        repository.getBusinessDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -381,7 +381,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReturnSummary("ERR00000000000").futureValue
+        repository.getReturnSummary("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -501,7 +501,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessName("ERR00000000000").futureValue
+        repository.getBusinessName("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -602,7 +602,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessDetails("ERR00000000000").futureValue
+        repository.getBusinessDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -643,7 +643,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getBusinessContactDetails("ERR00000000000")
+          .getBusinessContactDetails("XER00000000000")
           .futureValue
       }
 
@@ -697,7 +697,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getCorrespondenceDetails("ERR00000000000")
+          .getCorrespondenceDetails("XER00000000000")
           .futureValue
       }
 
@@ -756,7 +756,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getBusinessAddressDetails("ERR00000000000")
+          .getBusinessAddressDetails("XER00000000000")
           .futureValue
       }
 

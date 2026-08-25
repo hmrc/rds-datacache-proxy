@@ -68,12 +68,12 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 200 with correct RepaymentInterestDetailsData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$MGD/XYZ99999999999").futureValue
+      val response = get(s"$endpoint/$MGD/XHM99999999999").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ99999999999")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XHM99999999999")
     }
 
     "normalise lowercase input" in {
@@ -150,14 +150,14 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$endpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$endpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

@@ -35,6 +35,6 @@ GET        /repayment-interest-details/:regime/:regNumber              uk.gov.hm
 GET        /partner-details/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.PartnerDetailsController.getPartnerDetails(regime: String, regNumber: String)
 
 #Filing routes
-GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
-GET        /submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getSubmittedReturnSingle(regNumber: String, consecNo: Int)
+GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getMgdSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
+GET        /submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int)
 GET        /open-periods/:regime/:regNumber                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])

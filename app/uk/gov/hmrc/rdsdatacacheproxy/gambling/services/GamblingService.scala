@@ -22,7 +22,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.utils.GamblingUtils.regNumberPattern
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator.regNumberPatternGTR
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +38,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getTradeClass] Invalid pattern mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -60,7 +60,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getMgdDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
@@ -89,7 +89,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getReturnSummary] Invalid pattern for mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -108,7 +108,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getBusinessName] Invalid pattern for mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -127,7 +127,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getMgdCertificate] Invalid pattern mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -151,7 +151,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
       logger.warn(s"[GamblingService][getOperatorDetails] Invalid pattern mgdRegNumber=$mgdRegNumber")
       Future.successful(Left(InvalidMgdRegNumber))
     } else {
@@ -175,7 +175,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getBusinessDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
@@ -206,7 +206,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getBusinessContactDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
@@ -236,7 +236,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getCorrespondenceDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
@@ -265,7 +265,7 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 
-    if (!regNumberPattern.matcher(mgdRegNumber).matches()) {
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
 
       logger.warn(
         s"[GamblingService][getBusinessAddressDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
