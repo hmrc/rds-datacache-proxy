@@ -22,19 +22,19 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.Payments
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.PaymentsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PaymentsController @Inject() (authorise: AuthAction, repository: PaymentsDataSource, cc: ControllerComponents)(implicit
+class PaymentsController @Inject() (authorise: AuthAction, service: PaymentsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with Logging {
 
   def getPayments(taxRef: Long, accPeriod: Long): Action[AnyContent] =
     authorise.async { implicit request =>
-      repository
+      service
         .getPayments(taxRef, accPeriod)
         .map { paymentTransactions =>
           Ok(Json.toJson(Payments(paymentTransactions)))
