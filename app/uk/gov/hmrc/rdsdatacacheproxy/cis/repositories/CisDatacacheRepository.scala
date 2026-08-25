@@ -376,7 +376,7 @@ class CisDatacacheRepository @Inject() (
                                                  sender        = request.sender,
                                                  queueName     = request.queueName,
                                                  replyQueue    = request.replyQueue,
-                                                 correlationId = request.correlationId,
+                                                 correlationId = request.correlationID,
                                                  filter        = request.filter
                                                 )
 
@@ -387,7 +387,7 @@ class CisDatacacheRepository @Inject() (
             sender        = request.sender,
             queueName     = request.queueName,
             replyQueue    = request.replyQueue,
-            correlationId = request.correlationId,
+            correlationId = request.correlationID,
             filter        = request.filter,
             key           = key,
             value         = value

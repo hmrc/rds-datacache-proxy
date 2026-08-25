@@ -41,7 +41,7 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
       sender        = "Portal",
       queueName     = "AGTAUTH",
       replyQueue    = "",
-      correlationId = "",
+      correlationID = "",
       filter        = "RemoveClient",
       payload = Map(
         "IRAgentID"    -> "123456789",

@@ -44,7 +44,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
       model.sender mustBe "Portal"
       model.queueName mustBe "AGTAUTH"
       model.replyQueue mustBe ""
-      model.correlationId mustBe ""
+      model.correlationID mustBe ""
       model.filter mustBe "RemoveClient"
       model.payload mustBe Map(
         "IRAgentID"    -> "123456789",

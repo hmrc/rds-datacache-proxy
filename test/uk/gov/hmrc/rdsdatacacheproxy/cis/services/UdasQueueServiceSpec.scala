@@ -35,13 +35,13 @@ final class UdasQueueServiceSpec extends SpecBase {
     super.beforeEach()
     reset(source)
   }
-  
+
   "CisTaxpayerService#enqueueMessage" - {
     val request: EnqueueMessageRequest = EnqueueMessageRequest(
       sender        = "Portal",
       queueName     = "AGTAUTH",
       replyQueue    = "",
-      correlationId = "",
+      correlationID = "",
       filter        = "RemoveClient",
       payload = Map(
         "IRAgentID"    -> "123456789",

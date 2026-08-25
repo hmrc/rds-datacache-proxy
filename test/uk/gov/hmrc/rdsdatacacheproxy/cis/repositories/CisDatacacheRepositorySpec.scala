@@ -511,7 +511,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
         sender        = "Portal",
         queueName     = "AGTAUTH",
         replyQueue    = "",
-        correlationId = "",
+        correlationID = "",
         filter        = "RemoveClient",
         payload = Map(
           "IRAgentID"    -> "123456789",
@@ -585,7 +585,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
         sender        = "Portal",
         queueName     = "AGTAUTH",
         replyQueue    = "",
-        correlationId = "",
+        correlationID = "",
         filter        = "RemoveClient",
         payload = Map(
           "IRAgentID" -> "123456789"
@@ -651,7 +651,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
         sender        = "Portal",
         queueName     = "AGTAUTH",
         replyQueue    = "",
-        correlationId = "",
+        correlationID = "",
         filter        = "RemoveClient",
         payload = Map(
           "IRAgentID" -> "123456789"

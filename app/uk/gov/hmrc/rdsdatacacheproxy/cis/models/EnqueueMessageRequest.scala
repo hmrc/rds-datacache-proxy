@@ -22,7 +22,7 @@ final case class EnqueueMessageRequest(
   sender: String,
   queueName: String,
   replyQueue: String,
-  correlationId: String,
+  correlationID: String,
   filter: String,
   payload: Map[String, String]
 )
