@@ -16,45 +16,45 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 object DisplayNeededStubData {
 
-  val displayNeededItemAllFalse: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = false,
     interestIsDisplayNeededFlag     = false,
     paymentIsDisplayNeededFlag      = false,
     repayReallocIsDisplayNeededFlag = false
   )
 
-  val displayNeededItemAllTrue: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = true,
     interestIsDisplayNeededFlag     = true,
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = true
   )
 
-  val displayNeededItemMixed: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededMixed: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = true,
     interestIsDisplayNeededFlag     = false,
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = false
   )
 
-  val displayNeededItemDefault: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededDefault: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag = true,
     interestIsDisplayNeededFlag = false,
     paymentIsDisplayNeededFlag = false,
     repayReallocIsDisplayNeededFlag = false
   )
   
-  def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeededItem = {
+  def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeeded = {
     taxRef match {
-      case 10L  => displayNeededItemAllFalse
-      case 20L  => displayNeededItemAllTrue
-      case 30L  => displayNeededItemMixed
+      case 10L  => displayNeededAllFalse
+      case 20L  => displayNeededAllTrue
+      case 30L  => displayNeededMixed
       case 999L => throw new RuntimeException("Error from downstream")
-      case _    => displayNeededItemDefault
+      case _    => displayNeededDefault
     }
   }
 

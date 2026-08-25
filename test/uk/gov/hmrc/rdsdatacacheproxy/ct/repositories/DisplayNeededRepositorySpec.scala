@@ -23,7 +23,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfter, concurrent}
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -56,7 +56,7 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 10L
     val accountingPeriod: Long = 1L
 
-    val expectedOutput = DisplayNeededItem(
+    val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = false,
       interestIsDisplayNeededFlag     = false,
       paymentIsDisplayNeededFlag      = false,
@@ -86,7 +86,7 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 20L
     val accountingPeriod: Long = 1L
 
-    val expectedOutput = DisplayNeededItem(
+    val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
       interestIsDisplayNeededFlag     = true,
       paymentIsDisplayNeededFlag      = true,
@@ -116,7 +116,7 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 30L
     val accountingPeriod: Long = 1L
 
-    val expectedOutput = DisplayNeededItem(
+    val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
       interestIsDisplayNeededFlag     = false,
       paymentIsDisplayNeededFlag      = true,

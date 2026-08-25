@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.DisplayNeededRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.DisplayNeededStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -34,7 +34,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
 
   class DisplayNeededRepositoryStub extends DisplayNeededRepository {
 
-    override def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeededItem] = {
+    override def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] = {
       Future.successful(DisplayNeededStubData.getDisplayNeeded(taxRef: Long, accPeriod: Long))
     }
   }
@@ -59,7 +59,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeededItem] mustBe DisplayNeededStubData.displayNeededItemAllFalse
+      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededAllFalse
     }
 
     "return 200 and display needed with all flags set as true" in {
@@ -70,7 +70,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeededItem] mustBe DisplayNeededStubData.displayNeededItemAllTrue
+      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededAllTrue
     }
 
     "return 200 and display needed with some flags set as true and false" in {
@@ -81,7 +81,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeededItem] mustBe DisplayNeededStubData.displayNeededItemMixed
+      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededMixed
     }
 
     "return 500 when stub fails" in {
