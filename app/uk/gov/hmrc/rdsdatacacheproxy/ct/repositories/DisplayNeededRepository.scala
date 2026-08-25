@@ -36,7 +36,7 @@ class DisplayNeededImpl @Inject() (
     with Logging {
 
   def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] = {
-    logger.info(s"[InterestChargeSummaryDataCacheRepository][getDisplayNeeded] taxPayerReference: $taxRef, accountingPeriod: $accPeriod")
+    logger.info(s"Input request: taxRef, accPeriod: <$taxRef>, <$accPeriod>")
     Future {
       db.withConnection { connect =>
         val storedProcedure = connect.prepareCall("{call CT_DC_PK.isDisplayNeeded(?, ?, ?, ?, ?, ?)}")

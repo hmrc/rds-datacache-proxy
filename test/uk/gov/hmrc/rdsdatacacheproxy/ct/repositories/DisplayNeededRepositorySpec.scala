@@ -56,6 +56,11 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 10L
     val accountingPeriod: Long = 1L
 
+    when(mockCallableStatement.getBoolean(3)).thenReturn(false)
+    when(mockCallableStatement.getBoolean(4)).thenReturn(false)
+    when(mockCallableStatement.getBoolean(5)).thenReturn(false)
+    when(mockCallableStatement.getBoolean(6)).thenReturn(false)
+
     val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = false,
       interestIsDisplayNeededFlag     = false,
@@ -86,6 +91,11 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 20L
     val accountingPeriod: Long = 1L
 
+    when(mockCallableStatement.getBoolean(3)).thenReturn(true)
+    when(mockCallableStatement.getBoolean(4)).thenReturn(true)
+    when(mockCallableStatement.getBoolean(5)).thenReturn(true)
+    when(mockCallableStatement.getBoolean(6)).thenReturn(true)
+
     val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
       interestIsDisplayNeededFlag     = true,
@@ -115,6 +125,11 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
   "getDisplayNeeded" should "return Display Needed with some flags set to true or false" in {
     val taxPayerRef: Long = 30L
     val accountingPeriod: Long = 1L
+
+    when(mockCallableStatement.getBoolean(3)).thenReturn(true)
+    when(mockCallableStatement.getBoolean(4)).thenReturn(false)
+    when(mockCallableStatement.getBoolean(5)).thenReturn(true)
+    when(mockCallableStatement.getBoolean(6)).thenReturn(false)
 
     val expectedOutput = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
