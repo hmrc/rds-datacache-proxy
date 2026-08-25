@@ -40,13 +40,6 @@ object DisplayNeededStubData {
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = false
   )
-
-  val displayNeededDefault: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag = true,
-    interestIsDisplayNeededFlag = false,
-    paymentIsDisplayNeededFlag = false,
-    repayReallocIsDisplayNeededFlag = false
-  )
   
   def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeeded = {
     taxRef match {
@@ -54,7 +47,7 @@ object DisplayNeededStubData {
       case 20L  => displayNeededAllTrue
       case 30L  => displayNeededMixed
       case 999L => throw new RuntimeException("Error from downstream")
-      case _    => displayNeededDefault
+      case _    => displayNeededAllFalse
     }
   }
 

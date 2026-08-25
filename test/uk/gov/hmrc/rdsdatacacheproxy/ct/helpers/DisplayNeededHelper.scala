@@ -40,11 +40,4 @@ trait DisplayNeededHelper {
     repayReallocIsDisplayNeededFlag = false
   )
 
-  val displayNeededDefault: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag          = true,
-    interestIsDisplayNeededFlag     = false,
-    paymentIsDisplayNeededFlag      = false,
-    repayReallocIsDisplayNeededFlag = false
-  )
-
 }
