@@ -33,7 +33,7 @@ class SubmittedReturnSingleController @Inject() (authorise: AuthAction, service:
     with BaseController
     with Logging {
 
-  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Action[AnyContent] =
+  def getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getSubmittedReturnSingle(Regime.MGD, regNumber, consecNo).map {
         case Right(single) => Ok(Json.toJson(single))

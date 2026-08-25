@@ -48,7 +48,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Right(validResponseSubmittedReturnSingle)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/XWM00000001770/3")
-      val res: Future[Result] = controller.getSubmittedReturnSingle("XWM00000001770", 3)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturnSingle("XWM00000001770", 3)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -63,7 +63,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/InvalidRegNo/1")
-      val res: Future[Result] = controller.getSubmittedReturnSingle(" ", 1)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturnSingle(" ", 1)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -79,7 +79,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-return-details/ERR00001770/1")
-      val res: Future[Result] = controller.getSubmittedReturnSingle("ERR00001770", 1)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturnSingle("ERR00001770", 1)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(

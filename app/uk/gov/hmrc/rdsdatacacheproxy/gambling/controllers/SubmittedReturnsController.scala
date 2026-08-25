@@ -33,7 +33,7 @@ class SubmittedReturnsController @Inject() (authorise: AuthAction, service: Subm
     with BaseController
     with Logging {
 
-  def getSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String]): Action[AnyContent] =
+  def getMgdSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String]): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getSubmittedReturns(Regime.MGD, regNumber, sortBy, orderBy).map {
         case Right(submittedReturns) => Ok(Json.toJson(submittedReturns))
