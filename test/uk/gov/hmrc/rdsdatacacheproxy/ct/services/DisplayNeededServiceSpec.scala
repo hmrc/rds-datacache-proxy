@@ -23,7 +23,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.DisplayNeededRepository
 
 import scala.concurrent.Future
@@ -40,11 +40,11 @@ class DisplayNeededServiceSpec extends AnyFreeSpec with Matchers with ScalaFutur
   "DisplayNeededServiceSpec" - {
     "must return Display Needed with all flags set to false" in new Setup {
       when(mockRepo.getDisplayNeeded(any[Long], any[Long]))
-        .thenReturn(Future.successful(displayNeededItemAllFalse))
+        .thenReturn(Future.successful(displayNeededAllFalse))
 
-      val result = service.getDisplayNeeded(10L, 1L).futureValue
+      val result: DisplayNeeded = service.getDisplayNeeded(10L, 1L).futureValue
 
-      result mustBe displayNeededItemAllFalse
+      result mustBe displayNeededAllFalse
 
       verify(mockRepo, times(1)).getDisplayNeeded(10L, 1L)
 
@@ -52,22 +52,22 @@ class DisplayNeededServiceSpec extends AnyFreeSpec with Matchers with ScalaFutur
 
     "must return Display Needed with all flags set to true" in new Setup {
       when(mockRepo.getDisplayNeeded(any[Long], any[Long]))
-        .thenReturn(Future.successful(displayNeededItemAllTrue))
+        .thenReturn(Future.successful(displayNeededAllTrue))
 
-      val result = service.getDisplayNeeded(20L, 1L).futureValue
+      val result: DisplayNeeded = service.getDisplayNeeded(20L, 1L).futureValue
 
-      result mustBe displayNeededItemAllTrue
+      result mustBe displayNeededAllTrue
 
       verify(mockRepo, times(1)).getDisplayNeeded(20L, 1L)
     }
 
     "must return Display Needed with some flags set to false and true" in new Setup {
       when(mockRepo.getDisplayNeeded(any[Long], any[Long]))
-        .thenReturn(Future.successful(displayNeededItemMixed))
+        .thenReturn(Future.successful(displayNeededMixed))
 
-      val result = service.getDisplayNeeded(30L, 1L).futureValue
+      val result: DisplayNeeded = service.getDisplayNeeded(30L, 1L).futureValue
 
-      result mustBe displayNeededItemMixed
+      result mustBe displayNeededMixed
 
       verify(mockRepo, times(1)).getDisplayNeeded(30L, 1L)
     }
@@ -79,7 +79,7 @@ class DisplayNeededServiceSpec extends AnyFreeSpec with Matchers with ScalaFutur
       when(mockRepo.getDisplayNeeded(any[Long], any[Long]))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getDisplayNeeded(999L, 1L).failed.futureValue
+      val result: Throwable = service.getDisplayNeeded(999L, 1L).failed.futureValue
 
       result mustBe exception
 

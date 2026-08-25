@@ -22,7 +22,7 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.DisplayNeededService
 
 import javax.inject.Inject

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.DisplayNeededRepository
 
 import javax.inject.Inject
@@ -25,7 +25,7 @@ import scala.concurrent.Future
 
 class DisplayNeededService @Inject() (displayNeededRepository: DisplayNeededRepository) extends Logging {
 
-  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeededItem] = {
+  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] = {
     logger.info(s"Calling repository for taxRef: $taxRef and accPeriod: $accPeriod")
 
     displayNeededRepository.getDisplayNeeded(taxRef, accPeriod)

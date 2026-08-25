@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.DisplayNeededService
 
 import scala.concurrent.Future
@@ -34,21 +34,21 @@ class DisplayNeededControllerSpec extends SpecBase with MockitoSugar {
   private trait Setup {
     val mockService: DisplayNeededService = mock[DisplayNeededService]
     val mockController: DisplayNeededController = new DisplayNeededController(fakeAuthAction, mockService, cc)
-    val displayNeededItemAllFalse: DisplayNeededItem = DisplayNeededItem(
+    val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
       taxIsDisplayNeededFlag          = false,
       interestIsDisplayNeededFlag     = false,
       paymentIsDisplayNeededFlag      = false,
       repayReallocIsDisplayNeededFlag = false
     )
 
-    val displayNeededItemAllTrue: DisplayNeededItem = DisplayNeededItem(
+    val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
       interestIsDisplayNeededFlag     = true,
       paymentIsDisplayNeededFlag      = true,
       repayReallocIsDisplayNeededFlag = true
     )
 
-    val displayNeededItemMixed: DisplayNeededItem = DisplayNeededItem(
+    val displayNeededMixed: DisplayNeeded = DisplayNeeded(
       taxIsDisplayNeededFlag          = true,
       interestIsDisplayNeededFlag     = false,
       paymentIsDisplayNeededFlag      = true,
@@ -62,13 +62,13 @@ class DisplayNeededControllerSpec extends SpecBase with MockitoSugar {
       val taxPayerReference: Long = 10L
       val accountingPeriod: Long = 1L
 
-      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededItemAllFalse))
+      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededAllFalse))
 
       val result: Future[Result] = mockController.getDisplayNeeded(taxPayerReference, accountingPeriod)(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(displayNeededItemAllFalse)
+      contentAsJson(result) shouldBe Json.toJson(displayNeededAllFalse)
 
       verify(mockService).getDisplayNeeded(taxPayerReference, accountingPeriod)
       verify(mockService, times(1)).getDisplayNeeded(taxPayerReference, accountingPeriod)
@@ -79,13 +79,13 @@ class DisplayNeededControllerSpec extends SpecBase with MockitoSugar {
       val taxPayerReference: Long = 20L
       val accountingPeriod: Long = 1L
 
-      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededItemAllTrue))
+      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededAllTrue))
 
       val result: Future[Result] = mockController.getDisplayNeeded(taxPayerReference, accountingPeriod)(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(displayNeededItemAllTrue)
+      contentAsJson(result) shouldBe Json.toJson(displayNeededAllTrue)
 
       verify(mockService).getDisplayNeeded(taxPayerReference, accountingPeriod)
       verify(mockService, times(1)).getDisplayNeeded(taxPayerReference, accountingPeriod)
@@ -95,13 +95,13 @@ class DisplayNeededControllerSpec extends SpecBase with MockitoSugar {
       val taxPayerReference: Long = 30L
       val accountingPeriod: Long = 1L
 
-      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededItemMixed))
+      when(mockService.getDisplayNeeded(taxPayerReference, accountingPeriod)).thenReturn(Future.successful(displayNeededMixed))
 
       val result: Future[Result] = mockController.getDisplayNeeded(taxPayerReference, accountingPeriod)(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(displayNeededItemMixed)
+      contentAsJson(result) shouldBe Json.toJson(displayNeededMixed)
 
       verify(mockService).getDisplayNeeded(taxPayerReference, accountingPeriod)
       verify(mockService, times(1)).getDisplayNeeded(taxPayerReference, accountingPeriod)

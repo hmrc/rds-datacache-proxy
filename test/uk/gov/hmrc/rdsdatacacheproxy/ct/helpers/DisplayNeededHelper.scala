@@ -16,31 +16,31 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 trait DisplayNeededHelper {
-  val displayNeededItemAllFalse: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = false,
     interestIsDisplayNeededFlag     = false,
     paymentIsDisplayNeededFlag      = false,
     repayReallocIsDisplayNeededFlag = false
   )
 
-  val displayNeededItemAllTrue: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = true,
     interestIsDisplayNeededFlag     = true,
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = true
   )
 
-  val displayNeededItemMixed: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededMixed: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = true,
     interestIsDisplayNeededFlag     = false,
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = false
   )
 
-  val displayNeededItemDefault: DisplayNeededItem = DisplayNeededItem(
+  val displayNeededDefault: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = true,
     interestIsDisplayNeededFlag     = false,
     paymentIsDisplayNeededFlag      = false,

@@ -19,14 +19,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeededItem
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[DisplayNeededImpl])
 trait DisplayNeededRepository {
-  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeededItem]
+  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded]
 }
 
 class DisplayNeededImpl @Inject() (
@@ -35,7 +35,7 @@ class DisplayNeededImpl @Inject() (
     extends DisplayNeededRepository
     with Logging {
 
-  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeededItem] = {
+  def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] = {
     logger.info(s"[InterestChargeSummaryDataCacheRepository][getDisplayNeeded] taxPayerReference: $taxRef, accountingPeriod: $accPeriod")
     Future {
       db.withConnection { connect =>
@@ -51,7 +51,7 @@ class DisplayNeededImpl @Inject() (
 
           storedProcedure.execute()
 
-          DisplayNeededItem(
+          DisplayNeeded(
             taxIsDisplayNeededFlag          = storedProcedure.getBoolean(3),
             interestIsDisplayNeededFlag     = storedProcedure.getBoolean(4),
             paymentIsDisplayNeededFlag      = storedProcedure.getBoolean(5),
