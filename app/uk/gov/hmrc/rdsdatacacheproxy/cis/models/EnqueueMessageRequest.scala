@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.models
 
-import play.api.libs.json.{JsPath, Json, JsonValidationError, OFormat, OWrites, Reads}
+import play.api.libs.json.{Json, JsonValidationError, OFormat, OWrites, Reads}
 
 final case class EnqueueMessageRequest(
   sender: String,
@@ -28,11 +28,11 @@ final case class EnqueueMessageRequest(
 )
 
 object EnqueueMessageRequest {
-  implicit val reads: Reads[EnqueueMessageRequest] = Json
+  implicit private val reads: Reads[EnqueueMessageRequest] = Json
     .reads[EnqueueMessageRequest]
     .filter(JsonValidationError("payload must not be empty"))(_.payload.nonEmpty)
 
-  implicit val writes: OWrites[EnqueueMessageRequest] = Json.writes[EnqueueMessageRequest]
+  implicit private val writes: OWrites[EnqueueMessageRequest] = Json.writes[EnqueueMessageRequest]
 
   implicit val format: OFormat[EnqueueMessageRequest] = OFormat(reads, writes)
 }
