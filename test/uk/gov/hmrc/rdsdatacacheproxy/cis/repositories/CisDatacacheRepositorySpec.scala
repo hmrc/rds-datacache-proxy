@@ -640,7 +640,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.enqueueMessage(request).failed.futureValue
 
       result mustBe a[RuntimeException]
-      result.getMessage mustBe "Failed to enqueue CLOB: messageID=12345, messageIDOut=null, key=IRAgentID"
+      result.getMessage mustBe "Failed to callEnqueueClob: messageID=12345, messageIDOut=null, key=IRAgentID"
 
       verify(csHeader).getLong(6)
       verify(csHeader).wasNull()

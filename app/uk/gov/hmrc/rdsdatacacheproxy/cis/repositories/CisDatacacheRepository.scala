@@ -462,7 +462,7 @@ class CisDatacacheRepository @Inject() (
       case Some(id) if id >= 0 && id == messageID => id
       case _ =>
         val errorMessage =
-          s"Failed to enqueue CLOB: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
+          s"Failed to callEnqueueClob: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
 
         logger.error(errorMessage)
         throw new RuntimeException(errorMessage)
