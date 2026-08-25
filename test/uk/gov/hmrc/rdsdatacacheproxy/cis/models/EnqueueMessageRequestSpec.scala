@@ -59,7 +59,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient",
           |  "payload": {
           |    "IRAgentID": "123456789",
@@ -78,7 +78,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "sender": "Portal",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient",
           |  "payload": {
           |    "IRAgentID": "123456789",
@@ -97,7 +97,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |{
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient",
           |  "payload": {
           |    "IRAgentID": "123456789",
@@ -111,7 +111,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
       result.isError mustBe true
     }
 
-    "fail to read missing correlationId" in {
+    "fail to read missing correlationID" in {
       val json = Json.parse("""
           |{
           |  "sender": "Portal",
@@ -136,7 +136,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "payload": {
           |    "IRAgentID": "123456789",
           |    "Service": "CIS",
@@ -155,7 +155,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient"
           |}
         """.stripMargin)
@@ -170,7 +170,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient",
           |  "payload": {}
           |}
