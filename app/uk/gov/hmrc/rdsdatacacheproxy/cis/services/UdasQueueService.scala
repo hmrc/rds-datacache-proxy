@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueClobRequest, EnqueueMessageHeaderRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.Inject
@@ -24,9 +24,6 @@ import scala.concurrent.Future
 
 class UdasQueueService @Inject() (cisSource: CisMonthlyReturnSource) {
 
-  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] =
-    cisSource.enqueueMessageHeader(request)
-
-  def enqueueClob(request: EnqueueClobRequest): Future[Long] =
-    cisSource.enqueueClob(request)
+  def enqueueMessage(request: EnqueueMessageRequest): Future[Long] =
+    cisSource.enqueueMessage(request)
 }

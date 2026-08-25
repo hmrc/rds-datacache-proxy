@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.cis
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, EnqueueClobRequest, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, EnqueueMessageRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.{Inject, Singleton}
@@ -191,7 +191,5 @@ class CisRdsStub @Inject() (stubUtils: StubUtils) extends CisMonthlyReturnSource
     }
   }
 
-  override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = Future.successful(1L)
-
-  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = Future.successful(request.messageId)
+  override def enqueueMessage(request: EnqueueMessageRequest): Future[Long] = Future.successful(10L)
 }

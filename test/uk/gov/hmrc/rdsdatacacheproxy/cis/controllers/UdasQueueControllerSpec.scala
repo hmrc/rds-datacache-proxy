@@ -26,80 +26,18 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueClobRequest, EnqueueMessageHeaderRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
 import uk.gov.hmrc.rdsdatacacheproxy.cis.services.UdasQueueService
 
 import scala.concurrent.Future
 
 class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
 
-  "UdasQueueController#enqueueMessageHeader" - {
-
-    val requestModel: EnqueueMessageHeaderRequest = EnqueueMessageHeaderRequest(
-      sender        = "Portal",
-      queueName     = "AGTAUTH",
-      replyQueue    = "",
-      correlationId = "",
-      filter        = "RemoveClient"
-    )
-
-    val mockMessageId = 10L
-
-    "returns 200 when service succeeds" in new Setup {
-
-      when(mockService.enqueueMessageHeader(eqTo(requestModel)))
-        .thenReturn(Future.successful(mockMessageId))
-
-      val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(requestModel))
-      val res: Future[Result] = controller.enqueueMessageHeader()(req)
-
-      status(res) mustBe OK
-      contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.obj("messageId" -> mockMessageId)
-
-      verify(mockService).enqueueMessageHeader(eqTo(requestModel))
-      verifyNoMoreInteractions(mockService)
-    }
-
-    "returns 400 BadRequest with error payload when JSON is invalid" in new Setup {
-      val badJson: JsObject = Json.obj("instanceId" -> "abc-123")
-
-      val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(badJson))
-      val res: Future[Result] = controller.enqueueMessageHeader()(req)
-
-      status(res) mustBe BAD_REQUEST
-      contentType(res) mustBe Some(JSON)
-
-      val body: JsValue = contentAsJson(res)
-      (body \ "message").as[String] mustBe "Invalid payload"
-      (body \ "errors").isDefined mustBe true
-
-      verifyNoInteractions(mockService)
-    }
-
-    "returns 500 InternalServerError with error body when service fails" in new Setup {
-
-      when(mockService.enqueueMessageHeader(eqTo(requestModel)))
-        .thenReturn(Future.failed(new RuntimeException("boom")))
-
-      val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(requestModel))
-      val res: Future[Result] = controller.enqueueMessageHeader()(req)
-
-      status(res) mustBe INTERNAL_SERVER_ERROR
-      contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.obj("message" -> "Unexpected error")
-
-      verify(mockService).enqueueMessageHeader(eqTo(requestModel))
-      verifyNoMoreInteractions(mockService)
-    }
-  }
-
-  "UdasQueueController#enqueueClob" - {
+  "UdasQueueController#enqueueMessage" - {
 
     val mockMessageId = 12345L
 
-    val requestModel: EnqueueClobRequest = EnqueueClobRequest(
-      messageId     = mockMessageId,
+    val requestModel: EnqueueMessageRequest = EnqueueMessageRequest(
       sender        = "Portal",
       queueName     = "AGTAUTH",
       replyQueue    = "",
@@ -114,17 +52,17 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.enqueueClob(eqTo(requestModel)))
+      when(mockService.enqueueMessage(eqTo(requestModel)))
         .thenReturn(Future.successful(mockMessageId))
 
       val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(requestModel))
-      val res: Future[Result] = controller.enqueueClob()(req)
+      val res: Future[Result] = controller.enqueueMessage()(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.obj("messageIDOut" -> mockMessageId)
 
-      verify(mockService).enqueueClob(eqTo(requestModel))
+      verify(mockService).enqueueMessage(eqTo(requestModel))
       verifyNoMoreInteractions(mockService)
     }
 
@@ -132,7 +70,7 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
       val badJson: JsObject = Json.obj("instanceId" -> "abc-123")
 
       val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(badJson))
-      val res: Future[Result] = controller.enqueueClob()(req)
+      val res: Future[Result] = controller.enqueueMessage()(req)
 
       status(res) mustBe BAD_REQUEST
       contentType(res) mustBe Some(JSON)
@@ -146,17 +84,17 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 500 InternalServerError with error body when service fails" in new Setup {
 
-      when(mockService.enqueueClob(eqTo(requestModel)))
+      when(mockService.enqueueMessage(eqTo(requestModel)))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
       val req: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(requestModel))
-      val res: Future[Result] = controller.enqueueClob()(req)
+      val res: Future[Result] = controller.enqueueMessage()(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.obj("message" -> "Unexpected error")
 
-      verify(mockService).enqueueClob(eqTo(requestModel))
+      verify(mockService).enqueueMessage(eqTo(requestModel))
       verifyNoMoreInteractions(mockService)
     }
   }

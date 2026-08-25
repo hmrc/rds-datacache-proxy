@@ -21,7 +21,7 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueClobRequest, EnqueueMessageHeaderRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import scala.concurrent.Future
@@ -35,44 +35,9 @@ final class UdasQueueServiceSpec extends SpecBase {
     super.beforeEach()
     reset(source)
   }
-
-  "CisTaxpayerService#enqueueMessageHeader" - {
-
-    val request: EnqueueMessageHeaderRequest = EnqueueMessageHeaderRequest(
-      sender        = "Portal",
-      queueName     = "AGTAUTH",
-      replyQueue    = "",
-      correlationId = "",
-      filter        = "RemoveClient"
-    )
-
-    "return messageId when the repository succeeded" in {
-      when(source.enqueueMessageHeader(eqTo(request)))
-        .thenReturn(Future.successful(10L))
-      val out = service.enqueueMessageHeader(request).futureValue
-
-      verify(source).enqueueMessageHeader(eqTo(request))
-      verifyNoMoreInteractions(source)
-      out mustBe 10L
-    }
-
-    "propagate upstream failures from the repository" in {
-      val boom = UpstreamErrorResponse("db exploded", 502)
-
-      when(source.enqueueMessageHeader(eqTo(request)))
-        .thenReturn(Future.failed(boom))
-
-      val ex = service.enqueueMessageHeader(request).failed.futureValue
-      ex mustBe boom
-
-      verify(source).enqueueMessageHeader(eqTo(request))
-      verifyNoMoreInteractions(source)
-    }
-  }
-
-  "CisTaxpayerService#enqueueClob" - {
-    val request: EnqueueClobRequest = EnqueueClobRequest(
-      messageId     = 12345L,
+  
+  "CisTaxpayerService#enqueueMessage" - {
+    val request: EnqueueMessageRequest = EnqueueMessageRequest(
       sender        = "Portal",
       queueName     = "AGTAUTH",
       replyQueue    = "",
@@ -86,11 +51,11 @@ final class UdasQueueServiceSpec extends SpecBase {
     )
 
     "return messageId when the repository succeeded" in {
-      when(source.enqueueClob(eqTo(request)))
+      when(source.enqueueMessage(eqTo(request)))
         .thenReturn(Future.successful(10L))
-      val out = service.enqueueClob(request).futureValue
+      val out = service.enqueueMessage(request).futureValue
 
-      verify(source).enqueueClob(eqTo(request))
+      verify(source).enqueueMessage(eqTo(request))
       verifyNoMoreInteractions(source)
       out mustBe 10L
     }
@@ -98,13 +63,13 @@ final class UdasQueueServiceSpec extends SpecBase {
     "propagate upstream failures from the repository" in {
       val boom = UpstreamErrorResponse("db exploded", 502)
 
-      when(source.enqueueClob(eqTo(request)))
+      when(source.enqueueMessage(eqTo(request)))
         .thenReturn(Future.failed(boom))
 
-      val ex = service.enqueueClob(request).failed.futureValue
+      val ex = service.enqueueMessage(request).failed.futureValue
       ex mustBe boom
 
-      verify(source).enqueueClob(eqTo(request))
+      verify(source).enqueueMessage(eqTo(request))
       verifyNoMoreInteractions(source)
     }
   }

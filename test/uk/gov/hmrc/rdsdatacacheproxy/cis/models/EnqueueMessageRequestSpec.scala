@@ -20,14 +20,13 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 
-class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
+class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
 
-  "EnqueueClobRequest (JSON)" should {
+  "EnqueueMessageRequest (JSON)" should {
 
     "read and write with mandatory fields" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
@@ -41,8 +40,7 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val model = json.as[EnqueueClobRequest]
-      model.messageId mustBe 12345L
+      val model = json.as[EnqueueMessageRequest]
       model.sender mustBe "Portal"
       model.queueName mustBe "AGTAUTH"
       model.replyQueue mustBe ""
@@ -56,30 +54,9 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
       Json.toJson(model) mustBe json
     }
 
-    "fail to read missing messageId" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationId": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
-
-      val result = json.validate[EnqueueClobRequest]
-      result.isError mustBe true
-    }
-
     "fail to read missing sender" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
           |  "correlationId": "",
@@ -92,14 +69,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read missing queueName" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "replyQueue": "",
           |  "correlationId": "",
@@ -112,14 +88,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read missing replyQueue" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "correlationId": "",
@@ -132,14 +107,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read missing correlationId" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
@@ -152,14 +126,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read missing filter" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
@@ -172,14 +145,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
               """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read missing payload" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
@@ -188,14 +160,13 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
 
     "fail to read empty payload" in {
       val json = Json.parse("""
           |{
-          |  "messageId": 12345,
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
@@ -205,7 +176,7 @@ class EnqueueClobRequestSpec extends AnyWordSpec with Matchers {
           |}
           """.stripMargin)
 
-      val result = json.validate[EnqueueClobRequest]
+      val result = json.validate[EnqueueMessageRequest]
       result.isError mustBe true
     }
   }

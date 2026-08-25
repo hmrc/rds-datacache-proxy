@@ -25,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Using
 import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueClobRequest, EnqueueMessageHeaderRequest, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueMessageRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -46,10 +46,7 @@ trait CisMonthlyReturnSource {
                                           taxOfficeReference: String,
                                           accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
-
-  def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long]
-
-  def enqueueClob(request: EnqueueClobRequest): Future[Long]
+  def enqueueMessage(request: EnqueueMessageRequest): Future[Long]
 }
 
 @Singleton
@@ -369,41 +366,24 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
-  override def enqueueMessageHeader(request: EnqueueMessageHeaderRequest): Future[Long] = {
+  override def enqueueMessage(request: EnqueueMessageRequest): Future[Long] = {
     logger.info(
-      s"[CIS] enqueueMessageHeader(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
-    )
-    Future {
-      db.withConnection { conn =>
-        val cs: CallableStatement =
-          conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
-
-        try {
-          cs.setString(1, request.sender)
-          cs.setString(2, request.queueName)
-          cs.setString(3, request.replyQueue)
-          cs.setString(4, request.correlationId)
-          cs.setString(5, request.filter)
-          cs.registerOutParameter(6, Types.NUMERIC)
-          cs.execute()
-
-          cs.getLong(6)
-        } finally cs.close()
-      }
-    }
-  }
-
-  override def enqueueClob(request: EnqueueClobRequest): Future[Long] = {
-    logger.info(
-      s"[CIS] enqueueClob(messageId=${request.messageId}, sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+      s"[CIS] enqueueMessage(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
     )
     Future {
       db.withTransaction { conn =>
+        val messageID = callEnqueueMessageHeader(conn          = conn,
+                                                 sender        = request.sender,
+                                                 queueName     = request.queueName,
+                                                 replyQueue    = request.replyQueue,
+                                                 correlationId = request.correlationId,
+                                                 filter        = request.filter
+                                                )
 
         request.payload.foreach { case (key, value) =>
-          val messageIdOut = callEnqueueClob(
+          callEnqueueClob(
             conn          = conn,
-            messageId     = request.messageId,
+            messageID     = messageID,
             sender        = request.sender,
             queueName     = request.queueName,
             replyQueue    = request.replyQueue,
@@ -412,21 +392,45 @@ class CisDatacacheRepository @Inject() (
             key           = key,
             value         = value
           )
-
-          if (messageIdOut < 0 || messageIdOut != request.messageId) {
-            val errorMessage =
-              s"Failed to enqueue CLOB: messageIdIn=${request.messageId}, messageIdOut=$messageIdOut, key=$key"
-            logger.error(errorMessage)
-            throw new RuntimeException(errorMessage)
-          }
         }
-        request.messageId
+        messageID
       }
     }
   }
 
+  private def callEnqueueMessageHeader(conn: Connection,
+                                       sender: String,
+                                       queueName: String,
+                                       replyQueue: String,
+                                       correlationId: String,
+                                       filter: String
+                                      ): Long = {
+    val messageID = withCall(conn, "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }") { cs =>
+      cs.setString(1, sender)
+      cs.setString(2, queueName)
+      cs.setString(3, replyQueue)
+      cs.setString(4, correlationId)
+      cs.setString(5, filter)
+      cs.registerOutParameter(6, Types.NUMERIC)
+
+      cs.execute()
+
+      cs.getLong(6)
+    }
+
+    if (messageID < 0) {
+      val errorMessage =
+        s"Failed to callEnqueueMessageHeader: sender=$sender, queueName=$queueName, filter=$filter"
+
+      logger.error(errorMessage)
+      throw new RuntimeException(errorMessage)
+    }
+
+    messageID
+  }
+
   private def callEnqueueClob(conn: Connection,
-                              messageId: Long,
+                              messageID: Long,
                               sender: String,
                               queueName: String,
                               replyQueue: String,
@@ -435,8 +439,8 @@ class CisDatacacheRepository @Inject() (
                               key: String,
                               value: String
                              ): Long = {
-    withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
-      cs.setLong(1, messageId)
+    val messageIDOut = withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+      cs.setLong(1, messageID)
       cs.setString(2, sender)
       cs.setString(3, queueName)
       cs.setString(4, replyQueue)
@@ -450,5 +454,15 @@ class CisDatacacheRepository @Inject() (
 
       cs.getLong(9)
     }
+
+    if (messageIDOut < 0 || messageIDOut != messageID) {
+      val errorMessage =
+        s"Failed to enqueue CLOB: messageID=$messageID, messageIDOut=$messageIDOut, key=$key"
+
+      logger.error(errorMessage)
+      throw new RuntimeException(errorMessage)
+    }
+
+    messageIDOut
   }
 }
