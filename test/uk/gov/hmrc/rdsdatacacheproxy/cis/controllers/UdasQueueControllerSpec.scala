@@ -76,7 +76,7 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
       contentType(res) mustBe Some(JSON)
 
       val body: JsValue = contentAsJson(res)
-      (body \ "message").as[String] mustBe "Invalid payload"
+      (body \ "message").as[String] mustBe "Invalid Json"
       (body \ "errors").isDefined mustBe true
 
       verifyNoInteractions(mockService)

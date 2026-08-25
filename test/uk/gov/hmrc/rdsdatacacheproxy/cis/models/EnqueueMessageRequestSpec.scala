@@ -30,7 +30,7 @@ class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
           |  "sender": "Portal",
           |  "queueName": "AGTAUTH",
           |  "replyQueue": "",
-          |  "correlationId": "",
+          |  "correlationID": "",
           |  "filter": "RemoveClient",
           |  "payload": {
           |    "IRAgentID": "123456789",

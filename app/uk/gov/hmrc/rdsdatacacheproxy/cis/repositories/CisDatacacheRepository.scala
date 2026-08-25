@@ -415,30 +415,32 @@ class CisDatacacheRepository @Inject() (
 
       cs.execute()
 
-      cs.getLong(6)
+      val id = cs.getLong(6)
+      if (cs.wasNull()) None else Some(id)
     }
 
-    if (messageID < 0) {
-      val errorMessage =
-        s"Failed to callEnqueueMessageHeader: sender=$sender, queueName=$queueName, filter=$filter"
+    messageID match {
+      case Some(id) if id >= 0 => id
+      case _ =>
+        val errorMessage =
+          s"Failed to callEnqueueMessageHeader: sender=$sender, queueName=$queueName, filter=$filter"
 
-      logger.error(errorMessage)
-      throw new RuntimeException(errorMessage)
+        logger.error(errorMessage)
+        throw new RuntimeException(errorMessage)
     }
-
-    messageID
   }
 
-  private def callEnqueueClob(conn: Connection,
-                              messageID: Long,
-                              sender: String,
-                              queueName: String,
-                              replyQueue: String,
-                              correlationId: String,
-                              filter: String,
-                              key: String,
-                              value: String
-                             ): Long = {
+  private def callEnqueueClob(
+    conn: Connection,
+    messageID: Long,
+    sender: String,
+    queueName: String,
+    replyQueue: String,
+    correlationId: String,
+    filter: String,
+    key: String,
+    value: String
+  ): Long = {
     val messageIDOut = withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
       cs.setLong(1, messageID)
       cs.setString(2, sender)
@@ -452,17 +454,18 @@ class CisDatacacheRepository @Inject() (
 
       cs.execute()
 
-      cs.getLong(9)
+      val id = cs.getLong(9)
+      if (cs.wasNull()) None else Some(id)
     }
 
-    if (messageIDOut < 0 || messageIDOut != messageID) {
-      val errorMessage =
-        s"Failed to enqueue CLOB: messageID=$messageID, messageIDOut=$messageIDOut, key=$key"
+    messageIDOut match {
+      case Some(id) if id >= 0 && id == messageID => id
+      case _ =>
+        val errorMessage =
+          s"Failed to enqueue CLOB: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
 
-      logger.error(errorMessage)
-      throw new RuntimeException(errorMessage)
+        logger.error(errorMessage)
+        throw new RuntimeException(errorMessage)
     }
-
-    messageIDOut
   }
 }

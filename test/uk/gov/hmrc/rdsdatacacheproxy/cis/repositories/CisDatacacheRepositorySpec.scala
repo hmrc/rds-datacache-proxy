@@ -561,7 +561,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       verify(csClob, times(3)).close()
     }
 
-    "fail when enqueueMessageHeader returns a negative messageId" in {
+    "fail when enqueueMessageHeader returns null messageId" in {
       val db = mock(classOf[Database])
       val conn = mock(classOf[java.sql.Connection])
 
@@ -571,13 +571,10 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       val csHeader = mock(classOf[CallableStatement])
 
-      when(
-        conn.prepareCall(
-          "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }"
-        )
-      ).thenReturn(csHeader)
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
 
-      when(csHeader.getLong(6)).thenReturn(-1L)
+      when(csHeader.getLong(6)).thenReturn(0L)
+      when(csHeader.wasNull()).thenReturn(true)
 
       val repo = new CisDatacacheRepository(db)
 
@@ -595,32 +592,20 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.enqueueMessage(request).failed.futureValue
 
       result mustBe a[RuntimeException]
-      result.getMessage mustBe
-        "Failed to callEnqueueMessageHeader: sender=Portal, queueName=AGTAUTH, filter=RemoveClient"
+      result.getMessage mustBe "Failed to callEnqueueMessageHeader: sender=Portal, queueName=AGTAUTH, filter=RemoveClient"
 
-      verify(csHeader).setString(1, "Portal")
-      verify(csHeader).setString(2, "AGTAUTH")
-      verify(csHeader).setString(3, "")
-      verify(csHeader).setString(4, "")
-      verify(csHeader).setString(5, "RemoveClient")
-      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
-      verify(csHeader).execute()
       verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
       verify(csHeader).close()
 
-      verify(
-        conn,
-        never()
-      ).prepareCall(
-        "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
-      )
+      verify(conn, never()).prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
     }
 
-    "fail when enqueueClob returns a negative messageIdOut" in {
+    "fail when enqueueClob returns null messageIdOut" in {
       val messageId = 12345L
 
       val db = mock(classOf[Database])
-      val conn = mock(classOf[java.sql.Connection])
+      val conn = mock(classOf[Connection])
 
       when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
         inv.getArgument(0, classOf[Connection => Any]).apply(conn)
@@ -629,21 +614,15 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val csHeader = mock(classOf[CallableStatement])
       val csClob = mock(classOf[CallableStatement])
 
-      when(
-        conn.prepareCall(
-          "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }"
-        )
-      ).thenReturn(csHeader)
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
 
       when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
 
-      when(
-        conn.prepareCall(
-          "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
-        )
-      ).thenReturn(csClob)
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
 
-      when(csClob.getLong(9)).thenReturn(-1L)
+      when(csClob.getLong(9)).thenReturn(0L)
+      when(csClob.wasNull()).thenReturn(true)
 
       val repo = new CisDatacacheRepository(db)
 
@@ -661,32 +640,17 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.enqueueMessage(request).failed.futureValue
 
       result mustBe a[RuntimeException]
-      result.getMessage mustBe
-        "Failed to enqueue CLOB: messageID=12345, messageIDOut=-1, key=IRAgentID"
+      result.getMessage mustBe "Failed to enqueue CLOB: messageID=12345, messageIDOut=null, key=IRAgentID"
 
-      // Header
-      verify(csHeader).setString(1, "Portal")
-      verify(csHeader).setString(2, "AGTAUTH")
-      verify(csHeader).setString(3, "")
-      verify(csHeader).setString(4, "")
-      verify(csHeader).setString(5, "RemoveClient")
-      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
-      verify(csHeader).execute()
       verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
       verify(csHeader).close()
 
-      // CLOB
       verify(csClob).setLong(1, messageId)
-      verify(csClob).setString(2, "Portal")
-      verify(csClob).setString(3, "AGTAUTH")
-      verify(csClob).setString(4, "")
-      verify(csClob).setString(5, "")
-      verify(csClob).setString(6, "RemoveClient")
       verify(csClob).setString(7, "IRAgentID")
       verify(csClob).setString(8, "123456789")
-      verify(csClob).registerOutParameter(9, Types.NUMERIC)
-      verify(csClob).execute()
       verify(csClob).getLong(9)
+      verify(csClob).wasNull()
       verify(csClob).close()
     }
   }

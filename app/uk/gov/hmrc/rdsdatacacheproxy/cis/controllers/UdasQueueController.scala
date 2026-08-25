@@ -40,7 +40,7 @@ class UdasQueueController @Inject() (
     request.body
       .validate[EnqueueMessageRequest]
       .fold(
-        errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+        errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid Json", "errors" -> JsError.toJson(errs)))),
         req =>
           service
             .enqueueMessage(req)
