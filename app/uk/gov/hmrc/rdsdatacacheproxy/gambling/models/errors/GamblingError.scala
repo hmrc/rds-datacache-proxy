@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
+import play.api.libs.json.{Json, OWrites}
+
 sealed trait GamblingError {
   def code: String
   def message: String
 }
 
 object GamblingError {
+
+  given OWrites[GamblingError] = error => Json.obj("code" -> error.code, "message" -> error.message)
 
   case object InvalidMgdRegNumber extends GamblingError {
     val code = "INVALID_MGD_REG_NUMBER"
