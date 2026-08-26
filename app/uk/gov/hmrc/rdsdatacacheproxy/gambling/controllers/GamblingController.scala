@@ -125,6 +125,9 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
       case UnexpectedError =>
         logger.error(logMessage)
         InternalServerError(errorResponse(error))
+      case InvalidRegimeCode =>
+        logger.error(logMessage)
+        BadRequest(errorResponse(error))
     }
 
   def getBusinessContactDetails(

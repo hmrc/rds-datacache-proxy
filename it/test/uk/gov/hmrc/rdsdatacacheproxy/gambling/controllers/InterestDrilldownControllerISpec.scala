@@ -81,7 +81,7 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
     "return 200 with empty items when no interest data exists for regNumber" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$GBD/XHM00003133333/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XNM00003133333/$interestId").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -157,7 +157,7 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XXM33333066666/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XZM33333066666/$interestId").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

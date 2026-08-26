@@ -26,8 +26,8 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.PartnerDetailsService
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponsePartnerDetails}
 
 import scala.concurrent.Future
@@ -50,7 +50,7 @@ import scala.concurrent.Future
 class PartnerDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
-    val mockService: PartnerDetailsService = mock[PartnerDetailsService]
+    val mockService: GamblingService = mock[GamblingService]
     val controller = new PartnerDetailsController(fakeAuthAction, mockService, cc)
   }
 
@@ -88,17 +88,17 @@ class PartnerDetailsControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getPartnerDetails(eqTo(" "), eqTo(" "))(any())
     }
 
-    "returns 400 when InvalidRegNumber" in new Setup {
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
       when(mockService.getPartnerDetails(any(), any())(any()))
-        .thenReturn(Future.successful(Left(InvalidRegNumber)))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/partner-details/$validRegime/InvalidRegNo")
       val res: Future[Result] = controller.getPartnerDetails(" ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code"    -> "INVALID_REG_NUMBER",
-        "message" -> "regNumber has invalid format"
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
       )
 
       verify(mockService).getPartnerDetails(eqTo(" "), eqTo(" "))(any())

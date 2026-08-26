@@ -39,7 +39,7 @@ trait BaseService extends Logging {
 
     Regime.fromString(regime.trim) match {
       case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber, baseText) match
+        GRNValidator.validateRegNoRegime(regime, regNumber) match
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             ifValid(regime, regNumber)
@@ -67,7 +67,7 @@ trait BaseService extends Logging {
 
     Regime.fromString(regime.trim) match {
       case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber, baseText) match
+        GRNValidator.validateRegNoRegime(regime, regNumber) match
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             ifValid(regime, regNumber, paginationStart, paginationMaxRows)
@@ -96,7 +96,7 @@ trait BaseService extends Logging {
 
     Regime.fromString(regime.trim) match {
       case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber, baseText) match
+        GRNValidator.validateRegNoRegime(regime, regNumber) match
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             ifValid(regime, regNumber, interestId, paginationStart, paginationMaxRows)
@@ -111,6 +111,7 @@ trait BaseService extends Logging {
     }
 
   def withValidParams[T](
+    regime: Regime,
     regNumber: String,
     sortBy: Option[Int],
     orderBy: Option[String],
@@ -121,19 +122,11 @@ trait BaseService extends Logging {
     lazy val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regNumber, baseText) match
+    GRNValidator.validateRegNum(regime, regNumber) match
       case Left(err) => Future.successful(Left(err))
       case Right(()) =>
-        val sort = sortBy match { // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
-          case s @ (Some(1) | Some(2)) => s.get
-          case _                       => 3
-        }
-
-        val order = orderBy.map(_.trim.toUpperCase()) match {
-          case Some("DESC") => "DESC"
-          case _            => "ASC"
-        }
-
+        val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(3) // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
+        val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
         logger.info(s"[$baseText] $reqText sort=$sort order=$order")
         ifValid(regNumber, sort, order)
           .map(summary => Right(summary))
@@ -156,7 +149,7 @@ trait BaseService extends Logging {
 
     Regime.fromString(regime.trim) match {
       case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber, baseText) match
+        GRNValidator.validateRegNoRegime(regime, regNumber) match
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             // 1=period, 2=due date, 3=status, default to period
@@ -176,6 +169,7 @@ trait BaseService extends Logging {
     }
 
   def withValidParams[T](
+    regime: Regime,
     regNumber: String,
     consecNo: Int,
     baseText: String
@@ -185,7 +179,7 @@ trait BaseService extends Logging {
     lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regNumber, baseText) match
+    GRNValidator.validateRegNum(regime, regNumber) match
       case Left(err) => Future.successful(Left(err))
       case Right(()) =>
         ifValid(regNumber, consecNo)

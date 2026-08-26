@@ -70,7 +70,7 @@ class SubmittedReturnSingleDataCacheRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getSubmittedReturnSingle("XVM33333333333", 23).futureValue
+        repository.getSubmittedReturnSingle("XEM33333333333", 23).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
