@@ -40,7 +40,7 @@ class TaxTransactionsController @Inject() (authorise: AuthAction, service: TaxTr
           Ok(Json.toJson(TaxTransactions(taxTransactions)))
         }
         .recover { case ex: Exception =>
-          logger.error("error while retrieving tax transactions", ex)
+          logger.error("Error while retrieving tax transactions", ex)
           InternalServerError("Failed to retrieve tax transactions")
         }
     }

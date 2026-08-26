@@ -37,14 +37,13 @@ class GetAdministrativeRuleController @Inject() (
 
   def getAdministrativeRule(adminRuleKey: String): Action[AnyContent] = {
     authorise.async { request =>
-      logger.info(s"[GetAdministrativeRuleController][getAdministrativeRule]")
       service
         .getAdminRule(adminRuleKey)
         .map { adminRule =>
           Ok(Json.toJson(adminRule))
         }
         .recover { case ex: Exception =>
-          logger.error(s"[GetAdministrativeRuleController][getAdministrativeRule] Unexpected Exception: $ex")
+          logger.error("Unexpected Exception", ex)
           InternalServerError(Json.obj("message" -> "Unable to Retrieve adminRule"))
         }
     }
