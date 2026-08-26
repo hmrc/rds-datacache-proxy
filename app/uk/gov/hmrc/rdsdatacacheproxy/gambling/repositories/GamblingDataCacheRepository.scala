@@ -948,11 +948,13 @@ class GamblingDataCacheRepository @Inject() (
         try {
 
           cs.setString(1, mgdRegNumber)
-          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.setInt(2, rowsPerPage)
+          cs.setInt(3, PageNo)
+          cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
 
           cs.execute()
 
-          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+          val optionResultSet = Option(cs.getObject(4).asInstanceOf[java.sql.ResultSet])
 
           try {
             optionResultSet
