@@ -955,7 +955,7 @@ class GamblingDataCacheRepository @Inject() (
 
           cs.execute()
 
-          val optionResultSet = Option(cs.getObject(4).asInstanceOf[java.sql.ResultSet])
+          val optionResultSet = Option(cs.getObject(5).asInstanceOf[java.sql.ResultSet])
 
           try {
             optionResultSet
