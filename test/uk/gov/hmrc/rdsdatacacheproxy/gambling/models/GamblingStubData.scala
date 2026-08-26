@@ -20,6 +20,8 @@ import java.time.LocalDate
 
 object GamblingStubData {
 
+  private val fixedDate = LocalDate.parse("2026-01-01")
+
   // -------------------------
   // ReturnSummary
   // -------------------------
@@ -136,6 +138,48 @@ object GamblingStubData {
           iomOrCiFlag  = None,
           systemDate   = Some(LocalDate.now())
         )
+    }
+
+  def getPremisesDetails(
+    MgdRegNumber: String,
+    rowsPerPage: Int,
+    PageNo: Int
+  ): PremisesDetailsResponse =
+    MgdRegNumber match {
+
+      case "XYZ00000000001" =>
+        PremisesDetailsResponse(
+          totalRows = Some(1000),
+          premises = Seq(
+            PremisesDetails(
+              mgdRegNumber = "XYZ00000000001",
+              address1     = Some("Flat 55"),
+              address2     = Some("20 Market Calle"),
+              address3     = Some("Barcelona"),
+              address4     = None,
+              postcode     = None,
+              Some(fixedDate)
+            ),
+            PremisesDetails(
+              mgdRegNumber = "XYZ00000000001",
+              address1     = Some("Flat 1"),
+              address2     = Some("10 Market Calle"),
+              address3     = Some("Madrid"),
+              address4     = None,
+              postcode     = None,
+              Some(fixedDate)
+            )
+          )
+        )
+
+      case "ERR00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case _ =>
+        PremisesDetailsResponse(totalRows = Some(0),
+                                premises = Seq(
+                                )
+                               )
     }
 
   // -------------------------

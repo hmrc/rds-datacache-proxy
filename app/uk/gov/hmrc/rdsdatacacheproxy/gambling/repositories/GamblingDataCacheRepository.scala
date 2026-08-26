@@ -35,6 +35,7 @@ trait GamblingDataSource {
   def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
+  def getPremisesDetails(mgdRegNumber: String, rowsPerPage: Int, PageNo: Int): Future[PremisesDetailsResponse]
 }
 
 @Singleton
@@ -909,6 +910,86 @@ class GamblingDataCacheRepository @Inject() (
                   iomOrCiFlag  = None,
                   systemDate   = None
                 )
+              }
+
+          } finally {
+            optionResultSet.foreach(_.close())
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+
+    })(ec)
+  }
+
+  override def getPremisesDetails(
+    mgdRegNumber: String,
+    rowsPerPage: Int,
+    PageNo: Int
+  ): Future[PremisesDetailsResponse] = {
+
+    Future(blocking {
+
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+
+          try {
+            optionResultSet
+              .filter(_.next())
+              .map { rs =>
+
+                def optString(col: String): Option[String] =
+                  Option(rs.getString(col))
+                    .map(_.trim)
+                    .filter(_.nonEmpty)
+
+                def optDate(col: String): Option[LocalDate] =
+                  Option(rs.getDate(col))
+                    .map(_.toLocalDate)
+
+                def optInt(col: String): Option[Int] =
+                  Option(rs.getInt(col))
+
+                PremisesDetailsResponse(
+                  totalRows = optInt("TOTAL_ROWS"),
+                  premises = Seq(
+                    PremisesDetails(
+                      mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
+                        .map(_.trim)
+                        .getOrElse(""),
+                      address1   = optString("ADDRESS_1"),
+                      address2   = optString("ADDRESS_2"),
+                      address3   = optString("ADDRESS_3"),
+                      address4   = optString("ADDRESS_4"),
+                      postcode   = optString("POSTCODE"),
+                      systemDate = optDate("SYSTEM_DATE")
+                    )
+                  )
+                )
+              }
+              .getOrElse {
+                PremisesDetailsResponse(totalRows = Some(0), premises = Seq())
               }
 
           } finally {

@@ -46,6 +46,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var businessContactRs: ResultSet = _
   var correspondenceRs: ResultSet = _
   var businessAddressRs: ResultSet = _
+  var premisesRs: ResultSet = _
 
   before {
     db                = mock(classOf[Database])
@@ -62,6 +63,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     businessContactRs = mock(classOf[ResultSet])
     correspondenceRs  = mock(classOf[ResultSet])
     businessAddressRs = mock(classOf[ResultSet])
+    premisesRs        = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -375,19 +377,19 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val mgdRegNumber = "XWM00000001770"
 
-    when(mockCs.getObject(2)).thenReturn(correspondenceRs)
-    when(correspondenceRs.next()).thenReturn(true)
+    when(mockCs.getObject(2)).thenReturn(businessAddressRs)
+    when(businessAddressRs.next()).thenReturn(true)
 
-    when(correspondenceRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
-    when(correspondenceRs.getString("adi")).thenReturn("none")
-    when(correspondenceRs.getString("address_1")).thenReturn("random street")
-    when(correspondenceRs.getString("address_2")).thenReturn("bar")
-    when(correspondenceRs.getString("address_3")).thenReturn("bar")
-    when(correspondenceRs.getString("address_4")).thenReturn("bar")
-    when(correspondenceRs.getString("postcode")).thenReturn("SR1 4DE")
-    when(correspondenceRs.getString("country")).thenReturn("Ingerland!")
-    when(correspondenceRs.getString("iom_or_ci_flag")).thenReturn("true")
-    when(correspondenceRs.getDate("system_date")).thenReturn(Date.valueOf("2026-05-13"))
+    when(businessAddressRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(businessAddressRs.getString("adi")).thenReturn("none")
+    when(businessAddressRs.getString("address_1")).thenReturn("random street")
+    when(businessAddressRs.getString("address_2")).thenReturn("bar")
+    when(businessAddressRs.getString("address_3")).thenReturn("bar")
+    when(businessAddressRs.getString("address_4")).thenReturn("bar")
+    when(businessAddressRs.getString("postcode")).thenReturn("SR1 4DE")
+    when(businessAddressRs.getString("country")).thenReturn("Ingerland!")
+    when(businessAddressRs.getString("iom_or_ci_flag")).thenReturn("true")
+    when(businessAddressRs.getDate("system_date")).thenReturn(Date.valueOf("2026-05-13"))
 
     val result =
       repository.getBusinessAddressDetails(mgdRegNumber).futureValue
@@ -408,7 +410,48 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).setString(1, mgdRegNumber)
     verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).execute()
-    verify(correspondenceRs).close()
+    verify(businessAddressRs).close()
+    verify(mockCs).close()
+  }
+
+  "getPremisesDetails" should "return PremisesDetails when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+
+    when(mockCs.getObject(2)).thenReturn(premisesRs)
+    when(premisesRs.next()).thenReturn(true)
+
+    when(premisesRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
+    when(premisesRs.getString("ADDRESS_1")).thenReturn("random street")
+    when(premisesRs.getString("ADDRESS_2")).thenReturn("bar")
+    when(premisesRs.getString("ADDRESS_3")).thenReturn("bar")
+    when(premisesRs.getString("ADDRESS_4")).thenReturn("bar")
+    when(premisesRs.getString("POSTCODE")).thenReturn("SR1 4DE")
+    when(premisesRs.getDate("SYSTEM_DATE")).thenReturn(Date.valueOf("2026-05-13"))
+    when(premisesRs.getInt("TOTAL_ROWS")).thenReturn(100)
+
+    val result =
+      repository.getPremisesDetails(mgdRegNumber, 0, 0).futureValue
+
+    result shouldBe PremisesDetailsResponse(
+      totalRows = Some(100),
+      premises = Seq(
+        PremisesDetails(
+          mgdRegNumber = "XWM00000001770",
+          address1     = Some("random street"),
+          address2     = Some("bar"),
+          address3     = Some("bar"),
+          address4     = Some("bar"),
+          postcode     = Some("SR1 4DE"),
+          systemDate   = Some(LocalDate.of(2026, 5, 13))
+        )
+      )
+    )
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(premisesRs).close()
     verify(mockCs).close()
   }
 
