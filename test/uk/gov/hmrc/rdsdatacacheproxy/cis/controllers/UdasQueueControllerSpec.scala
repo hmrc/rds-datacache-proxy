@@ -59,7 +59,7 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
             correlationID = "",
             filter        = "AGENTAUTH",
             payload = Map(
-              "GGIS_DTSTAMP"    -> "20260826 191530123",
+              "GGIS_DTSTAMP"    -> "20260826",
               "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
               "ADDITIONAL_INFO" -> "Request client removal",
               "GW_AGENT_ID"     -> "AGENT123",
