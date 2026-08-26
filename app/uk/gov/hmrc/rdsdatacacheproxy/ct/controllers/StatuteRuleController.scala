@@ -15,38 +15,40 @@
  */
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+
 import play.api.Logging
-import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.AdministrativeRuleService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.StatuteRule
+import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.StatuteQueryParams
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.StatuteRuleRepository
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GetAdministrativeRuleController @Inject() (
-  val cc: ControllerComponents,
+class StatuteRuleController @Inject() (
   authorise: AuthAction,
-  service: AdministrativeRuleService
+  statuteRuleRepository: StatuteRuleRepository,
+  cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
-    with I18nSupport
     with Logging {
 
-  def getAdministrativeRule(adminRuleKey: String): Action[AnyContent] = {
-    authorise.async { request =>
-      service
-        .getAdminRule(adminRuleKey)
-        .map { adminRule =>
-          Ok(Json.toJson(adminRule))
-        }
-        .recover { case ex: Exception =>
-          logger.error("Unexpected Exception", ex)
-          InternalServerError(Json.obj("message" -> "Unable to Retrieve adminRule"))
-        }
-    }
-  }
+  def getStatuteRule(queryParams: StatuteQueryParams): Action[AnyContent] = authorise.async { implicit request =>
+    statuteRuleRepository
+      .getStatuteRule(ruleRateKey = queryParams.ruleKey, startDate = queryParams.startDate, endDate = queryParams.endDate)
+      .map {
+        case Some(statuteRecord) =>
+          Ok(Json.toJson(StatuteRule(Some(statuteRecord))))
+        case None =>
+          NotFound(Json.toJson(StatuteRule(None)))
+      }
+      .recover { case ex: Exception =>
+        logger.error("Error while retrieving StatuteRule", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve StatuteRule"))
+      }
 
+  }
 }

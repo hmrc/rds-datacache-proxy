@@ -26,6 +26,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.SubmittedReturnsService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseSubmittedReturns
@@ -45,26 +46,26 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 200 when service succeeds" in new Setup {
 
-      when(mockService.getSubmittedReturns(eqTo("XWM00000001770"), eqTo(Some(1)), eqTo(ASC))(any()))
+      when(mockService.getSubmittedReturns(eqTo(Regime.MGD), eqTo("XWM00000001770"), eqTo(Some(1)), eqTo(ASC))(any()))
         .thenReturn(Future.successful(Right(validResponseSubmittedReturns)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-returns/XWM00000001770?sortBy=1&orderBy=ASC")
-      val res: Future[Result] = controller.getSubmittedReturns("XWM00000001770", Some(1), ASC)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturns("XWM00000001770", Some(1), ASC)(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.toJson(validResponseSubmittedReturns)
 
-      verify(mockService).getSubmittedReturns(eqTo("XWM00000001770"), eqTo(Some(1)), eqTo(ASC))(any())
+      verify(mockService).getSubmittedReturns(eqTo(Regime.MGD), eqTo("XWM00000001770"), eqTo(Some(1)), eqTo(ASC))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegNumber" in new Setup {
-      when(mockService.getSubmittedReturns(any(), any(), any())(any()))
+      when(mockService.getSubmittedReturns(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegNumber)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-returns/InvalidRegNo")
-      val res: Future[Result] = controller.getSubmittedReturns(" ", Some(1), ASC)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturns(" ", Some(1), ASC)(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -72,15 +73,15 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "regNumber has invalid format"
       )
 
-      verify(mockService).getSubmittedReturns(eqTo(" "), eqTo(Some(1)), eqTo(ASC))(any())
+      verify(mockService).getSubmittedReturns(eqTo(Regime.MGD), eqTo(" "), eqTo(Some(1)), eqTo(ASC))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getSubmittedReturns(any(), any(), any())(any()))
+      when(mockService.getSubmittedReturns(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/submitted-returns/ERR00001770")
-      val res: Future[Result] = controller.getSubmittedReturns("ERR00001770", Some(1), ASC)(req)
+      val res: Future[Result] = controller.getMgdSubmittedReturns("ERR00001770", Some(1), ASC)(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -88,7 +89,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getSubmittedReturns(eqTo("ERR00001770"), eqTo(Some(1)), eqTo(ASC))(any())
+      verify(mockService).getSubmittedReturns(eqTo(Regime.MGD), eqTo("ERR00001770"), eqTo(Some(1)), eqTo(ASC))(any())
     }
   }
 }

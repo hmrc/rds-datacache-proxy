@@ -40,7 +40,7 @@ object RepaymentsStubData {
           repaymentsInterestRepaidAmount = BigDecimal(0),
           total                          = BigDecimal(0)
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         RepaymentsSummary(
           periodStartDate                = Some(LocalDate.of(2013, 3, 1)),
@@ -73,7 +73,7 @@ object RepaymentsStubData {
           totalRecords     = 0,
           items = Seq.empty
         )
-      case "XXM33333066666" => throw new RuntimeException("Simulated downstream failure")
+      case "XZM33333066666" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         ActualRepayments(
           periodStartDate  = Some(LocalDate.of(2013, 1, 1)),

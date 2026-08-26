@@ -23,11 +23,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrual
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.InterestAccrualList
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.InterestAccrualListStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class InterestAccrualListRepositoryISpec
@@ -39,10 +38,10 @@ class InterestAccrualListRepositoryISpec
     with ApplicationWithWiremock {
 
   class InterestAccrualListCacheRepositoryStub extends InterestAccrualListDatacacheRepository {
-    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[List[InterestAccrual]] =
-      Future {
-        InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType)
-      }
+    override def getInterestAccrualList(taxRef: Long, accPeriod: Long, interestType: String): Future[InterestAccrualList] =
+    Future.successful(
+      InterestAccrualListStubData.getAccrualInterestListItems(taxRef, accPeriod, interestType)
+    )
   }
 
   override lazy val app: Application =

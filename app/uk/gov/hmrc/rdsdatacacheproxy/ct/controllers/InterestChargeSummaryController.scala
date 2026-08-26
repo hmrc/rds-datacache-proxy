@@ -43,7 +43,7 @@ class InterestChargeSummaryController @Inject() (
         .getInterestSummaryList(taxPayerReference)
         .map((payload: InterestCharges) => Ok(Json.toJson(payload)))
         .recover { case ex: Throwable =>
-          logger.error("[InterestChargeSummaryController][getInterestController] Error while retrieving agent name from oracle database", ex)
+          logger.error("Error while retrieving agent name from oracle database", ex)
           InternalServerError(Json.obj("message" -> "Unexpected error"))
         }
 

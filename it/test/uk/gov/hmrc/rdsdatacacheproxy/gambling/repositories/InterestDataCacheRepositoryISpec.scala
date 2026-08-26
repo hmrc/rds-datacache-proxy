@@ -73,7 +73,7 @@ class InterestDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getInterestDetails(Regime.MGD, "XXM33333066666", 1, 10).futureValue
+        repository.getInterestDetails(Regime.MGD, "XZM33333066666", 1, 10).futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

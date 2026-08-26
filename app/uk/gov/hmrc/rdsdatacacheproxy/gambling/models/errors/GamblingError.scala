@@ -32,4 +32,9 @@ object GamblingError {
     val code = "UNEXPECTED_ERROR"
     val message = "Unexpected error occurred"
   }
+
+  case object InvalidRegimeCode extends GamblingError {
+    val code = "INVALID_REGIME_CODE"
+    val message = "Invalid Regime Code"
+  }
 }

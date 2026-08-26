@@ -43,10 +43,7 @@ class ReallocationFromAccPeriodController @Inject() (
         .getReallocationFromAccPeriod(taxPayerReference, accountingPeriod)
         .map((payload: ReallocationFromAccPeriod) => Ok(Json.toJson(payload)))
         .recover { case ex: Throwable =>
-          logger.error(
-            "[ReallocationFromAccPeriodController][ReallocationFromAccPeriodController] Error while retrieving ReallocationFromAccPeriod from oracle database",
-            ex
-          )
+          logger.error("Error while retrieving ReallocationFromAccPeriod from oracle database", ex)
           InternalServerError(Json.obj("message" -> "Unexpected error"))
         }
 

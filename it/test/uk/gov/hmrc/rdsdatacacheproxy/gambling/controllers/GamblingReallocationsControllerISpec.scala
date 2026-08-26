@@ -75,12 +75,12 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     "return 200 with correct getReallocationsInData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$inEndpoint/$GBD/XHM00003133333").futureValue
+      val response = get(s"$inEndpoint/$GBD/XNM00003133333").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Reallocations] mustBe getReallocationsInData("XHM00003133333")
+      response.json.as[Reallocations] mustBe getReallocationsInData("XNM00003133333")
     }
 
     "normalise lowercase input" in {
@@ -157,14 +157,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$inEndpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$inEndpoint/$GBD/XXM33333066666").futureValue
+      val response = get(s"$inEndpoint/$GBD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -269,14 +269,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$outEndpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$outEndpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$outEndpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
@@ -381,14 +381,14 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$detailsEndpoint/$MGD/XXM33333066666").futureValue
+      val response = get(s"$detailsEndpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

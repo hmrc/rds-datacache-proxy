@@ -14,11 +14,26 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling.utils
+package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 
-import java.util.regex.Pattern
+import play.api.libs.json.{Json, OFormat}
 
-object GamblingUtils {
-  val regNumberPattern: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
+import java.time.LocalDate
 
+case class StatuteRuleItem(
+  ruleStartDate: Option[LocalDate],
+  ruleEndDate: Option[LocalDate],
+  numberOfDays: Option[Int],
+  ruleAmount: Option[BigDecimal],
+  ruleRate: Option[BigDecimal]
+)
+
+object StatuteRuleItem {
+  implicit val format: OFormat[StatuteRuleItem] = Json.format[StatuteRuleItem]
+}
+
+case class StatuteRule(statuteRule: Option[StatuteRuleItem])
+
+object StatuteRule {
+  implicit val format: OFormat[StatuteRule] = Json.format[StatuteRule]
 }

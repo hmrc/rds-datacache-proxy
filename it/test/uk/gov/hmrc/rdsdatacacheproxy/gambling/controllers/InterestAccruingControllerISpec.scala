@@ -154,7 +154,7 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$GBD/XXM33333066666/$interestId").futureValue
+      val response = get(s"$endpoint/$GBD/XZM33333066666/$interestId").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

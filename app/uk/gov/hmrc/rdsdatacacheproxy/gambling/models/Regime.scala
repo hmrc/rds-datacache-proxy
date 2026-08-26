@@ -18,14 +18,23 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 
-import scala.util.Try
-
-enum Regime {
-  case MGD, GBD, PBD, RGD
+final case class RefRange(min: Long, max: Long) {
+  def contains(ref: Long): Boolean = ref >= min && ref <= max
 }
 
+sealed trait Regime(val code: String, val refRange: Option[RefRange])
+
 object Regime {
+  case object GBD extends Regime("gbd", Some(RefRange(3000000, 3199999)))
+  case object PBD extends Regime("pbd", Some(RefRange(3200000, 3399999)))
+  case object RGD extends Regime("rgd", Some(RefRange(3400000, 3599999)))
+  case object MGD extends Regime("mgd", None)
+
+  val values: Seq[Regime] = Seq(GBD, PBD, RGD, MGD)
+
   def fromString(rawRegime: String): Either[StatementError, Regime] =
-    Try(Regime.valueOf(rawRegime.trim.toUpperCase)).toEither.left
-      .map(_ => StatementError.InvalidRegimeCode)
+    values.find(_.code == rawRegime.trim.toLowerCase).toRight(StatementError.InvalidRegimeCode)
+
+  def fromRegNum(ref: Long): Option[Regime] =
+    values.find(_.refRange.exists(_.contains(ref)))
 }

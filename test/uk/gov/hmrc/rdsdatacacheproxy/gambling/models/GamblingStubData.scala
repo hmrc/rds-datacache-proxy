@@ -32,7 +32,7 @@ object GamblingStubData {
       case "XYZ00000000012" => ReturnSummary(mgdRegNumber, 1, 2)
       case "XYZ00000000021" => ReturnSummary(mgdRegNumber, 2, 1)
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -41,7 +41,7 @@ object GamblingStubData {
 
   def getTradeClassDetails(mgdRegNumber: String): TradeClassDetails = {
     mgdRegNumber match {
-      case "ERR00000000000" => throw new RuntimeException("Simulated downstream failure")
+      case "XER00000000000" => throw new RuntimeException("Simulated downstream failure")
       case _ =>
         TradeClassDetails(
           mgdRegNumber         = mgdRegNumber,
@@ -77,7 +77,7 @@ object GamblingStubData {
           systemDate        = Some(LocalDate.now())
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -120,7 +120,7 @@ object GamblingStubData {
           systemDate   = Some(LocalDate.now())
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -144,7 +144,7 @@ object GamblingStubData {
   def getOperatorDetails(mgdRegNumber: String): OperatorDetails =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -182,7 +182,7 @@ object GamblingStubData {
   // -------------------------
   def getBusinessDetails(mgdRegNumber: String): BusinessDetails =
     mgdRegNumber match {
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -256,7 +256,7 @@ object GamblingStubData {
   def getMgdDetails(mgdRegNumber: String): MgdDetails =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -291,7 +291,7 @@ object GamblingStubData {
     val dateTimeTwo: Some[LocalDate] = Some(LocalDate.of(2026, 1, 1))
     val dateTimeThree: Some[LocalDate] = Some(LocalDate.of(1991, 1, 1))
     mgdRegNumber match {
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case "EMPTY000000000" =>
@@ -381,7 +381,7 @@ object GamblingStubData {
   def getMgdCertificate(mgdRegNumber: String): MgdCertificate =
     mgdRegNumber match {
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -432,7 +432,7 @@ object GamblingStubData {
           systemDate        = Some(LocalDate.of(2026, 4, 20))
         )
 
-      case "ERR00000000000" =>
+      case "XER00000000000" =>
         throw new RuntimeException("Simulated downstream failure")
 
       case _ =>
@@ -444,5 +444,92 @@ object GamblingStubData {
           emailAddr         = None,
           systemDate        = None
         )
+    }
+
+  def getPartnerDetailsData(regNumber: String): PartnerDetails =
+    regNumber match {
+      case "XYM00000000000" =>
+        PartnerDetails(
+          partners = List(
+            Partner(
+              mgdRegNumber           = "XYM00000000000",
+              businessPartnerNumber  = Some("0100049899"),
+              dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
+              dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
+              solePropTitle          = Some("Ms"),
+              solePropFirstName      = Some("Amelia"),
+              solePropMiddleName     = Some("Rose"),
+              solePropLastName       = Some("Hartley"),
+              businessName           = Some("Hartley Financial Services"),
+              tradingName            = Some("Hartley Advisory"),
+              dateOfBirth            = Some(LocalDate.of(1986, 9, 22)),
+              nino                   = Some("QQ123456C"),
+              utr                    = Some("1234567890"),
+              vrn                    = Some("GB123456789"),
+              crn                    = Some("09876543"),
+              dateOfIncorporation    = Some(LocalDate.of(2022, 11, 1)),
+              countryOfIncorporation = Some("United Kingdom"),
+              foreignCorporateRef    = Some("FCR-UK-987654"),
+              address1               = Some("42 Mockingbird Lane"),
+              address2               = Some("Suite 5"),
+              address3               = Some("Westbridge Business Park"),
+              address4               = Some("Bristol"),
+              postcode               = Some("BS1 4AB"),
+              country                = Some("United Kingdom"),
+              adi                    = Some("ADI-123456"),
+              iomOrCiFlag            = Some("N"),
+              phoneNumber            = Some("0117 555 1234"),
+              mobilePhoneNumber      = Some("07700 900123"),
+              faxNumber              = Some("0117 555 5678"),
+              emailAddr              = Some("amelia.hartley@example.test"),
+              isFutureLeaveDate      = Some(1),
+              isFutureJoinDate       = Some(0),
+              businessType           = Some(2)
+            )
+          ),
+          systemDate = Some(LocalDate.of(2026, 7, 30))
+        )
+      case "XYZ00000000001" =>
+        PartnerDetails(
+          partners = List(
+            Partner(
+              mgdRegNumber           = "XYZ00000000001",
+              businessPartnerNumber  = Some("0100049899"),
+              dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
+              dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
+              solePropTitle          = Some("Mr"),
+              solePropFirstName      = Some("Tom"),
+              solePropMiddleName     = Some("Jack"),
+              solePropLastName       = Some("Hartley"),
+              businessName           = Some("Hartley Financial Services"),
+              tradingName            = Some("Hartley Advisory"),
+              dateOfBirth            = Some(LocalDate.of(1986, 9, 22)),
+              nino                   = Some("QQ123456C"),
+              utr                    = Some("1234567890"),
+              vrn                    = Some("GB123456789"),
+              crn                    = Some("09876543"),
+              dateOfIncorporation    = Some(LocalDate.of(2022, 11, 1)),
+              countryOfIncorporation = Some("United Kingdom"),
+              foreignCorporateRef    = Some("FCR-UK-987654"),
+              address1               = Some("42 Mockingbird Lane"),
+              address2               = Some("Suite 5"),
+              address3               = Some("Westbridge Business Park"),
+              address4               = Some("Bristol"),
+              postcode               = Some("BS1 4AB"),
+              country                = Some("United Kingdom"),
+              adi                    = Some("ADI-123456"),
+              iomOrCiFlag            = Some("N"),
+              phoneNumber            = Some("0117 555 1234"),
+              mobilePhoneNumber      = Some("07700 900123"),
+              faxNumber              = Some("0117 555 5678"),
+              emailAddr              = Some("amelia.hartley@example.test"),
+              isFutureLeaveDate      = Some(1),
+              isFutureJoinDate       = Some(0),
+              businessType           = Some(2)
+            )
+          ),
+          systemDate = Some(LocalDate.of(2026, 7, 30))
+        )
+      case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
 }
