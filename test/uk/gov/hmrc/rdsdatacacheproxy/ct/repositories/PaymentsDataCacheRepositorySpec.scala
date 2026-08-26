@@ -31,10 +31,10 @@ import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
+class PaymentsCtDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: PaymentsDataCacheRepository = _
+  var repository: PaymentsCtDataCacheRepository = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -55,7 +55,7 @@ class PaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with Bef
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
 
     // Initialize the repository with the mocked db connection
-    repository = new PaymentsDataCacheRepository(db)
+    repository = new PaymentsCtDataCacheRepository(db)
   }
 
   "getPayments" should {

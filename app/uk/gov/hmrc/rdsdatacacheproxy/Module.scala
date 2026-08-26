@@ -21,7 +21,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.{TaxTransactionsDataCacheRepository, TaxTransactionsDataSource}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.{PaymentsCtDataCacheRepository, PaymentsCtDataSource, TaxTransactionsDataCacheRepository, TaxTransactionsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.euvat.actions.{DefaultEuVatAuthAction, EuVatAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
@@ -52,8 +52,7 @@ class Module extends AppModule:
       bind[PenaltiesDataSource].to(classOf[PenaltiesDataCacheRepository]),
       bind[AssessmentsInAbsenceOfReturnsDataSource].to(classOf[AssessmentsInAbsenceOfReturnsDataCacheRepository]),
       bind[RepaymentsDataSource].to(classOf[RepaymentsDataCacheRepository]),
-      bind[uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PaymentsDataSource]
-        .to(classOf[uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PaymentsDataCacheRepository]),
+      bind[PaymentsDataSource].to(classOf[PaymentsDataCacheRepository]),
       bind[RepaymentInterestRepaidDataSource].to(classOf[RepaymentInterestRepaidDataCacheRepository]),
       bind[InterestAccruingDataSource].to(classOf[InterestAccruingDataCacheRepository]),
       bind[InterestDataSource].to(classOf[InterestDataCacheRepository]),
@@ -67,6 +66,5 @@ class Module extends AppModule:
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
       bind[PartnerDetailsDataSource].to(classOf[PartnerDetailsCacheRepository]),
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
-      bind[uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataSource]
-        .to(classOf[uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataCacheRepository])
+      bind[PaymentsCtDataSource].to(classOf[PaymentsCtDataCacheRepository])
     )

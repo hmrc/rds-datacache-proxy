@@ -18,13 +18,13 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PaymentTransactions
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsCtDataSource
 
 import javax.inject.Inject
 import scala.concurrent.Future
 
 class PaymentsService @Inject() (
-  repository: PaymentsDataSource
+  repository: PaymentsCtDataSource
 ) extends Logging {
 
   def getPayments(taxRef: Long, accPeriod: Long): Future[List[PaymentTransactions]] = {
