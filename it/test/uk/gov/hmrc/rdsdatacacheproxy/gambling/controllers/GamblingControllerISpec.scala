@@ -606,7 +606,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      (response.json \ "mgdRegNumber").as[String] mustBe "XYZ00000000001"
+      (response.json \ "totalRows").as[Int] mustBe 1000
     }
 
     "return 401 when unauthorised" in {
