@@ -18,7 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
 import oracle.jdbc.OracleTypes
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
