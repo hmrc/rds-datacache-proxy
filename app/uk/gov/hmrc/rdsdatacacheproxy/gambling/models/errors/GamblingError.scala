@@ -18,27 +18,12 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
 import play.api.libs.json.{Json, OWrites}
 
-sealed trait GamblingError {
-  def code: String
-  def message: String
+enum GamblingError(val code: String, val message: String) {
+  case InvalidMgdRegNumber extends GamblingError("INVALID_MGD_REG_NUMBER", "mgdRegNumber does not exist")
+  case UnexpectedError     extends GamblingError("UNEXPECTED_ERROR", "Unexpected error occurred")
+  case InvalidRegimeCode   extends GamblingError("INVALID_REGIME_CODE", "Invalid Regime Code")
 }
 
 object GamblingError {
-
   given OWrites[GamblingError] = error => Json.obj("code" -> error.code, "message" -> error.message)
-
-  case object InvalidMgdRegNumber extends GamblingError {
-    val code = "INVALID_MGD_REG_NUMBER"
-    val message = "mgdRegNumber does not exist"
-  }
-
-  case object UnexpectedError extends GamblingError {
-    val code = "UNEXPECTED_ERROR"
-    val message = "Unexpected error occurred"
-  }
-
-  case object InvalidRegimeCode extends GamblingError {
-    val code = "INVALID_REGIME_CODE"
-    val message = "Invalid Regime Code"
-  }
 }
