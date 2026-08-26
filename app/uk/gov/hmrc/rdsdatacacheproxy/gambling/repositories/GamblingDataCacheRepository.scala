@@ -935,7 +935,7 @@ class GamblingDataCacheRepository @Inject() (
       db.withConnection { conn =>
 
         val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(?, ?, ?, ?) }"
+          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(?, ?, ?, ?, ?) }"
         )
 
         def closeQuietly(c: AutoCloseable): Unit =
@@ -951,6 +951,7 @@ class GamblingDataCacheRepository @Inject() (
           cs.setInt(2, rowsPerPage)
           cs.setInt(3, PageNo)
           cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
+          cs.registerOutParameter(5, java.sql.Types.NUMERIC)
 
           cs.execute()
 
