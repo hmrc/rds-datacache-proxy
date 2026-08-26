@@ -23,7 +23,7 @@ import org.scalatest.OptionValues
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{any as anyArg, eq as eqTo}
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.*
 
 import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -478,134 +478,10 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
   "enqueueMessage" should {
 
-    "enqueue message header and all CLOBs and return messageId" in {
+    "enqueue message without tracking and return messageId" in {
       val messageId = 12345L
       val db = mock(classOf[Database])
       val conn = mock(classOf[java.sql.Connection])
-
-      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
-        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
-      }
-
-      val csHeader = mock(classOf[CallableStatement])
-      val csClob = mock(classOf[CallableStatement])
-
-      when(
-        conn.prepareCall(
-          "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }"
-        )
-      ).thenReturn(csHeader)
-      when(csHeader.getLong(6)).thenReturn(messageId)
-
-      when(
-        conn.prepareCall(
-          "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
-        )
-      ).thenReturn(csClob)
-
-      when(csClob.getLong(9)).thenReturn(messageId)
-
-      val repo = new CisDatacacheRepository(db)
-
-      val request = EnqueueMessageRequest(
-        sender        = "Portal",
-        queueName     = "AGTAUTH",
-        replyQueue    = "",
-        correlationID = "",
-        filter        = "RemoveClient",
-        payload = Map(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
-        )
-      )
-
-      val out = repo.enqueueMessage(request).futureValue
-
-      out mustBe messageId
-
-      // Header
-      verify(conn).prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
-      verify(csHeader).setString(1, "Portal")
-      verify(csHeader).setString(2, "AGTAUTH")
-      verify(csHeader).setString(3, "")
-      verify(csHeader).setString(4, "")
-      verify(csHeader).setString(5, "RemoveClient")
-      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
-      verify(csHeader).execute()
-      verify(csHeader).getLong(6)
-
-      // CLOBs
-      verify(conn, times(3)).prepareCall(
-        "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
-      )
-      verify(csClob, times(3)).setLong(1, messageId)
-      verify(csClob, times(3)).setString(2, "Portal")
-      verify(csClob, times(3)).setString(3, "AGTAUTH")
-      verify(csClob, times(3)).setString(4, "")
-      verify(csClob, times(3)).setString(5, "")
-      verify(csClob, times(3)).setString(6, "RemoveClient")
-
-      verify(csClob).setString(7, "IRAgentID")
-      verify(csClob).setString(8, "123456789")
-      verify(csClob).setString(7, "Service")
-      verify(csClob).setString(8, "CIS")
-      verify(csClob).setString(7, "TaxReference")
-      verify(csClob).setString(8, "123/ABC123")
-
-      verify(csClob, times(3)).registerOutParameter(9, Types.NUMERIC)
-      verify(csClob, times(3)).execute()
-      verify(csClob, times(3)).getLong(9)
-
-      verify(csHeader).close()
-      verify(csClob, times(3)).close()
-    }
-
-    "fail when enqueueMessageHeader returns null messageId" in {
-      val db = mock(classOf[Database])
-      val conn = mock(classOf[java.sql.Connection])
-
-      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
-        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
-      }
-
-      val csHeader = mock(classOf[CallableStatement])
-
-      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
-
-      when(csHeader.getLong(6)).thenReturn(0L)
-      when(csHeader.wasNull()).thenReturn(true)
-
-      val repo = new CisDatacacheRepository(db)
-
-      val request = EnqueueMessageRequest(
-        sender        = "Portal",
-        queueName     = "AGTAUTH",
-        replyQueue    = "",
-        correlationID = "",
-        filter        = "RemoveClient",
-        payload = Map(
-          "IRAgentID" -> "123456789"
-        )
-      )
-
-      val result = repo.enqueueMessage(request).failed.futureValue
-
-      result mustBe a[RuntimeException]
-      result.getMessage mustBe "Failed to callEnqueueMessageHeader: sender=Portal, queueName=AGTAUTH, filter=RemoveClient"
-
-      verify(csHeader).getLong(6)
-      verify(csHeader).wasNull()
-      verify(csHeader).close()
-
-      verify(conn, never()).prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
-    }
-
-    "fail when enqueueClob returns null messageIdOut" in {
-      val messageId = 12345L
-
-      val db = mock(classOf[Database])
-      val conn = mock(classOf[Connection])
 
       when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
         inv.getArgument(0, classOf[Connection => Any]).apply(conn)
@@ -621,37 +497,577 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
 
-      when(csClob.getLong(9)).thenReturn(0L)
-      when(csClob.wasNull()).thenReturn(true)
+      when(csClob.getLong(9)).thenReturn(messageId)
+      when(csClob.wasNull()).thenReturn(false)
 
       val repo = new CisDatacacheRepository(db)
 
       val request = EnqueueMessageRequest(
-        sender        = "Portal",
-        queueName     = "AGTAUTH",
-        replyQueue    = "",
-        correlationID = "",
-        filter        = "RemoveClient",
-        payload = Map(
-          "IRAgentID" -> "123456789"
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "UpdateAgentOwnReference",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        )
+      )
+
+      val out = repo.enqueueMessage(request).futureValue
+
+      out mustBe messageId
+
+      // Header
+      verify(conn).prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
+      verify(csHeader).setString(1, "Portal")
+      verify(csHeader).setString(2, "AGTAUTH")
+      verify(csHeader).setString(3, "")
+      verify(csHeader).setString(4, "")
+      verify(csHeader).setString(5, "UpdateAgentOwnReference")
+      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csHeader).execute()
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+
+      // CLOBs
+      verify(conn, times(3)).prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+
+      verify(csClob, times(3)).setLong(1, messageId)
+      verify(csClob, times(3)).setString(2, "Portal")
+      verify(csClob, times(3)).setString(3, "AGTAUTH")
+      verify(csClob, times(3)).setString(4, "")
+      verify(csClob, times(3)).setString(5, "")
+      verify(csClob, times(3)).setString(6, "UpdateAgentOwnReference")
+
+      verify(csClob).setString(7, "IRAgentID")
+      verify(csClob).setString(8, "123456789")
+      verify(csClob).setString(7, "Service")
+      verify(csClob).setString(8, "CIS")
+      verify(csClob).setString(7, "TaxReference")
+      verify(csClob).setString(8, "123/ABC123")
+
+      verify(csClob, times(3)).registerOutParameter(9, Types.NUMERIC)
+      verify(csClob, times(3)).execute()
+      verify(csClob, times(3)).getLong(9)
+      verify(csClob, times(3)).wasNull()
+
+      verify(csHeader).close()
+      verify(csClob, times(3)).close()
+    }
+
+    "enqueue message with tracking and return messageId" in {
+      val messageId = 12345L
+      val trackingMessageId = 54321L
+
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csTrackingHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+      val csNumber = mock(classOf[CallableStatement])
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader).thenReturn(csTrackingHeader)
+
+      when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      when(csTrackingHeader.getLong(6)).thenReturn(trackingMessageId)
+      when(csTrackingHeader.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(
+        messageId,
+        messageId,
+        messageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId
+      )
+
+      when(csClob.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csNumber)
+
+      when(csNumber.getLong(10)).thenReturn(trackingMessageId)
+      when(csNumber.wasNull()).thenReturn(false)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        tracking = Some(
+          EnqueueTracking(
+            message = EnqueueMessage(
+              sender        = "Portal",
+              queueName     = "AGTAUTH",
+              replyQueue    = "",
+              correlationID = "",
+              filter        = "AGENTAUTH",
+              payload = Map(
+                "GGIS_DTSTAMP"    -> "20260826 191530123",
+                "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+                "ADDITIONAL_INFO" -> "Request client removal",
+                "GW_AGENT_ID"     -> "AGENT123",
+                "IR_CLIENT_REF"   -> "123/ABC123",
+                "USER_ID"         -> "user123",
+                "Service"         -> "CIS"
+              )
+            ),
+            number = EnqueueNumber(
+              dataType = 1,
+              payload = Map(
+                "EVENT_TYPE" -> 1010L
+              )
+            )
+          )
+        )
+      )
+
+      val out = repo.enqueueMessage(request).futureValue
+
+      out mustBe messageId
+
+      // Main header
+      verify(csHeader).setString(1, "Portal")
+      verify(csHeader).setString(2, "AGTAUTH")
+      verify(csHeader).setString(5, "RemoveClient")
+      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csHeader).execute()
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+
+      // Tracking header
+      verify(csTrackingHeader).setString(1, "Portal")
+      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(5, "AGENTAUTH")
+      verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csTrackingHeader).execute()
+      verify(csTrackingHeader).getLong(6)
+      verify(csTrackingHeader).wasNull()
+
+      // 3 main CLOBs + 7 tracking CLOBs
+      verify(csClob, times(10)).execute()
+      verify(csClob, times(10)).getLong(9)
+      verify(csClob, times(10)).wasNull()
+      verify(csClob, times(10)).registerOutParameter(9, Types.NUMERIC)
+
+      // Tracking CLOBs must use tracking message ID
+      verify(csClob, times(7)).setLong(1, trackingMessageId)
+
+      // Tracking number
+      verify(csNumber).setLong(1, trackingMessageId)
+      verify(csNumber).setString(2, "Portal")
+      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(4, "")
+      verify(csNumber).setString(5, "")
+      verify(csNumber).setString(6, "AGENTAUTH")
+      verify(csNumber).setString(7, "EVENT_TYPE")
+      verify(csNumber).setInt(8, 1)
+      verify(csNumber).setLong(9, 1010L)
+      verify(csNumber).registerOutParameter(10, Types.NUMERIC)
+      verify(csNumber).execute()
+      verify(csNumber).getLong(10)
+      verify(csNumber).wasNull()
+
+      verify(csHeader).close()
+      verify(csTrackingHeader).close()
+      verify(csClob, times(10)).close()
+      verify(csNumber).close()
+    }
+
+    "fail when enqueueMessageHeader returns a negative messageId" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+      val csHeader = mock(classOf[CallableStatement])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
+
+      when(csHeader.getLong(6)).thenReturn(-1L)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID" -> "123456789"
+          )
         )
       )
 
       val result = repo.enqueueMessage(request).failed.futureValue
 
       result mustBe a[RuntimeException]
-      result.getMessage mustBe "Failed to callEnqueueClob: messageID=12345, messageIDOut=null, key=IRAgentID"
+      result.getMessage mustBe "Failed to callEnqueueMessageHeader: sender=Portal, queueName=AGTAUTH, filter=RemoveClient"
 
-      verify(csHeader).getLong(6)
       verify(csHeader).wasNull()
       verify(csHeader).close()
+    }
 
-      verify(csClob).setLong(1, messageId)
-      verify(csClob).setString(7, "IRAgentID")
-      verify(csClob).setString(8, "123456789")
-      verify(csClob).getLong(9)
-      verify(csClob).wasNull()
+    "fail when enqueueClob returns a negative messageIdOut" in {
+      val messageId = 12345L
+
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
+
+      when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(-1L)
+      when(csClob.wasNull()).thenReturn(false)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID" -> "123456789"
+          )
+        )
+      )
+
+      val result = repo.enqueueMessage(request).failed.futureValue
+
+      result mustBe a[RuntimeException]
+      result.getMessage mustBe "Failed to callEnqueueClob: messageID=12345, messageIDOut=-1, key=IRAgentID"
+
+      verify(csHeader).close()
       verify(csClob).close()
+    }
+
+    "fail when enqueueNumber returns a negative messageIdOut" in {
+      val messageId = 12345L
+      val trackingMessageId = 54321L
+
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csTrackingHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+      val csNumber = mock(classOf[CallableStatement])
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader).thenReturn(csTrackingHeader)
+
+      when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      when(csTrackingHeader.getLong(6)).thenReturn(trackingMessageId)
+      when(csTrackingHeader.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(
+        messageId,
+        messageId,
+        messageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId
+      )
+
+      when(csClob.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csNumber)
+
+      when(csNumber.getLong(10)).thenReturn(-1L)
+      when(csNumber.wasNull()).thenReturn(false)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        tracking = Some(
+          EnqueueTracking(
+            message = EnqueueMessage(
+              sender        = "Portal",
+              queueName     = "AGTAUTH",
+              replyQueue    = "",
+              correlationID = "",
+              filter        = "AGENTAUTH",
+              payload = Map(
+                "GGIS_DTSTAMP"    -> "20260826 191530123",
+                "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+                "ADDITIONAL_INFO" -> "Request client removal",
+                "GW_AGENT_ID"     -> "AGENT123",
+                "IR_CLIENT_REF"   -> "123/ABC123",
+                "USER_ID"         -> "user123",
+                "Service"         -> "CIS"
+              )
+            ),
+            number = EnqueueNumber(
+              dataType = 1,
+              payload = Map(
+                "EVENT_TYPE" -> 1010L
+              )
+            )
+          )
+        )
+      )
+
+      val result = repo.enqueueMessage(request).failed.futureValue
+
+      result mustBe a[RuntimeException]
+      result.getMessage mustBe "Failed to callEnqueueNumber: messageID=54321, messageIDOut=-1, key=EVENT_TYPE"
+
+      // Main header
+      verify(csHeader).setString(1, "Portal")
+      verify(csHeader).setString(2, "AGTAUTH")
+      verify(csHeader).setString(5, "RemoveClient")
+      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csHeader).execute()
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+
+      // Tracking header
+      verify(csTrackingHeader).setString(1, "Portal")
+      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(5, "AGENTAUTH")
+      verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csTrackingHeader).execute()
+      verify(csTrackingHeader).getLong(6)
+      verify(csTrackingHeader).wasNull()
+
+      // 3 main CLOBs + 7 tracking CLOBs
+      verify(csClob, times(10)).execute()
+      verify(csClob, times(10)).getLong(9)
+      verify(csClob, times(10)).wasNull()
+      verify(csClob, times(10)).registerOutParameter(9, Types.NUMERIC)
+
+      // Tracking CLOBs must use tracking message ID
+      verify(csClob, times(7)).setLong(1, trackingMessageId)
+
+      // Tracking number
+      verify(csNumber).setLong(1, trackingMessageId)
+      verify(csNumber).setString(2, "Portal")
+      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(4, "")
+      verify(csNumber).setString(5, "")
+      verify(csNumber).setString(6, "AGENTAUTH")
+      verify(csNumber).setString(7, "EVENT_TYPE")
+      verify(csNumber).setInt(8, 1)
+      verify(csNumber).setLong(9, 1010L)
+      verify(csNumber).registerOutParameter(10, Types.NUMERIC)
+      verify(csNumber).execute()
+      verify(csNumber).getLong(10)
+      verify(csNumber).wasNull()
+
+      verify(csHeader).close()
+      verify(csTrackingHeader).close()
+      verify(csClob, times(10)).close()
+      verify(csNumber).close()
+    }
+
+    "fail when enqueueNumber returns a different messageIdOut" in {
+      val messageId = 12345L
+      val trackingMessageId = 54321L
+
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csTrackingHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+      val csNumber = mock(classOf[CallableStatement])
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader).thenReturn(csTrackingHeader)
+
+      when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      when(csTrackingHeader.getLong(6)).thenReturn(trackingMessageId)
+      when(csTrackingHeader.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(
+        messageId,
+        messageId,
+        messageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId,
+        trackingMessageId
+      )
+
+      when(csClob.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csNumber)
+
+      when(csNumber.getLong(10)).thenReturn(150L)
+      when(csNumber.wasNull()).thenReturn(false)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        tracking = Some(
+          EnqueueTracking(
+            message = EnqueueMessage(
+              sender        = "Portal",
+              queueName     = "AGTAUTH",
+              replyQueue    = "",
+              correlationID = "",
+              filter        = "AGENTAUTH",
+              payload = Map(
+                "GGIS_DTSTAMP"    -> "20260826 191530123",
+                "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+                "ADDITIONAL_INFO" -> "Request client removal",
+                "GW_AGENT_ID"     -> "AGENT123",
+                "IR_CLIENT_REF"   -> "123/ABC123",
+                "USER_ID"         -> "user123",
+                "Service"         -> "CIS"
+              )
+            ),
+            number = EnqueueNumber(
+              dataType = 1,
+              payload = Map(
+                "EVENT_TYPE" -> 1010L
+              )
+            )
+          )
+        )
+      )
+
+      val result = repo.enqueueMessage(request).failed.futureValue
+
+      result mustBe a[RuntimeException]
+      result.getMessage mustBe
+        "Failed to callEnqueueNumber: messageID=54321, messageIDOut=150, key=EVENT_TYPE"
+
+      // Main header
+      verify(csHeader).setString(1, "Portal")
+      verify(csHeader).setString(2, "AGTAUTH")
+      verify(csHeader).setString(5, "RemoveClient")
+      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csHeader).execute()
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+
+      // Tracking header
+      verify(csTrackingHeader).setString(1, "Portal")
+      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(5, "AGENTAUTH")
+      verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csTrackingHeader).execute()
+      verify(csTrackingHeader).getLong(6)
+      verify(csTrackingHeader).wasNull()
+
+      // 3 main CLOBs + 7 tracking CLOBs
+      verify(csClob, times(10)).execute()
+      verify(csClob, times(10)).getLong(9)
+      verify(csClob, times(10)).wasNull()
+      verify(csClob, times(10)).registerOutParameter(9, Types.NUMERIC)
+
+      // Tracking CLOBs must use tracking message ID
+      verify(csClob, times(7)).setLong(1, trackingMessageId)
+
+      // Tracking number
+      verify(csNumber).setLong(1, trackingMessageId)
+      verify(csNumber).setString(2, "Portal")
+      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(4, "")
+      verify(csNumber).setString(5, "")
+      verify(csNumber).setString(6, "AGENTAUTH")
+      verify(csNumber).setString(7, "EVENT_TYPE")
+      verify(csNumber).setInt(8, 1)
+      verify(csNumber).setLong(9, 1010L)
+      verify(csNumber).registerOutParameter(10, Types.NUMERIC)
+      verify(csNumber).execute()
+      verify(csNumber).getLong(10)
+      verify(csNumber).wasNull()
+
+      verify(csHeader).close()
+      verify(csTrackingHeader).close()
+      verify(csClob, times(10)).close()
+      verify(csNumber).close()
     }
   }
 }

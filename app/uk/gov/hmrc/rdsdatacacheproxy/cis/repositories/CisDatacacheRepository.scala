@@ -25,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 import scala.util.Using
 import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueMessageRequest, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, EnqueueMessage, EnqueueMessageRequest, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -368,34 +368,66 @@ class CisDatacacheRepository @Inject() (
 
   override def enqueueMessage(request: EnqueueMessageRequest): Future[Long] = {
     logger.info(
-      s"[CIS] enqueueMessage(sender=${request.sender}, queueName=${request.queueName}, filter=${request.filter})"
+      s"[CIS] enqueueMessage(sender=${request.message.sender}, queueName=${request.message.queueName}, filter=${request.message.filter})"
     )
     Future {
       db.withTransaction { conn =>
-        val messageID = callEnqueueMessageHeader(conn          = conn,
-                                                 sender        = request.sender,
-                                                 queueName     = request.queueName,
-                                                 replyQueue    = request.replyQueue,
-                                                 correlationId = request.correlationID,
-                                                 filter        = request.filter
-                                                )
 
-        request.payload.foreach { case (key, value) =>
-          callEnqueueClob(
-            conn          = conn,
-            messageID     = messageID,
-            sender        = request.sender,
-            queueName     = request.queueName,
-            replyQueue    = request.replyQueue,
-            correlationId = request.correlationID,
-            filter        = request.filter,
-            key           = key,
-            value         = value
-          )
+        val messageID = enqueueMessage(conn, request.message)
+
+        // If tracking exist: remove client
+        request.tracking match {
+          case Some(tracking) =>
+            val trackingMessageID = enqueueMessage(conn, tracking.message)
+
+            tracking.number.payload.foreach { case (key, value) =>
+              callEnqueueNumber(
+                conn          = conn,
+                messageID     = trackingMessageID,
+                sender        = tracking.message.sender,
+                queueName     = tracking.message.queueName,
+                replyQueue    = tracking.message.replyQueue,
+                correlationId = tracking.message.correlationID,
+                filter        = tracking.message.filter,
+                dataType      = tracking.number.dataType,
+                key           = key,
+                value         = value
+              )
+            }
+
+          case None => ()
         }
+
         messageID
       }
     }
+  }
+
+  private def enqueueMessage(conn: Connection, message: EnqueueMessage): Long = {
+    val messageID = callEnqueueMessageHeader(
+      conn          = conn,
+      sender        = message.sender,
+      queueName     = message.queueName,
+      replyQueue    = message.replyQueue,
+      correlationId = message.correlationID,
+      filter        = message.filter
+    )
+
+    message.payload.foreach { case (key, value) =>
+      callEnqueueClob(
+        conn          = conn,
+        messageID     = messageID,
+        sender        = message.sender,
+        queueName     = message.queueName,
+        replyQueue    = message.replyQueue,
+        correlationId = message.correlationID,
+        filter        = message.filter,
+        key           = key,
+        value         = value
+      )
+    }
+
+    messageID
   }
 
   private def callEnqueueMessageHeader(conn: Connection,
@@ -463,6 +495,46 @@ class CisDatacacheRepository @Inject() (
       case _ =>
         val errorMessage =
           s"Failed to callEnqueueClob: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
+
+        logger.error(errorMessage)
+        throw new RuntimeException(errorMessage)
+    }
+  }
+
+  private def callEnqueueNumber(conn: Connection,
+                                messageID: Long,
+                                sender: String,
+                                queueName: String,
+                                replyQueue: String,
+                                correlationId: String,
+                                filter: String,
+                                dataType: Int,
+                                key: String,
+                                value: Long
+                               ): Long = {
+    val messageIDOut = withCall(conn, "{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+      cs.setLong(1, messageID)
+      cs.setString(2, sender)
+      cs.setString(3, queueName)
+      cs.setString(4, replyQueue)
+      cs.setString(5, correlationId)
+      cs.setString(6, filter)
+      cs.setString(7, key)
+      cs.setInt(8, dataType)
+      cs.setLong(9, value)
+      cs.registerOutParameter(10, Types.NUMERIC)
+
+      cs.execute()
+
+      val id = cs.getLong(10)
+      if (cs.wasNull()) None else Some(id)
+    }
+
+    messageIDOut match {
+      case Some(id) if id >= 0 && id == messageID => id
+      case _ =>
+        val errorMessage =
+          s"Failed to callEnqueueNumber: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
 
         logger.error(errorMessage)
         throw new RuntimeException(errorMessage)
