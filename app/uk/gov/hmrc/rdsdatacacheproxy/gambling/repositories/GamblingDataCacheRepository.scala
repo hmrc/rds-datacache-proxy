@@ -955,12 +955,18 @@ class GamblingDataCacheRepository @Inject() (
 
           cs.execute()
 
-          val optionResultSet = Option(cs.getObject(5).asInstanceOf[java.sql.ResultSet])
+          val count =
+            Option(cs.getObject(5))
+              .map(_.asInstanceOf[java.math.BigDecimal].intValue())
+              .getOrElse(0)
+
+          val optionResultSet =
+            Option(cs.getObject(4).asInstanceOf[java.sql.ResultSet])
 
           try {
-            optionResultSet
-              .filter(_.next())
-              .map { rs =>
+
+            val premises =
+              optionResultSet.map { rs =>
 
                 def optString(col: String): Option[String] =
                   Option(rs.getString(col))
@@ -971,29 +977,30 @@ class GamblingDataCacheRepository @Inject() (
                   Option(rs.getDate(col))
                     .map(_.toLocalDate)
 
-                def optInt(col: String): Option[Int] =
-                  Option(rs.getInt(col))
-
-                PremisesDetailsResponse(
-                  totalRows = optInt("TOTAL_ROWS"),
-                  premises = Seq(
+                Iterator
+                  .continually(rs)
+                  .takeWhile(_.next())
+                  .map { rs =>
                     PremisesDetails(
                       mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                         .map(_.trim)
                         .getOrElse(""),
-                      address1   = optString("ADDRESS_1"),
-                      address2   = optString("ADDRESS_2"),
-                      address3   = optString("ADDRESS_3"),
-                      address4   = optString("ADDRESS_4"),
-                      postcode   = optString("POSTCODE"),
+                      address1 = optString("ADDRESS_1"),
+                      address2 = optString("ADDRESS_2"),
+                      address3 = optString("ADDRESS_3"),
+                      address4 = optString("ADDRESS_4"),
+                      postcode = optString("POSTCODE"),
                       systemDate = optDate("SYSTEM_DATE")
                     )
-                  )
-                )
-              }
-              .getOrElse {
-                PremisesDetailsResponse(totalRows = Some(0), premises = Seq())
-              }
+                  }
+                  .toSeq
+
+              }.getOrElse(Seq.empty)
+
+            PremisesDetailsResponse(
+              totalRows = Some(count),
+              premises = premises
+            )
 
           } finally {
             optionResultSet.foreach(_.close())
