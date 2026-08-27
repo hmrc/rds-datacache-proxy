@@ -966,40 +966,42 @@ class GamblingDataCacheRepository @Inject() (
           try {
 
             val premises =
-              optionResultSet.map { rs =>
+              optionResultSet
+                .map { rs =>
 
-                def optString(col: String): Option[String] =
-                  Option(rs.getString(col))
-                    .map(_.trim)
-                    .filter(_.nonEmpty)
+                  def optString(col: String): Option[String] =
+                    Option(rs.getString(col))
+                      .map(_.trim)
+                      .filter(_.nonEmpty)
 
-                def optDate(col: String): Option[LocalDate] =
-                  Option(rs.getDate(col))
-                    .map(_.toLocalDate)
+                  def optDate(col: String): Option[LocalDate] =
+                    Option(rs.getDate(col))
+                      .map(_.toLocalDate)
 
-                Iterator
-                  .continually(rs)
-                  .takeWhile(_.next())
-                  .map { rs =>
-                    PremisesDetails(
-                      mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
-                        .map(_.trim)
-                        .getOrElse(""),
-                      address1 = optString("ADDRESS_1"),
-                      address2 = optString("ADDRESS_2"),
-                      address3 = optString("ADDRESS_3"),
-                      address4 = optString("ADDRESS_4"),
-                      postcode = optString("POSTCODE"),
-                      systemDate = optDate("SYSTEM_DATE")
-                    )
-                  }
-                  .toSeq
+                  Iterator
+                    .continually(rs)
+                    .takeWhile(_.next())
+                    .map { rs =>
+                      PremisesDetails(
+                        mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
+                          .map(_.trim)
+                          .getOrElse(""),
+                        address1   = optString("ADDRESS_1"),
+                        address2   = optString("ADDRESS_2"),
+                        address3   = optString("ADDRESS_3"),
+                        address4   = optString("ADDRESS_4"),
+                        postcode   = optString("POSTCODE"),
+                        systemDate = optDate("SYSTEM_DATE")
+                      )
+                    }
+                    .toSeq
 
-              }.getOrElse(Seq.empty)
+                }
+                .getOrElse(Seq.empty)
 
             PremisesDetailsResponse(
               totalRows = Some(count),
-              premises = premises
+              premises  = premises
             )
 
           } finally {
