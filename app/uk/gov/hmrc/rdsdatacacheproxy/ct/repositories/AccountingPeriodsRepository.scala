@@ -52,10 +52,10 @@ class AccountingPeriodsRepositoryImpl @Inject() (
 
   private def processAccountingPeriodsRowResponse(rs: ResultSet): RdsAccountingPeriodsRowResponse =
     RdsAccountingPeriodsRowResponse(
-      accountingPeriod       = Option(rs.getBigDecimal("accounting_period")),
-      apStartDate            = Option(rs.getDate("ap_start_date")).map(_.toLocalDate),
-      apEndDate              = Option(rs.getDate("ap_end_date")).map(_.toLocalDate),
-      apStatus               = Option(rs.getString("ap_status")),
+      accountingPeriod       = rs.getBigDecimal("accounting_period"),
+      apStartDate            = rs.getDate("ap_start_date").toLocalDate,
+      apEndDate              = rs.getDate("ap_end_date").toLocalDate,
+      apStatus               = rs.getString("ap_status"),
       taxChargePresent       = Option(rs.getString("tax_charge_present")),
       clericalIntSig         = Option(rs.getString("clerical_int_sig")),
       creditDebitInterestInd = Option(rs.getString("credit_debit_interest_ind")),

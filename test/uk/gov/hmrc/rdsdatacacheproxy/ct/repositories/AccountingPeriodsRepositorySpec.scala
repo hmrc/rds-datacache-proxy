@@ -78,10 +78,10 @@ class AccountingPeriodsRepositorySpec extends AnyFlatSpec with Matchers with Bef
     val accPeriods = RdsAccountingPeriod(accountingPeriods =
       List(
         RdsAccountingPeriodsRowResponse(
-          accountingPeriod       = Some(BigDecimal(7600.45)),
-          apStartDate            = Some(LocalDate.of(2019, 12, 7)),
-          apEndDate              = Some(LocalDate.of(2016, 11, 9)),
-          apStatus               = Some("Open"),
+          accountingPeriod       = BigDecimal(7600.45),
+          apStartDate            = LocalDate.of(2019, 12, 7),
+          apEndDate              = LocalDate.of(2016, 11, 9),
+          apStatus               = "Open",
           taxChargePresent       = Some("Y"),
           clericalIntSig         = Some("Y"),
           creditDebitInterestInd = Some("Y"),
@@ -160,10 +160,10 @@ class AccountingPeriodsRepositorySpec extends AnyFlatSpec with Matchers with Bef
     val accPeriods = RdsAccountingPeriod(accountingPeriods =
       List(
         RdsAccountingPeriodsRowResponse(
-          accountingPeriod       = Some(BigDecimal(7600.45)),
-          apStartDate            = Some(LocalDate.of(2019, 12, 7)),
-          apEndDate              = Some(LocalDate.of(2016, 11, 9)),
-          apStatus               = Some("Open"),
+          accountingPeriod       = BigDecimal(7600.45),
+          apStartDate            = LocalDate.of(2019, 12, 7),
+          apEndDate              = LocalDate.of(2016, 11, 9),
+          apStatus               = "Open",
           taxChargePresent       = Some("Y"),
           clericalIntSig         = Some("Y"),
           creditDebitInterestInd = Some("Y"),
@@ -175,10 +175,10 @@ class AccountingPeriodsRepositorySpec extends AnyFlatSpec with Matchers with Bef
           adjustmentTotal        = Some(BigDecimal(75.50))
         ),
         RdsAccountingPeriodsRowResponse(
-          accountingPeriod       = Some(BigDecimal(7600.45)),
-          apStartDate            = Some(LocalDate.of(2019, 12, 7)),
-          apEndDate              = Some(LocalDate.of(2016, 11, 9)),
-          apStatus               = Some("Closed"),
+          accountingPeriod       = BigDecimal(7600.45),
+          apStartDate            = LocalDate.of(2019, 12, 7),
+          apEndDate              = LocalDate.of(2016, 11, 9),
+          apStatus               = "Closed",
           taxChargePresent       = Some("N"),
           clericalIntSig         = Some("N"),
           creditDebitInterestInd = Some("N"),

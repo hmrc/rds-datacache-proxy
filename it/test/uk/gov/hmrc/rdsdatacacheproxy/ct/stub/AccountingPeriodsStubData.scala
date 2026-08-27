@@ -26,10 +26,10 @@ object AccountingPeriodsStubData {
   val accountingPeriodsWithSingleItem: RdsAccountingPeriod = RdsAccountingPeriod(accountingPeriods =
     List(
       RdsAccountingPeriodsRowResponse(
-        accountingPeriod       = Some(BigDecimal(202501)),
-        apStartDate            = Some(LocalDate.of(2025, 1, 1)),
-        apEndDate              = Some(LocalDate.of(2025, 12, 31)),
-        apStatus               = Some("Open"),
+        accountingPeriod       = BigDecimal(202501),
+        apStartDate            = LocalDate.of(2025, 1, 1),
+        apEndDate              = LocalDate.of(2025, 12, 31),
+        apStatus               = "Open",
         taxChargePresent       = Some("Y"),
         clericalIntSig         = Some("Y"),
         creditDebitInterestInd = Some("Y"),
@@ -45,10 +45,10 @@ object AccountingPeriodsStubData {
   val accountingPeriodsWithMultipleItems: RdsAccountingPeriod = RdsAccountingPeriod(accountingPeriods =
     List(
       RdsAccountingPeriodsRowResponse(
-        accountingPeriod       = Some(BigDecimal(202501)),
-        apStartDate            = Some(LocalDate.of(2025, 1, 1)),
-        apEndDate              = Some(LocalDate.of(2025, 12, 31)),
-        apStatus               = Some("Open"),
+        accountingPeriod       = BigDecimal(202501),
+        apStartDate            = LocalDate.of(2025, 1, 1),
+        apEndDate              = LocalDate.of(2025, 12, 31),
+        apStatus               = "Open",
         taxChargePresent       = Some("Y"),
         clericalIntSig         = Some("Y"),
         creditDebitInterestInd = Some("Y"),
@@ -60,10 +60,10 @@ object AccountingPeriodsStubData {
         adjustmentTotal        = Some(BigDecimal(75.50))
       ),
       RdsAccountingPeriodsRowResponse(
-        accountingPeriod       = Some(BigDecimal(202501)),
-        apStartDate            = Some(LocalDate.of(2025, 1, 1)),
-        apEndDate              = Some(LocalDate.of(2025, 12, 31)),
-        apStatus               = Some("Open"),
+        accountingPeriod       = BigDecimal(202501),
+        apStartDate            = LocalDate.of(2025, 1, 1),
+        apEndDate              = LocalDate.of(2025, 12, 31),
+        apStatus               = "Open",
         taxChargePresent       = Some("Y"),
         clericalIntSig         = Some("N"),
         creditDebitInterestInd = Some("N"),
@@ -75,10 +75,10 @@ object AccountingPeriodsStubData {
         adjustmentTotal        = Some(BigDecimal(75.50))
       ),
       RdsAccountingPeriodsRowResponse(
-        accountingPeriod       = Some(BigDecimal(202501)),
-        apStartDate            = Some(LocalDate.of(2025, 1, 1)),
-        apEndDate              = Some(LocalDate.of(2025, 12, 31)),
-        apStatus               = Some("Open"),
+        accountingPeriod       = BigDecimal(202501),
+        apStartDate            = LocalDate.of(2025, 1, 1),
+        apEndDate              = LocalDate.of(2025, 12, 31),
+        apStatus               = "Open",
         taxChargePresent       = Some("N"),
         clericalIntSig         = Some("Y"),
         creditDebitInterestInd = Some("N"),
