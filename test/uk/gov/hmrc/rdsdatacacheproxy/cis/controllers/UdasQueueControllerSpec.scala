@@ -54,7 +54,7 @@ class UdasQueueControllerSpec extends SpecBase with MockitoSugar {
         EnqueueTracking(
           message = EnqueueMessage(
             sender        = "Portal",
-            queueName     = "AGTAUTH",
+            queueName     = "Tracking",
             replyQueue    = "",
             correlationID = "",
             filter        = "AGENTAUTH",

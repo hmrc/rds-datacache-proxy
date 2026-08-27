@@ -624,7 +624,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
           EnqueueTracking(
             message = EnqueueMessage(
               sender        = "Portal",
-              queueName     = "AGTAUTH",
+              queueName     = "Tracking",
               replyQueue    = "",
               correlationID = "",
               filter        = "AGENTAUTH",
@@ -663,7 +663,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       // Tracking header
       verify(csTrackingHeader).setString(1, "Portal")
-      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(2, "Tracking")
       verify(csTrackingHeader).setString(5, "AGENTAUTH")
       verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
       verify(csTrackingHeader).execute()
@@ -682,7 +682,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       // Tracking number
       verify(csNumber).setLong(1, trackingMessageId)
       verify(csNumber).setString(2, "Portal")
-      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(3, "Tracking")
       verify(csNumber).setString(4, "")
       verify(csNumber).setString(5, "")
       verify(csNumber).setString(6, "AGENTAUTH")
@@ -850,7 +850,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
           EnqueueTracking(
             message = EnqueueMessage(
               sender        = "Portal",
-              queueName     = "AGTAUTH",
+              queueName     = "Tracking",
               replyQueue    = "",
               correlationID = "",
               filter        = "AGENTAUTH",
@@ -890,7 +890,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       // Tracking header
       verify(csTrackingHeader).setString(1, "Portal")
-      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(2, "Tracking")
       verify(csTrackingHeader).setString(5, "AGENTAUTH")
       verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
       verify(csTrackingHeader).execute()
@@ -909,7 +909,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       // Tracking number
       verify(csNumber).setLong(1, trackingMessageId)
       verify(csNumber).setString(2, "Portal")
-      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(3, "Tracking")
       verify(csNumber).setString(4, "")
       verify(csNumber).setString(5, "")
       verify(csNumber).setString(6, "AGENTAUTH")
@@ -992,7 +992,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
           EnqueueTracking(
             message = EnqueueMessage(
               sender        = "Portal",
-              queueName     = "AGTAUTH",
+              queueName     = "Tracking",
               replyQueue    = "",
               correlationID = "",
               filter        = "AGENTAUTH",
@@ -1033,7 +1033,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
       // Tracking header
       verify(csTrackingHeader).setString(1, "Portal")
-      verify(csTrackingHeader).setString(2, "AGTAUTH")
+      verify(csTrackingHeader).setString(2, "Tracking")
       verify(csTrackingHeader).setString(5, "AGENTAUTH")
       verify(csTrackingHeader).registerOutParameter(6, Types.NUMERIC)
       verify(csTrackingHeader).execute()
@@ -1052,7 +1052,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       // Tracking number
       verify(csNumber).setLong(1, trackingMessageId)
       verify(csNumber).setString(2, "Portal")
-      verify(csNumber).setString(3, "AGTAUTH")
+      verify(csNumber).setString(3, "Tracking")
       verify(csNumber).setString(4, "")
       verify(csNumber).setString(5, "")
       verify(csNumber).setString(6, "AGENTAUTH")

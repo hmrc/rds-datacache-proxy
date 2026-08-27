@@ -54,7 +54,7 @@ final class UdasQueueServiceSpec extends SpecBase {
         EnqueueTracking(
           message = EnqueueMessage(
             sender        = "Portal",
-            queueName     = "AGTAUTH",
+            queueName     = "Tracking",
             replyQueue    = "",
             correlationID = "",
             filter        = "AGENTAUTH",

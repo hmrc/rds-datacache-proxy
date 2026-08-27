@@ -49,7 +49,7 @@ class UdasQueueControllerISpec extends AnyWordSpec with Matchers with ScalaFutur
       "tracking" -> Json.obj(
         "message" -> Json.obj(
           "sender"        -> "Portal",
-          "queueName"     -> "AGTAUTH",
+          "queueName"     -> "Tracking",
           "replyQueue"    -> "",
           "correlationID" -> "",
           "filter"        -> "AGENTAUTH",
@@ -101,7 +101,7 @@ class UdasQueueControllerISpec extends AnyWordSpec with Matchers with ScalaFutur
         "tracking" -> Json.obj(
           "message" -> Json.obj(
             "sender"        -> "Portal",
-            "queueName"     -> "AGTAUTH",
+            "queueName"     -> "Tracking",
             "replyQueue"    -> "",
             "correlationID" -> "",
             "filter"        -> "AGENTAUTH",

@@ -28,7 +28,7 @@ class EnqueueTrackingSpec extends AnyFreeSpec with Matchers {
       val json = Json.obj(
         "message" -> Json.obj(
           "sender"        -> "Portal",
-          "queueName"     -> "AGTAUTH",
+          "queueName"     -> "Tracking",
           "replyQueue"    -> "",
           "correlationID" -> "",
           "filter"        -> "AGENTAUTH",
@@ -55,7 +55,7 @@ class EnqueueTrackingSpec extends AnyFreeSpec with Matchers {
       result mustBe EnqueueTracking(
         message = EnqueueMessage(
           sender        = "Portal",
-          queueName     = "AGTAUTH",
+          queueName     = "Tracking",
           replyQueue    = "",
           correlationID = "",
           filter        = "AGENTAUTH",
@@ -82,7 +82,7 @@ class EnqueueTrackingSpec extends AnyFreeSpec with Matchers {
       val model = EnqueueTracking(
         message = EnqueueMessage(
           sender        = "Portal",
-          queueName     = "AGTAUTH",
+          queueName     = "Tracking",
           replyQueue    = "",
           correlationID = "",
           filter        = "AGENTAUTH",
@@ -109,7 +109,7 @@ class EnqueueTrackingSpec extends AnyFreeSpec with Matchers {
       json mustBe Json.obj(
         "message" -> Json.obj(
           "sender"        -> "Portal",
-          "queueName"     -> "AGTAUTH",
+          "queueName"     -> "Tracking",
           "replyQueue"    -> "",
           "correlationID" -> "",
           "filter"        -> "AGENTAUTH",
