@@ -72,7 +72,7 @@ class UdasQueueControllerISpec extends AnyWordSpec with Matchers with ScalaFutur
       )
     )
 
-    "return 204 with messageIDOut when authorised and JSON is valid" in {
+    "return 200 with messageIDOut when authorised and JSON is valid" in {
 
       AuthStub.authorised()
       val res = postJson(endpoint, validJson)
