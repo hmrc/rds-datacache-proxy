@@ -18,7 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.charities.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar

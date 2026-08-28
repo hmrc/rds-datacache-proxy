@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.controllers
 
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{anyString, eq as eqTo}

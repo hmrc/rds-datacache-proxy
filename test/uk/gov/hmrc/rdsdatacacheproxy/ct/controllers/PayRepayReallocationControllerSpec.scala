@@ -18,7 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
@@ -77,6 +76,5 @@ class PayRepayReallocationControllerSpec extends SpecBase with MockitoSugar {
       contentType(result) shouldBe Some("application/json")
       verify(mockService).getTotalAmounts(1L, 10L)
     }
-
   }
 }

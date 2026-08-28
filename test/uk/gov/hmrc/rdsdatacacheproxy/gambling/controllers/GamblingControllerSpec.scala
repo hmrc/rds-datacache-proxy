@@ -34,7 +34,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.*
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}

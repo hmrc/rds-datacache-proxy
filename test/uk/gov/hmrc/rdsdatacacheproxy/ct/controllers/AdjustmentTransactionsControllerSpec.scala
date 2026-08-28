@@ -19,7 +19,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 import org.mockito.ArgumentMatchers.any
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Mockito.*
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.libs.json.Json
