@@ -70,7 +70,6 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
-  }
 
     override def getPremisesDetails(
                                      mgdRegNumber: String,
@@ -78,7 +77,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
                                      PageNo: Int
                                         ): Future[PremisesDetailsResponse] =
       Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber, 0, 0))
-}
+  }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
