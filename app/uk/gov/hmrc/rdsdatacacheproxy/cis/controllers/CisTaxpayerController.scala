@@ -22,22 +22,26 @@ import play.api.mvc.Results.{InternalServerError, NotFound, Status}
 import play.api.mvc.{Action, ControllerComponents, Result}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.play.bootstrap.http.ErrorResponse
+import uk.gov.hmrc.rdsdatacacheproxy.actions.IdentifiedUserAction
+import uk.gov.hmrc.rdsdatacacheproxy.actions.IdentifiedUserRequest.*
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EmployerReference
+import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 import uk.gov.hmrc.rdsdatacacheproxy.cis.services.CisTaxpayerService
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CisTaxpayerController @Inject() (
-  authorise: AuthAction,
+  identify: IdentifiedUserAction,
   service: CisTaxpayerService,
+  repository: CisMonthlyReturnSource,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
   def getCisTaxpayerByTaxReference: Action[JsValue] =
-    authorise.async(parse.json) { implicit request =>
+    (Action andThen identify).async(parse.json) { implicit request =>
       request.body
         .validate[EmployerReference]
         .fold(
@@ -50,11 +54,26 @@ class CisTaxpayerController @Inject() (
                 )
               )
             ),
-          er =>
-            service
-              .getCisTaxpayerByTaxReference(er.taxOfficeNumber, er.taxOfficeReference)
-              .map(tp => Ok(Json.toJson(tp)))
-              .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", er))
+          empRef =>
+            request match
+              case OrganisationRequest(_, authorisedTon, authorisedTor)
+                  if empRef.taxOfficeNumber == authorisedTon && empRef.taxOfficeReference == authorisedTor =>
+                service
+                  .getCisTaxpayerByTaxReference(authorisedTon, authorisedTor)
+                  .map(tp => Ok(Json.toJson(tp)))
+                  .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", empRef))
+
+              case AgentRequest(_, irAgentId, credentialId) =>
+                val er = s"${empRef.taxOfficeNumber}/${empRef.taxOfficeReference}"
+                repository
+                  .getClientByEmployerRef(irAgentId, credentialId, er)
+                  .map {
+                    case Some(result) => Ok(Json.toJson(result))
+                    case None         => notFound(empRef)
+                  }
+                  .recover(recoverServiceErrors("getCisTaxpayerByTaxReference", empRef))
+
+              case _ => Future.successful(notFound(empRef))
         )
     }
 
@@ -62,18 +81,21 @@ class CisTaxpayerController @Inject() (
     op: String,
     er: EmployerReference
   ): PartialFunction[Throwable, Result] = {
-    case u: UpstreamErrorResponse =>
-      Status(u.statusCode)(Json.obj("message" -> u.message))
+    case u: UpstreamErrorResponse => Status(u.statusCode)(Json.obj("message" -> u.message))
 
-    case _: NoSuchElementException =>
-      NotFound(
-        Json.obj(
-          "message" -> s"CIS taxpayer not found for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}"
-        )
-      )
+    case _: NoSuchElementException => notFound(er)
 
     case t: Throwable =>
       logger.error(s"[$op] failed for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}", t)
       InternalServerError(Json.obj("message" -> "Unexpected error"))
   }
+
+  private def notFound(er: EmployerReference) = NotFound(
+    Json.toJson(
+      ErrorResponse(
+        statusCode = 404,
+        message    = s"CIS taxpayer not found for TON=${er.taxOfficeNumber}, TOR=${er.taxOfficeReference}"
+      )
+    )
+  )
 }

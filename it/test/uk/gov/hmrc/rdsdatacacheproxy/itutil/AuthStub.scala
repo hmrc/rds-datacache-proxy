@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.SessionKeys
 
 object AuthStub:
 
-  def authorised(): StubMapping =
+  def authorised(ton: String = "123", tor: String = "AB456"): StubMapping =
     stubFor(
       post(urlPathEqualTo("/auth/authorise"))
         .willReturn(
@@ -31,9 +31,16 @@ object AuthStub:
             .withStatus(200)
             .withHeader("Content-Type", "application/json")
             .withBody(
-              """{
+              s"""{
                 |  "internalId": "testId",
-                |  "allEnrolments": [],
+                |  "allEnrolments": [{
+                |    "key": "HMRC-CIS-ORG",
+                |    "identifiers": [
+                |      {"key": "TaxOfficeNumber", "value": "$ton"},
+                |      {"key": "TaxOfficeReference", "value": "$tor"}
+                |    ],
+                |    "state": "activated"
+                |  }],
                 |  "affinityGroup": "Organisation",
                 |  "credentialRole": "User",
                 |  "credentials": { "providerId": "testCredId", "providerType": "GovernmentGateway" },

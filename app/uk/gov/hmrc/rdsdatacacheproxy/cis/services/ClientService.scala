@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisClientsSearchResultByEmpRef, ClientListDownloadStatus}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import javax.inject.Inject
@@ -52,13 +52,4 @@ class ClientService @Inject() (repository: CisMonthlyReturnSource) {
   ): Future[Boolean] = {
     repository.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference)
   }
-
-  def getClientsByEmployersReference(
-    irAgentId: String,
-    credentialId: String,
-    employerRef: String
-  ): Future[CisClientsSearchResultByEmpRef] = {
-    repository.getClientsByEmployersReference(irAgentId, credentialId, employerRef)
-  }
-
 }

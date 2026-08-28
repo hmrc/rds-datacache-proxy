@@ -24,7 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.collection.mutable.ListBuffer
 import java.sql.{CallableStatement, ResultSet}
 import oracle.jdbc.OracleTypes
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisClientsSearchResultByEmpRef, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{CisClientSearchResult, CisTaxpayer, CisTaxpayerSearchResult, SchemePrepop, SubcontractorPrepopRecord}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.ResultSetUtils.*
 
 trait CisMonthlyReturnSource {
@@ -45,7 +45,7 @@ trait CisMonthlyReturnSource {
                                           taxOfficeReference: String,
                                           accountOfficeReference: String
                                          ): Future[Seq[SubcontractorPrepopRecord]]
-  def getClientsByEmployersReference(irAgentId: String, credentialId: String, employerRef: String): Future[CisClientsSearchResultByEmpRef]
+  def getClientByEmployerRef(irAgentId: String, credentialId: String, employerRef: String): Future[Option[CisTaxpayer]]
 }
 
 @Singleton
@@ -227,10 +227,11 @@ class CisDatacacheRepository @Inject() (
     }
   }
 
-  override def getClientsByEmployersReference(irAgentId: String,
-                                              credentialId: String,
-                                              employerRef: String
-                                             ): Future[CisClientsSearchResultByEmpRef] = {
+  override def getClientByEmployerRef(
+    irAgentId: String,
+    credentialId: String,
+    employerRef: String
+  ): Future[Option[CisTaxpayer]] = {
     logger.info(s"[CIS] getClientsByEmployersReference(agentId=$irAgentId, CID=$credentialId, EREF=$employerRef)")
 
     Future {
@@ -246,21 +247,10 @@ class CisDatacacheRepository @Inject() (
           cs.registerOutParameter(5, OracleTypes.CURSOR)
           cs.execute()
 
-          val clientsByEmployersRs = cs.getObject(4, classOf[ResultSet])
-          val clientNameCharsRs = cs.getObject(5, classOf[ResultSet])
-
-          try {
-            val clients = Option(clientsByEmployersRs).map(readClientList).getOrElse(List.empty)
-            val nameChars = Option(clientNameCharsRs).map(readClientNameChars).getOrElse(List.empty)
-
-            CisClientsSearchResultByEmpRef(
-              clients                      = clients,
-              clientNameStartingCharacters = nameChars
-            )
-          } finally {
-            if (clientsByEmployersRs != null) clientsByEmployersRs.close()
-            if (clientNameCharsRs != null) clientNameCharsRs.close()
-          }
+          for rs <- Option(cs.getObject(4, classOf[ResultSet])) yield
+            val client = toCisTaxpayer(rs)
+            rs.close()
+            client
         } finally cs.close()
       }
     }

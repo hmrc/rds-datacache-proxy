@@ -34,10 +34,12 @@ class CisTaxpayerControllerISpec extends AnyWordSpec with Matchers with ScalaFut
   "POST /cis-taxpayer (stubbed repo, no DB)" should {
 
     "return 200 with CisTaxpayer when authorised and JSON is valid" in {
-      AuthStub.authorised()
+      val givenTon = "754"
+      val givenTor = "EZ10800"
+      AuthStub.authorised(givenTon, givenTor)
       val res = postJson(
         endpoint,
-        Json.obj("taxOfficeNumber" -> "123", "taxOfficeReference" -> "AB456")
+        Json.obj("taxOfficeNumber" -> givenTon, "taxOfficeReference" -> givenTor)
       )
 
       res.status mustBe OK

@@ -16,14 +16,11 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.base
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.{BeforeAndAfterEach, OptionValues, TestSuite, TryValues}
+import org.scalatest.{BeforeAndAfterEach, EitherValues, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.{BaseOneAppPerSuite, FakeApplicationFactory}
-import play.api.Application
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.stubControllerComponents
@@ -33,29 +30,23 @@ import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.auth.core.Enrolment
 
 trait SpecBase
     extends AnyFreeSpec
     with Matchers
     with TryValues
-    with DefaultAwaitTimeout
+    with EitherValues
     with OptionValues
-    with ScalaFutures
-    with IntegrationPatience
     with MockitoSugar
     with BeforeAndAfterEach
-    with TestSuite
-    with FakeApplicationFactory
-    with BaseOneAppPerSuite {
-
-  override def fakeApplication(): Application =
-    GuiceApplicationBuilder()
-      .build()
+    with ScalaFutures
+    with DefaultAwaitTimeout {
+  import uk.gov.hmrc.auth.core.retrieve.~ as RetrievablePair
+  import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 
   val cc: ControllerComponents = stubControllerComponents()
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  val bodyParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
+  val bodyParsers: PlayBodyParsers = stubControllerComponents().parsers
   val fakeAuthAction = new FakeAuthAction(bodyParsers)
 
   def fakeAuthActionWithEnrolments(enrolments: Set[Enrolment]): FakeAuthAction =
@@ -109,4 +100,18 @@ trait SpecBase
       utr               = None,
       enrolledSig       = None
     )
+
+  protected def makeEnrolments(enrolments: (String, Map[String, String])*) =
+    Enrolments(
+      for (key, identifiers) <- enrolments.toSet
+      yield Enrolment(
+        key,
+        for (k, v) <- identifiers.toSeq yield EnrolmentIdentifier(k, v),
+        "activated"
+      )
+    )
+
+  extension [A](retrievableA: A) {
+    def ~[B](retrievableB: B) = RetrievablePair(retrievableA, retrievableB)
+  }
 }
