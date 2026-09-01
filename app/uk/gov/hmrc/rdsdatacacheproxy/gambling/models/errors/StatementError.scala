@@ -16,31 +16,19 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
 
-sealed trait StatementError {
-  def code: String
-  def message: String
+import play.api.libs.json.{Json, OWrites}
+
+enum StatementError(val code: String, val message: String) {
+  case InvalidRegNumber  extends StatementError("INVALID_REG_NUMBER", "regNumber has invalid format")
+  case UnexpectedError   extends StatementError("UNEXPECTED_ERROR", "Unexpected error occurred")
+  case InvalidRegimeCode extends StatementError("INVALID_REGIME_CODE", "Invalid Regime Code")
+  case StatementNotFound
+      extends StatementError(
+        "NOT_FOUND",
+        "No statement overview found for the given registration number"
+      )
 }
 
 object StatementError {
-
-  case object InvalidRegNumber extends StatementError {
-    val code = "INVALID_REG_NUMBER"
-    val message = "regNumber has invalid format"
-  }
-
-  case object UnexpectedError extends StatementError {
-    val code = "UNEXPECTED_ERROR"
-    val message = "Unexpected error occurred"
-  }
-
-  case object InvalidRegimeCode extends StatementError {
-    val code = "INVALID_REGIME_CODE"
-    val message = "Invalid Regime Code"
-  }
-
-  case object StatementNotFound extends StatementError {
-    val code = "NOT_FOUND"
-    val message = "No statement overview found for the given registration number"
-  }
-
+  given OWrites[StatementError] = error => Json.obj("code" -> error.code, "message" -> error.message)
 }
