@@ -55,6 +55,8 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     val controller = new GamblingController(fakeAuthAction, mockService, cc)
   }
 
+  private val fixedDate = LocalDate.parse("2026-01-01")
+
   "GamblingController#getReturnSummary" - {
 
     "returns 200 when service succeeds" in new Setup {
@@ -640,4 +642,95 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "GamblingController#getPremisesDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = PremisesDetailsResponse(
+        totalRows = Some(1000),
+        premises = Seq(
+          PremisesDetails(
+            mgdRegNumber = "XWM00000001770",
+            address1     = Some("Flat 55"),
+            address2     = Some("20 Market Calle"),
+            address3     = Some("Barcelona"),
+            address4     = None,
+            postcode     = None,
+            Some(fixedDate)
+          )
+        )
+      )
+
+      when(mockService.getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/premises-details/XWM00000001770")
+      val res = controller.getPremisesDetails("XWM00000001770", 0, 0)(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = PremisesDetailsResponse(
+        totalRows = Some(1000),
+        premises = Seq(
+          PremisesDetails(
+            mgdRegNumber = "XWM00000001770",
+            address1     = Some("Flat 55"),
+            address2     = Some("20 Market Calle"),
+            address3     = Some("Barcelona"),
+            address4     = None,
+            postcode     = None,
+            Some(fixedDate)
+          )
+        )
+      )
+
+      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/premises-details/XWM00000001770")
+      val res = controller.getPremisesDetails("XWM00000001770", 0, 0)(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/premises-details/bad")
+      val res = controller.getPremisesDetails("bad", 0, 0)(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getPremisesDetails(eqTo("bad"), eqTo(0), eqTo(0))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/premises-details/ERR00001770")
+      val res = controller.getPremisesDetails("ERR00001770", 0, 0)(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getPremisesDetails(eqTo("ERR00001770"), eqTo(0), eqTo(0))(any())
+    }
+  }
 }

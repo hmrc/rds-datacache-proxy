@@ -581,4 +581,61 @@ final class GamblingServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
   }
+
+  "GamblingService#getPremisesDetails" - {
+
+    "return Right(details) when repository succeeds" in {
+
+      val details = GamblingStubData.getPremisesDetails(validMgdRegNumber, 0, 0)
+
+      when(repository.getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getPremisesDetails(validMgdRegNumber, 0, 0).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input before calling repository" in {
+
+      val raw = "  xwm12345678901  "
+
+      val details = GamblingStubData.getPremisesDetails(normalisedMgdRegNumber, 0, 0)
+
+      when(repository.getPremisesDetails(eqTo(normalisedMgdRegNumber), eqTo(0), eqTo(0)))
+        .thenReturn(Future.successful(details))
+
+      val result = service.getPremisesDetails(raw, 0, 0).futureValue
+
+      result mustBe Right(details)
+
+      verify(repository).getPremisesDetails(eqTo(normalisedMgdRegNumber), eqTo(0), eqTo(0))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber when input invalid" in {
+
+      val result = service.getPremisesDetails("bad,", 0, 0).futureValue
+
+      result mustBe Left(InvalidMgdRegNumber)
+
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0)))
+        .thenReturn(Future.failed(new RuntimeException("fail")))
+
+      val result = service.getPremisesDetails(validMgdRegNumber, 0, 0).futureValue
+
+      result mustBe Left(UnexpectedError)
+
+      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0))
+      verifyNoMoreInteractions(repository)
+    }
+  }
 }
