@@ -195,6 +195,4 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         handleError(error, logMessage)
     }
   }
-
-  private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }
