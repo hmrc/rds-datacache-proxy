@@ -15,38 +15,36 @@
  */
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+
 import play.api.Logging
-import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.Results.InternalServerError
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.AdministrativeRuleService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.RdsAccountingPeriod
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.AccountingPeriodsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GetAdministrativeRuleController @Inject() (
-  val cc: ControllerComponents,
+class AccountingPeriodsController @Inject() (
   authorise: AuthAction,
-  service: AdministrativeRuleService
+  accountingPeriodsService: AccountingPeriodsService,
+  cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
-    with I18nSupport
     with Logging {
 
-  def getAdministrativeRule(adminRuleKey: String): Action[AnyContent] = {
-    authorise.async { request =>
-      service
-        .getAdminRule(adminRuleKey)
-        .map { adminRule =>
-          Ok(Json.toJson(adminRule))
-        }
-        .recover { case ex: Exception =>
-          logger.error("Unexpected Exception", ex)
-          InternalServerError(Json.obj("message" -> "Unable to Retrieve adminRule"))
-        }
-    }
+  def getAccountingPeriods(taxRef: Long): Action[AnyContent] = authorise.async { implicit request =>
+    accountingPeriodsService
+      .getAccountingPeriods(taxRef)
+      .map { accountingPeriods =>
+        Ok(Json.toJson(accountingPeriods))
+      }
+      .recover { case ex: Exception =>
+        logger.error("Error while retrieving accounting periods", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve accounting periods"))
+      }
   }
-
 }

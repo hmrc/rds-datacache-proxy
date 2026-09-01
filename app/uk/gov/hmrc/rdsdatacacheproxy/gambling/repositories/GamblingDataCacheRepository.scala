@@ -302,8 +302,7 @@ class GamblingDataCacheRepository @Inject() (
   }
 
   override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] = {
-
-    logger.info(s"[GamblingDataCacheRepository][getBusinessDetails] mgdRegNumber=$mgdRegNumber")
+    logger.debug(s"getBusinessDetails mgdRegNumber=$mgdRegNumber")
 
     Future(blocking {
       db.withConnection { connection =>

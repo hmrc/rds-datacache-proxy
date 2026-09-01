@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
-import play.api.libs.json.{Json, OWrites}
+import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.RdsAccountingPeriod
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AccountingPeriodsRepository
 
-enum GamblingError(val code: String, val message: String) {
-  case InvalidMgdRegNumber extends GamblingError("INVALID_MGD_REG_NUMBER", "mgdRegNumber does not exist")
-  case UnexpectedError     extends GamblingError("UNEXPECTED_ERROR", "Unexpected error occurred")
-  case InvalidRegimeCode   extends GamblingError("INVALID_REGIME_CODE", "Invalid Regime Code")
-}
+import javax.inject.Inject
+import scala.concurrent.Future
 
-object GamblingError {
-  given OWrites[GamblingError] = error => Json.obj("code" -> error.code, "message" -> error.message)
+class AccountingPeriodsService @Inject() (accountingPeriodsRepository: AccountingPeriodsRepository) extends Logging {
+
+  def getAccountingPeriods(taxRef: Long): Future[RdsAccountingPeriod] = {
+    logger.info(s"Calling repository for taxRef: $taxRef")
+    accountingPeriodsRepository.getAccountingPeriods(taxRef)
+  }
 }
