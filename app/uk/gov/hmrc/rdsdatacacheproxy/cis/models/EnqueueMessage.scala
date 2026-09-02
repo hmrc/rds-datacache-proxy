@@ -28,11 +28,11 @@ final case class EnqueueMessage(
 )
 
 object EnqueueMessage {
-  implicit private val reads: Reads[EnqueueMessage] = Json
+  private val reads: Reads[EnqueueMessage] = Json
     .reads[EnqueueMessage]
     .filter(JsonValidationError("payload must not be empty"))(_.payload.nonEmpty)
 
-  implicit private val writes: OWrites[EnqueueMessage] = Json.writes[EnqueueMessage]
+  private val writes: OWrites[EnqueueMessage] = Json.writes[EnqueueMessage]
 
-  implicit val format: OFormat[EnqueueMessage] = OFormat(reads, writes)
+  given OFormat[EnqueueMessage] = OFormat(reads, writes)
 }
