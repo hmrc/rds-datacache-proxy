@@ -561,7 +561,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
     "enqueue message with tracking and return messageId" in {
       val messageId = 12345L
-      val trackingMessageId = 54321L
+      val trackingMessageId = 12345L
 
       val db = mock(classOf[Database])
       val conn = mock(classOf[java.sql.Connection])
@@ -677,7 +677,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       verify(csClob, times(10)).registerOutParameter(9, Types.NUMERIC)
 
       // Tracking CLOBs must use tracking message ID
-      verify(csClob, times(7)).setLong(1, trackingMessageId)
+      verify(csClob, times(10)).setLong(1, trackingMessageId)
 
       // Tracking number
       verify(csNumber).setLong(1, trackingMessageId)
@@ -787,7 +787,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
 
     "fail when enqueueNumber returns a negative messageIdOut" in {
       val messageId = 12345L
-      val trackingMessageId = 54321L
+      val trackingMessageId = 12345L
 
       val db = mock(classOf[Database])
       val conn = mock(classOf[java.sql.Connection])
@@ -877,7 +877,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       val result = repo.enqueueMessage(request).failed.futureValue
 
       result mustBe a[RuntimeException]
-      result.getMessage mustBe "Failed to callEnqueueNumber: messageID=54321, messageIDOut=-1, key=EVENT_TYPE"
+      result.getMessage mustBe "Failed to callEnqueueNumber: messageID=12345, messageIDOut=-1, key=EVENT_TYPE"
 
       // Main header
       verify(csHeader).setString(1, "Portal")
@@ -904,7 +904,7 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       verify(csClob, times(10)).registerOutParameter(9, Types.NUMERIC)
 
       // Tracking CLOBs must use tracking message ID
-      verify(csClob, times(7)).setLong(1, trackingMessageId)
+      verify(csClob, times(10)).setLong(1, trackingMessageId)
 
       // Tracking number
       verify(csNumber).setLong(1, trackingMessageId)

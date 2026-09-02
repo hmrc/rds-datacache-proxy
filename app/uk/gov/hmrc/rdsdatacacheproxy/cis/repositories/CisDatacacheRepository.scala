@@ -473,7 +473,7 @@ class CisDatacacheRepository @Inject() (
     key: String,
     value: String
   ): Long = {
-    val messageIDOut = withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+    withCall(conn, "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
       cs.setLong(1, messageID)
       cs.setString(2, sender)
       cs.setString(3, queueName)
@@ -486,33 +486,34 @@ class CisDatacacheRepository @Inject() (
 
       cs.execute()
 
-      val id = cs.getLong(9)
-      if (cs.wasNull()) None else Some(id)
-    }
+      val messageIDOut = cs.getLong(9)
+      val wasNull = cs.wasNull()
 
-    messageIDOut match {
-      case Some(id) if id >= 0 && id == messageID => id
-      case _ =>
+      if (wasNull || messageIDOut < 0 || messageIDOut != messageID) {
         val errorMessage =
-          s"Failed to callEnqueueClob: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
+          s"Failed to callEnqueueClob: messageID=$messageID, messageIDOut=${if (wasNull) "null" else messageIDOut}, key=$key"
 
         logger.error(errorMessage)
         throw new RuntimeException(errorMessage)
+      }
+
+      messageIDOut
     }
   }
 
-  private def callEnqueueNumber(conn: Connection,
-                                messageID: Long,
-                                sender: String,
-                                queueName: String,
-                                replyQueue: String,
-                                correlationId: String,
-                                filter: String,
-                                dataType: Int,
-                                key: String,
-                                value: Long
-                               ): Long = {
-    val messageIDOut = withCall(conn, "{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
+  private def callEnqueueNumber(
+    conn: Connection,
+    messageID: Long,
+    sender: String,
+    queueName: String,
+    replyQueue: String,
+    correlationId: String,
+    filter: String,
+    dataType: Int,
+    key: String,
+    value: Long
+  ): Long = {
+    withCall(conn, "{ call udas_queue.enqueue_number(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }") { cs =>
       cs.setLong(1, messageID)
       cs.setString(2, sender)
       cs.setString(3, queueName)
@@ -526,18 +527,18 @@ class CisDatacacheRepository @Inject() (
 
       cs.execute()
 
-      val id = cs.getLong(10)
-      if (cs.wasNull()) None else Some(id)
-    }
+      val messageIDOut = cs.getLong(10)
+      val wasNull = cs.wasNull()
 
-    messageIDOut match {
-      case Some(id) if id >= 0 && id == messageID => id
-      case _ =>
+      if (wasNull || messageIDOut < 0 || messageIDOut != messageID) {
         val errorMessage =
-          s"Failed to callEnqueueNumber: messageID=$messageID, messageIDOut=${messageIDOut.getOrElse("null")}, key=$key"
+          s"Failed to callEnqueueNumber: messageID=$messageID, messageIDOut=${if (wasNull) "null" else messageIDOut}, key=$key"
 
         logger.error(errorMessage)
         throw new RuntimeException(errorMessage)
+      }
+
+      messageIDOut
     }
   }
 }
