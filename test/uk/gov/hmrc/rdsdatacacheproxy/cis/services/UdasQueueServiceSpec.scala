@@ -21,7 +21,7 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.{EnqueueMessage, EnqueueMessageRequest, EnqueueNumber, EnqueueTracking}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
 
 import scala.concurrent.Future
@@ -38,15 +38,43 @@ final class UdasQueueServiceSpec extends SpecBase {
 
   "CisTaxpayerService#enqueueMessage" - {
     val request: EnqueueMessageRequest = EnqueueMessageRequest(
-      sender        = "Portal",
-      queueName     = "AGTAUTH",
-      replyQueue    = "",
-      correlationID = "",
-      filter        = "RemoveClient",
-      payload = Map(
-        "IRAgentID"    -> "123456789",
-        "Service"      -> "CIS",
-        "TaxReference" -> "123/ABC123"
+      message = EnqueueMessage(
+        sender        = "Portal",
+        queueName     = "AGTAUTH",
+        replyQueue    = "",
+        correlationID = "",
+        filter        = "RemoveClient",
+        payload = Map(
+          "IRAgentID"    -> "123456789",
+          "Service"      -> "CIS",
+          "TaxReference" -> "123/ABC123"
+        )
+      ),
+      tracking = Some(
+        EnqueueTracking(
+          message = EnqueueMessage(
+            sender        = "Portal",
+            queueName     = "Tracking",
+            replyQueue    = "",
+            correlationID = "",
+            filter        = "AGENTAUTH",
+            payload = Map(
+              "GGIS_DTSTAMP"    -> "20260827 154512747",
+              "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+              "ADDITIONAL_INFO" -> "Request client removal",
+              "GW_AGENT_ID"     -> "AGENT123",
+              "IR_CLIENT_REF"   -> "123/ABC123",
+              "USER_ID"         -> "user123",
+              "Service"         -> "CIS"
+            )
+          ),
+          number = EnqueueNumber(
+            dataType = 1,
+            payload = Map(
+              "EVENT_TYPE" -> 1010L
+            )
+          )
+        )
       )
     )
 
