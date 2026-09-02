@@ -430,14 +430,15 @@ class CisDatacacheRepository @Inject() (
     messageID
   }
 
-  private def callEnqueueMessageHeader(conn: Connection,
-                                       sender: String,
-                                       queueName: String,
-                                       replyQueue: String,
-                                       correlationId: String,
-                                       filter: String
-                                      ): Long = {
-    val messageID = withCall(conn, "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }") { cs =>
+  private def callEnqueueMessageHeader(
+    conn: Connection,
+    sender: String,
+    queueName: String,
+    replyQueue: String,
+    correlationId: String,
+    filter: String
+  ): Long = {
+    withCall(conn, "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }") { cs =>
       cs.setString(1, sender)
       cs.setString(2, queueName)
       cs.setString(3, replyQueue)
@@ -447,18 +448,17 @@ class CisDatacacheRepository @Inject() (
 
       cs.execute()
 
-      val id = cs.getLong(6)
-      if (cs.wasNull()) None else Some(id)
-    }
+      val messageIDOut = cs.getLong(6)
 
-    messageID match {
-      case Some(id) if id >= 0 => id
-      case _ =>
+      if (cs.wasNull() || messageIDOut < 0) {
         val errorMessage =
           s"Failed to callEnqueueMessageHeader: sender=$sender, queueName=$queueName, filter=$filter"
 
         logger.error(errorMessage)
         throw new RuntimeException(errorMessage)
+      }
+
+      messageIDOut
     }
   }
 
