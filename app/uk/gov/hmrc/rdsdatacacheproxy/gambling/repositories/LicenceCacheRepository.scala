@@ -71,7 +71,7 @@ class LicenceCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDat
               amusement             = Option(rs.getString("AMUSEMENT")),
               serveAlcohol          = Option(rs.getString("SERVE_ALCOHOL")),
               premisesNotCovered    = Option(rs.getString("PREMISES_NOT_COVERED")),
-              systemDate            = optLocalDate("system_date", rs)
+              systemDate            = optSystemDate("system_date", rs)
             )
           } finally closeQuietly(rs)
         } finally {

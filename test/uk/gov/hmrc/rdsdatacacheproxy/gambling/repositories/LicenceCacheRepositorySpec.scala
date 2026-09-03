@@ -29,6 +29,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GT
 
 import java.sql.{CallableStatement, Connection, ResultSet}
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
@@ -87,7 +88,7 @@ class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAn
       when(licenceRs.getString("AMUSEMENT")).thenReturn("0")
       when(licenceRs.getString("SERVE_ALCOHOL")).thenReturn("0")
       when(licenceRs.getString("PREMISES_NOT_COVERED")).thenReturn("0")
-      when(licenceRs.getString("system_date")).thenReturn("2026-05-31")
+      when(licenceRs.getString("system_date")).thenReturn("2026-05-31 15:10:33")
 
       val result = repository.getLicenceDetails(Regime.MGD, regNumber).futureValue
 
@@ -117,6 +118,26 @@ class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAn
       verify(mockCsMgd).execute()
       verify(licenceRs).close()
       verify(mockCsMgd).close()
+    }
+
+    "parse systemDate when the column is a plain date with no time component" in {
+      when(licenceRs.next()).thenReturn(true)
+      when(licenceRs.getString("mgd_reg_number")).thenReturn(regNumber)
+      when(licenceRs.getString("system_date")).thenReturn("2026-05-31")
+
+      val result = repository.getLicenceDetails(Regime.MGD, regNumber).futureValue
+
+      result.systemDate shouldBe Some(LocalDate.of(2026, 5, 31))
+    }
+
+    "fail when system_date is not a recognised date or timestamp format" in {
+      when(licenceRs.next()).thenReturn(true)
+      when(licenceRs.getString("mgd_reg_number")).thenReturn(regNumber)
+      when(licenceRs.getString("system_date")).thenReturn("not-a-date")
+
+      val ex = repository.getLicenceDetails(Regime.MGD, regNumber).failed.futureValue
+      ex                                                      shouldBe a[DateTimeParseException]
+      ex.asInstanceOf[DateTimeParseException].getParsedString shouldBe "not-a-date"
     }
 
     "default gamblingLicenceNo to an empty string when the column is null" in {
