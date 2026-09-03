@@ -23,16 +23,17 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.DisplayNeededStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper.{displayNeededAllFalse, displayNeededAllTrue, displayNeededMixed}
 
 import scala.concurrent.Future
 
 class DisplayNeededRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
-
+  
   class DisplayNeededRepositoryStub extends DisplayNeededRepository {
     override def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] =
-      Future.successful(DisplayNeededStubData.getDisplayNeeded(taxRef, accPeriod))
+      Future.successful(DisplayNeededHelper.getDisplayNeeded(taxRef, accPeriod))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -46,19 +47,19 @@ class DisplayNeededRepositoryISpec extends AnyWordSpec with Matchers with ScalaF
     "return Display Needed with all flags set as false" in {
       val result = repository.getDisplayNeeded(10L, 1L).futureValue
 
-      result mustBe DisplayNeededStubData.displayNeededAllFalse
+      result mustBe displayNeededAllFalse
     }
 
     "return Display Needed with all flags set as true" in {
       val result = repository.getDisplayNeeded(20L, 1L).futureValue
 
-      result mustBe DisplayNeededStubData.displayNeededAllTrue
+      result mustBe displayNeededAllTrue
     }
 
     "return Display Needed with some flags set as true and false" in {
       val result = repository.getDisplayNeeded(30L, 1L).futureValue
 
-      result mustBe DisplayNeededStubData.displayNeededMixed
+      result mustBe displayNeededMixed
     }
 
     "propagate downstream failure from stub" in {
