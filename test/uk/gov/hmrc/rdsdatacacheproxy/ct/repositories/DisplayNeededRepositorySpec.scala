@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfter, concurrent}
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper.{displayNeededAllFalse, displayNeededAllTrue, displayNeededMixed}
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -61,16 +62,9 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     when(mockCallableStatement.getBoolean(5)).thenReturn(false)
     when(mockCallableStatement.getBoolean(6)).thenReturn(false)
 
-    val expectedOutput = DisplayNeeded(
-      taxIsDisplayNeededFlag          = false,
-      interestIsDisplayNeededFlag     = false,
-      paymentIsDisplayNeededFlag      = false,
-      repayReallocIsDisplayNeededFlag = false
-    )
-
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
-    result shouldBe expectedOutput
+    result shouldBe displayNeededAllFalse
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.isDisplayNeeded(?, ?, ?, ?, ?, ?)}")
 
@@ -96,16 +90,9 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     when(mockCallableStatement.getBoolean(5)).thenReturn(true)
     when(mockCallableStatement.getBoolean(6)).thenReturn(true)
 
-    val expectedOutput = DisplayNeeded(
-      taxIsDisplayNeededFlag          = true,
-      interestIsDisplayNeededFlag     = true,
-      paymentIsDisplayNeededFlag      = true,
-      repayReallocIsDisplayNeededFlag = true
-    )
-
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
-    result shouldBe expectedOutput
+    result shouldBe displayNeededAllTrue
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.isDisplayNeeded(?, ?, ?, ?, ?, ?)}")
 
@@ -131,16 +118,9 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     when(mockCallableStatement.getBoolean(5)).thenReturn(true)
     when(mockCallableStatement.getBoolean(6)).thenReturn(false)
 
-    val expectedOutput = DisplayNeeded(
-      taxIsDisplayNeededFlag          = true,
-      interestIsDisplayNeededFlag     = false,
-      paymentIsDisplayNeededFlag      = true,
-      repayReallocIsDisplayNeededFlag = false
-    )
-
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
-    result shouldBe expectedOutput
+    result shouldBe displayNeededMixed
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.isDisplayNeeded(?, ?, ?, ?, ?, ?)}")
 

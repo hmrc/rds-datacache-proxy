@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
-trait DisplayNeededHelper {
+object DisplayNeededHelper {
   val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = false,
     interestIsDisplayNeededFlag     = false,
@@ -39,5 +39,15 @@ trait DisplayNeededHelper {
     paymentIsDisplayNeededFlag      = true,
     repayReallocIsDisplayNeededFlag = false
   )
+
+  def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeeded = {
+    taxRef match {
+      case 10L  => displayNeededAllFalse
+      case 20L  => displayNeededAllTrue
+      case 30L  => displayNeededMixed
+      case 999L => throw new RuntimeException("Error from downstream")
+      case _    => displayNeededAllFalse
+    }
+  }
 
 }

@@ -22,13 +22,13 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper.{displayNeededAllFalse, displayNeededAllTrue, displayNeededMixed}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.DisplayNeededRepository
 
 import scala.concurrent.Future
 
-class DisplayNeededServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar with DisplayNeededHelper {
+class DisplayNeededServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar {
 
   private trait Setup {
 

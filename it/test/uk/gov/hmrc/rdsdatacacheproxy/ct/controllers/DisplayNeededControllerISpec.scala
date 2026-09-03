@@ -25,7 +25,8 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.DisplayNeededRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.DisplayNeededStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper.{displayNeededAllFalse, displayNeededAllTrue, displayNeededMixed}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
@@ -35,7 +36,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
   class DisplayNeededRepositoryStub extends DisplayNeededRepository {
 
     override def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded] = {
-      Future.successful(DisplayNeededStubData.getDisplayNeeded(taxRef: Long, accPeriod: Long))
+      Future.successful(DisplayNeededHelper.getDisplayNeeded(taxRef: Long, accPeriod: Long))
     }
   }
 
@@ -59,7 +60,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededAllFalse
+      response.json.as[DisplayNeeded] mustBe displayNeededAllFalse
     }
 
     "return 200 and display needed with all flags set as true" in {
@@ -70,7 +71,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededAllTrue
+      response.json.as[DisplayNeeded] mustBe displayNeededAllTrue
     }
 
     "return 200 and display needed with some flags set as true and false" in {
@@ -81,7 +82,7 @@ class DisplayNeededControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[DisplayNeeded] mustBe DisplayNeededStubData.displayNeededMixed
+      response.json.as[DisplayNeeded] mustBe displayNeededMixed
     }
 
     "return 500 when stub fails" in {
