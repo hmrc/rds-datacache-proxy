@@ -27,6 +27,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.Codec
 
 @ImplementedBy(classOf[FormDataRepositoryImpl])
 trait FormDataRepository {
@@ -58,7 +59,7 @@ class FormDataRepositoryImpl @Inject() (
           cs.setDate(3, Date.valueOf(startDate))
           cs.setDate(4, Date.valueOf(endDate))
 
-          cs.registerOutParameter(5, java.sql.Types.SQLXML)
+          cs.registerOutParameter(5, java.sql.Types.CLOB)
           cs.registerOutParameter(6, OracleTypes.CURSOR)
 
           cs.execute()
@@ -68,15 +69,11 @@ class FormDataRepositoryImpl @Inject() (
 
           Some(
             CT600XmlDataResponse(
-              ct600XmlData = Option(cs.getString(5)),
-              formList     = formListItems
+              ct600XmlData = Option(cs.getClob(5))
+                .map(clob => scala.io.Source.fromInputStream(clob.getAsciiStream).getLines().mkString),
+              formList = formListItems
             )
           )
-        } catch {
-          case sqlException: java.sql.SQLException =>
-            // if sqlException.getMessage.contains("no data found") =>
-            logger.info(s"[][] no data found")
-            None // no other exceptions to be caught
         } finally {
           cs.close()
         }

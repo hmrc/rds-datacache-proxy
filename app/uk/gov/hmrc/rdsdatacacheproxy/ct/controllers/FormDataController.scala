@@ -28,12 +28,12 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.FormDataRepository
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class FormDataController @Inject()(
-                                    authorise: AuthAction,
-                                    formDataRepository: FormDataRepository,
-                                    cc: ControllerComponents
-                                  )(implicit ec: ExecutionContext)
-  extends BackendController(cc)
+class FormDataController @Inject() (
+  authorise: AuthAction,
+  formDataRepository: FormDataRepository,
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
     with Logging {
 
   def getFormData(taxRef: Long, accPeriod: Long, queryParams: FormDataQueryParams): Action[AnyContent] = authorise.async { implicit request =>
