@@ -21,38 +21,28 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{CT600XmlDataResponse, FormListItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CT600XmlDataResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams
-import javax.inject.Inject
-import scala.concurrent.Future
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.FormDataRepository
 
-class FormDataController @Inject() (
-  authorise: AuthAction,
-  cc: ControllerComponents
-)
-//(implicit ec: ExecutionContext)
-    extends BackendController(cc)
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
+
+class FormDataController @Inject()(
+                                    authorise: AuthAction,
+                                    formDataRepository: FormDataRepository,
+                                    cc: ControllerComponents
+                                  )(implicit ec: ExecutionContext)
+  extends BackendController(cc)
     with Logging {
 
   def getFormData(taxRef: Long, accPeriod: Long, queryParams: FormDataQueryParams): Action[AnyContent] = authorise.async { implicit request =>
-    val dataItem = CT600XmlDataResponse(
-      ct600XmlData = Some("data"),
-      formList = List(
-        FormListItem(
-          formType = "A",
-          xmlData  = "someData"
-        )
-      )
-    )
-    Future.successful(
-      Ok(Json.toJson(dataItem))
-    )
-//    connector
-//      .getIsAPBalanced(taxRef, accPeriod)
-//      .map(record => Ok(Json.toJson(APBalanced(accountingPeriodDetails = record))))
-//      .recover { case ex: Exception =>
-//        logger.error("Error while retrieving IsAPBalanced", ex)
-//        InternalServerError(Json.obj("error" -> "Failed to retrieve IsAPBalanced"))
-//      }
+    formDataRepository
+      .getData(taxRef = taxRef, accPeriod = accPeriod, startDate = queryParams.startDate, endDate = queryParams.endDate)
+      .map(response => Ok(Json.toJson(response)))
+      .recover { case ex: Exception =>
+        logger.error("Error while retrieving FormData", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve FormData"))
+      }
   }
 }
