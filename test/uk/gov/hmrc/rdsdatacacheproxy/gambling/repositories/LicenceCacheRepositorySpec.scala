@@ -27,7 +27,7 @@ import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{LicenceDetails, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
-import java.sql.{CallableStatement, Connection, Date, ResultSet}
+import java.sql.{CallableStatement, Connection, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -60,11 +60,10 @@ class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAn
       fn(gtrMockConnection)
     }
 
-    when(mgdMockConnection.prepareCall("{ call MGD_DC_VARIATION_PK.GET_LICENCE_DETAILS(?, ?, ?) }"))
+    when(mgdMockConnection.prepareCall("{ call MGD_DC_VARIATION_PK.GET_LICENCE_DETAILS(?, ?) }"))
       .thenReturn(mockCsMgd)
 
     when(mockCsMgd.getObject(2)).thenReturn(licenceRs)
-    when(mockCsMgd.getDate(3)).thenReturn(Date.valueOf("2026-05-31"))
   }
 
   "getLicenceDetails" should {
@@ -88,6 +87,7 @@ class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAn
       when(licenceRs.getString("AMUSEMENT")).thenReturn("0")
       when(licenceRs.getString("SERVE_ALCOHOL")).thenReturn("0")
       when(licenceRs.getString("PREMISES_NOT_COVERED")).thenReturn("0")
+      when(licenceRs.getString("system_date")).thenReturn("2026-05-31")
 
       val result = repository.getLicenceDetails(Regime.MGD, regNumber).futureValue
 
@@ -114,7 +114,6 @@ class LicenceCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAn
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-      verify(mockCsMgd).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
       verify(mockCsMgd).execute()
       verify(licenceRs).close()
       verify(mockCsMgd).close()

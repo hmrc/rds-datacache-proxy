@@ -40,13 +40,12 @@ class LicenceCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDat
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs = {
           regime match
-            case Regime.MGD => connection.prepareCall("{ call MGD_DC_VARIATION_PK.GET_LICENCE_DETAILS(?, ?, ?) }")
+            case Regime.MGD => connection.prepareCall("{ call MGD_DC_VARIATION_PK.GET_LICENCE_DETAILS(?, ?) }")
             case _          => throw new RuntimeException(s"Regime $regime is not supported for getLicenceDetails")
         }
         try {
           cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
           cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_LICENCES
-          cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
           cs.execute()
 
           val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
@@ -72,7 +71,7 @@ class LicenceCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb: MGDDat
               amusement             = Option(rs.getString("AMUSEMENT")),
               serveAlcohol          = Option(rs.getString("SERVE_ALCOHOL")),
               premisesNotCovered    = Option(rs.getString("PREMISES_NOT_COVERED")),
-              systemDate            = optDate(3, cs)
+              systemDate            = optLocalDate("system_date", rs)
             )
           } finally closeQuietly(rs)
         } finally {
