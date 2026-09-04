@@ -34,6 +34,16 @@ trait FormDataStub {
     )
   )
 
+  val firstDataItem = CT600XmlDataResponse(
+    ct600XmlData = None,
+    formList = List(
+      FormListItem(
+        formType = "A",
+        xmlData  = Some("xml_data")
+      )
+    )
+  )
+
   val emptyDataItem = CT600XmlDataResponse(
     ct600XmlData = None,
     formList = List(
@@ -44,12 +54,19 @@ trait FormDataStub {
     )
   )
 
+  val fullyEmptyDataItem = CT600XmlDataResponse(
+    ct600XmlData = None,
+    formList     = List.empty
+  )
+
   class FormDataRdsStub extends FormDataRepository {
 
     def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[CT600XmlDataResponse] = {
       (taxRef, accPeriod, startDate.toString, endDate.toString) match {
         case (1, 1, "2006-01-01", "2006-12-31") =>
           Future.successful(defaultDataItem)
+        case (9, _, _, _) =>
+          Future.successful(fullyEmptyDataItem)
         case (999, _, _, _) =>
           Future.successful(throw new Error("Upstream error"))
         case (_, _, _, _) =>
