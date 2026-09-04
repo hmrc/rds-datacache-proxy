@@ -65,7 +65,7 @@ class RepositorySupportSpec extends AnyWordSpec with Matchers with MockitoSugar 
 
       val ex = the[DateTimeParseException] thrownBy support.optSystemDate("system_date", rs)
       ex.getParsedString shouldBe "not-a-date"
-      ex.getMessage should include("system_date")
+      ex.getMessage        should include("system_date")
     }
 
     "throw a DateTimeParseException for a value that matches the date shape but is not a valid calendar date" in {
