@@ -47,7 +47,7 @@ final class RepaymentsServiceSpec extends SpecBase {
 
     "return validResponseRepaymentsSummary when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getRepaymentsSummary(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(validResponseRepaymentsSummary))
+        .thenReturn(Future.successful(Right(validResponseRepaymentsSummary)))
 
       val result = service.getRepaymentsSummary(validRegime.toString, lowercaseRegNumber).futureValue
 

@@ -32,7 +32,7 @@ trait BaseService extends Logging {
     regNumber: String,
     baseText: String
   )(
-    ifValid: (Regime, String) => Future[T]
+    ifValid: (Regime, String) => Future[Either[StatementError, T]]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
     lazy val reqText = s"regime=$regime regNumber=$regNumber"
     logger.info(s"[$baseText] $reqText")
@@ -43,7 +43,7 @@ trait BaseService extends Logging {
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             ifValid(regime, regNumber)
-              .map(summary => Right(summary))
+              .map(summary => summary)
               .recover { case ex: Exception =>
                 logger.error(s"[$baseText] Unexpected error $reqText", ex)
                 Left(UnexpectedError)
@@ -174,7 +174,7 @@ trait BaseService extends Logging {
     consecNo: Int,
     baseText: String
   )(
-    ifValid: (String, Int) => Future[T]
+    ifValid: (String, Int) => Future[Either[StatementError, T]]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
     lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
@@ -183,7 +183,7 @@ trait BaseService extends Logging {
       case Left(err) => Future.successful(Left(err))
       case Right(()) =>
         ifValid(regNumber, consecNo)
-          .map(single => Right(single))
+          .map(single => single)
           .recover { case ex: Exception =>
             logger.error(s"[$baseText] Unexpected error $reqText", ex)
             Left(UnexpectedError)

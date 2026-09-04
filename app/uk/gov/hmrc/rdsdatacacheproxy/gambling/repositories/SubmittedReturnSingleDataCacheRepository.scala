@@ -18,6 +18,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{BadData, RecordNotFound}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, SubmittedReturnSingle}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -25,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SubmittedReturnSingleDataSource {
-  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]]
+  def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Either[StatementError, SubmittedReturnSingle]]
 }
 
 @Singleton
@@ -37,7 +39,7 @@ class SubmittedReturnSingleDataCacheRepository @Inject() (@NamedDatabase("gambli
     with RepositorySupport
     with Logging {
 
-  override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]] =
+  override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Either[StatementError, SubmittedReturnSingle]] =
     Future {
       getDb(Regime.MGD, mgdDb, gtrDb).underlying.withConnection { conn =>
         val cs = conn.prepareCall("{ call MGD_DC_RTN_PCK.GET_SINGLE_RETURN_V2(?, ?, ?) }")
@@ -88,10 +90,13 @@ class SubmittedReturnSingleDataCacheRepository @Inject() (@NamedDatabase("gambli
                 negativeAmountCarriedForward,
                 totalNetDutyPayable
               )
-              result
+              result match {
+                case Some(r) => Right(r)
+                case None    => Left(BadData)
+              }
             } else {
               logger.info(s"[getSubmittedReturnSingle] Empty result set for regNumber=$regNumber consecNo=$consecNo")
-              None
+              Left(RecordNotFound)
             }
           } finally {
             rs.close()

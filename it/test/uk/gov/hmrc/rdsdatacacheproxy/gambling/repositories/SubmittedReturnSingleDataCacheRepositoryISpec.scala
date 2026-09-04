@@ -24,6 +24,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturnSingle
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.SubmittedReturnSingleStubData.getSubmittedReturnSingleData
 
 import scala.concurrent.Future
@@ -36,8 +37,8 @@ class SubmittedReturnSingleDataCacheRepositoryISpec
     with GuiceOneAppPerSuite {
 
   class SubmittedReturnSingleRdsStub extends SubmittedReturnSingleDataSource {
-    override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Option[SubmittedReturnSingle]] =
-      Future.successful(Some(getSubmittedReturnSingleData(regNumber, consecNo)))
+    override def getSubmittedReturnSingle(regNumber: String, consecNo: Int): Future[Either[StatementError, SubmittedReturnSingle]] =
+      Future.successful(Right(getSubmittedReturnSingleData(regNumber, consecNo)))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -51,7 +52,7 @@ class SubmittedReturnSingleDataCacheRepositoryISpec
     "return correct SubmittedReturnSingleData" in {
       val result = repository.getSubmittedReturnSingle("XYZ00000000001", 23).futureValue
 
-      result mustBe Some(getSubmittedReturnSingleData("XYZ00000000001", 23))
+      result mustBe Right(getSubmittedReturnSingleData("XYZ00000000001", 23))
     }
 
     "return consistent results across multiple calls" in {
