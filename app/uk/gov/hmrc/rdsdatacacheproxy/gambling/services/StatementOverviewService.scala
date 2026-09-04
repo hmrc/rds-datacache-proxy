@@ -32,11 +32,9 @@ class StatementOverviewService @Inject() (
   def getStatementOverview(regime: String, rawRegNumber: String)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, StatementOverview]] =
-    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getStatementOverview")(
-      repository.getStatementOverview
-    ) // .map(a => a)
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, "getStatementOverview")(repository.getStatementOverview)
 
-  // ALL OF THE BELOW MIGHT NOT BE NEEDED - see "RESULTS OF TESTING" below
+  // ALL OF THE BELOW IS NOT  NEEDED - see "RESULTS OF TESTING" below
 //      .map {
 //      case Right(Some(overview)) => Right(overview)
 //      case Right(None)           => Left(StatementNotFound)
