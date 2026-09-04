@@ -31,7 +31,7 @@ import scala.io.Codec
 
 @ImplementedBy(classOf[FormDataRepositoryImpl])
 trait FormDataRepository {
-  def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[Option[CT600XmlDataResponse]]
+  def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[CT600XmlDataResponse]
 }
 
 class FormDataRepositoryImpl @Inject() (
@@ -40,15 +40,7 @@ class FormDataRepositoryImpl @Inject() (
     extends FormDataRepository
     with Logging {
 
-  /*
-    p_taxpayer_reference    IN    accounting_period.taxpayer_reference%TYPE,
-   p_accounting_period     IN    accounting_period.accounting_period%TYPE,
-   p_ap_start_date         IN    accounting_period.ap_start_date%TYPE,
-   p_ap_end_date           IN    accounting_period.ap_end_date%TYPE,
-   ct600_xml_data          OUT   ct600_base_data.xml_data%TYPE,
-   form_list               OUT   cursor_type) IS
-   */
-  def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[Option[CT600XmlDataResponse]] = {
+  def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[CT600XmlDataResponse] = {
     logger.info(s"Input request: taxRef, accPeriod, startDate, endDate: <$taxRef>, <$accPeriod> <$startDate> <$endDate>")
     Future {
       db.withConnection { connection =>
@@ -63,16 +55,19 @@ class FormDataRepositoryImpl @Inject() (
           cs.registerOutParameter(6, OracleTypes.CURSOR)
 
           cs.execute()
+
           val result = cs.getObject(6, classOf[ResultSet])
 
           val formListItems = Option(result).map(readFormItems).getOrElse(List.empty)
 
-          Some(
-            CT600XmlDataResponse(
-              ct600XmlData = Option(cs.getClob(5))
-                .map(clob => scala.io.Source.fromInputStream(clob.getAsciiStream).getLines().mkString),
-              formList = formListItems
-            )
+          val clob = Option(cs.getClob(5))
+
+          val ct600XmlDataMaybe = clob
+            .map(clob => scala.io.Source.fromInputStream(clob.getAsciiStream).getLines().mkString)
+
+          CT600XmlDataResponse(
+            ct600XmlData = ct600XmlDataMaybe,
+            formList     = formListItems
           )
         } finally {
           cs.close()
