@@ -20,7 +20,7 @@ import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.UnexpectedError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidStatus, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -184,6 +184,37 @@ trait BaseService extends Logging {
       case Right(()) =>
         ifValid(regNumber, consecNo)
           .map(single => Right(single))
+          .recover { case ex: Exception =>
+            logger.error(s"[$baseText] Unexpected error $reqText", ex)
+            Left(UnexpectedError)
+          }
+
+  def withValidStatusParams[T](
+    regime: String,
+    regNumber: String,
+    consecNo: Int,
+    status: Int,
+    baseText: String
+  )(
+    ifValid: (Regime, String, Int, Int) => Future[T]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    lazy val reqText = s"regime=$regime regNumber=$regNumber consecNo=$consecNo status=$status"
+    logger.info(s"[$baseText] $reqText")
+
+    val validated: Either[StatementError, Regime] =
+      for
+        validRegime <- Regime.fromString(regime.trim)
+        _           <- GRNValidator.validateRegNoRegime(validRegime, regNumber)
+        _           <- Either.cond(status == 0 || status == 1, (), InvalidStatus)
+      yield validRegime
+
+    validated match
+      case Left(error) =>
+        logger.error(s"[$baseText] $error, $reqText")
+        Future.successful(Left(error))
+      case Right(validRegime) =>
+        ifValid(validRegime, regNumber, consecNo, status)
+          .map(result => Right(result))
           .recover { case ex: Exception =>
             logger.error(s"[$baseText] Unexpected error $reqText", ex)
             Left(UnexpectedError)
