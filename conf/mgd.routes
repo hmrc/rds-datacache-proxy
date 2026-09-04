@@ -39,3 +39,4 @@ GET        /partner-details/:regime/:regNumber                         uk.gov.hm
 GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getMgdSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 GET        /submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int)
 GET        /open-periods/:regime/:regNumber                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
+PUT        /update-status-period/:regime/:regNumber/:periodId  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.UpdateStatusPeriodController.updateStatusPeriod(regime: String, regNumber: String, periodId: Int)

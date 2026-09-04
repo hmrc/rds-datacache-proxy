@@ -63,6 +63,7 @@ class Module extends AppModule:
       bind[SubmittedReturnsDataSource].to(classOf[SubmittedReturnsDataCacheRepository]),
       bind[SubmittedReturnSingleDataSource].to(classOf[SubmittedReturnSingleDataCacheRepository]),
       bind[OpenReturnsDataSource].to(classOf[OpenReturnsDataCacheRepository]),
+      bind[UpdateStatusPeriodDataSource].to(classOf[UpdateStatusPeriodDataCacheRepository]),
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
       bind[PartnerDetailsDataSource].to(classOf[PartnerDetailsCacheRepository])
     )
