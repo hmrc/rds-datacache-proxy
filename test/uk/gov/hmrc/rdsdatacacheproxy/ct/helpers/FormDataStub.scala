@@ -17,6 +17,8 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{CT600XmlDataResponse, FormListItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.FormDataRepository
+
 import java.time.LocalDate
 import scala.concurrent.Future
 
@@ -27,21 +29,34 @@ trait FormDataStub {
     formList = List(
       FormListItem(
         formType = "A",
-        xmlData  = "someData"
+        xmlData  = Some("xml_data")
       )
     )
   )
 
-  class FormDataRdsStub { // extends StatuteRuleRepository {
+  val emptyDataItem = CT600XmlDataResponse(
+    ct600XmlData = None,
+    formList = List(
+      FormListItem(
+        formType = "",
+        xmlData  = None
+      )
+    )
+  )
 
-    def getFormData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[Option[CT600XmlDataResponse]] = {
-      (startDate.toString, endDate.toString) match {
-        case ("1991-04-19", "1992-06-20") =>
-          Future.successful(Some(defaultDataItem))
-        case (_, _) =>
-          Future.successful(None)
+  class FormDataRdsStub extends FormDataRepository {
+
+    def getData(taxRef: Long, accPeriod: Long, startDate: LocalDate, endDate: LocalDate): Future[CT600XmlDataResponse] = {
+      (taxRef, accPeriod, startDate.toString, endDate.toString) match {
+        case (1, 1, "2006-01-01", "2006-12-31") =>
+          Future.successful(defaultDataItem)
+        case (999, _, _, _) =>
+          Future.successful(throw new Error("Upstream error"))
+        case (_, _, _, _) =>
+          Future.successful(emptyDataItem)
       }
     }
 
   }
+
 }

@@ -24,65 +24,56 @@ import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.FormDataStub
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{APBalanced, APBalancedItem}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AccountingPeriodDetailsRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AccountingPeriodDetailsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CT600XmlDataResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.FormDataRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-import scala.concurrent.Future
 
 class FormDataControllerISpec extends AnyWordSpec
   with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock
   with FormDataStub {
 
-//  class AccountingPeriodDetailsRepositoryRdsStub extends AccountingPeriodDetailsRepository {
-//
-//    def getIsAPBalanced(taxRef: Long, accPeriod: Long): Future[APBalancedItem] = {
-//      Future.successful(
-//        getIsAPBalancedData(taxRef, accPeriod)
-//      )
-//    }
-//
-//  }
-
-//  override lazy val app: Application =
-//    new GuiceApplicationBuilder()
-//      .configure(extraConfig)
-//      .overrides(
-//        bind[AccountingPeriodDetailsRepository].toInstance(new AccountingPeriodDetailsRepositoryRdsStub())
-//      )
-//      .build()
+  override lazy val app: Application =
+    new GuiceApplicationBuilder()
+      .configure(extraConfig)
+      .overrides(
+        bind[FormDataRepository].toInstance(new FormDataRdsStub())
+      )
+      .build()
 
   private final val endpoint = "/corporation-tax"
 
-/*
-  "GET ~/accounting-period-details" should {
+
+  "GET ~/ct-form-data" should {
 
     "return 200 with default record" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/accounting-period-details/1/1").futureValue
+      val response = get(s"$endpoint/ct-form-data/1/1?startDate=2006-01-01&endDate=2006-12-31").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[APBalanced] mustBe APBalanced(aPBalancedItemDefault)
+      response.json.as[CT600XmlDataResponse] mustBe defaultDataItem
     }
+
 
     "return 200 with empty record" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/accounting-period-details/100/1").futureValue
+      val response = get(s"$endpoint/ct-form-data/5/5?startDate=2006-01-01&endDate=2006-12-31").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[APBalanced] mustBe APBalanced(aPBalancedItemEmpty)
+      response.json.as[CT600XmlDataResponse] mustBe emptyDataItem
     }
+
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/accounting-period-details/19/1").futureValue
+
+      val response = get(s"$endpoint/ct-form-data/999/1?startDate=2006-01-01&endDate=2006-12-31").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
@@ -94,7 +85,7 @@ class FormDataControllerISpec extends AnyWordSpec
     }
 
   }
-*/
+
 
 }
 
