@@ -57,10 +57,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 10L
     val accountingPeriod: Long = 1L
 
-    when(mockCallableStatement.getString(3)).thenReturn("")
-    when(mockCallableStatement.getString(4)).thenReturn("")
-    when(mockCallableStatement.getString(5)).thenReturn("")
-    when(mockCallableStatement.getString(6)).thenReturn("")
+    when(mockCallableStatement.getString(3)).thenReturn("N")
+    when(mockCallableStatement.getString(4)).thenReturn("N")
+    when(mockCallableStatement.getString(5)).thenReturn("N")
+    when(mockCallableStatement.getString(6)).thenReturn("N")
 
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
@@ -114,9 +114,9 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val accountingPeriod: Long = 1L
 
     when(mockCallableStatement.getString(3)).thenReturn("Y")
-    when(mockCallableStatement.getString(4)).thenReturn("")
+    when(mockCallableStatement.getString(4)).thenReturn("N")
     when(mockCallableStatement.getString(5)).thenReturn("Y")
-    when(mockCallableStatement.getString(6)).thenReturn("")
+    when(mockCallableStatement.getString(6)).thenReturn("N")
 
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
