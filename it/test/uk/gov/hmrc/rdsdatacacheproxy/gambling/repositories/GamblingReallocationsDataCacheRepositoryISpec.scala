@@ -23,6 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData.*
 
@@ -42,8 +43,8 @@ class GamblingReallocationsDataCacheRepositoryISpec
     override def getReallocationsOut(regime: Regime, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Future[ReallocationsOut] =
       Future.successful(getReallocationsOutData(regNumber, paginationStart, paginationMaxRows))
 
-    override def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails] =
-      Future.successful(getReallocationsDetailData(regNumber))
+    override def getReallocationsDetails(regime: Regime, regNumber: String): Future[Either[StatementError, ReallocationsDetails]] =
+      Future.successful(Right(getReallocationsDetailData(regNumber)))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -93,7 +94,7 @@ class GamblingReallocationsDataCacheRepositoryISpec
     "return correct Reallocations Detail" in {
       val result = repository.getReallocationsDetails(Regime.MGD, "XYZ00000000000").futureValue
 
-      result mustBe getReallocationsDetailData("XYZ00000000000")
+      result mustBe Right(getReallocationsDetailData("XYZ00000000000"))
     }
 
     "return consistent results across multiple calls" in {

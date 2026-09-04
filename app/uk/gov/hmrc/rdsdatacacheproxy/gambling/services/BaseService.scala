@@ -43,7 +43,10 @@ trait BaseService extends Logging {
           case Left(err) => Future.successful(Left(err))
           case Right(()) =>
             ifValid(regime, regNumber)
-              .map(summary => summary)
+              .map(summary =>
+                System.out.println("JBS1:" + summary)
+                summary
+              )
               .recover { case ex: Exception =>
                 logger.error(s"[$baseText] Unexpected error $reqText", ex)
                 Left(UnexpectedError)

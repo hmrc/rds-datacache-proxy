@@ -18,7 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.UnexpectedError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, SubmittedReturnSingle}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnSingleDataSource
 

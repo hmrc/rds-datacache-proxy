@@ -28,10 +28,10 @@ enum StatementError(val code: String, val message: String) {
         "No record found for the given registration number"
       )
   case BadData
-    extends StatementError(
-      "BAD_DATA",
-      "Bad data record for the given registration number"
-    )
+      extends StatementError(
+        "BAD_DATA",
+        "Bad data record for the given registration number"
+      )
 }
 
 object StatementError {

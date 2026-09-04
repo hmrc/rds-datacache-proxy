@@ -37,7 +37,7 @@ class RepaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutu
   class RepaymentsRdsStub extends RepaymentsDataSource {
     override def getRepaymentsSummary(regime: Regime, regNumber: String) =
       Future {
-        RepaymentsStubData.getRepaymentsSummaryData(regNumber)
+        Right(RepaymentsStubData.getRepaymentsSummaryData(regNumber))
       }
 
     override def getActualRepayments(regime: Regime, regNumber: String, pageStart: Int, pageMaxRows: Int) =

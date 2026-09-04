@@ -45,7 +45,7 @@ final class StatementOverviewServiceSpec extends SpecBase {
 
     "return Right(StatementOverview) when repository returns Some and normalise input (trim + uppercase)" in {
       when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(Some(validResponseStatementOverview)))
+        .thenReturn(Future.successful(Right(validResponseStatementOverview)))
 
       val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
@@ -54,9 +54,9 @@ final class StatementOverviewServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "return Left(StatementNotFound) when repository returns None" in {
+    "return Left(RecordNotFound) when repository returns None" in {
       when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(None))
+        .thenReturn(Future.successful(Left(RecordNotFound)))
 
       val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
