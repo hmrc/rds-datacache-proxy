@@ -52,10 +52,10 @@ class DisplayNeededImpl @Inject() (
           storedProcedure.execute()
 
           DisplayNeeded(
-            taxIsDisplayNeededFlag          = storedProcedure.getBoolean(3),
-            interestIsDisplayNeededFlag     = storedProcedure.getBoolean(4),
-            paymentIsDisplayNeededFlag      = storedProcedure.getBoolean(5),
-            repayReallocIsDisplayNeededFlag = storedProcedure.getBoolean(6)
+            taxIsDisplayNeededFlag          = storedProcedure.getString(3),
+            interestIsDisplayNeededFlag     = storedProcedure.getString(4),
+            paymentIsDisplayNeededFlag      = storedProcedure.getString(5),
+            repayReallocIsDisplayNeededFlag = storedProcedure.getString(6)
           )
         } finally {
           storedProcedure.close()

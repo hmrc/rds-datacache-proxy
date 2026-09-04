@@ -57,10 +57,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 10L
     val accountingPeriod: Long = 1L
 
-    when(mockCallableStatement.getBoolean(3)).thenReturn(false)
-    when(mockCallableStatement.getBoolean(4)).thenReturn(false)
-    when(mockCallableStatement.getBoolean(5)).thenReturn(false)
-    when(mockCallableStatement.getBoolean(6)).thenReturn(false)
+    when(mockCallableStatement.getString(3)).thenReturn("")
+    when(mockCallableStatement.getString(4)).thenReturn("")
+    when(mockCallableStatement.getString(5)).thenReturn("")
+    when(mockCallableStatement.getString(6)).thenReturn("")
 
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
@@ -85,10 +85,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 20L
     val accountingPeriod: Long = 1L
 
-    when(mockCallableStatement.getBoolean(3)).thenReturn(true)
-    when(mockCallableStatement.getBoolean(4)).thenReturn(true)
-    when(mockCallableStatement.getBoolean(5)).thenReturn(true)
-    when(mockCallableStatement.getBoolean(6)).thenReturn(true)
+    when(mockCallableStatement.getString(3)).thenReturn("Y")
+    when(mockCallableStatement.getString(4)).thenReturn("Y")
+    when(mockCallableStatement.getString(5)).thenReturn("Y")
+    when(mockCallableStatement.getString(6)).thenReturn("Y")
 
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 
@@ -113,10 +113,10 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
     val taxPayerRef: Long = 30L
     val accountingPeriod: Long = 1L
 
-    when(mockCallableStatement.getBoolean(3)).thenReturn(true)
-    when(mockCallableStatement.getBoolean(4)).thenReturn(false)
-    when(mockCallableStatement.getBoolean(5)).thenReturn(true)
-    when(mockCallableStatement.getBoolean(6)).thenReturn(false)
+    when(mockCallableStatement.getString(3)).thenReturn("Y")
+    when(mockCallableStatement.getString(4)).thenReturn("")
+    when(mockCallableStatement.getString(5)).thenReturn("Y")
+    when(mockCallableStatement.getString(6)).thenReturn("")
 
     val result = repository.getDisplayNeeded(taxPayerRef, accountingPeriod).futureValue
 

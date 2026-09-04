@@ -26,6 +26,7 @@ import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.DisplayNeededService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.DisplayNeededHelper.{displayNeededAllFalse, displayNeededAllTrue, displayNeededMixed}
 
 import scala.concurrent.Future
 
@@ -34,26 +35,6 @@ class DisplayNeededControllerSpec extends SpecBase with MockitoSugar {
   private trait Setup {
     val mockService: DisplayNeededService = mock[DisplayNeededService]
     val mockController: DisplayNeededController = new DisplayNeededController(fakeAuthAction, mockService, cc)
-    val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
-      taxIsDisplayNeededFlag          = false,
-      interestIsDisplayNeededFlag     = false,
-      paymentIsDisplayNeededFlag      = false,
-      repayReallocIsDisplayNeededFlag = false
-    )
-
-    val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
-      taxIsDisplayNeededFlag          = true,
-      interestIsDisplayNeededFlag     = true,
-      paymentIsDisplayNeededFlag      = true,
-      repayReallocIsDisplayNeededFlag = true
-    )
-
-    val displayNeededMixed: DisplayNeeded = DisplayNeeded(
-      taxIsDisplayNeededFlag          = true,
-      interestIsDisplayNeededFlag     = false,
-      paymentIsDisplayNeededFlag      = true,
-      repayReallocIsDisplayNeededFlag = false
-    )
   }
 
   "getDisplayNeeded" - {

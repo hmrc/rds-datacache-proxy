@@ -19,10 +19,10 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 import play.api.libs.json.{Json, OFormat}
 
 case class DisplayNeeded(
-  taxIsDisplayNeededFlag: Boolean,
-  interestIsDisplayNeededFlag: Boolean,
-  paymentIsDisplayNeededFlag: Boolean,
-  repayReallocIsDisplayNeededFlag: Boolean
+  taxIsDisplayNeededFlag: String,
+  interestIsDisplayNeededFlag: String,
+  paymentIsDisplayNeededFlag: String,
+  repayReallocIsDisplayNeededFlag: String
 )
 
 object DisplayNeeded {

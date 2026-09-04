@@ -20,24 +20,24 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 object DisplayNeededHelper {
   val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag          = false,
-    interestIsDisplayNeededFlag     = false,
-    paymentIsDisplayNeededFlag      = false,
-    repayReallocIsDisplayNeededFlag = false
+    taxIsDisplayNeededFlag          = "",
+    interestIsDisplayNeededFlag     = "",
+    paymentIsDisplayNeededFlag      = "",
+    repayReallocIsDisplayNeededFlag = ""
   )
 
   val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag          = true,
-    interestIsDisplayNeededFlag     = true,
-    paymentIsDisplayNeededFlag      = true,
-    repayReallocIsDisplayNeededFlag = true
+    taxIsDisplayNeededFlag          = "Y",
+    interestIsDisplayNeededFlag     = "Y",
+    paymentIsDisplayNeededFlag      = "Y",
+    repayReallocIsDisplayNeededFlag = "Y"
   )
 
   val displayNeededMixed: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag          = true,
-    interestIsDisplayNeededFlag     = false,
-    paymentIsDisplayNeededFlag      = true,
-    repayReallocIsDisplayNeededFlag = false
+    taxIsDisplayNeededFlag          = "Y",
+    interestIsDisplayNeededFlag     = "",
+    paymentIsDisplayNeededFlag      = "Y",
+    repayReallocIsDisplayNeededFlag = ""
   )
 
   def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeeded = {
