@@ -20,10 +20,10 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 
 object DisplayNeededHelper {
   val displayNeededAllFalse: DisplayNeeded = DisplayNeeded(
-    taxIsDisplayNeededFlag          = "",
-    interestIsDisplayNeededFlag     = "",
-    paymentIsDisplayNeededFlag      = "",
-    repayReallocIsDisplayNeededFlag = ""
+    taxIsDisplayNeededFlag          = "N",
+    interestIsDisplayNeededFlag     = "N",
+    paymentIsDisplayNeededFlag      = "N",
+    repayReallocIsDisplayNeededFlag = "N"
   )
 
   val displayNeededAllTrue: DisplayNeeded = DisplayNeeded(
@@ -35,9 +35,9 @@ object DisplayNeededHelper {
 
   val displayNeededMixed: DisplayNeeded = DisplayNeeded(
     taxIsDisplayNeededFlag          = "Y",
-    interestIsDisplayNeededFlag     = "",
+    interestIsDisplayNeededFlag     = "N",
     paymentIsDisplayNeededFlag      = "Y",
-    repayReallocIsDisplayNeededFlag = ""
+    repayReallocIsDisplayNeededFlag = "N"
   )
 
   def getDisplayNeeded(taxRef: Long, accPeriod: Long): DisplayNeeded = {
