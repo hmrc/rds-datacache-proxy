@@ -24,7 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PaymentTransactions
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsCtDataCacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsCtDataCacheRepositoryImpl
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -32,7 +32,7 @@ import scala.concurrent.Future
 class PaymentsServiceSpec extends AnyWordSpec with Matchers with ScalaFutures with MockitoSugar {
 
   private class Setup {
-    val mockRepository: PaymentsCtDataCacheRepository = mock[PaymentsCtDataCacheRepository]
+    val mockRepository: PaymentsCtDataCacheRepositoryImpl = mock[PaymentsCtDataCacheRepositoryImpl]
     val service = new PaymentsService(mockRepository)
 
     val taxRef: Long = 1234567L

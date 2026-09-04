@@ -25,15 +25,15 @@ import java.sql.ResultSet
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-trait PaymentsCtDataSource {
+trait PaymentsCtDataCacheRepository {
   def getPayments(taxRef: Long, accPeriod: Long): Future[List[PaymentTransactions]]
 }
 
 @Singleton
-class PaymentsCtDataCacheRepository @Inject() (
+class PaymentsCtDataCacheRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
-    extends PaymentsCtDataSource
+    extends PaymentsCtDataCacheRepository
     with Logging {
 
   override def getPayments(taxRef: Long, accPeriod: Long): Future[List[PaymentTransactions]] = {

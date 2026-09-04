@@ -21,7 +21,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.rdsdatacacheproxy.actions.{AuthAction, DefaultAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.{CharitiesDataSource, CharitiesDatacacheRepository}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.{CisDatacacheRepository, CisMonthlyReturnSource}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.{PaymentsCtDataCacheRepository, PaymentsCtDataSource, TaxTransactionsDataCacheRepository, TaxTransactionsDataSource}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.{PaymentsCtDataCacheRepository, PaymentsCtDataCacheRepositoryImpl, TaxTransactionsDataCacheRepository, TaxTransactionsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.euvat.actions.{DefaultEuVatAuthAction, EuVatAuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
@@ -66,5 +66,5 @@ class Module extends AppModule:
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
       bind[PartnerDetailsDataSource].to(classOf[PartnerDetailsCacheRepository]),
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
-      bind[PaymentsCtDataSource].to(classOf[PaymentsCtDataCacheRepository])
+      bind[PaymentsCtDataCacheRepository].to(classOf[PaymentsCtDataCacheRepositoryImpl])
     )

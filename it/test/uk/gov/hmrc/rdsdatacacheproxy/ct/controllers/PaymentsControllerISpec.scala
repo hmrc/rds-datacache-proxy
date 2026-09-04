@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.JSON
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{PaymentTransactions, Payments}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsCtDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PaymentsCtDataCacheRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.CorporationTaxStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
-  class CorporationTaxDataSource extends PaymentsCtDataSource {
+  class CorporationTaxDataSource extends PaymentsCtDataCacheRepository {
     override def getPayments(taxRef: Long, accPeriod: Long): Future[List[PaymentTransactions]] = {
         Future.successful(CorporationTaxStubData.getPayments(taxRef, accPeriod))      }
   }
@@ -42,7 +42,7 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[PaymentsCtDataSource].toInstance(new CorporationTaxDataSource)
+        bind[PaymentsCtDataCacheRepository].toInstance(new CorporationTaxDataSource)
       )
       .build()
 

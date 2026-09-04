@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class PaymentsCtDataCacheRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: PaymentsCtDataCacheRepository = _
+  var repository: PaymentsCtDataCacheRepositoryImpl = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -55,7 +55,7 @@ class PaymentsCtDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
 
     // Initialize the repository with the mocked db connection
-    repository = new PaymentsCtDataCacheRepository(db)
+    repository = new PaymentsCtDataCacheRepositoryImpl(db)
   }
 
   "getPayments" should {
