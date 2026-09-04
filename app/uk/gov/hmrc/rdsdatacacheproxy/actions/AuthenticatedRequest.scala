@@ -18,10 +18,62 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.mvc.{Request, WrappedRequest}
 import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.auth.core.Enrolments
+import AuthenticatedRequest.*
+import scala.concurrent.Future
+import play.api.mvc.Results
+import play.api.libs.json.Json
+import play.api.mvc.Result
 
 case class AuthenticatedRequest[A](
   private val request: Request[A],
   internalId: String,
   credentialId: String,
-  sessionId: SessionId
-) extends WrappedRequest[A](request)
+  sessionId: SessionId,
+  enrolments: Enrolments
+) extends WrappedRequest[A](request) {
+
+  def whenUserAuthorisedForCharity(charityReference: String)(block: => Future[Result]): Future[Result] =
+    if (enrolments.getEnrolment(agentEnrolmentKey).isDefined)
+      block
+    else
+      enrolments.getEnrolment(organisationEnrolmentKey) match {
+        case None =>
+          Future.successful(Results.Unauthorized)
+        case Some(enrolment) =>
+          val enrolledCharityReference =
+            enrolment.getIdentifier(organisationIdentifierKey).map(_.value.trim).filter(_.nonEmpty)
+
+          if (enrolledCharityReference.contains(charityReference))
+            block
+          else
+            Future.successful(
+              Results.Forbidden(Json.obj("message" -> "Not authorised for the requested charity reference"))
+            )
+      }
+
+  def whenAgentAuthorisedForCharity(agentReference: String)(block: => Future[Result]): Future[Result] =
+    enrolments.getEnrolment(agentEnrolmentKey) match {
+      case None =>
+        Future.successful(Results.Unauthorized)
+
+      case Some(enrolment) =>
+        val enrolledAgentReference =
+          enrolment.getIdentifier(agentIdentifierKey).map(_.value.trim).filter(_.nonEmpty)
+
+        if (enrolledAgentReference.contains(agentReference))
+          block
+        else
+          Future.successful(
+            Results.Forbidden(Json.obj("message" -> "Agent not authorised for the requested agent reference"))
+          )
+    }
+
+}
+
+object AuthenticatedRequest {
+  val organisationEnrolmentKey = "HMRC-CHAR-ORG"
+  val organisationIdentifierKey = "CHARID"
+  val agentEnrolmentKey = "HMRC-CHAR-AGENT"
+  val agentIdentifierKey = "AGENTCHARID"
+}

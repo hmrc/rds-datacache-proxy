@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import play.api.Logging
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
@@ -117,14 +117,17 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
       }
     }
 
-  private def handleError(error: GamblingError, logMessage: String) =
+  private def handleError(error: GamblingError, logMessage: String): Result =
     error match {
       case InvalidMgdRegNumber =>
         logger.warn(logMessage)
-        BadRequest(errorResponse(error))
+        BadRequest(Json.toJson(error))
       case UnexpectedError =>
         logger.error(logMessage)
-        InternalServerError(errorResponse(error))
+        InternalServerError(Json.toJson(error))
+      case InvalidRegimeCode =>
+        logger.error(logMessage)
+        BadRequest(Json.toJson(error))
     }
 
   def getBusinessContactDetails(
@@ -159,5 +162,37 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     }
   }
 
-  private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
+  def getBusinessAddressDetails(
+    mgdRegNumber: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getBusinessAddressDetails(mgdRegNumber).map {
+
+      case Right(details) =>
+        Ok(Json.toJson(details))
+
+      case Left(error) =>
+        val logMessage =
+          s"[GamblingController][getBusinessAddressDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
+        handleError(error, logMessage)
+    }
+  }
+
+  def getPremisesDetails(
+    mgdRegNumber: String,
+    rowsPerPage: Int,
+    PageNo: Int
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getPremisesDetails(mgdRegNumber, rowsPerPage, PageNo).map {
+
+      case Right(details) =>
+        Ok(Json.toJson(details))
+
+      case Left(error) =>
+        val logMessage =
+          s"[GamblingController][getPremisesDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
+        handleError(error, logMessage)
+    }
+  }
 }

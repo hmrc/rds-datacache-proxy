@@ -173,6 +173,58 @@ Data is sourced via Oracle stored procedure:
 #### Sample Response
 
 
+#### Corporation Tax
+Sample GET request from local::
+
+`curl http://localhost:6992/rds-datacache-proxy/corporation-tax/penalty-transactions/1543423743/3`
+
+#### Get Partner Details
+Fetch information about Business Partners 
+
+Sample GET request from local::
+
+`curl http://localhost:6992/rds-datacache-proxy/gambling/partner-details/MGD/XYZ00000000001`
+
+#### Sample Response
+```json
+{
+  "partners": [
+    {
+      "mgdRegNumber": "XCM00000000774",
+      "dateOfJoining": "2013-08-01",
+      "dateOfLeaving": "1999-12-31",
+      "businessName": "Adams",
+      "tradingName": "Adams",
+      "utr": "1987650051",
+      "address1": "2 Seaview Rd",
+      "address2": "Milton Keynes",
+      "postcode": "MK8 9DD",
+      "iomOrCiFlag": "false",
+      "phoneNumber": "08589876543",
+      "isFutureLeaveDate": 0,
+      "isFutureJoinDate": 0,
+      "businessType": 4
+    },
+    {
+      "mgdRegNumber": "XCM00000000774",
+      "dateOfJoining": "2013-08-01",
+      "dateOfLeaving": "1999-12-31",
+      "businessName": "Adams",
+      "tradingName": "Adams",
+      "utr": "1987650051",
+      "address1": "3 Seaview Rd",
+      "address2": "Milton Keynes",
+      "postcode": "MK8 8DR",
+      "iomOrCiFlag": "false",
+      "phoneNumber": "01511234567",
+      "isFutureLeaveDate": 0,
+      "isFutureJoinDate": 0,
+      "businessType": 4
+    }
+  ],
+  "systemDate": "2026-07-30"
+}
+```
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").

@@ -38,8 +38,8 @@ final class RepaymentsServiceSpec extends SpecBase {
   }
 
   private val validRegime = Regime.values.head
-  private val lowercaseRegNumber = "xwm12345678901 "
-  private val normalisedRegNumber = "XWM12345678901"
+  private val lowercaseRegNumber = "xgm00003122200 "
+  private val normalisedRegNumber = "XGM00003122200"
   private val paginationStart = 1
   private val paginationMaxRows = 100
 

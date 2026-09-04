@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling.utils
+package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
-import java.util.regex.Pattern
+import play.api.libs.json.{Json, OFormat}
 
-object GamblingUtils {
-  val regNumberPattern: Pattern = "^[A-Z]{3}[0-9]{11}$".r.pattern
+import java.time.LocalDate
 
+final case class OpenReturnPeriodItem(
+  consecNo: Int,
+  period: String,
+  dueDate: LocalDate,
+  status: Int
+)
+
+object OpenReturnPeriodItem {
+  implicit val format: OFormat[OpenReturnPeriodItem] = Json.format[OpenReturnPeriodItem]
+}
+
+final case class OpenReturnPeriods(openPeriods: Seq[OpenReturnPeriodItem])
+
+object OpenReturnPeriods {
+  implicit val format: OFormat[OpenReturnPeriods] = Json.format[OpenReturnPeriods]
 }

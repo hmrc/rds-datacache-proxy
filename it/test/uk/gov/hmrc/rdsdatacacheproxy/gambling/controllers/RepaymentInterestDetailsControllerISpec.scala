@@ -57,49 +57,49 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 200 with correct RepaymentInterestDetailsData" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$MGD/XYZ00000000000?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/$MGD/XGM00003122200?pageNo=1&pageSize=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000000")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XGM00003122200")
     }
 
     "return 200 with correct RepaymentInterestDetailsData when pageNo & pageSize NOT provided" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/$MGD/XYZ99999999999").futureValue
+      val response = get(s"$endpoint/$MGD/XHM99999999999").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ99999999999")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XHM99999999999")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/xyz00000000012 ").futureValue
+      val response = get(s"$endpoint/$MGD/xgm00003122200 ").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XGM00003122200")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/   XYZ00000000012   ").futureValue
+      val response = get(s"$endpoint/$MGD/   XGM00003122200   ").futureValue
       response.status mustBe OK
-      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XYZ00000000012")
+      response.json.as[InterestDetails] mustBe getRepaymentInterestDetailsData("XGM00003122200")
     }
 
     "return consistent results across multiple calls" in {
       AuthStub.authorised()
-      val res1 = get(s"$endpoint/$MGD/XYZ00000000012").futureValue
-      val res2 = get(s"$endpoint/$MGD/XYZ00000000012").futureValue
+      val res1 = get(s"$endpoint/$MGD/XGM00003122200").futureValue
+      val res2 = get(s"$endpoint/$MGD/XGM00003122200").futureValue
       res1.json mustBe res2.json
     }
 
     "return JSON content type for valid response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/XYZ00000000012").futureValue
+      val response = get(s"$endpoint/$MGD/XGM00003122200").futureValue
       response.contentType mustBe "application/json"
     }
 
@@ -111,7 +111,7 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
 
     "return 400 for invalid regime)" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012?pageNo=1&pageSize=10").futureValue
+      val response = get(s"$endpoint/BAD_REGIME/XGM00003122200?pageNo=1&pageSize=10").futureValue
       response.status mustBe BAD_REQUEST
     }
 
@@ -150,14 +150,14 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
     }
 
     "return correct error structure for 500 response" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/$MGD/ERR00000000000").futureValue
+      val response = get(s"$endpoint/$MGD/XZM33333066666").futureValue
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"

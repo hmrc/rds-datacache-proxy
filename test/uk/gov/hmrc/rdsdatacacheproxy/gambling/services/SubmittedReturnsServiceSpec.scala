@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseSubmittedReturns
@@ -36,8 +37,8 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
     reset(repository)
   }
 
-  private val lowercaseRegNumber = "xwm12345678901 "
-  private val normalisedRegNumber = "XWM12345678901"
+  private val lowercaseRegNumber = "xgm00003122200 "
+  private val normalisedRegNumber = "XGM00003122200"
   private val ASC = "ASC"
   private val DESC = "DESC"
   private val PERIOD_START_DATE = 1
@@ -50,7 +51,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(PERIOD_END_DATE), Some("   asc   ")).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(PERIOD_END_DATE), Some("   asc   ")).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC))
@@ -61,7 +62,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, None, None).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, None, None).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC))
@@ -72,7 +73,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(DESC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(999), Some(DESC)).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(999), Some(DESC)).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(DESC))
@@ -83,7 +84,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_START_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(1), Some(ASC)).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(1), Some(ASC)).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_START_DATE), eqTo(ASC))
@@ -94,7 +95,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(SUBMITTED_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(2), Some("asc")).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(2), Some("asc")).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(SUBMITTED_DATE), eqTo(ASC))
@@ -105,7 +106,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(SUBMITTED_DATE), eqTo(ASC)))
         .thenReturn(Future.successful(validResponseSubmittedReturns))
 
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(2), Some("oOopS")).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(2), Some("oOopS")).futureValue
 
       result mustBe Right(validResponseSubmittedReturns)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(SUBMITTED_DATE), eqTo(ASC))
@@ -114,7 +115,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
 
     "return InvalidRegNumber and not call repository when RegNumber input is invalid" in {
       val invalidRegNumber = "xwm12345678"
-      val result = service.getSubmittedReturns(invalidRegNumber, Some(PERIOD_END_DATE), Some(ASC)).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, invalidRegNumber, Some(PERIOD_END_DATE), Some(ASC)).futureValue
       result mustBe Left(InvalidRegNumber)
       verifyNoMoreInteractions(repository)
     }
@@ -122,7 +123,7 @@ final class SubmittedReturnsServiceSpec extends SpecBase {
     "return UnexpectedError when repository throws exception" in {
       when(repository.getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC)))
         .thenReturn(Future.failed(new RuntimeException("DB failure when calling repo")))
-      val result = service.getSubmittedReturns(lowercaseRegNumber, Some(PERIOD_END_DATE), Some(ASC)).futureValue
+      val result = service.getSubmittedReturns(Regime.MGD, lowercaseRegNumber, Some(PERIOD_END_DATE), Some(ASC)).futureValue
       result mustBe Left(UnexpectedError)
       verify(repository).getSubmittedReturns(eqTo(normalisedRegNumber), eqTo(PERIOD_END_DATE), eqTo(ASC))
       verifyNoMoreInteractions(repository)

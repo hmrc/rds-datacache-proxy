@@ -30,6 +30,8 @@ import uk.gov.hmrc.rdsdatacacheproxy.charities.models.{AgentNameResponse, Organi
 import uk.gov.hmrc.rdsdatacacheproxy.charities.repositories.CharitiesDataSource
 
 import scala.concurrent.Future
+import uk.gov.hmrc.auth.core.Enrolment
+import uk.gov.hmrc.auth.core.EnrolmentIdentifier
 
 class CharitiesControllerSpec extends SpecBase with MockitoSugar {
 
@@ -39,7 +41,7 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockCharitiesDataSource.getAgentName(any[String]))
         .thenReturn(Future.successful(Some("Test Agent Name")))
 
-      val result: Future[Result] = controller.getAgentName("AGENT123")(fakeRequest)
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("AGENT123")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
@@ -51,14 +53,14 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockCharitiesDataSource.getAgentName(any[String]))
         .thenReturn(Future.successful(None))
 
-      val result: Future[Result] = controller.getAgentName("AGENT123")(fakeRequest)
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("AGENT123")(fakeRequest)
 
       status(result) shouldBe NOT_FOUND
       verify(mockCharitiesDataSource).getAgentName("AGENT123")
     }
 
     "return 400 when agentRef is empty" in new SetUp {
-      val result: Future[Result] = controller.getAgentName("")(fakeRequest)
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("")(fakeRequest)
 
       status(result)                               shouldBe BAD_REQUEST
       contentType(result)                          shouldBe Some("application/json")
@@ -67,7 +69,7 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return 400 when agentRef is whitespace only" in new SetUp {
-      val result: Future[Result] = controller.getAgentName("   ")(fakeRequest)
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("   ")(fakeRequest)
 
       status(result)                               shouldBe BAD_REQUEST
       contentType(result)                          shouldBe Some("application/json")
@@ -80,11 +82,21 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockCharitiesDataSource.getAgentName(any[String]))
         .thenReturn(Future.failed(exception))
 
-      val result: Future[Result] = controller.getAgentName("AGENT123")(fakeRequest)
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("AGENT123")(fakeRequest)
 
       status(result)                               shouldBe INTERNAL_SERVER_ERROR
       contentType(result)                          shouldBe Some("application/json")
       (contentAsJson(result) \ "error").as[String] shouldBe "Failed to retrieve agent name"
+    }
+
+    "return 401 when user is not authorised as an agent" in new SetUp {
+      val result: Future[Result] = controllerNoEnrolment.getAgentName("AGENT123")(fakeRequest)
+      status(result) shouldBe UNAUTHORIZED
+    }
+
+    "return 403 when agent is not authorised for the requested agent reference" in new SetUp {
+      val result: Future[Result] = controllerWithAgentEnrolment.getAgentName("AGENT124")(fakeRequest)
+      status(result) shouldBe FORBIDDEN
     }
   }
 
@@ -94,26 +106,38 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockCharitiesDataSource.getOrganisationName(any[String]))
         .thenReturn(Future.successful(Some("Test Organisation Name")))
 
-      val result: Future[Result] = controller.getOrganisationName("CHARITY123")(fakeRequest)
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("OR123")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
       contentAsJson(result) shouldBe Json.toJson(OrganisationNameResponse("Test Organisation Name"))
-      verify(mockCharitiesDataSource).getOrganisationName("CHARITY123")
+      verify(mockCharitiesDataSource).getOrganisationName("OR123")
+    }
+
+    "return 200 and a successful response when repository returns Some(organisation name) and user is an agent" in new SetUp {
+      when(mockCharitiesDataSource.getOrganisationName(any[String]))
+        .thenReturn(Future.successful(Some("Test Organisation Name")))
+
+      val result: Future[Result] = controllerWithAgentEnrolment.getOrganisationName("OR123")(fakeRequest)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(OrganisationNameResponse("Test Organisation Name"))
+      verify(mockCharitiesDataSource).getOrganisationName("OR123")
     }
 
     "return 404 when repository returns None" in new SetUp {
       when(mockCharitiesDataSource.getOrganisationName(any[String]))
         .thenReturn(Future.successful(None))
 
-      val result: Future[Result] = controller.getOrganisationName("CHARITY123")(fakeRequest)
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("OR123")(fakeRequest)
 
       status(result) shouldBe NOT_FOUND
-      verify(mockCharitiesDataSource).getOrganisationName("CHARITY123")
+      verify(mockCharitiesDataSource).getOrganisationName("OR123")
     }
 
     "return 400 when charityRef is empty" in new SetUp {
-      val result: Future[Result] = controller.getOrganisationName("")(fakeRequest)
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("")(fakeRequest)
 
       status(result)                               shouldBe BAD_REQUEST
       contentType(result)                          shouldBe Some("application/json")
@@ -122,7 +146,7 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "return 400 when charityRef is whitespace only" in new SetUp {
-      val result: Future[Result] = controller.getOrganisationName("   ")(fakeRequest)
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("   ")(fakeRequest)
 
       status(result)                               shouldBe BAD_REQUEST
       contentType(result)                          shouldBe Some("application/json")
@@ -135,16 +159,36 @@ class CharitiesControllerSpec extends SpecBase with MockitoSugar {
       when(mockCharitiesDataSource.getOrganisationName(any[String]))
         .thenReturn(Future.failed(exception))
 
-      val result: Future[Result] = controller.getOrganisationName("CHARITY123")(fakeRequest)
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("OR123")(fakeRequest)
 
       status(result)                               shouldBe INTERNAL_SERVER_ERROR
       contentType(result)                          shouldBe Some("application/json")
       (contentAsJson(result) \ "error").as[String] shouldBe "Failed to retrieve organisation name"
     }
+
+    "return 401 when user is not authorised as an organisation" in new SetUp {
+      val result: Future[Result] = controllerNoEnrolment.getOrganisationName("OR123")(fakeRequest)
+      status(result) shouldBe UNAUTHORIZED
+    }
+
+    "return 403 when organisation is not authorised for the requested charity reference" in new SetUp {
+      val result: Future[Result] = controllerWithOrganisationEnrolment.getOrganisationName("OR124")(fakeRequest)
+      status(result) shouldBe FORBIDDEN
+    }
   }
 
   private class SetUp {
     val mockCharitiesDataSource: CharitiesDataSource = mock[CharitiesDataSource]
-    val controller: CharitiesController = new CharitiesController(fakeAuthAction, mockCharitiesDataSource, cc)
+
+    def controllerWithEnrolments(enrolments: Set[Enrolment]): CharitiesController =
+      new CharitiesController(fakeAuthActionWithEnrolments(enrolments), mockCharitiesDataSource, cc)
+
+    val controllerNoEnrolment: CharitiesController = new CharitiesController(fakeAuthAction, mockCharitiesDataSource, cc)
+    val controllerWithAgentEnrolment: CharitiesController = controllerWithEnrolments(
+      Set(Enrolment("HMRC-CHAR-AGENT", Seq(EnrolmentIdentifier("AGENTCHARID", "AGENT123")), "Activated"))
+    )
+    val controllerWithOrganisationEnrolment: CharitiesController = controllerWithEnrolments(
+      Set(Enrolment("HMRC-CHAR-ORG", Seq(EnrolmentIdentifier("CHARID", "OR123")), "Activated"))
+    )
   }
 }

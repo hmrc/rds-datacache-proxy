@@ -59,9 +59,25 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       Future.successful(GamblingStubData.getMgdDetails(mgdRegNumber))
 
     override def getCorrespondenceDetails(
-                                            mgdRegNumber: String
-                                          ): Future[CorrespondenceDetails] =
-      Future.successful(GamblingStubData.getCorrespondenceDetails(mgdRegNumber))  }
+      mgdRegNumber: String
+    ): Future[CorrespondenceDetails] =
+      Future.successful(GamblingStubData.getCorrespondenceDetails(mgdRegNumber))
+
+    override def getBusinessAddressDetails(
+      mgdRegNumber: String
+    ): Future[BusinessAddressDetails] =
+      Future.successful(GamblingStubData.getBusinessAddressDetails(mgdRegNumber))
+
+    override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
+      Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
+
+    override def getPremisesDetails(
+                                     mgdRegNumber: String,
+                                     rowsPerPage: Int,
+                                     PageNo: Int
+                                        ): Future[PremisesDetailsResponse] =
+      Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber, 0, 0))
+  }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
     .overrides(
@@ -71,6 +87,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
   private lazy val repository: GamblingDataSource =
     app.injector.instanceOf[GamblingDataSource]
+
+
+  private val fixedDate = LocalDate.parse("2026-01-01")
 
   "getOperatorDetails (stubbed repository)" should {
 
@@ -97,7 +116,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure" in {
       val exception = intercept[RuntimeException] {
-        repository.getOperatorDetails("ERR00000000000").futureValue
+        repository.getOperatorDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -165,7 +184,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "propagate downstream failure from stub" in {
 
       val exception = intercept[RuntimeException] {
-        repository.getTradeClassDetails("ERR00000000000").futureValue
+        repository.getTradeClassDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -177,14 +196,14 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         repository.getTradeClassDetails("UNKNOWN").futureValue
 
       result mustBe TradeClassDetails(
-        mgdRegNumber = "UNKNOWN",
-        businessTradeClass = Some(1),
+        mgdRegNumber         = "UNKNOWN",
+        businessTradeClass   = Some(1),
         businessActivityDesc = "Gaming Machine Operation",
-        systemDate = Some(LocalDate.of(2026, 5, 31))
+        systemDate           = Some(LocalDate.of(2026, 5, 31))
       )
     }
   }
-  
+
   "getMgdDetails (stubbed repository)" should {
 
     "return mgd details for valid mgdRegNumber" in {
@@ -235,7 +254,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "propagate downstream failure from stub" in {
 
       val exception = intercept[RuntimeException] {
-        repository.getMgdDetails("ERR00000000000").futureValue
+        repository.getMgdDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -247,15 +266,15 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         repository.getMgdDetails("UNKNOWN").futureValue
 
       result mustBe MgdDetails(
-        mgdRegNumber = "UNKNOWN",
+        mgdRegNumber       = "UNKNOWN",
         isBusinessSeasonal = Some(1),
-        previousMgdrn1 = Some("PREV001"),
-        previousMgdrn2 = Some("PREV002"),
-        previousMgdrn3 = None,
-        associatedMgdrn1 = Some("ASSOC001"),
-        associatedMgdrn2 = Some("ASSOC002"),
-        associatedMgdrn3 = None,
-        systemDate = Some(LocalDate.of(2026, 5, 31))
+        previousMgdrn1     = Some("PREV001"),
+        previousMgdrn2     = Some("PREV002"),
+        previousMgdrn3     = None,
+        associatedMgdrn1   = Some("ASSOC001"),
+        associatedMgdrn2   = Some("ASSOC002"),
+        associatedMgdrn3   = None,
+        systemDate         = Some(LocalDate.of(2026, 5, 31))
       )
     }
   }
@@ -292,7 +311,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessDetails("ERR00000000000").futureValue
+        repository.getBusinessDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -374,7 +393,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getReturnSummary("ERR00000000000").futureValue
+        repository.getReturnSummary("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -494,7 +513,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessName("ERR00000000000").futureValue
+        repository.getBusinessName("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -595,7 +614,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getBusinessDetails("ERR00000000000").futureValue
+        repository.getBusinessDetails("XER00000000000").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")
@@ -636,7 +655,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getBusinessContactDetails("ERR00000000000")
+          .getBusinessContactDetails("XER00000000000")
           .futureValue
       }
 
@@ -667,22 +686,22 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         repository.getCorrespondenceDetails("XYZ00000000001").futureValue
 
       result mustBe CorrespondenceDetails(
-        mgdRegNumber = "XYZ00000000001",
-        nameLine1 = Some("foo"),
-        nameLine2 = Some("foo"),
-        phoneNumber = Some("07618728019"),
+        mgdRegNumber      = "XYZ00000000001",
+        nameLine1         = Some("foo"),
+        nameLine2         = Some("foo"),
+        phoneNumber       = Some("07618728019"),
         mobilePhoneNumber = Some("018937617281"),
-        faxNumber = Some("foo"),
-        emailAddr = Some("foo@mail.com"),
-        adi = Some("none"),
-        address1 = Some("random street"),
-        address2 = Some("bar"),
-        address3 = Some("bar"),
-        address4 = Some("bar"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        iomOrCiFlag = Some("true"),
-        systemDate = Some(LocalDate.now())
+        faxNumber         = Some("foo"),
+        emailAddr         = Some("foo@mail.com"),
+        adi               = Some("none"),
+        address1          = Some("random street"),
+        address2          = Some("bar"),
+        address3          = Some("bar"),
+        address4          = Some("bar"),
+        postcode          = Some("SR1 4DE"),
+        country           = Some("Ingerland!"),
+        iomOrCiFlag       = Some("true"),
+        systemDate        = Some(LocalDate.now())
       )
     }
 
@@ -690,7 +709,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getCorrespondenceDetails("ERR00000000000")
+          .getCorrespondenceDetails("XER00000000000")
           .futureValue
       }
 
@@ -703,23 +722,162 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
         repository.getCorrespondenceDetails("UNKNOWN").futureValue
 
       result mustBe CorrespondenceDetails(
-        mgdRegNumber = "UNKNOWN",
-        nameLine1 = None,
-        nameLine2 = None,
-        phoneNumber = None,
+        mgdRegNumber      = "UNKNOWN",
+        nameLine1         = None,
+        nameLine2         = None,
+        phoneNumber       = None,
         mobilePhoneNumber = None,
-        faxNumber = None,
-        emailAddr = None,
-        adi = None,
-        address1 = None,
-        address2 = None,
-        address3 = None,
-        address4 = None,
-        postcode = None,
-        country = None,
-        iomOrCiFlag = None,
-        systemDate = Some(LocalDate.now())
+        faxNumber         = None,
+        emailAddr         = None,
+        adi               = None,
+        address1          = None,
+        address2          = None,
+        address3          = None,
+        address4          = None,
+        postcode          = None,
+        country           = None,
+        iomOrCiFlag       = None,
+        systemDate        = Some(LocalDate.now())
       )
+    }
+  }
+
+  "getBusinessAddressDetails (stubbed repository)" should {
+
+    "return business address details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getBusinessAddressDetails("XYZ00000000001").futureValue
+
+      result mustBe BusinessAddressDetails(
+        mgdRegNumber = "XYZ00000000001",
+        adi          = Some("none"),
+        address1     = Some("random street"),
+        address2     = Some("bar"),
+        address3     = Some("bar"),
+        address4     = Some("bar"),
+        postcode     = Some("SR1 4DE"),
+        country      = Some("Ingerland!"),
+        iomOrCiFlag  = Some("true"),
+        systemDate   = Some(LocalDate.now())
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getBusinessAddressDetails("XER00000000000")
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getBusinessAddressDetails("UNKNOWN").futureValue
+
+      result mustBe BusinessAddressDetails(
+        mgdRegNumber = "UNKNOWN",
+        adi          = None,
+        address1     = None,
+        address2     = None,
+        address3     = None,
+        address4     = None,
+        postcode     = None,
+        country      = None,
+        iomOrCiFlag  = None,
+        systemDate   = Some(LocalDate.now())
+      )
+    }
+  }
+
+  "getPartnerDetails (stubbed repository)" should {
+
+    "return correct PartnerDetailsData" in {
+      val result = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
+
+      result mustBe GamblingStubData.getPartnerDetailsData("XYM00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
+      val result2 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different valid regNumbers independently" in {
+      val result1 = repository.getPartnerDetails(Regime.MGD, "XYM00000000000").futureValue
+      val result2 = repository.getPartnerDetails(Regime.MGD, "XYZ00000000001").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getPartnerDetails(Regime.MGD, "XEM33333333333").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
+
+
+  "getPremisesDetails (stubbed repository)" should {
+
+    "return premises details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getPremisesDetails("XYZ00000000001", 0, 0).futureValue
+
+      result mustBe PremisesDetailsResponse(
+        totalRows = Some(1000),
+        premises = Seq(
+          PremisesDetails(
+            mgdRegNumber = "XYZ00000000001",
+            address1 = Some("Flat 55"),
+            address2 = Some("20 Market Calle"),
+            address3 = Some("Barcelona"),
+            address4 = None,
+            postcode = None,
+            Some(fixedDate)
+          ),
+          PremisesDetails(
+            mgdRegNumber = "XYZ00000000001",
+            address1 = Some("Flat 1"),
+            address2 = Some("10 Market Calle"),
+            address3 = Some("Madrid"),
+            address4 = None,
+            postcode = None,
+            Some(fixedDate)
+          )
+        )
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getPremisesDetails("ERR00000000000", 0, 0)
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getPremisesDetails("UNKNOWN", 0, 0).futureValue
+
+      result mustBe PremisesDetailsResponse(
+        totalRows = Some(0),
+        premises = Seq(
+        ))
     }
   }
 }

@@ -34,6 +34,9 @@ trait GamblingDataSource {
   def getMgdDetails(mgdRegNumber: String): Future[MgdDetails]
   def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
+  def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
+  def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
+  def getPremisesDetails(mgdRegNumber: String, rowsPerPage: Int, PageNo: Int): Future[PremisesDetailsResponse]
 }
 
 @Singleton
@@ -41,6 +44,7 @@ class GamblingDataCacheRepository @Inject() (
   @NamedDatabase("gambling") db: Database
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
+    with RepositorySupport
     with Logging {
 
   override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] = {
@@ -299,8 +303,7 @@ class GamblingDataCacheRepository @Inject() (
   }
 
   override def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails] = {
-
-    logger.info(s"[GamblingDataCacheRepository][getBusinessDetails] mgdRegNumber=$mgdRegNumber")
+    logger.debug(s"getBusinessDetails mgdRegNumber=$mgdRegNumber")
 
     Future(blocking {
       db.withConnection { connection =>
@@ -837,4 +840,255 @@ class GamblingDataCacheRepository @Inject() (
 
     })(ec)
   }
+
+  override def getBusinessAddressDetails(
+    mgdRegNumber: String
+  ): Future[BusinessAddressDetails] = {
+
+    Future(blocking {
+
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS(?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+
+          cs.execute()
+
+          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+
+          try {
+            optionResultSet
+              .filter(_.next())
+              .map { rs =>
+
+                def optString(col: String): Option[String] =
+                  Option(rs.getString(col))
+                    .map(_.trim)
+                    .filter(_.nonEmpty)
+
+                def optDate(col: String): Option[LocalDate] =
+                  Option(rs.getDate(col))
+                    .map(_.toLocalDate)
+
+                BusinessAddressDetails(
+                  mgdRegNumber = Option(rs.getString("mgd_reg_number"))
+                    .map(_.trim)
+                    .getOrElse(""),
+                  adi         = optString("adi"),
+                  address1    = optString("address_1"),
+                  address2    = optString("address_2"),
+                  address3    = optString("address_3"),
+                  address4    = optString("address_4"),
+                  postcode    = optString("postcode"),
+                  country     = optString("country"),
+                  iomOrCiFlag = optString("iom_or_ci_flag"),
+                  systemDate  = optDate("system_date")
+                )
+              }
+              .getOrElse {
+                BusinessAddressDetails(
+                  mgdRegNumber = "",
+                  adi          = None,
+                  address1     = None,
+                  address2     = None,
+                  address3     = None,
+                  address4     = None,
+                  postcode     = None,
+                  country      = None,
+                  iomOrCiFlag  = None,
+                  systemDate   = None
+                )
+              }
+
+          } finally {
+            optionResultSet.foreach(_.close())
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+
+    })(ec)
+  }
+
+  override def getPremisesDetails(
+    mgdRegNumber: String,
+    rowsPerPage: Int,
+    PageNo: Int
+  ): Future[PremisesDetailsResponse] = {
+
+    Future(blocking {
+
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(?, ?, ?, ?, ?) }"
+        )
+
+        def closeQuietly(c: AutoCloseable): Unit =
+          if (c != null)
+            try c.close()
+            catch {
+              case _: Throwable => ()
+            }
+
+        try {
+
+          cs.setString(1, mgdRegNumber)
+          cs.setInt(2, rowsPerPage)
+          cs.setInt(3, PageNo)
+          cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
+          cs.registerOutParameter(5, java.sql.Types.NUMERIC)
+
+          cs.execute()
+
+          val count =
+            Option(cs.getObject(5))
+              .map(_.asInstanceOf[java.math.BigDecimal].intValue())
+              .getOrElse(0)
+
+          val optionResultSet =
+            Option(cs.getObject(4).asInstanceOf[java.sql.ResultSet])
+
+          try {
+
+            val premises =
+              optionResultSet
+                .map { rs =>
+
+                  def optString(col: String): Option[String] =
+                    Option(rs.getString(col))
+                      .map(_.trim)
+                      .filter(_.nonEmpty)
+
+                  def optDate(col: String): Option[LocalDate] =
+                    Option(rs.getDate(col))
+                      .map(_.toLocalDate)
+
+                  Iterator
+                    .continually(rs)
+                    .takeWhile(_.next())
+                    .map { rs =>
+                      PremisesDetails(
+                        mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
+                          .map(_.trim)
+                          .getOrElse(""),
+                        address1   = optString("ADDRESS_1"),
+                        address2   = optString("ADDRESS_2"),
+                        address3   = optString("ADDRESS_3"),
+                        address4   = optString("ADDRESS_4"),
+                        postcode   = optString("POSTCODE"),
+                        systemDate = optDate("SYSTEM_DATE")
+                      )
+                    }
+                    .toSeq
+
+                }
+                .getOrElse(Seq.empty)
+
+            PremisesDetailsResponse(
+              totalRows = Some(count),
+              premises  = premises
+            )
+
+          } finally {
+            optionResultSet.foreach(_.close())
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+
+    })(ec)
+  }
+
+  override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = {
+        regime match
+          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_PARTNERS(?, ?, ?) }")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
+      }
+      try {
+        cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PARTNERS
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.execute()
+
+        val partnerDetails: List[Partner] = {
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+          if (rs == null) Nil
+          else {
+            try {
+              val b = List.newBuilder[Partner]
+
+              while (rs.next()) {
+                val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
+                  Partner(
+                    mgdRegNumber           = mgdRegNumber,
+                    businessPartnerNumber  = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    dateOfJoining          = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving          = optLocalDate("DATE_OF_LEAVING", rs),
+                    solePropTitle          = Option(rs.getString("SOLE_PROP_TITLE")),
+                    solePropFirstName      = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
+                    solePropMiddleName     = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                    solePropLastName       = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                    businessName           = Option(rs.getString("BUSINESS_NAME")),
+                    tradingName            = Option(rs.getString("TRADING_NAME")),
+                    dateOfBirth            = optDate("DATE_OF_BIRTH", rs),
+                    nino                   = Option(rs.getString("NINO")),
+                    utr                    = Option(rs.getString("UTR")),
+                    vrn                    = Option(rs.getString("VRN")),
+                    crn                    = Option(rs.getString("CRN")),
+                    dateOfIncorporation    = optDate("DATE_OF_INCORPORATION", rs),
+                    countryOfIncorporation = Option(rs.getString("COUNTRY_OF_INCORPORATION")),
+                    foreignCorporateRef    = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    address1               = Option(rs.getString("ADDRESS_1")),
+                    address2               = Option(rs.getString("ADDRESS_2")),
+                    address3               = Option(rs.getString("ADDRESS_3")),
+                    address4               = Option(rs.getString("ADDRESS_4")),
+                    postcode               = Option(rs.getString("POSTCODE")),
+                    country                = Option(rs.getString("COUNTRY")),
+                    adi                    = Option(rs.getString("ADI")),
+                    iomOrCiFlag            = Option(rs.getString("IOM_OR_CI_FLAG")),
+                    phoneNumber            = Option(rs.getString("PHONE_NUMBER")),
+                    mobilePhoneNumber      = Option(rs.getString("MOBILE_PHONE_NUMBER")),
+                    faxNumber              = Option(rs.getString("FAX_NUMBER")),
+                    emailAddr              = Option(rs.getString("EMAIL_ADDR")),
+                    isFutureLeaveDate      = Option(rs.getObject("IS_FUTURE_LEAVE_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    isFutureJoinDate       = Option(rs.getObject("IS_FUTURE_JOIN_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    businessType           = Option(rs.getObject("BUSINESS_TYPE", classOf[java.lang.Integer])).map(_.intValue())
+                  )
+                )
+                b.addAll(maybeItem.toList)
+              }
+              b.result()
+            } finally closeQuietly(rs)
+          }
+        }
+
+        PartnerDetails(
+          partners   = partnerDetails,
+          systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
+        )
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
 }

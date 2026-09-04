@@ -17,8 +17,9 @@
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturnSingle
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.UnexpectedError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, SubmittedReturnSingle}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnSingleDataSource
 
 import javax.inject.Inject
@@ -29,10 +30,10 @@ class SubmittedReturnSingleService @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getSubmittedReturnSingle(rawRegNumber: String, consecNo: Int)(implicit
+  def getSubmittedReturnSingle(regime: Regime, rawRegNumber: String, consecNo: Int)(implicit
     hc: HeaderCarrier
   ): Future[Either[StatementError, SubmittedReturnSingle]] =
-    withValidParams(rawRegNumber.trim.toUpperCase, consecNo, "getSubmittedReturnSingle")(repository.getSubmittedReturnSingle)
+    withValidParams(regime, rawRegNumber.trim.toUpperCase, consecNo, "getSubmittedReturnSingle")(repository.getSubmittedReturnSingle)
 }
 
 /* TESTED OK

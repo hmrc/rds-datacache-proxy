@@ -24,12 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
-class CisTaxpayerControllerISpec
-  extends AnyWordSpec
-    with Matchers
-    with ScalaFutures
-    with IntegrationPatience
-    with ApplicationWithWiremock {
+class CisTaxpayerControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   private val endpoint = "/cis-taxpayer"
 
@@ -46,23 +41,23 @@ class CisTaxpayerControllerISpec
       )
 
       res.status mustBe OK
-      (res.json \ "uniqueId").as[String]              must not be empty
-      (res.json \ "taxOfficeNumber").as[String]       mustBe "123"
-      (res.json \ "taxOfficeRef").as[String]          mustBe "AB456"
+      (res.json \ "uniqueId").as[String] must not be empty
+      (res.json \ "taxOfficeNumber").as[String] mustBe "123"
+      (res.json \ "taxOfficeRef").as[String] mustBe "AB456"
     }
 
     "return 400 when JSON is missing required fields" in {
       AuthStub.authorised()
 
-      val res1 = postJson(endpoint, Json.obj("taxOfficeNumber" -> "123")) 
+      val res1 = postJson(endpoint, Json.obj("taxOfficeNumber" -> "123"))
       res1.status mustBe BAD_REQUEST
       (res1.json \ "message").as[String].toLowerCase must include("invalid json")
 
-      val res2 = postJson(endpoint, Json.obj("taxOfficeReference" -> "AB456")) 
+      val res2 = postJson(endpoint, Json.obj("taxOfficeReference" -> "AB456"))
       res2.status mustBe BAD_REQUEST
       (res2.json \ "message").as[String].toLowerCase must include("invalid json")
 
-      val res3 = postJson(endpoint, Json.obj()) 
+      val res3 = postJson(endpoint, Json.obj())
       res3.status mustBe BAD_REQUEST
       (res3.json \ "message").as[String].toLowerCase must include("invalid json")
     }
