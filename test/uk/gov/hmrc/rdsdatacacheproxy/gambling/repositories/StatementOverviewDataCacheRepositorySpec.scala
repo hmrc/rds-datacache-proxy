@@ -23,6 +23,7 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.RecordNotFound
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Regime, StatementOverview}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -108,7 +109,7 @@ class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers
 
       val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe Some(expectedOverview)
+      result shouldBe Right(expectedOverview)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, java.sql.Types.DATE)
@@ -134,7 +135,7 @@ class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers
 
       val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe None
+      result shouldBe Left(RecordNotFound)
 
       verify(mockCsMgd).execute()
       verify(mockCsMgd).close()
@@ -146,7 +147,11 @@ class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers
 
       val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
-      result.flatMap(_.repayments) shouldBe Some(BigDecimal("-350.0"))
+      val repay = result match {
+        case Right(s) => s.repayments
+        case _        => None
+      }
+      repay shouldBe Some(BigDecimal("-350.0"))
     }
 
     "return None for period dates when Oracle returns null dates" in {
@@ -156,8 +161,19 @@ class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers
 
       val result = repository.getStatementOverview(Regime.MGD, regNumber).futureValue
 
-      result.map(_.gtrPeriodStartDate) shouldBe Some(None)
-      result.map(_.gtrPeriodEndDate)   shouldBe Some(None)
+      val gtrPeriodStartDate = result match {
+        case Right(s) => s.gtrPeriodStartDate
+        case _        => None
+      }
+
+      gtrPeriodStartDate shouldBe None
+
+      val gtrPeriodEndDate = result match {
+        case Right(s) => s.gtrPeriodEndDate
+        case _        => None
+      }
+
+      gtrPeriodEndDate shouldBe None
     }
 
     Regime.values.toList.filterNot(_ == Regime.MGD).foreach { regime =>
@@ -166,7 +182,7 @@ class StatementOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers
 
         val result = repository.getStatementOverview(regime, regNumber).futureValue
 
-        result shouldBe Some(expectedOverview)
+        result shouldBe Right(expectedOverview)
 
         verify(mockCsGtr).setString(1, regNumber)
         verify(mockCsGtr).execute()

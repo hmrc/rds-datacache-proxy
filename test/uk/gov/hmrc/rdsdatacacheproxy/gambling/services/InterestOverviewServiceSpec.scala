@@ -45,7 +45,7 @@ final class InterestOverviewServiceSpec extends SpecBase {
 
     "return validResponseInterestOverview when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getInterestOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(validResponseInterestOverview))
+        .thenReturn(Future.successful(Right(validResponseInterestOverview)))
 
       val result = service.getInterestOverview(validRegime.toString, lowercaseRegNumber).futureValue
 

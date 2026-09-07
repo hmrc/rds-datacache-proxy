@@ -20,16 +20,18 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, StatementNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.*
 
 trait BaseController extends BackendController {
   final def handleError(error: StatementError): Result =
     error match {
       case InvalidRegimeCode | InvalidRegNumber =>
         BadRequest(Json.toJson(error))
-      case StatementNotFound =>
+      case RecordNotFound =>
         NotFound(Json.toJson(error))
       case UnexpectedError =>
+        InternalServerError(Json.toJson(error))
+      case BadData =>
         InternalServerError(Json.toJson(error))
     }
 

@@ -22,10 +22,15 @@ enum StatementError(val code: String, val message: String) {
   case InvalidRegNumber  extends StatementError("INVALID_REG_NUMBER", "regNumber has invalid format")
   case UnexpectedError   extends StatementError("UNEXPECTED_ERROR", "Unexpected error occurred")
   case InvalidRegimeCode extends StatementError("INVALID_REGIME_CODE", "Invalid Regime Code")
-  case StatementNotFound
+  case RecordNotFound
       extends StatementError(
         "NOT_FOUND",
-        "No statement overview found for the given registration number"
+        "No record found for the given registration number"
+      )
+  case BadData
+      extends StatementError(
+        "BAD_DATA",
+        "Bad data record for the given registration number"
       )
 }
 

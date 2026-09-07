@@ -84,7 +84,7 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
 
       val result = repository.getRepaymentsSummary(Regime.MGD, regNumber).futureValue
 
-      result shouldBe validResponseRepaymentsSummary
+      result shouldBe Right(validResponseRepaymentsSummary)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -110,7 +110,7 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getRepaymentsSummary(Regime.MGD, regNumber).futureValue
 
-      result shouldBe RepaymentsSummary(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0))
+      result shouldBe Right(RepaymentsSummary(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0)))
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -144,7 +144,7 @@ class RepaymentsDataCacheRepositorySpec extends AnyWordSpec with Matchers with B
 
         val result = repository.getRepaymentsSummary(regime, regNumber).futureValue
 
-        result shouldBe validResponseRepaymentsSummary
+        result shouldBe Right(validResponseRepaymentsSummary)
 
         verify(mockCsGtr).setString(1, regNumber)
         verify(mockCsGtr).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)

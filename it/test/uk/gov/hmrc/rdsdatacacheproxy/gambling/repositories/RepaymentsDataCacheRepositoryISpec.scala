@@ -23,6 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepayments, Regime, RepaymentsSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentsStubData.*
 
@@ -31,8 +32,8 @@ import scala.concurrent.Future
 class RepaymentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with GuiceOneAppPerSuite {
 
   class RepaymentsRdsStub extends RepaymentsDataSource {
-    override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[RepaymentsSummary] =
-      Future.successful(getRepaymentsSummaryData(regNumber))
+    override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[Either[StatementError, RepaymentsSummary]] =
+      Future.successful(Right(getRepaymentsSummaryData(regNumber)))
 
     override def getActualRepayments(regime: Regime, regNumber: String, pageStart: Int, pageMaxRows: Int): Future[ActualRepayments] =
       Future.successful(getActualRepaymentsData(regNumber))
@@ -49,12 +50,12 @@ class RepaymentsDataCacheRepositoryISpec extends AnyWordSpec with Matchers with 
     "return correct RepaymentsStubData" in {
       val result = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
 
-      result mustBe getRepaymentsSummaryData("XGM00003122200")
+      result mustBe Right(getRepaymentsSummaryData("XGM00003122200"))
     }
 
     "return correct data when values are 0" in {
       val result = repository.getRepaymentsSummary(Regime.MGD, "XGM00003122200").futureValue
-      result mustBe getRepaymentsSummaryData("XGM00003122200")
+      result mustBe Right(getRepaymentsSummaryData("XGM00003122200"))
     }
 
     "return consistent results across multiple calls" in {

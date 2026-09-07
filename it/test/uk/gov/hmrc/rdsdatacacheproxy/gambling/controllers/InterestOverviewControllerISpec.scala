@@ -42,7 +42,7 @@ class InterestOverviewControllerISpec
   class InterestOverviewRdsStub extends InterestOverviewDataSource {
     override def getInterestOverview(regime: Regime, regNumber: String) =
       Future {
-        InterestOverviewStubData.getInterestOverviewData(regNumber)
+        Right(InterestOverviewStubData.getInterestOverviewData(regNumber))
       }
   }
 

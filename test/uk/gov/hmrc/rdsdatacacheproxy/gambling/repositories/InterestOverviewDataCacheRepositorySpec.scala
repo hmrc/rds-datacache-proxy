@@ -81,7 +81,7 @@ class InterestOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers 
 
       val result = repository.getInterestOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe validResponseInterestOverview
+      result shouldBe Right(validResponseInterestOverview)
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -109,7 +109,7 @@ class InterestOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers 
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getInterestOverview(Regime.MGD, regNumber).futureValue
 
-      result shouldBe InterestOverview(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0), BigDecimal(0))
+      result shouldBe Right(InterestOverview(None, None, BigDecimal(0), BigDecimal(0), BigDecimal(0), BigDecimal(0)))
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
@@ -146,7 +146,7 @@ class InterestOverviewDataCacheRepositorySpec extends AnyWordSpec with Matchers 
 
         val result = repository.getInterestOverview(regime, regNumber).futureValue
 
-        result shouldBe validResponseInterestOverview
+        result shouldBe Right(validResponseInterestOverview)
 
         verify(mockCsGtr).setString(1, regNumber)
         verify(mockCsGtr).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)

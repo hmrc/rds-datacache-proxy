@@ -23,6 +23,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData.*
 
@@ -36,8 +37,8 @@ class InterestOverviewDataCacheRepositoryISpec
     with GuiceOneAppPerSuite {
 
   class InterestOverviewRdsStub extends InterestOverviewDataSource {
-    override def getInterestOverview(regime: Regime, regNumber: String): Future[InterestOverview] =
-      Future.successful(getInterestOverviewData(regNumber))
+    override def getInterestOverview(regime: Regime, regNumber: String): Future[Either[StatementError, InterestOverview]] =
+      Future.successful(Right(getInterestOverviewData(regNumber)))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -50,12 +51,12 @@ class InterestOverviewDataCacheRepositoryISpec
 
     "return correct InterestOverviewStubData" in {
       val result = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
-      result mustBe getInterestOverviewData("XGM00003122200")
+      result mustBe Right(getInterestOverviewData("XGM00003122200"))
     }
 
     "return correct data when values are 0" in {
       val result = repository.getInterestOverview(Regime.MGD, "XGM00003122200").futureValue
-      result mustBe getInterestOverviewData("XGM00003122200")
+      result mustBe Right(getInterestOverviewData("XGM00003122200"))
     }
 
     "return consistent results across multiple calls" in {

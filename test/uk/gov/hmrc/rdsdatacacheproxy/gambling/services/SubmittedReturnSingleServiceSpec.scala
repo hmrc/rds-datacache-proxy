@@ -45,7 +45,7 @@ final class SubmittedReturnSingleServiceSpec extends SpecBase {
 
     "return validResponseSubmittedReturnSingle when repository succeeds AND normalise input (trim + uppercase) before calling repository" in {
       when(repository.getSubmittedReturnSingle(eqTo(normalisedRegNumber), eqTo(consecNo1)))
-        .thenReturn(Future.successful(Some(validResponseSubmittedReturnSingle)))
+        .thenReturn(Future.successful(Right(validResponseSubmittedReturnSingle)))
 
       val result = service.getSubmittedReturnSingle(Regime.MGD, lowercaseRegNumber, consecNo1).futureValue
 

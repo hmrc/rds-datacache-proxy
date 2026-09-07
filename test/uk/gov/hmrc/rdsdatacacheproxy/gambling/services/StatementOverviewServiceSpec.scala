@@ -21,7 +21,7 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, StatementNotFound, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, RecordNotFound, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.StatementOverviewDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseStatementOverview
 
@@ -45,7 +45,7 @@ final class StatementOverviewServiceSpec extends SpecBase {
 
     "return Right(StatementOverview) when repository returns Some and normalise input (trim + uppercase)" in {
       when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(Some(validResponseStatementOverview)))
+        .thenReturn(Future.successful(Right(validResponseStatementOverview)))
 
       val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
@@ -54,13 +54,13 @@ final class StatementOverviewServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "return Left(StatementNotFound) when repository returns None" in {
+    "return Left(RecordNotFound) when repository returns None" in {
       when(repository.getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber)))
-        .thenReturn(Future.successful(None))
+        .thenReturn(Future.successful(Left(RecordNotFound)))
 
       val result = service.getStatementOverview(validRegime.toString, lowercaseRegNumber).futureValue
 
-      result mustBe Left(StatementNotFound)
+      result mustBe Left(RecordNotFound)
       verify(repository).getStatementOverview(eqTo(validRegime), eqTo(normalisedRegNumber))
       verifyNoMoreInteractions(repository)
     }

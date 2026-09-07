@@ -23,6 +23,7 @@ import play.api.Application
 import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData
@@ -41,8 +42,8 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     override def getReallocationsOut(regime: Regime, regNumber: String, pageNo: Int, pageSize: Int): Future[ReallocationsOut] =
       Future(GamblingReallocationsStubData.getReallocationsOutData(regNumber, pageNo, pageSize))
 
-    override def getReallocationsDetails(regime: Regime, regNumber: String): Future[ReallocationsDetails] =
-      Future(GamblingReallocationsStubData.getReallocationsDetailData(regNumber))
+    override def getReallocationsDetails(regime: Regime, regNumber: String): Future[Either[StatementError, ReallocationsDetails]] =
+      Future(Right(GamblingReallocationsStubData.getReallocationsDetailData(regNumber)))
   }
 
   override lazy val app: Application =

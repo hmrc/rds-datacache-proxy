@@ -18,6 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.Logging
 import play.api.db.NamedDatabase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{ActualRepaymentItem, ActualRepayments, Regime, RepaymentsSummary}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -25,7 +26,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait RepaymentsDataSource {
-  def getRepaymentsSummary(regime: Regime, regNumber: String): Future[RepaymentsSummary]
+  def getRepaymentsSummary(regime: Regime, regNumber: String): Future[Either[StatementError, RepaymentsSummary]]
   def getActualRepayments(regime: Regime, regNumber: String, pageStart: Int, pageMaxRows: Int): Future[ActualRepayments]
 }
 
@@ -36,7 +37,7 @@ class RepaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb:
     with RepositorySupport
     with Logging {
 
-  override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[RepaymentsSummary] =
+  override def getRepaymentsSummary(regime: Regime, regNumber: String): Future[Either[StatementError, RepaymentsSummary]] =
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -54,12 +55,14 @@ class RepaymentsDataCacheRepository @Inject() (@NamedDatabase("gambling") mgdDb:
 
           cs.execute()
 
-          RepaymentsSummary(
-            periodStartDate                = optDate(2, cs),
-            periodEndDate                  = optDate(3, cs),
-            actualRepaymentsAmount         = optDecimalFromIndex(4, cs).getOrElse(0),
-            repaymentsInterestRepaidAmount = optDecimalFromIndex(5, cs).getOrElse(0),
-            total                          = optDecimalFromIndex(6, cs).getOrElse(0)
+          Right(
+            RepaymentsSummary(
+              periodStartDate                = optDate(2, cs),
+              periodEndDate                  = optDate(3, cs),
+              actualRepaymentsAmount         = optDecimalFromIndex(4, cs).getOrElse(0),
+              repaymentsInterestRepaidAmount = optDecimalFromIndex(5, cs).getOrElse(0),
+              total                          = optDecimalFromIndex(6, cs).getOrElse(0)
+            )
           )
 
         } finally {

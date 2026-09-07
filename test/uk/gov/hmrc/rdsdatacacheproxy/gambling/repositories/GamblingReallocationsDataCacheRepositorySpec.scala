@@ -471,12 +471,14 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
 
       val result = repository.getReallocationsDetails(Regime.MGD, regNumber).futureValue
 
-      result shouldBe ReallocationsDetails(
-        Option(startDate.toLocalDate),
-        Option(endDate.toLocalDate),
-        BigDecimal(201.56),
-        BigDecimal(-301.56),
-        BigDecimal(-101.56)
+      result shouldBe Right(
+        ReallocationsDetails(
+          Option(startDate.toLocalDate),
+          Option(endDate.toLocalDate),
+          BigDecimal(201.56),
+          BigDecimal(-301.56),
+          BigDecimal(-101.56)
+        )
       )
 
       verify(mockCsMgd).setString(1, regNumber)
@@ -501,12 +503,14 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
 
         val result = repository.getReallocationsDetails(regime, regNumber).futureValue
 
-        result shouldBe ReallocationsDetails(
-          Option(startDate.toLocalDate),
-          Option(endDate.toLocalDate),
-          BigDecimal(201.56),
-          BigDecimal(-301.56),
-          BigDecimal(-101.56)
+        result shouldBe Right(
+          ReallocationsDetails(
+            Option(startDate.toLocalDate),
+            Option(endDate.toLocalDate),
+            BigDecimal(201.56),
+            BigDecimal(-301.56),
+            BigDecimal(-101.56)
+          )
         )
 
         verify(mockCsGtr).setString(1, regNumber)
@@ -525,7 +529,7 @@ class GamblingReallocationsDataCacheRepositorySpec extends AnyWordSpec with Matc
       when(mockCsMgd.getDate(2)).thenReturn(null)
       val result = repository.getReallocationsDetails(Regime.MGD, regNumber).futureValue
 
-      result shouldBe ReallocationsDetails(None, None, 0, 0, 0)
+      result shouldBe Right(ReallocationsDetails(None, None, 0, 0, 0))
 
       verify(mockCsMgd).setString(1, regNumber)
       verify(mockCsMgd).registerOutParameter(2, oracle.jdbc.OracleTypes.DATE)
