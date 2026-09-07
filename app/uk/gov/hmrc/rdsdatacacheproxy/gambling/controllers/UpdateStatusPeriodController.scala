@@ -32,9 +32,9 @@ class UpdateStatusPeriodController @Inject() (authorise: AuthAction, service: Up
     with BaseController
     with Logging {
 
-  def updateStatusPeriod(regime: String, regNumber: String, periodId: Int): Action[UpdateStatusPeriodRequest] =
+  def updateStatusPeriod(regime: String, regNumber: String, consecNo: Int): Action[UpdateStatusPeriodRequest] =
     authorise.async(parse.json[UpdateStatusPeriodRequest]) { implicit request =>
-      service.updateStatusPeriod(regime, regNumber, periodId, request.body.status).map {
+      service.updateStatusPeriod(regime, regNumber, consecNo, request.body.status).map {
         case Right(())   => NoContent
         case Left(error) => handleError(error)
       }

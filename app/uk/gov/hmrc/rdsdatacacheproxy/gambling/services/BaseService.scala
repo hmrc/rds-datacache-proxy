@@ -34,24 +34,15 @@ trait BaseService extends Logging {
   )(
     ifValid: (Regime, String) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regime=$regime regNumber=$regNumber"
+    val reqText = s"regime=$regime regNumber=$regNumber"
     logger.info(s"[$baseText] $reqText")
 
-    Regime.fromString(regime.trim) match {
-      case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber) match
-          case Left(err) => Future.successful(Left(err))
-          case Right(()) =>
-            ifValid(regime, regNumber)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[$baseText] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
+    validateRegime(regime, regNumber) match
       case Left(error) =>
-        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
-    }
+      case Right(validRegime) =>
+        runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber))
 
   def withValidParams[T](
     regime: String,
@@ -62,24 +53,15 @@ trait BaseService extends Logging {
   )(
     ifValid: (Regime, String, Int, Int) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regime=$regime regNumber=$regNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
+    val reqText = s"regime=$regime regNumber=$regNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[$baseText] $reqText")
 
-    Regime.fromString(regime.trim) match {
-      case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber) match
-          case Left(err) => Future.successful(Left(err))
-          case Right(()) =>
-            ifValid(regime, regNumber, paginationStart, paginationMaxRows)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[$baseText] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
+    validateRegime(regime, regNumber) match
       case Left(error) =>
-        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
-    }
+      case Right(validRegime) =>
+        runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber, paginationStart, paginationMaxRows))
 
   def withValidParams[T](
     regime: String,
@@ -91,24 +73,15 @@ trait BaseService extends Logging {
   )(
     ifValid: (Regime, String, String, Int, Int) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regime=$regime regNumber=$regNumber interestId=$interestId pageNo=$paginationStart pageSize=$paginationMaxRows"
+    val reqText = s"regime=$regime regNumber=$regNumber interestId=$interestId pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[$baseText] $reqText")
 
-    Regime.fromString(regime.trim) match {
-      case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber) match
-          case Left(err) => Future.successful(Left(err))
-          case Right(()) =>
-            ifValid(regime, regNumber, interestId, paginationStart, paginationMaxRows)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[$baseText] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
+    validateRegime(regime, regNumber) match
       case Left(error) =>
-        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
-    }
+      case Right(validRegime) =>
+        runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber, interestId, paginationStart, paginationMaxRows))
 
   def withValidParams[T](
     regime: Regime,
@@ -119,7 +92,7 @@ trait BaseService extends Logging {
   )(
     ifValid: (String, Int, String) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
+    val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
     GRNValidator.validateRegNum(regime, regNumber) match
@@ -128,12 +101,7 @@ trait BaseService extends Logging {
         val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(3) // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
         val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
         logger.info(s"[$baseText] $reqText sort=$sort order=$order")
-        ifValid(regNumber, sort, order)
-          .map(summary => Right(summary))
-          .recover { case ex: Exception =>
-            logger.error(s"[$baseText] Unexpected error $reqText", ex)
-            Left(UnexpectedError)
-          }
+        runAndRecover(baseText, reqText)(ifValid(regNumber, sort, order))
 
   def withValidParams[T](
     regime: String,
@@ -144,29 +112,20 @@ trait BaseService extends Logging {
   )(
     ifValid: (Regime, String, Int, String) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regime=$regime regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
+    val reqText = s"regime=$regime regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
-    Regime.fromString(regime.trim) match {
-      case Right(regime) =>
-        GRNValidator.validateRegNoRegime(regime, regNumber) match
-          case Left(err) => Future.successful(Left(err))
-          case Right(()) =>
-            // 1=period, 2=due date, 3=status, default to period
-            val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(1)
-            val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
-
-            logger.info(s"[$baseText] $reqText sort=$sort order=$order")
-            ifValid(regime, regNumber, sort, order)
-              .map(summary => Right(summary))
-              .recover { case ex: Exception =>
-                logger.error(s"[$baseText] Unexpected error $reqText", ex)
-                Left(UnexpectedError)
-              }
+    validateRegime(regime, regNumber) match
       case Left(error) =>
-        logger.error(s"[$baseText] Invalid Regime Code $regime")
+        logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
-    }
+      case Right(validRegime) =>
+        // 1=period, 2=due date, 3=status, default to period
+        val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(1)
+        val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
+
+        logger.info(s"[$baseText] $reqText sort=$sort order=$order")
+        runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber, sort, order))
 
   def withValidParams[T](
     regime: Regime,
@@ -176,18 +135,12 @@ trait BaseService extends Logging {
   )(
     ifValid: (String, Int) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regNumber=$regNumber consecNo=$consecNo"
+    val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
 
     GRNValidator.validateRegNum(regime, regNumber) match
       case Left(err) => Future.successful(Left(err))
-      case Right(()) =>
-        ifValid(regNumber, consecNo)
-          .map(single => Right(single))
-          .recover { case ex: Exception =>
-            logger.error(s"[$baseText] Unexpected error $reqText", ex)
-            Left(UnexpectedError)
-          }
+      case Right(()) => runAndRecover(baseText, reqText)(ifValid(regNumber, consecNo))
 
   def withValidStatusParams[T](
     regime: String,
@@ -198,13 +151,12 @@ trait BaseService extends Logging {
   )(
     ifValid: (Regime, String, Int, Int) => Future[T]
   )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
-    lazy val reqText = s"regime=$regime regNumber=$regNumber consecNo=$consecNo status=$status"
+    val reqText = s"regime=$regime regNumber=$regNumber consecNo=$consecNo status=$status"
     logger.info(s"[$baseText] $reqText")
 
     val validated: Either[StatementError, Regime] =
       for
-        validRegime <- Regime.fromString(regime.trim)
-        _           <- GRNValidator.validateRegNoRegime(validRegime, regNumber)
+        validRegime <- validateRegime(regime, regNumber)
         _           <- Either.cond(status == 0 || status == 1, (), InvalidStatus)
       yield validRegime
 
@@ -213,11 +165,21 @@ trait BaseService extends Logging {
         logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
       case Right(validRegime) =>
-        ifValid(validRegime, regNumber, consecNo, status)
-          .map(result => Right(result))
-          .recover { case ex: Exception =>
-            logger.error(s"[$baseText] Unexpected error $reqText", ex)
-            Left(UnexpectedError)
-          }
+        runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber, consecNo, status))
 
+  private def runAndRecover[T](baseText: String, reqText: String)(
+    action: => Future[T]
+  )(using ec: ExecutionContext): Future[Either[StatementError, T]] =
+    action
+      .map(result => Right(result))
+      .recover { case ex: Exception =>
+        logger.error(s"[$baseText] Unexpected error $reqText", ex)
+        Left(UnexpectedError)
+      }
+
+  private def validateRegime(regime: String, regNumber: String): Either[StatementError, Regime] =
+    for
+      validRegime <- Regime.fromString(regime.trim)
+      _           <- GRNValidator.validateRegNoRegime(validRegime, regNumber)
+    yield validRegime
 }
