@@ -140,7 +140,7 @@ trait BaseService extends Logging {
 
     validateRegimeAndRegNumber(regime.code, regNumber) match
       case Left(err) => Future.successful(Left(err))
-      case Right(_) => runAndRecover(baseText, reqText)(ifValid(regNumber, consecNo))
+      case Right(_)  => runAndRecover(baseText, reqText)(ifValid(regNumber, consecNo))
 
   def withValidStatusParams[T](
     regime: String,
