@@ -37,7 +37,7 @@ trait BaseService extends Logging {
     val reqText = s"regime=$regime regNumber=$regNumber"
     logger.info(s"[$baseText] $reqText")
 
-    validateRegime(regime, regNumber) match
+    validateRegimeAndRegNumber(regime, regNumber) match
       case Left(error) =>
         logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
@@ -56,7 +56,7 @@ trait BaseService extends Logging {
     val reqText = s"regime=$regime regNumber=$regNumber pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[$baseText] $reqText")
 
-    validateRegime(regime, regNumber) match
+    validateRegimeAndRegNumber(regime, regNumber) match
       case Left(error) =>
         logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
@@ -76,7 +76,7 @@ trait BaseService extends Logging {
     val reqText = s"regime=$regime regNumber=$regNumber interestId=$interestId pageNo=$paginationStart pageSize=$paginationMaxRows"
     logger.info(s"[$baseText] $reqText")
 
-    validateRegime(regime, regNumber) match
+    validateRegimeAndRegNumber(regime, regNumber) match
       case Left(error) =>
         logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
@@ -95,9 +95,9 @@ trait BaseService extends Logging {
     val reqText = s"regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regime, regNumber) match
+    validateRegimeAndRegNumber(regime.code, regNumber) match
       case Left(err) => Future.successful(Left(err))
-      case Right(()) =>
+      case Right(_) =>
         val sort = sortBy.filter(s => s == 1 || s == 2 || s == 3).getOrElse(3) // 1=PERIOD_START_DATE , 2=SUBMITTED_DATE , else PERIOD_END_DATE
         val order = orderBy.map(_.trim.toUpperCase()).filter(_ == "DESC").getOrElse("ASC")
         logger.info(s"[$baseText] $reqText sort=$sort order=$order")
@@ -115,7 +115,7 @@ trait BaseService extends Logging {
     val reqText = s"regime=$regime regNumber=$regNumber sortBy=$sortBy orderBy=$orderBy"
     logger.info(s"[$baseText] $reqText")
 
-    validateRegime(regime, regNumber) match
+    validateRegimeAndRegNumber(regime, regNumber) match
       case Left(error) =>
         logger.error(s"[$baseText] $error, $reqText")
         Future.successful(Left(error))
@@ -138,9 +138,9 @@ trait BaseService extends Logging {
     val reqText = s"regNumber=$regNumber consecNo=$consecNo"
     logger.info(s"[$baseText] $reqText")
 
-    GRNValidator.validateRegNum(regime, regNumber) match
+    validateRegimeAndRegNumber(regime.code, regNumber) match
       case Left(err) => Future.successful(Left(err))
-      case Right(()) => runAndRecover(baseText, reqText)(ifValid(regNumber, consecNo))
+      case Right(_) => runAndRecover(baseText, reqText)(ifValid(regNumber, consecNo))
 
   def withValidStatusParams[T](
     regime: String,
@@ -156,7 +156,7 @@ trait BaseService extends Logging {
 
     val validated: Either[StatementError, Regime] =
       for
-        validRegime <- validateRegime(regime, regNumber)
+        validRegime <- validateRegimeAndRegNumber(regime, regNumber)
         _           <- Either.cond(status == 0 || status == 1, (), InvalidStatus)
       yield validRegime
 
@@ -177,9 +177,10 @@ trait BaseService extends Logging {
         Left(UnexpectedError)
       }
 
-  private def validateRegime(regime: String, regNumber: String): Either[StatementError, Regime] =
+  private def validateRegimeAndRegNumber(regime: String, regNumber: String): Either[StatementError, Regime] =
     for
       validRegime <- Regime.fromString(regime.trim)
-      _           <- GRNValidator.validateRegNoRegime(validRegime, regNumber)
+      _           <- GRNValidator.validateRegime(validRegime, regNumber)
+      _           <- GRNValidator.validateRegNum(validRegime, regNumber)
     yield validRegime
 }

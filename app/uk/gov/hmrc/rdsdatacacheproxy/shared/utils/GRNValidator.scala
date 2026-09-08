@@ -45,15 +45,6 @@ object GRNValidator extends Logging {
     List(WEIGHT_10, WEIGHT_11, WEIGHT_12, WEIGHT_13, WEIGHT_8, WEIGHT_7, WEIGHT_6, WEIGHT_5, WEIGHT_4, WEIGHT_3, WEIGHT_2)
   private val checkChars = "ABCDEFGHXJKLMNYPQRSTZVW"
 
-  def validateRegNoRegime(regime: Regime, regNum: String): Either[StatementError, Unit] = {
-    validateRegNum(regime, regNum) match
-      case Left(err) => Left(err)
-      case Right(()) =>
-        validateRegime(regime, regNum) match
-          case Left(err) => Left(err)
-          case Right(()) => Right(())
-  }
-
   def validateRegNum(regime: Regime, regNumber: String): Either[StatementError, Unit] = {
     val regNum = regNumber.toUpperCase().trim
     if (regNum.length != 14) {
