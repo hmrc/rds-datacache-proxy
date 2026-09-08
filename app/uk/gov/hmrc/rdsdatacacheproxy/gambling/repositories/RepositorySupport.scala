@@ -22,6 +22,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GT
 
 import java.sql.{CallableStatement, ResultSet}
 import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 trait RepositorySupport {
 
@@ -31,6 +32,16 @@ trait RepositorySupport {
 
   def optLocalDate(col: String, rs: ResultSet): Option[LocalDate] =
     Option(rs.getString(col)).map(LocalDate.parse)
+
+  private val DateOnly = """^(\d{4}-\d{2}-\d{2})$""".r
+  private val DateWithTime = """^(\d{4}-\d{2}-\d{2}) \d{2}:\d{2}:\d{2}$""".r
+
+  def optSystemDate(col: String, rs: ResultSet): Option[LocalDate] =
+    Option(rs.getString(col)).map {
+      case DateOnly(date)     => LocalDate.parse(date)
+      case DateWithTime(date) => LocalDate.parse(date)
+      case unexpected         => throw new DateTimeParseException(s"Unexpected format for column $col", unexpected, 0)
+    }
 
   def optInt(i: Int, cs: CallableStatement): Option[Int] =
     Option(cs.getObject(i)).map {
