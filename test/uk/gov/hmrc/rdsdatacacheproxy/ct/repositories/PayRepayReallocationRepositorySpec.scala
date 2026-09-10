@@ -34,7 +34,7 @@ class PayRepayReallocationRepositorySpec extends AnyFreeSpec with Matchers with 
   val emptyPayRepayReallocations: PayRepayReallocations = PayRepayReallocations(Some(0), Some(0))
   val payRepayReallocations: PayRepayReallocations =
     PayRepayReallocations(
-      totalAmountReoRfrRto = Some(BigDecimal(50.00)),
+      totalAmountRepRfrRto = Some(BigDecimal(50.00)),
       totalAmountPayments  = Some(BigDecimal(60.00))
     )
 

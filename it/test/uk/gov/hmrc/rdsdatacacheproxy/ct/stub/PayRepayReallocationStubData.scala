@@ -23,7 +23,7 @@ object PayRepayReallocationStubData {
 
   val payRepayReallocations: PayRepayReallocations = 
     PayRepayReallocations(
-        totalAmountReoRfrRto = Some(BigDecimal(10)),
+        totalAmountRepRfrRto = Some(BigDecimal(10)),
         totalAmountPayments = Some(BigDecimal(20))
     )
 

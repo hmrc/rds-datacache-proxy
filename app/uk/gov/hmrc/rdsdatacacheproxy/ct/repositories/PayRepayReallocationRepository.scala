@@ -51,7 +51,7 @@ class PayRepayReallocationRepositoryImpl @Inject() (
           storedProcedure.execute()
 
           PayRepayReallocations(
-            totalAmountReoRfrRto = optBigDecimal(3, storedProcedure),
+            totalAmountRepRfrRto = optBigDecimal(3, storedProcedure),
             totalAmountPayments  = optBigDecimal(4, storedProcedure)
           )
 
