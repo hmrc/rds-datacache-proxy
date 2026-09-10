@@ -10,6 +10,7 @@ GET        /business-contact-details/mgd/:mgdRegNumber  uk.gov.hmrc.rdsdatacache
 GET        /mgd-details/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getMgdDetails(mgdRegNumber: String)
 GET        /trade-class/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getTradeClass(mgdRegNumber: String)
 GET        /correspondence-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getCorrespondenceDetails(mgdRegNumber: String)
+GET        /premises-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getPremisesDetails(mgdRegNumber: String, rowsPerPage: Int, pageNo: Int)
 GET        /business-address/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessAddressDetails(mgdRegNumber: String)
 
 
@@ -33,8 +34,10 @@ GET        /interest-details/:regime/:regNumber                        uk.gov.hm
 GET        /interest-accruing-details/:regime/:regNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.InterestAccruingDetailsController.getInterestAccruingDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /repayment-interest-details/:regime/:regNumber              uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentInterestDetailsController.getRepaymentInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /partner-details/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.PartnerDetailsController.getPartnerDetails(regime: String, regNumber: String)
+GET        /licence-details/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.LicenceController.getLicenceDetails(regime: String, regNumber: String)
 
 #Filing routes
 GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getMgdSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 GET        /submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int)
 GET        /open-periods/:regime/:regNumber                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
+PUT        /update-status-period/:regime/:regNumber/:consecNo  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.UpdateStatusPeriodController.updateStatusPeriod(regime: String, regNumber: String, consecNo: Int)

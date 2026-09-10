@@ -51,14 +51,13 @@ class PartnerDetailsController @Inject() (authorise: AuthAction, service: Gambli
     error match {
       case InvalidMgdRegNumber =>
         logger.warn(logMessage)
-        BadRequest(errorResponse(error))
+        BadRequest(Json.toJson(error))
       case UnexpectedError =>
         logger.error(logMessage)
-        InternalServerError(errorResponse(error))
+        InternalServerError(Json.toJson(error))
       case InvalidRegimeCode =>
         logger.error(logMessage)
-        BadRequest(errorResponse(error))
+        BadRequest(Json.toJson(error))
     }
 
-  private def errorResponse(error: GamblingError) = Json.obj("code" -> error.code, "message" -> error.message)
 }
