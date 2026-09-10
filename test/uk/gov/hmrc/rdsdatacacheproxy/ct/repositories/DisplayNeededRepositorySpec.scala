@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: DisplayNeededImpl = _
+  var repository: DisplayNeededRepositoryImpl = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -50,7 +50,7 @@ class DisplayNeededRepositorySpec extends AnyFlatSpec with Matchers with BeforeA
 
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
 
-    repository = new DisplayNeededImpl(db)
+    repository = new DisplayNeededRepositoryImpl(db)
   }
 
   "getDisplayNeeded" should "return Display Needed with all flags set to false" in {

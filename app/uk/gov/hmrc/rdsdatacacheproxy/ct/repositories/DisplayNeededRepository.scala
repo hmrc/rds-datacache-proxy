@@ -24,12 +24,12 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.DisplayNeeded
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[DisplayNeededImpl])
+@ImplementedBy(classOf[DisplayNeededRepositoryImpl])
 trait DisplayNeededRepository {
   def getDisplayNeeded(taxRef: Long, accPeriod: Long): Future[DisplayNeeded]
 }
 
-class DisplayNeededImpl @Inject() (
+class DisplayNeededRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
     extends DisplayNeededRepository
