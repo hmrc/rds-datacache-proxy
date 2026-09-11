@@ -319,4 +319,35 @@ class GamblingService @Inject() (
         }
     }
   }
+
+  def getPremisesDetails(
+    rawMgdRegNumber: String,
+    rowsPerPage: Int,
+    PageNo: Int
+  )(implicit hc: HeaderCarrier): Future[Either[GamblingError, PremisesDetailsResponse]] = {
+
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
+
+      logger.warn(
+        s"[GamblingService][getBusinessAddressDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
+      )
+
+      Future.successful(Left(InvalidMgdRegNumber))
+
+    } else {
+
+      repository
+        .getPremisesDetails(mgdRegNumber, rowsPerPage, PageNo)
+        .map(details => Right(details))
+        .recover { case ex: Exception =>
+          logger.error(
+            s"[GamblingService][getBusinessAddressDetails] Unexpected error mgdRegNumber=$mgdRegNumber",
+            ex
+          )
+          Left(UnexpectedError)
+        }
+    }
+  }
 }

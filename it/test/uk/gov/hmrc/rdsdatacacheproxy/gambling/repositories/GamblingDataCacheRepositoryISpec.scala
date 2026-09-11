@@ -70,6 +70,13 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
+
+    override def getPremisesDetails(
+                                     mgdRegNumber: String,
+                                     rowsPerPage: Int,
+                                     PageNo: Int
+                                        ): Future[PremisesDetailsResponse] =
+      Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber, 0, 0))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -80,6 +87,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
   private lazy val repository: GamblingDataSource =
     app.injector.instanceOf[GamblingDataSource]
+
+
+  private val fixedDate = LocalDate.parse("2026-01-01")
 
   "getOperatorDetails (stubbed repository)" should {
 
@@ -734,7 +744,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
   "getBusinessAddressDetails (stubbed repository)" should {
 
-    "return correspondence details for valid mgdRegNumber" in {
+    "return business address details for valid mgdRegNumber" in {
 
       val result =
         repository.getBusinessAddressDetails("XYZ00000000001").futureValue
@@ -812,6 +822,62 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       }
 
       exception.getMessage must include("Simulated downstream failure")
+    }
+  }
+
+
+  "getPremisesDetails (stubbed repository)" should {
+
+    "return premises details for valid mgdRegNumber" in {
+
+      val result =
+        repository.getPremisesDetails("XYZ00000000001", 0, 0).futureValue
+
+      result mustBe PremisesDetailsResponse(
+        totalRows = Some(1000),
+        premises = Seq(
+          PremisesDetails(
+            mgdRegNumber = "XYZ00000000001",
+            address1 = Some("Flat 55"),
+            address2 = Some("20 Market Calle"),
+            address3 = Some("Barcelona"),
+            address4 = None,
+            postcode = None,
+            Some(fixedDate)
+          ),
+          PremisesDetails(
+            mgdRegNumber = "XYZ00000000001",
+            address1 = Some("Flat 1"),
+            address2 = Some("10 Market Calle"),
+            address3 = Some("Madrid"),
+            address4 = None,
+            postcode = None,
+            Some(fixedDate)
+          )
+        )
+      )
+    }
+
+    "propagate downstream failure" in {
+
+      val exception = intercept[RuntimeException] {
+        repository
+          .getPremisesDetails("ERR00000000000", 0, 0)
+          .futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+
+    "return empty optional fields when no data exists" in {
+
+      val result =
+        repository.getPremisesDetails("UNKNOWN", 0, 0).futureValue
+
+      result mustBe PremisesDetailsResponse(
+        totalRows = Some(0),
+        premises = Seq(
+        ))
     }
   }
 }
