@@ -23,7 +23,9 @@ import org.scalatest.OptionValues
 import org.mockito.Mockito.*
 import org.mockito.ArgumentMatchers.{any as anyArg, eq as eqTo}
 import play.api.db.Database
-import java.sql.{CallableStatement, ResultSet}
+import uk.gov.hmrc.rdsdatacacheproxy.cis.models.EnqueueMessageRequest
+
+import java.sql.{CallableStatement, Connection, ResultSet, Types}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with ScalaFutures with OptionValues {
@@ -471,6 +473,185 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
       verify(cs).execute()
       verify(rs).close()
       verify(cs).close()
+    }
+  }
+
+  "enqueueMessage" should {
+
+    "enqueue message header and all CLOBs and return messageId" in {
+      val messageId = 12345L
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+
+      when(
+        conn.prepareCall(
+          "{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }"
+        )
+      ).thenReturn(csHeader)
+      when(csHeader.getLong(6)).thenReturn(messageId)
+
+      when(
+        conn.prepareCall(
+          "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
+        )
+      ).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(messageId)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        sender        = "Portal",
+        queueName     = "AGTAUTH",
+        replyQueue    = "",
+        correlationID = "",
+        filter        = "RemoveClient",
+        payload = Map(
+          "IRAgentID"    -> "123456789",
+          "Service"      -> "CIS",
+          "TaxReference" -> "123/ABC123"
+        )
+      )
+
+      val out = repo.enqueueMessage(request).futureValue
+
+      out mustBe messageId
+
+      // Header
+      verify(conn).prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")
+      verify(csHeader).setString(1, "Portal")
+      verify(csHeader).setString(2, "AGTAUTH")
+      verify(csHeader).setString(3, "")
+      verify(csHeader).setString(4, "")
+      verify(csHeader).setString(5, "RemoveClient")
+      verify(csHeader).registerOutParameter(6, Types.NUMERIC)
+      verify(csHeader).execute()
+      verify(csHeader).getLong(6)
+
+      // CLOBs
+      verify(conn, times(3)).prepareCall(
+        "{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }"
+      )
+      verify(csClob, times(3)).setLong(1, messageId)
+      verify(csClob, times(3)).setString(2, "Portal")
+      verify(csClob, times(3)).setString(3, "AGTAUTH")
+      verify(csClob, times(3)).setString(4, "")
+      verify(csClob, times(3)).setString(5, "")
+      verify(csClob, times(3)).setString(6, "RemoveClient")
+
+      verify(csClob).setString(7, "IRAgentID")
+      verify(csClob).setString(8, "123456789")
+      verify(csClob).setString(7, "Service")
+      verify(csClob).setString(8, "CIS")
+      verify(csClob).setString(7, "TaxReference")
+      verify(csClob).setString(8, "123/ABC123")
+
+      verify(csClob, times(3)).registerOutParameter(9, Types.NUMERIC)
+      verify(csClob, times(3)).execute()
+      verify(csClob, times(3)).getLong(9)
+
+      verify(csHeader).close()
+      verify(csClob, times(3)).close()
+    }
+
+    "fail when enqueueMessageHeader returns null messageId" in {
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[java.sql.Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
+
+      when(csHeader.getLong(6)).thenReturn(0L)
+      when(csHeader.wasNull()).thenReturn(true)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        sender        = "Portal",
+        queueName     = "AGTAUTH",
+        replyQueue    = "",
+        correlationID = "",
+        filter        = "RemoveClient",
+        payload = Map(
+          "IRAgentID" -> "123456789"
+        )
+      )
+
+      val result = repo.enqueueMessage(request).failed.futureValue
+
+      result mustBe a[RuntimeException]
+      result.getMessage mustBe "Failed to callEnqueueMessageHeader: sender=Portal, queueName=AGTAUTH, filter=RemoveClient"
+
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+      verify(csHeader).close()
+
+      verify(conn, never()).prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")
+    }
+
+    "fail when enqueueClob returns null messageIdOut" in {
+      val messageId = 12345L
+
+      val db = mock(classOf[Database])
+      val conn = mock(classOf[Connection])
+
+      when(db.withTransaction(anyArg[Connection => Any])).thenAnswer { inv =>
+        inv.getArgument(0, classOf[Connection => Any]).apply(conn)
+      }
+
+      val csHeader = mock(classOf[CallableStatement])
+      val csClob = mock(classOf[CallableStatement])
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_message_header(?, ?, ?, ?, ?, ?) }")).thenReturn(csHeader)
+
+      when(csHeader.getLong(6)).thenReturn(messageId)
+      when(csHeader.wasNull()).thenReturn(false)
+
+      when(conn.prepareCall("{ call udas_queue.enqueue_clob(?, ?, ?, ?, ?, ?, ?, ?, ?) }")).thenReturn(csClob)
+
+      when(csClob.getLong(9)).thenReturn(0L)
+      when(csClob.wasNull()).thenReturn(true)
+
+      val repo = new CisDatacacheRepository(db)
+
+      val request = EnqueueMessageRequest(
+        sender        = "Portal",
+        queueName     = "AGTAUTH",
+        replyQueue    = "",
+        correlationID = "",
+        filter        = "RemoveClient",
+        payload = Map(
+          "IRAgentID" -> "123456789"
+        )
+      )
+
+      val result = repo.enqueueMessage(request).failed.futureValue
+
+      result mustBe a[RuntimeException]
+      result.getMessage mustBe "Failed to callEnqueueClob: messageID=12345, messageIDOut=null, key=IRAgentID"
+
+      verify(csHeader).getLong(6)
+      verify(csHeader).wasNull()
+      verify(csHeader).close()
+
+      verify(csClob).setLong(1, messageId)
+      verify(csClob).setString(7, "IRAgentID")
+      verify(csClob).setString(8, "123456789")
+      verify(csClob).getLong(9)
+      verify(csClob).wasNull()
+      verify(csClob).close()
     }
   }
 }
