@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 import play.api.libs.json.{Json, OFormat}
 
 case class PayRepayReallocations(
-  totalAmountReoRfrRto: Option[BigDecimal],
+  totalAmountRepRfrRto: Option[BigDecimal],
   totalAmountPayments: Option[BigDecimal]
 )
 
