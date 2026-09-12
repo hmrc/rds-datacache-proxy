@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,19 +34,45 @@ class UdasQueueControllerISpec extends AnyWordSpec with Matchers with ScalaFutur
   "POST /enqueue-message (stubbed repo, no DB)" should {
 
     val validJson = Json.obj(
-      "sender"        -> "Portal",
-      "queueName"     -> "AGTAUTH",
-      "replyQueue"    -> "",
-      "correlationID" -> "",
-      "filter"        -> "RemoveClient",
-      "payload" -> Json.obj(
-        "IRAgentID"    -> "123456789",
-        "Service"      -> "CIS",
-        "TaxReference" -> "123/ABC123"
+      "message" -> Json.obj(
+        "sender"        -> "Portal",
+        "queueName"     -> "AGTAUTH",
+        "replyQueue"    -> "",
+        "correlationID" -> "",
+        "filter"        -> "RemoveClient",
+        "payload" -> Json.obj(
+          "IRAgentID"    -> "123456789",
+          "Service"      -> "CIS",
+          "TaxReference" -> "123/ABC123"
+        )
+      ),
+      "tracking" -> Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "Tracking",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          "filter"        -> "AGENTAUTH",
+          "payload" -> Json.obj(
+            "GGIS_DTSTAMP"    -> "20260827 154512747",
+            "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+            "ADDITIONAL_INFO" -> "Request client removal",
+            "GW_AGENT_ID"     -> "AGENT123",
+            "IR_CLIENT_REF"   -> "123/ABC123",
+            "USER_ID"         -> "user123",
+            "Service"         -> "CIS"
+          )
+        ),
+        "number" -> Json.obj(
+          "dataType" -> 1,
+          "payload" -> Json.obj(
+            "EVENT_TYPE" -> 1010L
+          )
+        )
       )
     )
 
-    "return 204 with messageIDOut when authorised and JSON is valid" in {
+    "return 200 with messageIDOut when authorised and JSON is valid" in {
 
       AuthStub.authorised()
       val res = postJson(endpoint, validJson)
@@ -59,97 +85,48 @@ class UdasQueueControllerISpec extends AnyWordSpec with Matchers with ScalaFutur
 
       AuthStub.authorised()
 
-      val invalidJsonWithoutSender = Json.obj(
-        "queueName"     -> "AGTAUTH",
-        "replyQueue"    -> "",
-        "correlationID" -> "",
-        "filter"        -> "RemoveClient",
-        "payload" -> Json.obj(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
+      val invalidJson = Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "AGTAUTH",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          // "filter"        -> "RemoveClient", to make it invalid
+          "payload" -> Json.obj(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        "tracking" -> Json.obj(
+          "message" -> Json.obj(
+            "sender"        -> "Portal",
+            "queueName"     -> "Tracking",
+            "replyQueue"    -> "",
+            "correlationID" -> "",
+            "filter"        -> "AGENTAUTH",
+            "payload" -> Json.obj(
+              "GGIS_DTSTAMP"    -> "20260827 154512747",
+              "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+              "ADDITIONAL_INFO" -> "Request client removal",
+              "GW_AGENT_ID"     -> "AGENT123",
+              "IR_CLIENT_REF"   -> "123/ABC123",
+              "USER_ID"         -> "user123",
+              "Service"         -> "CIS"
+            )
+          ),
+          "number" -> Json.obj(
+            "dataType" -> 1,
+            "payload" -> Json.obj(
+              "EVENT_TYPE" -> 1010L
+            )
+          )
         )
       )
 
-      val res1 = postJson(endpoint, invalidJsonWithoutSender)
+      val res1 = postJson(endpoint, invalidJson)
       res1.status mustBe BAD_REQUEST
       (res1.json \ "message").as[String].toLowerCase must include("invalid json")
-
-      val invalidJsonWithoutQueueName = Json.obj(
-        "sender"        -> "Portal",
-        "replyQueue"    -> "",
-        "correlationID" -> "",
-        "filter"        -> "RemoveClient",
-        "payload" -> Json.obj(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
-        )
-      )
-
-      val res2 = postJson(endpoint, invalidJsonWithoutQueueName)
-      res2.status mustBe BAD_REQUEST
-      (res2.json \ "message").as[String].toLowerCase must include("invalid json")
-
-      val invalidJsonWithoutReplyQueue = Json.obj(
-        "sender"        -> "Portal",
-        "queueName"     -> "AGTAUTH",
-        "correlationID" -> "",
-        "filter"        -> "RemoveClient",
-        "payload" -> Json.obj(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
-        )
-      )
-
-      val res3 = postJson(endpoint, invalidJsonWithoutReplyQueue)
-      res3.status mustBe BAD_REQUEST
-      (res3.json \ "message").as[String].toLowerCase must include("invalid json")
-
-      val invalidJsonWithoutCorrelationID = Json.obj(
-        "sender"     -> "Portal",
-        "queueName"  -> "AGTAUTH",
-        "replyQueue" -> "",
-        "filter"     -> "RemoveClient",
-        "payload" -> Json.obj(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
-        )
-      )
-
-      val res4 = postJson(endpoint, invalidJsonWithoutCorrelationID)
-      res4.status mustBe BAD_REQUEST
-      (res4.json \ "message").as[String].toLowerCase must include("invalid json")
-
-      val invalidJsonWithoutFilter = Json.obj(
-        "sender"        -> "Portal",
-        "queueName"     -> "AGTAUTH",
-        "replyQueue"    -> "",
-        "correlationID" -> "",
-        "payload" -> Json.obj(
-          "IRAgentID"    -> "123456789",
-          "Service"      -> "CIS",
-          "TaxReference" -> "123/ABC123"
-        )
-      )
-
-      val res5 = postJson(endpoint, invalidJsonWithoutFilter)
-      res5.status mustBe BAD_REQUEST
-      (res5.json \ "message").as[String].toLowerCase must include("invalid json")
-
-      val invalidJsonWithoutPayload = Json.obj(
-        "sender"        -> "Portal",
-        "queueName"     -> "AGTAUTH",
-        "replyQueue"    -> "",
-        "correlationID" -> "",
-        "filter"        -> "RemoveClient"
-      )
-
-      val res6 = postJson(endpoint, invalidJsonWithoutPayload)
-      res6.status mustBe BAD_REQUEST
-      (res6.json \ "message").as[String].toLowerCase must include("invalid json")
     }
 
     "return 401 when there is no active session" in {

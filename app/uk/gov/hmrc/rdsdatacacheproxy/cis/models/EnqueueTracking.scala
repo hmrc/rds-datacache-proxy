@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.models
 
-import play.api.libs.json.{Json, JsonValidationError, OFormat, OWrites, Reads}
+import play.api.libs.json.*
 
-final case class EnqueueMessageRequest(
+final case class EnqueueTracking(
   message: EnqueueMessage,
-  tracking: Option[EnqueueTracking] = None
+  number: EnqueueNumber
 )
 
-object EnqueueMessageRequest {
-  given OFormat[EnqueueMessageRequest] = Json.format[EnqueueMessageRequest]
+object EnqueueTracking {
+  given OFormat[EnqueueTracking] = Json.format[EnqueueTracking]
 }

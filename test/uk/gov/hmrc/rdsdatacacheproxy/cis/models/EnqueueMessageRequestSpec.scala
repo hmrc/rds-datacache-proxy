@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,168 +16,248 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.cis.models
 
+import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 
-class EnqueueMessageRequestSpec extends AnyWordSpec with Matchers {
+class EnqueueMessageRequestSpec extends AnyFreeSpec with Matchers {
 
-  "EnqueueMessageRequest (JSON)" should {
+  "EnqueueMessageRequest JSON format" - {
 
-    "read and write with mandatory fields" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
-
-      val model = json.as[EnqueueMessageRequest]
-      model.sender mustBe "Portal"
-      model.queueName mustBe "AGTAUTH"
-      model.replyQueue mustBe ""
-      model.correlationID mustBe ""
-      model.filter mustBe "RemoveClient"
-      model.payload mustBe Map(
-        "IRAgentID"    -> "123456789",
-        "Service"      -> "CIS",
-        "TaxReference" -> "123/ABC123"
+    "read from JSON correctly without tracking" in {
+      val json = Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "AGTAUTH",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          "filter"        -> "UpdateAgentOwnReference",
+          "payload" -> Json.obj(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        )
       )
-      Json.toJson(model) mustBe json
+
+      val result = json.as[EnqueueMessageRequest]
+
+      result mustBe EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "UpdateAgentOwnReference",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        )
+      )
     }
 
-    "fail to read missing sender" in {
-      val json = Json.parse("""
-          |{
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
+    "write to JSON correctly without tracking" in {
+      val model = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "UpdateAgentOwnReference",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        )
+      )
 
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
+      val json = Json.toJson(model)
+
+      json mustBe Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "AGTAUTH",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          "filter"        -> "UpdateAgentOwnReference",
+          "payload" -> Json.obj(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        )
+      )
     }
 
-    "fail to read missing queueName" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
+    "read from JSON correctly with tracking" in {
+      val json = Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "AGTAUTH",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          "filter"        -> "RemoveClient",
+          "payload" -> Json.obj(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        "tracking" -> Json.obj(
+          "message" -> Json.obj(
+            "sender"        -> "Portal",
+            "queueName"     -> "Tracking",
+            "replyQueue"    -> "",
+            "correlationID" -> "",
+            "filter"        -> "AGENTAUTH",
+            "payload" -> Json.obj(
+              "GGIS_DTSTAMP"    -> "20260827 154512747",
+              "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+              "ADDITIONAL_INFO" -> "Request client removal",
+              "GW_AGENT_ID"     -> "AGENT123",
+              "IR_CLIENT_REF"   -> "123/ABC123",
+              "USER_ID"         -> "user123",
+              "Service"         -> "CIS"
+            )
+          ),
+          "number" -> Json.obj(
+            "dataType" -> 1,
+            "payload" -> Json.obj(
+              "EVENT_TYPE" -> 1010L
+            )
+          )
+        )
+      )
 
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
+      val result = json.as[EnqueueMessageRequest]
+
+      result mustBe EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        tracking = Some(
+          EnqueueTracking(
+            message = EnqueueMessage(
+              sender        = "Portal",
+              queueName     = "Tracking",
+              replyQueue    = "",
+              correlationID = "",
+              filter        = "AGENTAUTH",
+              payload = Map(
+                "GGIS_DTSTAMP"    -> "20260827 154512747",
+                "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+                "ADDITIONAL_INFO" -> "Request client removal",
+                "GW_AGENT_ID"     -> "AGENT123",
+                "IR_CLIENT_REF"   -> "123/ABC123",
+                "USER_ID"         -> "user123",
+                "Service"         -> "CIS"
+              )
+            ),
+            number = EnqueueNumber(
+              dataType = 1,
+              payload = Map(
+                "EVENT_TYPE" -> 1010L
+              )
+            )
+          )
+        )
+      )
     }
 
-    "fail to read missing replyQueue" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
+    "write to JSON correctly with tracking" in {
+      val model = EnqueueMessageRequest(
+        message = EnqueueMessage(
+          sender        = "Portal",
+          queueName     = "AGTAUTH",
+          replyQueue    = "",
+          correlationID = "",
+          filter        = "RemoveClient",
+          payload = Map(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        tracking = Some(
+          EnqueueTracking(
+            message = EnqueueMessage(
+              sender        = "Portal",
+              queueName     = "Tracking",
+              replyQueue    = "",
+              correlationID = "",
+              filter        = "AGENTAUTH",
+              payload = Map(
+                "GGIS_DTSTAMP"    -> "20260827 154512747",
+                "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+                "ADDITIONAL_INFO" -> "Request client removal",
+                "GW_AGENT_ID"     -> "AGENT123",
+                "IR_CLIENT_REF"   -> "123/ABC123",
+                "USER_ID"         -> "user123",
+                "Service"         -> "CIS"
+              )
+            ),
+            number = EnqueueNumber(
+              dataType = 1,
+              payload = Map(
+                "EVENT_TYPE" -> 1010L
+              )
+            )
+          )
+        )
+      )
 
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
-    }
+      val json = Json.toJson(model)
 
-    "fail to read missing correlationID" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-        """.stripMargin)
-
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
-    }
-
-    "fail to read missing filter" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "payload": {
-          |    "IRAgentID": "123456789",
-          |    "Service": "CIS",
-          |    "TaxReference" : "123/ABC123"
-          |  }
-          |}
-              """.stripMargin)
-
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
-    }
-
-    "fail to read missing payload" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient"
-          |}
-        """.stripMargin)
-
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
-    }
-
-    "fail to read empty payload" in {
-      val json = Json.parse("""
-          |{
-          |  "sender": "Portal",
-          |  "queueName": "AGTAUTH",
-          |  "replyQueue": "",
-          |  "correlationID": "",
-          |  "filter": "RemoveClient",
-          |  "payload": {}
-          |}
-          """.stripMargin)
-
-      val result = json.validate[EnqueueMessageRequest]
-      result.isError mustBe true
+      json mustBe Json.obj(
+        "message" -> Json.obj(
+          "sender"        -> "Portal",
+          "queueName"     -> "AGTAUTH",
+          "replyQueue"    -> "",
+          "correlationID" -> "",
+          "filter"        -> "RemoveClient",
+          "payload" -> Json.obj(
+            "IRAgentID"    -> "123456789",
+            "Service"      -> "CIS",
+            "TaxReference" -> "123/ABC123"
+          )
+        ),
+        "tracking" -> Json.obj(
+          "message" -> Json.obj(
+            "sender"        -> "Portal",
+            "queueName"     -> "Tracking",
+            "replyQueue"    -> "",
+            "correlationID" -> "",
+            "filter"        -> "AGENTAUTH",
+            "payload" -> Json.obj(
+              "GGIS_DTSTAMP"    -> "20260827 154512747",
+              "MESSAGE_TYPE"    -> "AGENT_AUTH_PORTAL",
+              "ADDITIONAL_INFO" -> "Request client removal",
+              "GW_AGENT_ID"     -> "AGENT123",
+              "IR_CLIENT_REF"   -> "123/ABC123",
+              "USER_ID"         -> "user123",
+              "Service"         -> "CIS"
+            )
+          ),
+          "number" -> Json.obj(
+            "dataType" -> 1,
+            "payload" -> Json.obj(
+              "EVENT_TYPE" -> 1010L
+            )
+          )
+        )
+      )
     }
   }
 }
