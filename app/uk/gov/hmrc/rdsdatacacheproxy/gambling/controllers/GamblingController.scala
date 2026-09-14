@@ -179,12 +179,10 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
   }
 
   def getPremisesDetails(
-    mgdRegNumber: String,
-    rowsPerPage: Int,
-    PageNo: Int
+    mgdRegNumber: String
   ): Action[AnyContent] = authorise.async { implicit request =>
 
-    service.getPremisesDetails(mgdRegNumber, rowsPerPage, PageNo).map {
+    service.getPremisesDetails(mgdRegNumber).map {
 
       case Right(details) =>
         Ok(Json.toJson(details))

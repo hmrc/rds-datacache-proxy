@@ -321,9 +321,7 @@ class GamblingService @Inject() (
   }
 
   def getPremisesDetails(
-    rawMgdRegNumber: String,
-    rowsPerPage: Int,
-    PageNo: Int
+    rawMgdRegNumber: String
   )(implicit hc: HeaderCarrier): Future[Either[GamblingError, PremisesDetailsResponse]] = {
 
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
@@ -339,7 +337,7 @@ class GamblingService @Inject() (
     } else {
 
       repository
-        .getPremisesDetails(mgdRegNumber, rowsPerPage, PageNo)
+        .getPremisesDetails(mgdRegNumber)
         .map(details => Right(details))
         .recover { case ex: Exception =>
           logger.error(

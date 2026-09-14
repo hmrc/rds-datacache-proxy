@@ -141,9 +141,7 @@ object GamblingStubData {
     }
 
   def getPremisesDetails(
-    MgdRegNumber: String,
-    rowsPerPage: Int,
-    PageNo: Int
+    MgdRegNumber: String
   ): PremisesDetailsResponse =
     MgdRegNumber match {
 

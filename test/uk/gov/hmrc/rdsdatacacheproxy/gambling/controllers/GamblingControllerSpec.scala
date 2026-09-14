@@ -660,17 +660,17 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any()))
+      when(mockService.getPremisesDetails(eqTo("XWM00000001770"))(any()))
         .thenReturn(Future.successful(Right(details)))
 
       val req = FakeRequest(GET, "/gambling/premises-details/XWM00000001770")
-      val res = controller.getPremisesDetails("XWM00000001770", 0, 0)(req)
+      val res = controller.getPremisesDetails("XWM00000001770")(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
       contentAsJson(res) mustBe Json.toJson(details)
 
-      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any())
+      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"))(any())
       verifyNoMoreInteractions(mockService)
     }
 
@@ -690,23 +690,23 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         )
       )
 
-      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+      when(mockService.getPremisesDetails(any())(any()))
         .thenReturn(Future.successful(Right(details)))
 
       val req = FakeRequest(GET, "/gambling/premises-details/XWM00000001770")
-      val res = controller.getPremisesDetails("XWM00000001770", 0, 0)(req)
+      val res = controller.getPremisesDetails("XWM00000001770")(req)
 
       status(res) mustBe OK
 
-      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"), eqTo(0), eqTo(0))(any())
+      verify(mockService).getPremisesDetails(eqTo("XWM00000001770"))(any())
     }
 
     "returns 400 when InvalidMgdRegNumber" in new Setup {
-      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+      when(mockService.getPremisesDetails(any())(any()))
         .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
       val req = FakeRequest(GET, "/gambling/premises-details/bad")
-      val res = controller.getPremisesDetails("bad", 0, 0)(req)
+      val res = controller.getPremisesDetails("bad")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -714,15 +714,15 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "mgdRegNumber does not exist"
       )
 
-      verify(mockService).getPremisesDetails(eqTo("bad"), eqTo(0), eqTo(0))(any())
+      verify(mockService).getPremisesDetails(eqTo("bad"))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getPremisesDetails(any(), any(), any())(any()))
+      when(mockService.getPremisesDetails(any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, "/gambling/premises-details/ERR00001770")
-      val res = controller.getPremisesDetails("ERR00001770", 0, 0)(req)
+      val res = controller.getPremisesDetails("ERR00001770")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -730,7 +730,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getPremisesDetails(eqTo("ERR00001770"), eqTo(0), eqTo(0))(any())
+      verify(mockService).getPremisesDetails(eqTo("ERR00001770"))(any())
     }
   }
 }

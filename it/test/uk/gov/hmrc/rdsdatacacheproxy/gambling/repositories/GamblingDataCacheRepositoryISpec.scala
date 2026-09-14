@@ -72,11 +72,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
 
     override def getPremisesDetails(
-                                     mgdRegNumber: String,
-                                     rowsPerPage: Int,
-                                     PageNo: Int
+                                     mgdRegNumber: String
                                         ): Future[PremisesDetailsResponse] =
-      Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber, 0, 0))
+      Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
@@ -831,7 +829,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "return premises details for valid mgdRegNumber" in {
 
       val result =
-        repository.getPremisesDetails("XYZ00000000001", 0, 0).futureValue
+        repository.getPremisesDetails("XYZ00000000001").futureValue
 
       result mustBe PremisesDetailsResponse(
         totalRows = Some(1000),
@@ -862,7 +860,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
       val exception = intercept[RuntimeException] {
         repository
-          .getPremisesDetails("ERR00000000000", 0, 0)
+          .getPremisesDetails("ERR00000000000")
           .futureValue
       }
 
@@ -872,7 +870,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "return empty optional fields when no data exists" in {
 
       val result =
-        repository.getPremisesDetails("UNKNOWN", 0, 0).futureValue
+        repository.getPremisesDetails("UNKNOWN").futureValue
 
       result mustBe PremisesDetailsResponse(
         totalRows = Some(0),

@@ -586,16 +586,16 @@ final class GamblingServiceSpec extends SpecBase {
 
     "return Right(details) when repository succeeds" in {
 
-      val details = GamblingStubData.getPremisesDetails(validMgdRegNumber, 0, 0)
+      val details = GamblingStubData.getPremisesDetails(validMgdRegNumber)
 
-      when(repository.getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0)))
+      when(repository.getPremisesDetails(eqTo(validMgdRegNumber)))
         .thenReturn(Future.successful(details))
 
-      val result = service.getPremisesDetails(validMgdRegNumber, 0, 0).futureValue
+      val result = service.getPremisesDetails(validMgdRegNumber).futureValue
 
       result mustBe Right(details)
 
-      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0))
+      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber))
       verifyNoMoreInteractions(repository)
     }
 
@@ -603,22 +603,22 @@ final class GamblingServiceSpec extends SpecBase {
 
       val raw = "  xwm12345678901  "
 
-      val details = GamblingStubData.getPremisesDetails(normalisedMgdRegNumber, 0, 0)
+      val details = GamblingStubData.getPremisesDetails(normalisedMgdRegNumber)
 
-      when(repository.getPremisesDetails(eqTo(normalisedMgdRegNumber), eqTo(0), eqTo(0)))
+      when(repository.getPremisesDetails(eqTo(normalisedMgdRegNumber)))
         .thenReturn(Future.successful(details))
 
-      val result = service.getPremisesDetails(raw, 0, 0).futureValue
+      val result = service.getPremisesDetails(raw).futureValue
 
       result mustBe Right(details)
 
-      verify(repository).getPremisesDetails(eqTo(normalisedMgdRegNumber), eqTo(0), eqTo(0))
+      verify(repository).getPremisesDetails(eqTo(normalisedMgdRegNumber))
       verifyNoMoreInteractions(repository)
     }
 
     "return InvalidMgdRegNumber when input invalid" in {
 
-      val result = service.getPremisesDetails("bad,", 0, 0).futureValue
+      val result = service.getPremisesDetails("bad,").futureValue
 
       result mustBe Left(InvalidMgdRegNumber)
 
@@ -627,14 +627,14 @@ final class GamblingServiceSpec extends SpecBase {
 
     "return UnexpectedError when repository fails" in {
 
-      when(repository.getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0)))
+      when(repository.getPremisesDetails(eqTo(validMgdRegNumber)))
         .thenReturn(Future.failed(new RuntimeException("fail")))
 
-      val result = service.getPremisesDetails(validMgdRegNumber, 0, 0).futureValue
+      val result = service.getPremisesDetails(validMgdRegNumber).futureValue
 
       result mustBe Left(UnexpectedError)
 
-      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber), eqTo(0), eqTo(0))
+      verify(repository).getPremisesDetails(eqTo(validMgdRegNumber))
       verifyNoMoreInteractions(repository)
     }
   }

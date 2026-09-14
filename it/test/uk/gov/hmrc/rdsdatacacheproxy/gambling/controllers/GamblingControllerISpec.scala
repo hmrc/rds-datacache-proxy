@@ -58,9 +58,9 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
         GamblingStubData.getBusinessAddressDetails(mgdRegNumber)
       }
 
-    override def getPremisesDetails(mgdRegNumber: String, rowsPerPage:  Int, pageNo: Int) =
+    override def getPremisesDetails(mgdRegNumber: String) =
       Future {
-        GamblingStubData.getPremisesDetails(mgdRegNumber, 0, 0)
+        GamblingStubData.getPremisesDetails(mgdRegNumber)
       }
 
     override def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails] = {
@@ -602,7 +602,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     "return 200 with premises details" in {
       AuthStub.authorised()
 
-      val response = get(s"$premisesEndpoint/XYZ00000000001?rowsPerPage=1&pageNo=10").futureValue
+      val response = get(s"$premisesEndpoint/XYZ00000000001").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -613,7 +613,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
 
-      val response = get(s"$premisesEndpoint/XYZ00000000001?rowsPerPage=1&pageNo=10").futureValue
+      val response = get(s"$premisesEndpoint/XYZ00000000001").futureValue
 
       response.status mustBe UNAUTHORIZED
     }

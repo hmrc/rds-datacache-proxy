@@ -36,7 +36,7 @@ trait GamblingDataSource {
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
-  def getPremisesDetails(mgdRegNumber: String, rowsPerPage: Int, PageNo: Int): Future[PremisesDetailsResponse]
+  def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
 }
 
 @Singleton
@@ -926,17 +926,14 @@ class GamblingDataCacheRepository @Inject() (
   }
 
   override def getPremisesDetails(
-    mgdRegNumber: String,
-    rowsPerPage: Int,
-    PageNo: Int
+    mgdRegNumber: String
   ): Future[PremisesDetailsResponse] = {
 
     Future(blocking {
 
       db.withConnection { conn =>
-
         val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(?, ?, ?, ?, ?) }"
+          "{ call MGD_DC_VARIATION_PK.GET_PREMISES(P_MGD_REG_NUMBER => ?, P_ROWS_PER_PAGE => ?, P_PAGE_NO => ?, P_PREMISES => ?, P_TOTAL_ROWS => ?) }"
         )
 
         def closeQuietly(c: AutoCloseable): Unit =
@@ -949,8 +946,8 @@ class GamblingDataCacheRepository @Inject() (
         try {
 
           cs.setString(1, mgdRegNumber)
-          cs.setInt(2, rowsPerPage)
-          cs.setInt(3, PageNo)
+          cs.setInt(2, -1) // fetch all rows
+          cs.setInt(3, 0) // first page
           cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
           cs.registerOutParameter(5, java.sql.Types.NUMERIC)
 

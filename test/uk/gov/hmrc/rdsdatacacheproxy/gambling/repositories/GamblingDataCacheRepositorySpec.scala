@@ -431,7 +431,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockCs.getObject(5)).thenReturn(java.math.BigDecimal.valueOf(100))
 
     val result =
-      repository.getPremisesDetails(mgdRegNumber, 0, 0).futureValue
+      repository.getPremisesDetails(mgdRegNumber).futureValue
 
     result shouldBe PremisesDetailsResponse(
       totalRows = Some(100),
@@ -449,8 +449,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
-    verify(mockCs).setString(1, mgdRegNumber)
-    verify(mockCs).setInt(2, 0)
+    verify(mockCs).setInt(2, -1)
     verify(mockCs).setInt(3, 0)
     verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
     verify(mockCs).registerOutParameter(5, java.sql.Types.NUMERIC)
