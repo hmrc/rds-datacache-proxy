@@ -289,6 +289,36 @@ class GamblingService @Inject() (
     }
   }
 
+
+  def getControllingBodyDetails(
+                                 rawMgdRegNumber: String
+                               )(implicit hc: HeaderCarrier): Future[Either[GamblingError, ControllingBodyDetails]] = {
+
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
+
+      logger.warn(
+        s"[GamblingService][getControllingBodyDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
+      )
+
+      Future.successful(Left(InvalidMgdRegNumber))
+
+    } else {
+
+      repository
+        .getControllingBodyDetails(mgdRegNumber)
+        .map(details => Right(details))
+        .recover { case ex: Exception =>
+          logger.error(
+            s"[GamblingService][getControllingBodyDetails] Unexpected error mgdRegNumber=$mgdRegNumber",
+            ex
+          )
+          Left(UnexpectedError)
+        }
+    }
+  }
+
   def getPartnerDetails(regime: String, rawMgdRegNumber: String)(implicit
     hc: HeaderCarrier
   ): Future[Either[GamblingError, PartnerDetails]] = {
