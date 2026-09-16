@@ -1093,12 +1093,11 @@ class GamblingDataCacheRepository @Inject() (
 
   override def getReturnPeriods(regNumber: String): Future[ReturnPeriods] = Future(blocking {
     db.withConnection { conn =>
-      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?, ?) }")
+      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?) }")
 
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
         cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT ReturnPeriods
-        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
         cs.execute()
 
         val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
