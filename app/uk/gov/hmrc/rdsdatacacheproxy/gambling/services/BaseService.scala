@@ -167,11 +167,68 @@ trait BaseService extends Logging {
       case Right(validRegime) =>
         runAndRecover(baseText, reqText)(ifValid(validRegime, regNumber, consecNo, status))
 
+  def withValidAgentParams[T](
+    regime: String,
+    credentialId: String,
+    start: Int,
+    count: Int,
+    sort: Int,
+    ascending: String,
+    baseText: String
+  )(
+    ifValid: (Regime, String, Int, Int, Int, String) => Future[Either[StatementError, T]]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    val reqText = s"regime=$regime credentialId=$credentialId start=$start"
+    logger.info(s"[$baseText] $reqText")
+
+    val validated: Either[StatementError, Regime] =
+      for validRegime <- Regime.fromString(regime.trim)
+      yield validRegime
+
+    validated match
+      case Left(error) =>
+        logger.error(s"[$baseText] $error, $reqText")
+        Future.successful(Left(error))
+      case Right(validRegime) =>
+        runAndRecoverEither(baseText, reqText)(ifValid(validRegime, credentialId, start, count, sort, ascending))
+
+  def withValidAgentParams[T](
+    regime: String,
+    credentialId: String,
+    regNumber: String,
+    baseText: String
+  )(
+    ifValid: (Regime, String, String) => Future[Either[StatementError, T]]
+  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+    val reqText = s"regime=$regime credentialId=$credentialId regNumber=$regNumber"
+    logger.info(s"[$baseText] $reqText")
+
+    val validated: Either[StatementError, Regime] =
+      for validRegime <- validateRegimeAndRegNumber(regime, regNumber)
+      yield validRegime
+
+    validated match
+      case Left(error) =>
+        logger.error(s"[$baseText] $error, $reqText")
+        Future.successful(Left(error))
+      case Right(validRegime) =>
+        runAndRecoverEither(baseText, reqText)(ifValid(validRegime, credentialId, regNumber))
+
   private def runAndRecover[T](baseText: String, reqText: String)(
     action: => Future[T]
   )(using ec: ExecutionContext): Future[Either[StatementError, T]] =
     action
       .map(result => Right(result))
+      .recover { case ex: Exception =>
+        logger.error(s"[$baseText] Unexpected error $reqText", ex)
+        Left(UnexpectedError)
+      }
+
+  private def runAndRecoverEither[T](baseText: String, reqText: String)(
+    action: => Future[Either[StatementError, T]]
+  )(using ec: ExecutionContext): Future[Either[StatementError, T]] =
+    action
+      .map(result => result)
       .recover { case ex: Exception =>
         logger.error(s"[$baseText] Unexpected error $reqText", ex)
         Left(UnexpectedError)
