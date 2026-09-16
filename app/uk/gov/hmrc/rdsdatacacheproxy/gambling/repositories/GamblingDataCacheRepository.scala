@@ -37,7 +37,7 @@ trait GamblingDataSource {
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
-  def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods]
+  def getReturnPeriods(regNumber: String): Future[ReturnPeriods]
 }
 
 @Singleton
@@ -613,6 +613,7 @@ class GamblingDataCacheRepository @Inject() (
       }
     })(ec)
   }
+
   override def getBusinessName(mgdRegNumber: String): Future[BusinessName] = {
 
     logger.info(s"[GamblingDataCacheRepository][getBusinessName] mgdRegNumber=$mgdRegNumber")
@@ -1090,13 +1091,10 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods] = Future(blocking {
+  override def getReturnPeriods(regNumber: String): Future[ReturnPeriods] = Future(blocking {
     db.withConnection { conn =>
-      val cs = {
-        regime match
-          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?, ?) }")
-          case _          => throw new RuntimeException(s"Regime $regime is not supported for getReturnPeriods")
-      }
+      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?, ?) }")
+
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
         cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT ReturnPeriods

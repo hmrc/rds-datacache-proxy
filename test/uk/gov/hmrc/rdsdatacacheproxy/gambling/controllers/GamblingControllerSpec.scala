@@ -38,14 +38,12 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.*
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -740,43 +738,72 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
   "GamblingController#getReturnPeriods" - {
 
     "returns 200 when service succeeds" in new Setup {
+      val returnPeriods = ReturnPeriods(
+        mgdRegNumber          = "XYM00000000000",
+        returnPeriodsId       = Some(1),
+        nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
+        nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
+        nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
+        nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
+        nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
+        nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
+        nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
+        nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
+        isInLastNstp          = Some("1"),
+        finalPeriodWarning    = Some("0"),
+        hasExistingNstpValues = Some("1"),
+        systemDate            = Some(LocalDate.of(2026, 5, 31))
+      )
 
-      when(mockService.getReturnPeriods(eqTo(validRegime), eqTo("XWM00000001770"))(any()))
-        .thenReturn(Future.successful(Right(validResponseReturnPeriods)))
+      when(mockService.getReturnPeriods(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(returnPeriods)))
 
-      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/XWM00000001770")
-      val res: Future[Result] = controller.getReturnPeriods(validRegime, "XWM00000001770")(req)
+      val req = FakeRequest(GET, "/gambling/return-periods/XWM00000001770")
+      val res = controller.getReturnPeriods("XWM00000001770")(req)
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseReturnPeriods)
+      contentAsJson(res) mustBe Json.toJson(returnPeriods)
 
-      verify(mockService).getReturnPeriods(eqTo(validRegime), eqTo("XWM00000001770"))(any())
+      verify(mockService).getReturnPeriods(eqTo("XWM00000001770"))(any())
       verifyNoMoreInteractions(mockService)
     }
 
-    "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getReturnPeriods(any(), any())(any()))
-        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
-
-      val req = FakeRequest(GET, "/gambling/return-periods/INVALID_REGIME/XWM00000001770")
-      val res: Future[Result] = controller.getReturnPeriods(" ", " ")(req)
-
-      status(res) mustBe BAD_REQUEST
-      contentAsJson(res) mustBe Json.obj(
-        "code"    -> "INVALID_REGIME_CODE",
-        "message" -> "Invalid Regime Code"
+    "allows request through AuthAction" in new Setup {
+      val returnPeriods = ReturnPeriods(
+        mgdRegNumber          = "XYM00000000000",
+        returnPeriodsId       = Some(1),
+        nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
+        nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
+        nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
+        nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
+        nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
+        nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
+        nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
+        nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
+        isInLastNstp          = Some("1"),
+        finalPeriodWarning    = Some("0"),
+        hasExistingNstpValues = Some("1"),
+        systemDate            = Some(LocalDate.of(2026, 5, 31))
       )
 
-      verify(mockService).getReturnPeriods(eqTo(" "), eqTo(" "))(any())
+      when(mockService.getReturnPeriods(any())(any()))
+        .thenReturn(Future.successful(Right(returnPeriods)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/XWM00000001770")
+      val res = controller.getReturnPeriods("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getReturnPeriods(eqTo("XWM00000001770"))(any())
     }
 
     "returns 400 when InvalidMgdRegNumber" in new Setup {
-      when(mockService.getReturnPeriods(any(), any())(any()))
+      when(mockService.getReturnPeriods(any())(any()))
         .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/InvalidRegNo")
-      val res: Future[Result] = controller.getReturnPeriods(" ", " ")(req)
+      val req = FakeRequest(GET, "/gambling/return-periods/bad")
+      val res = controller.getReturnPeriods("bad")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -784,15 +811,15 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "mgdRegNumber does not exist"
       )
 
-      verify(mockService).getReturnPeriods(eqTo(" "), eqTo(" "))(any())
+      verify(mockService).getReturnPeriods(eqTo("bad"))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getReturnPeriods(any(), any())(any()))
+      when(mockService.getReturnPeriods(any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/ERR00001770")
-      val res: Future[Result] = controller.getReturnPeriods(validRegime, "ERR00001770")(req)
+      val req = FakeRequest(GET, "/gambling/return-periods/ERR00001770")
+      val res = controller.getReturnPeriods("ERR00001770")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -800,7 +827,8 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getReturnPeriods(eqTo(validRegime), eqTo("ERR00001770"))(any())
+      verify(mockService).getReturnPeriods(eqTo("ERR00001770"))(any())
     }
   }
+
 }

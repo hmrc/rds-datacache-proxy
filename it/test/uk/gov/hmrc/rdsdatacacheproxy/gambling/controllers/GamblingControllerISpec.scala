@@ -179,7 +179,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getPartnerDetailsData(regNumber)
     }
 
-    override def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods] = Future {
+    override def getReturnPeriods(regNumber: String): Future[ReturnPeriods] = Future {
       GamblingStubData.getReturnPeriods(regNumber)
     }
 
@@ -774,10 +774,10 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe BAD_REQUEST
     }
 
-    "return 400 for invalid regime" in {
+    "return 404 for invalid regime" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012").futureValue
-      response.status mustBe BAD_REQUEST
+      response.status mustBe NOT_FOUND
     }
 
     "return 400 for regNumber with special characters" in {

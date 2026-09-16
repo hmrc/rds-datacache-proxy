@@ -182,9 +182,9 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
     }
   }
 
-  def getReturnPeriods(regime: String, mgdRegNumber: String): Action[AnyContent] =
+  def getReturnPeriods(mgdRegNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getReturnPeriods(regime, mgdRegNumber).map {
+      service.getReturnPeriods(mgdRegNumber).map {
         case Right(details) =>
           Ok(Json.toJson(details))
         case Left(error) =>

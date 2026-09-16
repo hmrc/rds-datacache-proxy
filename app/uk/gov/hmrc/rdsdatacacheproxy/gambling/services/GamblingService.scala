@@ -349,12 +349,12 @@ class GamblingService @Inject() (
     }
   }
 
-  def getReturnPeriods(regime: String, regNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, ReturnPeriods]] = {
+  def getReturnPeriods(regNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, ReturnPeriods]] = {
 
     val sanitizedRegNumber = regNumber.trim.toUpperCase
 
     val validationResult: Either[GamblingError, (Regime, String)] = for {
-      validRegime <- Regime.fromString(regime.trim).left.map {
+      validRegime <- Regime.fromString("mgd").left.map {
                        case StatementError.InvalidRegimeCode => InvalidRegimeCode
                        case _                                => UnexpectedError
                      }
@@ -375,7 +375,7 @@ class GamblingService @Inject() (
       error => Future.successful(Left(error)),
       { case (validRegime, validRegNum) =>
         repository
-          .getReturnPeriods(validRegime, validRegNum)
+          .getReturnPeriods(validRegNum)
           .map(Right(_))
           .recover { case ex: Exception =>
             logger.error(s"[GamblingService][getReturnPeriods] Unexpected error mgdRegNumber=$validRegNum", ex)

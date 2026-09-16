@@ -12,7 +12,7 @@ GET        /trade-class/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacache
 GET        /correspondence-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getCorrespondenceDetails(mgdRegNumber: String)
 GET        /premises-details/mgd/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getPremisesDetails(mgdRegNumber: String)
 GET        /business-address/mgd/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessAddressDetails(mgdRegNumber: String)
-GET        /return-periods/:regime/:mgdRegNumber        uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnPeriods(regime: String, mgdRegNumber: String)
+GET        /return-periods/mgd/:mgdRegNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnPeriods(mgdRegNumber: String)
 
 
 #Gambling Returns routes
