@@ -179,6 +179,10 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getPartnerDetailsData(regNumber)
     }
 
+    override def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods] = Future {
+      GamblingStubData.getReturnPeriods(regNumber)
+    }
+
   }
 
   override lazy val app: Application =
@@ -594,7 +598,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     }
   }
 
-
   "GET /gambling/premises-details/mgd/:mgdRegNumber" should {
 
     val premisesEndpoint = "/gambling/premises-details/mgd"
@@ -722,4 +725,109 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     }
 
   }
+
+  "GET /gambling/return-periods" should {
+    val endpoint = "/gambling/return-periods"
+    val MGD = "mgd"
+
+    "return 200 with correct ReturnsReturnPeriodsData" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+    }
+
+    "normalise lowercase input" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/xym00000000000 ").futureValue
+      response.status mustBe OK
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+    }
+
+    "trim whitespace around regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/   XYM00000000000   ").futureValue
+      response.status mustBe OK
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      AuthStub.authorised()
+      val res1 = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+      val res2 = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+      res1.json mustBe res2.json
+    }
+
+    "return JSON content type for valid response" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+      response.contentType mustBe "application/json"
+    }
+
+    "return 400 for partially valid regNumber (wrong length)" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XYZ123").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regime" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for regNumber with special characters" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XYZ00000@00000").futureValue
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 400 for invalid regNumber format" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/$MGD/INVALID").futureValue
+      response.status mustBe BAD_REQUEST
+      (response.json \ "code").as[String] mustBe "INVALID_MGD_REG_NUMBER"
+      (response.json \ "message").as[String] mustBe "mgdRegNumber does not exist"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$endpoint/$MGD/XYM00000000000").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+
+    "return 404 for missing regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 404 for whitespace-only regNumber" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/   ").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 500 when stub simulates failure" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XEM33333333333").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return correct error structure for 500 response" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/$MGD/XEM33333333333").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+      (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+  }
+
 }

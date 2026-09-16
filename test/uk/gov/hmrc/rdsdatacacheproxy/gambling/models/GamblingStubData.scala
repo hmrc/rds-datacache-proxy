@@ -574,4 +574,43 @@ object GamblingStubData {
         )
       case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
+
+  def getReturnPeriods(regNumber: String): ReturnPeriods =
+    regNumber match {
+      case "XYM00000000000" =>
+        ReturnPeriods(
+          mgdRegNumber          = "XYM00000000000",
+          returnPeriodsId       = Some(1),
+          nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
+          nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
+          nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
+          nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
+          nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
+          nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
+          nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
+          nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
+          isInLastNstp          = Some("1"),
+          finalPeriodWarning    = Some("0"),
+          hasExistingNstpValues = Some("1"),
+          systemDate            = Some(LocalDate.of(2026, 5, 31))
+        )
+      case "XYZ00000000001" =>
+        ReturnPeriods(
+          mgdRegNumber          = "XYZ00000000001",
+          returnPeriodsId       = None,
+          nstpEndDate1          = None,
+          nstpEndDate2          = None,
+          nstpEndDate3          = None,
+          nstpEndDate4          = None,
+          nstpEndDate5          = None,
+          nstpEndDate6          = None,
+          nstpEndDate7          = None,
+          nstpEndDate8          = None,
+          isInLastNstp          = None,
+          finalPeriodWarning    = None,
+          hasExistingNstpValues = None,
+          systemDate            = None
+        )
+      case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
+    }
 }

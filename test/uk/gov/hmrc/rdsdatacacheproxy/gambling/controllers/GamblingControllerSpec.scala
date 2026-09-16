@@ -38,12 +38,14 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.*
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -175,6 +177,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getBusinessName(eqTo("XWM00000001770"))(any())
     }
   }
+
   "returns 400 when InvalidMgdRegNumber" in new Setup {
     when(mockService.getBusinessName(any())(any()))
       .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
@@ -731,6 +734,73 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       )
 
       verify(mockService).getPremisesDetails(eqTo("ERR00001770"))(any())
+    }
+  }
+
+  "GamblingController#getReturnPeriods" - {
+
+    "returns 200 when service succeeds" in new Setup {
+
+      when(mockService.getReturnPeriods(eqTo(validRegime), eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(validResponseReturnPeriods)))
+
+      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/XWM00000001770")
+      val res: Future[Result] = controller.getReturnPeriods(validRegime, "XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(validResponseReturnPeriods)
+
+      verify(mockService).getReturnPeriods(eqTo(validRegime), eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getReturnPeriods(any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getReturnPeriods(" ", " ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getReturnPeriods(eqTo(" "), eqTo(" "))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getReturnPeriods(any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/InvalidRegNo")
+      val res: Future[Result] = controller.getReturnPeriods(" ", " ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getReturnPeriods(eqTo(" "), eqTo(" "))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getReturnPeriods(any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/return-periods/$validRegime/ERR00001770")
+      val res: Future[Result] = controller.getReturnPeriods(validRegime, "ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getReturnPeriods(eqTo(validRegime), eqTo("ERR00001770"))(any())
     }
   }
 }

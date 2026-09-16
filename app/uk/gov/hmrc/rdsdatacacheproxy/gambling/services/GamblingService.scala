@@ -19,8 +19,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.services
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.{GamblingError, StatementError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.{GamblingError, StatementError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator.regNumberPatternGTR
@@ -347,5 +347,41 @@ class GamblingService @Inject() (
           Left(UnexpectedError)
         }
     }
+  }
+
+  def getReturnPeriods(regime: String, regNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, ReturnPeriods]] = {
+
+    val sanitizedRegNumber = regNumber.trim.toUpperCase
+
+    val validationResult: Either[GamblingError, (Regime, String)] = for {
+      validRegime <- Regime.fromString(regime.trim).left.map {
+                       case StatementError.InvalidRegimeCode => InvalidRegimeCode
+                       case _                                => UnexpectedError
+                     }
+      _ <- GRNValidator.validateRegNum(validRegime, sanitizedRegNumber).left.map { _ =>
+             logger.warn(s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$sanitizedRegNumber")
+             InvalidMgdRegNumber
+           }
+      validRegNum <- Either.cond(
+                       regNumberPatternGTR.matcher(sanitizedRegNumber).matches(),
+                       sanitizedRegNumber, {
+                         logger.warn(s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$sanitizedRegNumber")
+                         InvalidMgdRegNumber
+                       }
+                     )
+    } yield (validRegime, validRegNum)
+
+    validationResult.fold(
+      error => Future.successful(Left(error)),
+      { case (validRegime, validRegNum) =>
+        repository
+          .getReturnPeriods(validRegime, validRegNum)
+          .map(Right(_))
+          .recover { case ex: Exception =>
+            logger.error(s"[GamblingService][getReturnPeriods] Unexpected error mgdRegNumber=$validRegNum", ex)
+            Left(UnexpectedError)
+          }
+      }
+    )
   }
 }

@@ -613,4 +613,21 @@ object GamblingTestUtil {
     systemDate = Some(LocalDate.of(2026, 7, 30))
   )
 
+  val validResponseReturnPeriods = ReturnPeriods(
+    mgdRegNumber          = "XYM00000000000",
+    returnPeriodsId       = Some(1),
+    nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
+    nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
+    nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
+    nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
+    nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
+    nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
+    nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
+    nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
+    isInLastNstp          = Some("1"),
+    finalPeriodWarning    = Some("0"),
+    hasExistingNstpValues = Some("1"),
+    systemDate            = Some(LocalDate.of(2026, 5, 31))
+  )
+
 }

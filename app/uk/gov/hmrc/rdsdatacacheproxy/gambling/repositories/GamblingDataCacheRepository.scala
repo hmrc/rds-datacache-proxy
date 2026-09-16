@@ -20,9 +20,9 @@ import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future, blocking}
-import java.time.LocalDate
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
@@ -37,6 +37,7 @@ trait GamblingDataSource {
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
+  def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods]
 }
 
 @Singleton
@@ -1083,6 +1084,60 @@ class GamblingDataCacheRepository @Inject() (
           partners   = partnerDetails,
           systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
         )
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
+
+  override def getReturnPeriods(regime: Regime, regNumber: String): Future[ReturnPeriods] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = {
+        regime match
+          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?, ?) }")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getReturnPeriods")
+      }
+      try {
+        cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT ReturnPeriods
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.execute()
+
+        val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+        if (rs == null) {
+          val msg = s"Null cursor returned for mgdRegNumber=$regNumber"
+          logger.error(s"[GamblingDataCacheRepository] $msg")
+          throw new RuntimeException(msg)
+        }
+
+        try {
+          if (rs.next()) {
+            ReturnPeriods(
+              mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
+              returnPeriodsId       = Option(rs.getInt("RETURN_PERIODS_ID")),
+              nstpEndDate1          = Option(rs.getDate("NSTP_END_DATE_1")).map(_.toLocalDate),
+              nstpEndDate2          = Option(rs.getDate("NSTP_END_DATE_2")).map(_.toLocalDate),
+              nstpEndDate3          = Option(rs.getDate("NSTP_END_DATE_3")).map(_.toLocalDate),
+              nstpEndDate4          = Option(rs.getDate("NSTP_END_DATE_4")).map(_.toLocalDate),
+              nstpEndDate5          = Option(rs.getDate("NSTP_END_DATE_5")).map(_.toLocalDate),
+              nstpEndDate6          = Option(rs.getDate("NSTP_END_DATE_6")).map(_.toLocalDate),
+              nstpEndDate7          = Option(rs.getDate("NSTP_END_DATE_7")).map(_.toLocalDate),
+              nstpEndDate8          = Option(rs.getDate("NSTP_END_DATE_8")).map(_.toLocalDate),
+              isInLastNstp          = Option(rs.getString("IS_IN_LAST_NSTP")),
+              finalPeriodWarning    = Option(rs.getString("FINAL_PERIOD_WARNING")),
+              hasExistingNstpValues = Option(rs.getString("HAS_EXISTING_NSTP_VALUES")),
+              systemDate            = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+            )
+          } else {
+            val msg = s"Empty result set for mgdRegNumber=$regNumber"
+            logger.error(s"[GamblingDataCacheRepository] $msg")
+            throw new RuntimeException(msg)
+          }
+        } finally {
+          rs.close()
+        }
+
       } finally {
         closeQuietly(cs)
       }
