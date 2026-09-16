@@ -940,7 +940,7 @@ class GamblingDataCacheRepository @Inject() (
       db.withConnection { conn =>
 
         val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_CONTROLLING_BODY_DETAILS(?, ?) }"
+          "{ call MGD_DC_VARIATION_PK.GET_CONTROLLING_BODY_DETAILS(?, ?,?) }"
         )
 
         def closeQuietly(c: AutoCloseable): Unit =
@@ -954,10 +954,13 @@ class GamblingDataCacheRepository @Inject() (
 
           cs.setString(1, mgdRegNumber)
           cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.registerOutParameter(3, java.sql.Types.DATE)
 
           cs.execute()
 
           val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+
+          val systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
 
           try {
             optionResultSet
@@ -1013,9 +1016,9 @@ class GamblingDataCacheRepository @Inject() (
                   fax_Number = optString("FAX_NUMBER"),
                   email_Addr = optString("EMAIL_ADDR"),
                   type_Of_Controlling_Body = optInt("TYPE_OF_CONTROLLING_BODY"),
-                  is_Rep_Mem_Same_As_Cb = optString("IS_REP_MEM_SAME_AS_CB"),
-                  is_Uk_Incorporated = optString("IS_UK_INCORPORATED"),
-                  systemDate = optDate("P_SYSDATE")
+                  is_Rep_Mem_Same_As_Cb    = optString("IS_REP_MEM_SAME_AS_CB"),
+                  is_Uk_Incorporated       = optString("IS_UK_INCORPORATED"),
+                  systemDate               = systemDate
                 )
               }
               .getOrElse {
