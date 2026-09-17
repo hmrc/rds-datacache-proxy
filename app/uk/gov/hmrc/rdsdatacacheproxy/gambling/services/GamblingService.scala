@@ -351,37 +351,22 @@ class GamblingService @Inject() (
 
   def getReturnPeriods(regNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, ReturnPeriods]] = {
 
-    val sanitizedRegNumber = regNumber.trim.toUpperCase
+    val mgdRegNumber = regNumber.trim.toUpperCase
 
-    val validationResult: Either[GamblingError, (Regime, String)] = for {
-      validRegime <- Regime.fromString("mgd").left.map {
-                       case StatementError.InvalidRegimeCode => InvalidRegimeCode
-                       case _                                => UnexpectedError
-                     }
-      _ <- GRNValidator.validateRegNum(validRegime, sanitizedRegNumber).left.map { _ =>
-             logger.warn(s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$sanitizedRegNumber")
-             InvalidMgdRegNumber
-           }
-      validRegNum <- Either.cond(
-                       regNumberPatternGTR.matcher(sanitizedRegNumber).matches(),
-                       sanitizedRegNumber, {
-                         logger.warn(s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$sanitizedRegNumber")
-                         InvalidMgdRegNumber
-                       }
-                     )
-    } yield (validRegime, validRegNum)
+    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
+      logger.warn(
+        s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$mgdRegNumber"
+      )
+      Future.successful(Left(InvalidMgdRegNumber))
+    } else {
+      repository
+        .getReturnPeriods(mgdRegNumber)
+        .map(Right(_))
+        .recover { case ex: Exception =>
+          logger.error(s"[GamblingService][getReturnPeriods] Unexpected error mgdRegNumber=$mgdRegNumber", ex)
+          Left(UnexpectedError)
+        }
+    }
 
-    validationResult.fold(
-      error => Future.successful(Left(error)),
-      { case (validRegime, validRegNum) =>
-        repository
-          .getReturnPeriods(validRegNum)
-          .map(Right(_))
-          .recover { case ex: Exception =>
-            logger.error(s"[GamblingService][getReturnPeriods] Unexpected error mgdRegNumber=$validRegNum", ex)
-            Left(UnexpectedError)
-          }
-      }
-    )
   }
 }
