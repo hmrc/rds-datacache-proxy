@@ -643,45 +643,44 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-
   "GamblingController#getControllingBodyDetails" - {
 
     "returns 200 when service succeeds" in new Setup {
       val details = ControllingBodyDetails(
-        mgdRegNumber = "XYZ00000000001",
-        business_Partner_Number = Some("foo"),
-        date_Of_Joining = Some(fixedDate),
-        date_Of_Leaving = Some(fixedDate),
-        sole_Prop_Title = Some("foo"),
-        sole_Prop_First_Name = Some("foo"),
-        sole_Prop_Middle_Name = Some("foo"),
-        sole_Prop_Last_Name = Some("foo"),
-        business_Name = Some("foo"),
-        trading_Name = Some("foo"),
-        date_Of_Birth = Some(fixedDate),
-        nino = Some("foo"),
-        utr = Some(1),
-        vrn = Some(2),
-        crn = Some("foo"),
-        date_Of_Incorporation = Some(fixedDate),
+        mgdRegNumber             = "XYZ00000000001",
+        business_Partner_Number  = Some("foo"),
+        date_Of_Joining          = Some(fixedDate),
+        date_Of_Leaving          = Some(fixedDate),
+        sole_Prop_Title          = Some("foo"),
+        sole_Prop_First_Name     = Some("foo"),
+        sole_Prop_Middle_Name    = Some("foo"),
+        sole_Prop_Last_Name      = Some("foo"),
+        business_Name            = Some("foo"),
+        trading_Name             = Some("foo"),
+        date_Of_Birth            = Some(fixedDate),
+        nino                     = Some("foo"),
+        utr                      = Some(1),
+        vrn                      = Some(2),
+        crn                      = Some("foo"),
+        date_Of_Incorporation    = Some(fixedDate),
         country_Of_Incorporation = Some("foo"),
-        foreign_Corporate_Ref = Some("foo"),
-        address_1 = Some("random street"),
-        address_2 = Some("bar"),
-        address_3 = Some("bar"),
-        address_4 = Some("foo"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        adi = Some("none"),
-        is_Iom_Or_Ci = Some("true"),
-        phone_Number = Some("foo"),
-        mobile_Phone_Number = Some("foo"),
-        fax_Number = Some("foo"),
-        email_Addr = Some("foo"),
+        foreign_Corporate_Ref    = Some("foo"),
+        address_1                = Some("random street"),
+        address_2                = Some("bar"),
+        address_3                = Some("bar"),
+        address_4                = Some("foo"),
+        postcode                 = Some("SR1 4DE"),
+        country                  = Some("Ingerland!"),
+        adi                      = Some("none"),
+        is_Iom_Or_Ci             = Some("true"),
+        phone_Number             = Some("foo"),
+        mobile_Phone_Number      = Some("foo"),
+        fax_Number               = Some("foo"),
+        email_Addr               = Some("foo"),
         type_Of_Controlling_Body = Some(1),
-        is_Rep_Mem_Same_As_Cb = Some("foo"),
-        is_Uk_Incorporated = Some("foo"),
-        systemDate = Some(fixedDate)
+        is_Rep_Mem_Same_As_Cb    = Some("foo"),
+        is_Uk_Incorporated       = Some("foo"),
+        systemDate               = Some(fixedDate)
       )
 
       when(mockService.getControllingBodyDetails(eqTo("XWM00000001770"))(any()))
@@ -700,40 +699,40 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
     "allows request through AuthAction" in new Setup {
       val details = ControllingBodyDetails(
-        mgdRegNumber = "XYZ00000000001",
-        business_Partner_Number = Some("foo"),
-        date_Of_Joining = Some(fixedDate),
-        date_Of_Leaving = Some(fixedDate),
-        sole_Prop_Title = Some("foo"),
-        sole_Prop_First_Name = Some("foo"),
-        sole_Prop_Middle_Name = Some("foo"),
-        sole_Prop_Last_Name = Some("foo"),
-        business_Name = Some("foo"),
-        trading_Name = Some("foo"),
-        date_Of_Birth = Some(fixedDate),
-        nino = Some("foo"),
-        utr = Some(1),
-        vrn = Some(2),
-        crn = Some("foo"),
-        date_Of_Incorporation = Some(fixedDate),
+        mgdRegNumber             = "XYZ00000000001",
+        business_Partner_Number  = Some("foo"),
+        date_Of_Joining          = Some(fixedDate),
+        date_Of_Leaving          = Some(fixedDate),
+        sole_Prop_Title          = Some("foo"),
+        sole_Prop_First_Name     = Some("foo"),
+        sole_Prop_Middle_Name    = Some("foo"),
+        sole_Prop_Last_Name      = Some("foo"),
+        business_Name            = Some("foo"),
+        trading_Name             = Some("foo"),
+        date_Of_Birth            = Some(fixedDate),
+        nino                     = Some("foo"),
+        utr                      = Some(1),
+        vrn                      = Some(2),
+        crn                      = Some("foo"),
+        date_Of_Incorporation    = Some(fixedDate),
         country_Of_Incorporation = Some("foo"),
-        foreign_Corporate_Ref = Some("foo"),
-        address_1 = Some("random street"),
-        address_2 = Some("bar"),
-        address_3 = Some("bar"),
-        address_4 = Some("foo"),
-        postcode = Some("SR1 4DE"),
-        country = Some("Ingerland!"),
-        adi = Some("none"),
-        is_Iom_Or_Ci = Some("true"),
-        phone_Number = Some("foo"),
-        mobile_Phone_Number = Some("foo"),
-        fax_Number = Some("foo"),
-        email_Addr = Some("foo"),
+        foreign_Corporate_Ref    = Some("foo"),
+        address_1                = Some("random street"),
+        address_2                = Some("bar"),
+        address_3                = Some("bar"),
+        address_4                = Some("foo"),
+        postcode                 = Some("SR1 4DE"),
+        country                  = Some("Ingerland!"),
+        adi                      = Some("none"),
+        is_Iom_Or_Ci             = Some("true"),
+        phone_Number             = Some("foo"),
+        mobile_Phone_Number      = Some("foo"),
+        fax_Number               = Some("foo"),
+        email_Addr               = Some("foo"),
         type_Of_Controlling_Body = Some(1),
-        is_Rep_Mem_Same_As_Cb = Some("foo"),
-        is_Uk_Incorporated = Some("foo"),
-        systemDate = Some(fixedDate)
+        is_Rep_Mem_Same_As_Cb    = Some("foo"),
+        is_Uk_Incorporated       = Some("foo"),
+        systemDate               = Some(fixedDate)
       )
 
       when(mockService.getControllingBodyDetails(any())(any()))
@@ -756,7 +755,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "INVALID_MGD_REG_NUMBER",
+        "code"    -> "INVALID_MGD_REG_NUMBER",
         "message" -> "mgdRegNumber does not exist"
       )
 
@@ -772,7 +771,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "UNEXPECTED_ERROR",
+        "code"    -> "UNEXPECTED_ERROR",
         "message" -> "Unexpected error occurred"
       )
 

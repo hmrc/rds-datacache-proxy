@@ -142,90 +142,90 @@ object GamblingStubData {
         )
     }
 
-
   def getControllingBodyDetails(
-                                   mgdRegNumber: String
-                                 ): ControllingBodyDetails =
-      mgdRegNumber match {
+    mgdRegNumber: String
+  ): ControllingBodyDetails =
+    mgdRegNumber match {
 
-        case "XYZ00000000001" =>
-          ControllingBodyDetails(
-            mgdRegNumber = mgdRegNumber,
-            business_Partner_Number = Some("foo"),
-            date_Of_Joining = Some(fixedDate),
-            date_Of_Leaving = Some(fixedDate),
-            sole_Prop_Title = Some("foo"),
-            sole_Prop_First_Name = Some("foo"),
-            sole_Prop_Middle_Name = Some("foo"),
-            sole_Prop_Last_Name = Some("foo"),
-            business_Name = Some("foo"),
-            trading_Name = Some("foo"),
-            date_Of_Birth = Some(fixedDate),
-            nino = Some("foo"),
-            utr = Some(1),
-            vrn = Some(2),
-            crn = Some("foo"),
-            date_Of_Incorporation = Some(fixedDate),
-            country_Of_Incorporation = Some("foo"),
-            foreign_Corporate_Ref = Some("foo"),
-            address_1 = Some("random street"),
-            address_2 = Some("bar"),
-            address_3 = Some("bar"),
-            address_4 = Some("foo"),
-            postcode = Some("SR1 4DE"),
-            country = Some("Ingerland!"),
-            adi = Some("none"),
-            is_Iom_Or_Ci = Some("true"),
-            phone_Number = Some("foo"),
-            mobile_Phone_Number = Some("foo"),
-            fax_Number = Some("foo"),
-            email_Addr = Some("foo"),
-            type_Of_Controlling_Body = Some(1),
-            is_Rep_Mem_Same_As_Cb = Some("foo"),
-            is_Uk_Incorporated = Some("foo"),
-            systemDate = Some(fixedDate)
-          )
+      case "XYZ00000000001" =>
+        ControllingBodyDetails(
+          mgdRegNumber             = mgdRegNumber,
+          business_Partner_Number  = Some("foo"),
+          date_Of_Joining          = Some(fixedDate),
+          date_Of_Leaving          = Some(fixedDate),
+          sole_Prop_Title          = Some("foo"),
+          sole_Prop_First_Name     = Some("foo"),
+          sole_Prop_Middle_Name    = Some("foo"),
+          sole_Prop_Last_Name      = Some("foo"),
+          business_Name            = Some("foo"),
+          trading_Name             = Some("foo"),
+          date_Of_Birth            = Some(fixedDate),
+          nino                     = Some("foo"),
+          utr                      = Some(1),
+          vrn                      = Some(2),
+          crn                      = Some("foo"),
+          date_Of_Incorporation    = Some(fixedDate),
+          country_Of_Incorporation = Some("foo"),
+          foreign_Corporate_Ref    = Some("foo"),
+          address_1                = Some("random street"),
+          address_2                = Some("bar"),
+          address_3                = Some("bar"),
+          address_4                = Some("foo"),
+          postcode                 = Some("SR1 4DE"),
+          country                  = Some("Ingerland!"),
+          adi                      = Some("none"),
+          is_Iom_Or_Ci             = Some("true"),
+          phone_Number             = Some("foo"),
+          mobile_Phone_Number      = Some("foo"),
+          fax_Number               = Some("foo"),
+          email_Addr               = Some("foo"),
+          type_Of_Controlling_Body = Some(1),
+          is_Rep_Mem_Same_As_Cb    = Some("foo"),
+          is_Uk_Incorporated       = Some("foo"),
+          systemDate               = Some(fixedDate)
+        )
 
-        case "XER00000000000" =>
-          throw new RuntimeException("Simulated downstream failure")
+      case "XER00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
 
-        case _ =>
-          ControllingBodyDetails(mgdRegNumber = "",
-            business_Partner_Number = None,
-            date_Of_Joining = None,
-            date_Of_Leaving = None,
-            sole_Prop_Title = None,
-            sole_Prop_First_Name = None,
-            sole_Prop_Middle_Name = None,
-            sole_Prop_Last_Name = None,
-            business_Name = None,
-            trading_Name = None,
-            date_Of_Birth = None,
-            nino = None,
-            utr = None,
-            vrn = None,
-            crn = None,
-            date_Of_Incorporation = None,
-            country_Of_Incorporation = None,
-            foreign_Corporate_Ref = None,
-            address_1 = None,
-            address_2 = None,
-            address_3 = None,
-            address_4 = None,
-            postcode = None,
-            country = None,
-            adi = None,
-            is_Iom_Or_Ci = None,
-            phone_Number = None,
-            mobile_Phone_Number = None,
-            fax_Number = None,
-            email_Addr = None,
-            type_Of_Controlling_Body = None,
-            is_Rep_Mem_Same_As_Cb = None,
-            is_Uk_Incorporated = None,
-            systemDate = None
-          )
-      }    
+      case _ =>
+        ControllingBodyDetails(
+          mgdRegNumber             = "",
+          business_Partner_Number  = None,
+          date_Of_Joining          = None,
+          date_Of_Leaving          = None,
+          sole_Prop_Title          = None,
+          sole_Prop_First_Name     = None,
+          sole_Prop_Middle_Name    = None,
+          sole_Prop_Last_Name      = None,
+          business_Name            = None,
+          trading_Name             = None,
+          date_Of_Birth            = None,
+          nino                     = None,
+          utr                      = None,
+          vrn                      = None,
+          crn                      = None,
+          date_Of_Incorporation    = None,
+          country_Of_Incorporation = None,
+          foreign_Corporate_Ref    = None,
+          address_1                = None,
+          address_2                = None,
+          address_3                = None,
+          address_4                = None,
+          postcode                 = None,
+          country                  = None,
+          adi                      = None,
+          is_Iom_Or_Ci             = None,
+          phone_Number             = None,
+          mobile_Phone_Number      = None,
+          fax_Number               = None,
+          email_Addr               = None,
+          type_Of_Controlling_Body = None,
+          is_Rep_Mem_Same_As_Cb    = None,
+          is_Uk_Incorporated       = None,
+          systemDate               = None
+        )
+    }
 
   def getPremisesDetails(
     MgdRegNumber: String
