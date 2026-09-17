@@ -1106,33 +1106,34 @@ class GamblingDataCacheRepository @Inject() (
           val msg = s"Null cursor returned for mgdRegNumber=$regNumber"
           logger.error(s"[GamblingDataCacheRepository] $msg")
           throw new RuntimeException(msg)
-        }
-
-        try {
-          if (rs.next()) {
-            ReturnPeriods(
-              mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
-              returnPeriodsId       = Option(rs.getInt("RETURN_PERIODS_ID")),
-              nstpEndDate1          = Option(rs.getDate("NSTP_END_DATE_1")).map(_.toLocalDate),
-              nstpEndDate2          = Option(rs.getDate("NSTP_END_DATE_2")).map(_.toLocalDate),
-              nstpEndDate3          = Option(rs.getDate("NSTP_END_DATE_3")).map(_.toLocalDate),
-              nstpEndDate4          = Option(rs.getDate("NSTP_END_DATE_4")).map(_.toLocalDate),
-              nstpEndDate5          = Option(rs.getDate("NSTP_END_DATE_5")).map(_.toLocalDate),
-              nstpEndDate6          = Option(rs.getDate("NSTP_END_DATE_6")).map(_.toLocalDate),
-              nstpEndDate7          = Option(rs.getDate("NSTP_END_DATE_7")).map(_.toLocalDate),
-              nstpEndDate8          = Option(rs.getDate("NSTP_END_DATE_8")).map(_.toLocalDate),
-              isInLastNstp          = Option(rs.getString("IS_IN_LAST_NSTP")),
-              finalPeriodWarning    = Option(rs.getString("FINAL_PERIOD_WARNING")),
-              hasExistingNstpValues = Option(rs.getString("HAS_EXISTING_NSTP_VALUES")),
-              systemDate            = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
-            )
-          } else {
-            val msg = s"Empty result set for mgdRegNumber=$regNumber"
-            logger.error(s"[GamblingDataCacheRepository] $msg")
-            throw new RuntimeException(msg)
+        } else {
+          try {
+            if (rs.next()) {
+              ReturnPeriods(
+                mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
+                returnPeriodsId       = Option(rs.getInt("RETURN_PERIODS_ID")),
+                nstpEndDate1          = Option(rs.getDate("NSTP_END_DATE_1")).map(_.toLocalDate),
+                nstpEndDate2          = Option(rs.getDate("NSTP_END_DATE_2")).map(_.toLocalDate),
+                nstpEndDate3          = Option(rs.getDate("NSTP_END_DATE_3")).map(_.toLocalDate),
+                nstpEndDate4          = Option(rs.getDate("NSTP_END_DATE_4")).map(_.toLocalDate),
+                nstpEndDate5          = Option(rs.getDate("NSTP_END_DATE_5")).map(_.toLocalDate),
+                nstpEndDate6          = Option(rs.getDate("NSTP_END_DATE_6")).map(_.toLocalDate),
+                nstpEndDate7          = Option(rs.getDate("NSTP_END_DATE_7")).map(_.toLocalDate),
+                nstpEndDate8          = Option(rs.getDate("NSTP_END_DATE_8")).map(_.toLocalDate),
+                isInLastNstp          = Option(rs.getString("IS_IN_LAST_NSTP")),
+                finalPeriodWarning    = Option(rs.getString("FINAL_PERIOD_WARNING")),
+                hasExistingNstpValues = Option(rs.getString("HAS_EXISTING_NSTP_VALUES")),
+                systemDate            = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+              )
+            } else {
+              val msg = s"Empty result set for mgdRegNumber=$regNumber"
+              logger.error(s"[GamblingDataCacheRepository] $msg")
+              throw new RuntimeException(msg)
+            }
+          } finally {
+            rs.close()
           }
-        } finally {
-          rs.close()
+
         }
 
       } finally {
