@@ -22,11 +22,12 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.{GamblingError, StatementError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.*
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GRNValidator.regNumberPatternGTR
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class GamblingService @Inject() (
   repository: GamblingDataSource
@@ -357,16 +358,30 @@ class GamblingService @Inject() (
       logger.warn(
         s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$mgdRegNumber"
       )
-      Future.successful(Left(InvalidMgdRegNumber))
+      Future.successful(Left(GamblingError.InvalidMgdRegNumber))
     } else {
       repository
         .getReturnPeriods(mgdRegNumber)
-        .map(Right(_))
-        .recover { case ex: Exception =>
-          logger.error(s"[GamblingService][getReturnPeriods] Unexpected error mgdRegNumber=$mgdRegNumber", ex)
-          Left(UnexpectedError)
+        .map {
+          case Right(periods) =>
+            Right(periods)
+
+          case Left(RecordNotFound(msg)) =>
+            logger.warn(s"[GamblingService][getReturnPeriods] Record not found for mgdRegNumber=$mgdRegNumber: $msg")
+            Left(GamblingError.RecordNotFoundError)
+
+          case Left(NullResultSet(msg)) =>
+            logger.error(s"[GamblingService][getReturnPeriods] Null cursor returned for mgdRegNumber=$mgdRegNumber: $msg")
+            Left(GamblingError.NullResultSetError)
+
+          case Left(DatabaseError(msg, cause)) =>
+            logger.error(s"[GamblingService][getReturnPeriods] Database error for mgdRegNumber=$mgdRegNumber: $msg", cause)
+            Left(GamblingError.DBSystemError)
+        }
+        .recover { case NonFatal(ex) =>
+          logger.error(s"[GamblingService][getReturnPeriods] Unexpected error for mgdRegNumber=$mgdRegNumber", ex)
+          Left(GamblingError.UnexpectedError)
         }
     }
-
   }
 }

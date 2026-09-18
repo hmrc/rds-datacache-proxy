@@ -194,15 +194,16 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
 
   private def handleError(error: GamblingError, logMessage: String): Result =
     error match {
-      case InvalidMgdRegNumber =>
+      case InvalidMgdRegNumber | InvalidRegimeCode =>
         logger.warn(logMessage)
         BadRequest(Json.toJson(error))
-      case UnexpectedError =>
+
+      case RecordNotFoundError =>
+        logger.warn(logMessage)
+        NotFound(Json.toJson(error))
+
+      case NullResultSetError | DBSystemError | UnexpectedError =>
         logger.error(logMessage)
         InternalServerError(Json.toJson(error))
-      case InvalidRegimeCode =>
-        logger.error(logMessage)
-        BadRequest(Json.toJson(error))
     }
-
 }

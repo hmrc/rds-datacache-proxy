@@ -24,6 +24,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.RepositoryError
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -71,7 +72,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
 
-    override def getReturnPeriods(regNumber: String): Future[ReturnPeriods] =
+    override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] =
       Future.successful(GamblingStubData.getReturnPeriods(regNumber))
 
     override def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse] =

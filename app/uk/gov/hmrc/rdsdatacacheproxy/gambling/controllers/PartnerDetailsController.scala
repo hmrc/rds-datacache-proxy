@@ -18,11 +18,11 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
 import play.api.Logging
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{DBSystemError, InvalidMgdRegNumber, InvalidRegimeCode, NullResultSetError, RecordNotFoundError, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import javax.inject.Inject
@@ -47,17 +47,19 @@ class PartnerDetailsController @Inject() (authorise: AuthAction, service: Gambli
       }
     }
 
-  private def handleError(error: GamblingError, logMessage: String) =
+  private def handleError(error: GamblingError, logMessage: String): Result =
     error match {
-      case InvalidMgdRegNumber =>
+      case InvalidMgdRegNumber | InvalidRegimeCode =>
         logger.warn(logMessage)
         BadRequest(Json.toJson(error))
-      case UnexpectedError =>
+
+      case RecordNotFoundError =>
+        logger.warn(logMessage)
+        NotFound(Json.toJson(error))
+
+      case NullResultSetError | DBSystemError | UnexpectedError =>
         logger.error(logMessage)
         InternalServerError(Json.toJson(error))
-      case InvalidRegimeCode =>
-        logger.error(logMessage)
-        BadRequest(Json.toJson(error))
     }
 
 }

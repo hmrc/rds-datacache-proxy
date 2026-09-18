@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 
+import org.scalatest.EitherValues.convertEitherToValuable
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,6 +28,7 @@ import play.api.libs.json.Reads
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.RepositoryError
 
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -179,7 +181,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getPartnerDetailsData(regNumber)
     }
 
-    override def getReturnPeriods(regNumber: String): Future[ReturnPeriods] = Future {
+    override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] = Future {
       GamblingStubData.getReturnPeriods(regNumber)
     }
 
@@ -738,21 +740,21 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000").value
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/xym00000000000 ").futureValue
       response.status mustBe OK
-      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000").value
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/   XYM00000000000   ").futureValue
       response.status mustBe OK
-      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
+      response.json.as[ReturnPeriods] mustBe GamblingStubData.getReturnPeriods("XYM00000000000").value
     }
 
     "return consistent results across multiple calls" in {

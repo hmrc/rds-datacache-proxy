@@ -22,6 +22,10 @@ enum GamblingError(val code: String, val message: String) {
   case InvalidMgdRegNumber extends GamblingError("INVALID_MGD_REG_NUMBER", "mgdRegNumber does not exist")
   case UnexpectedError     extends GamblingError("UNEXPECTED_ERROR", "Unexpected error occurred")
   case InvalidRegimeCode   extends GamblingError("INVALID_REGIME_CODE", "Invalid Regime Code")
+
+  case RecordNotFoundError extends GamblingError("RECORD_NOT_FOUND", "No record found for the provided details")
+  case NullResultSetError  extends GamblingError("NULL_RESULT_SET", "Database returned an uninitialized cursor")
+  case DBSystemError       extends GamblingError("DATABASE_ERROR", "An unexpected database error occurred")
 }
 
 object GamblingError {
