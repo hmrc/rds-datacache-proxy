@@ -976,6 +976,13 @@ class GamblingDataCacheRepository @Inject() (
                   Option(rs.getDate(col))
                     .map(_.toLocalDate)
 
+                def optLong(col: String): Option[Long] =
+                  Option(rs.getObject(col)).map {
+                    case bd: java.math.BigDecimal => bd.longValue()
+                    case n: java.lang.Number      => n.longValue()
+                    case other                    => other.toString.toLong
+                  }
+
                 def optInt(col: String): Option[Int] =
                   Option(rs.getObject(col)).map {
                     case bd: java.math.BigDecimal => bd.intValue()
@@ -983,81 +990,84 @@ class GamblingDataCacheRepository @Inject() (
                     case other                    => other.toString.toInt
                   }
 
+                val typeOfControllingBody: Option[BusinessType] =
+                  optInt("TYPE_OF_CONTROLLING_BODY").flatMap(BusinessType.fromCode)
+
                 ControllingBodyDetails(
                   mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  business_Partner_Number  = optString("BUSINESS_PARTNER_NUMBER"),
-                  date_Of_Joining          = optDate("DATE_OF_JOINING"),
-                  date_Of_Leaving          = optDate("DATE_OF_LEAVING"),
-                  sole_Prop_Title          = optString("SOLE_PROP_TITLE"),
-                  sole_Prop_First_Name     = optString("SOLE_PROP_FIRST_NAME"),
-                  sole_Prop_Middle_Name    = optString("SOLE_PROP_MIDDLE_NAME"),
-                  sole_Prop_Last_Name      = optString("SOLE_PROP_LAST_NAME"),
-                  business_Name            = optString("BUSINESS_NAME"),
-                  trading_Name             = optString("TRADING_NAME"),
-                  date_Of_Birth            = optDate("DATE_OF_BIRTH"),
-                  nino                     = optString("NINO"),
-                  utr                      = optInt("UTR"),
-                  vrn                      = optInt("VRN"),
-                  crn                      = optString("CRN"),
-                  date_Of_Incorporation    = optDate("DATE_OF_INCORPORATION"),
-                  country_Of_Incorporation = optString("COUNTRY_OF_INCORPORATION"),
-                  foreign_Corporate_Ref    = optString("FOREIGN_CORPORATE_REF"),
-                  address_1                = optString("ADDRESS_1"),
-                  address_2                = optString("ADDRESS_2"),
-                  address_3                = optString("ADDRESS_3"),
-                  address_4                = optString("ADDRESS_4"),
-                  postcode                 = optString("POSTCODE"),
-                  country                  = optString("COUNTRY"),
-                  adi                      = optString("ADI"),
-                  is_Iom_Or_Ci             = optString("IS_IOM_OR_CI"),
-                  phone_Number             = optString("PHONE_NUMBER"),
-                  mobile_Phone_Number      = optString("MOBILE_PHONE_NUMBER"),
-                  fax_Number               = optString("FAX_NUMBER"),
-                  email_Addr               = optString("EMAIL_ADDR"),
-                  type_Of_Controlling_Body = optInt("TYPE_OF_CONTROLLING_BODY"),
-                  is_Rep_Mem_Same_As_Cb    = optString("IS_REP_MEM_SAME_AS_CB"),
-                  is_Uk_Incorporated       = optString("IS_UK_INCORPORATED"),
-                  systemDate               = systemDate
+                  businessPartnerNumber  = optString("BUSINESS_PARTNER_NUMBER"),
+                  dateOfJoining          = optDate("DATE_OF_JOINING"),
+                  dateOfLeaving          = optDate("DATE_OF_LEAVING"),
+                  solePropTitle          = optString("SOLE_PROP_TITLE"),
+                  solePropFirstName      = optString("SOLE_PROP_FIRST_NAME"),
+                  solePropMiddleName     = optString("SOLE_PROP_MIDDLE_NAME"),
+                  solePropLastName       = optString("SOLE_PROP_LAST_NAME"),
+                  businessName           = optString("BUSINESS_NAME"),
+                  tradingName            = optString("TRADING_NAME"),
+                  dateOfBirth            = optDate("DATE_OF_BIRTH"),
+                  nino                   = optString("NINO"),
+                  utr                    = optLong("UTR"),
+                  vrn                    = optLong("VRN"),
+                  crn                    = optString("CRN"),
+                  dateOfIncorporation    = optDate("DATE_OF_INCORPORATION"),
+                  countryOfIncorporation = optString("COUNTRY_OF_INCORPORATION"),
+                  foreignCorporateRef    = optString("FOREIGN_CORPORATE_REF"),
+                  address1               = optString("ADDRESS_1"),
+                  address2               = optString("ADDRESS_2"),
+                  address3               = optString("ADDRESS_3"),
+                  address4               = optString("ADDRESS_4"),
+                  postcode               = optString("POSTCODE"),
+                  country                = optString("COUNTRY"),
+                  adi                    = optString("ADI"),
+                  isIomOrCiFlag          = optString("IS_IOM_OR_CI"),
+                  phoneNumber            = optString("PHONE_NUMBER"),
+                  mobilePhoneNumber      = optString("MOBILE_PHONE_NUMBER"),
+                  faxNumber              = optString("FAX_NUMBER"),
+                  emailAddr              = optString("EMAIL_ADDR"),
+                  typeOfControllingBody  = typeOfControllingBody,
+                  isRepMemSameAsCb       = optString("IS_REP_MEM_SAME_AS_CB"),
+                  isUkIncorporated       = optString("IS_UK_INCORPORATED"),
+                  systemDate             = systemDate
                 )
               }
               .getOrElse {
                 ControllingBodyDetails(
-                  mgdRegNumber             = "",
-                  business_Partner_Number  = None,
-                  date_Of_Joining          = None,
-                  date_Of_Leaving          = None,
-                  sole_Prop_Title          = None,
-                  sole_Prop_First_Name     = None,
-                  sole_Prop_Middle_Name    = None,
-                  sole_Prop_Last_Name      = None,
-                  business_Name            = None,
-                  trading_Name             = None,
-                  date_Of_Birth            = None,
-                  nino                     = None,
-                  utr                      = None,
-                  vrn                      = None,
-                  crn                      = None,
-                  date_Of_Incorporation    = None,
-                  country_Of_Incorporation = None,
-                  foreign_Corporate_Ref    = None,
-                  address_1                = None,
-                  address_2                = None,
-                  address_3                = None,
-                  address_4                = None,
-                  postcode                 = None,
-                  country                  = None,
-                  adi                      = None,
-                  is_Iom_Or_Ci             = None,
-                  phone_Number             = None,
-                  mobile_Phone_Number      = None,
-                  fax_Number               = None,
-                  email_Addr               = None,
-                  type_Of_Controlling_Body = None,
-                  is_Rep_Mem_Same_As_Cb    = None,
-                  is_Uk_Incorporated       = None,
-                  systemDate               = None
+                  mgdRegNumber           = "",
+                  businessPartnerNumber  = None,
+                  dateOfJoining          = None,
+                  dateOfLeaving          = None,
+                  solePropTitle          = None,
+                  solePropFirstName      = None,
+                  solePropMiddleName     = None,
+                  solePropLastName       = None,
+                  businessName           = None,
+                  tradingName            = None,
+                  dateOfBirth            = None,
+                  nino                   = None,
+                  utr                    = None,
+                  vrn                    = None,
+                  crn                    = None,
+                  dateOfIncorporation    = None,
+                  countryOfIncorporation = None,
+                  foreignCorporateRef    = None,
+                  address1               = None,
+                  address2               = None,
+                  address3               = None,
+                  address4               = None,
+                  postcode               = None,
+                  country                = None,
+                  adi                    = None,
+                  isIomOrCiFlag          = None,
+                  phoneNumber            = None,
+                  mobilePhoneNumber      = None,
+                  faxNumber              = None,
+                  emailAddr              = None,
+                  typeOfControllingBody  = None,
+                  isRepMemSameAsCb       = None,
+                  isUkIncorporated       = None,
+                  systemDate             = None
                 )
               }
 
