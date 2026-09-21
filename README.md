@@ -506,6 +506,37 @@ Sample response:
 }
 ```
 
+
+
+#### Get Return Periods
+Fetch information about Return Periods
+
+Sample GET request from local::
+
+`curl http://localhost:6992/rds-datacache-proxy/gambling/return-periods/MGD/XYZ00000000001`
+
+#### Sample Response
+```json
+{
+  "mgdRegNumber": "XWM00000001770",
+  "returnPeriodsId": 1,
+  "nstpEndDate1": "14-OCT-24" ,
+  "nstpEndDate2": "14-JAN-25" ,
+  "nstpEndDate3": "15-APR-25" ,
+  "nstpEndDate4": "15-JUL-25" ,
+  "nstpEndDate5": "14-OCT-25" ,
+  "nstpEndDate6": "14-JAN-26" ,
+  "nstpEndDate7": "15-APR-26" ,
+  "nstpEndDate8": "17-JUL-26" ,
+  "isInLastNstp" : "1",
+  "finalPeriodWarning": "0",
+  "hasExistingNstpValues" : "1",
+  "systemDate" : "2026-05-31"
+}
+```
+
+### License
+
 ### Corporation Tax
 
 ```
