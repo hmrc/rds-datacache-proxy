@@ -14,7 +14,11 @@ The service is responsible for:
 
 ## Running the service
 
-Start the full service profile using Service Manager:
+This service is used by several DASS Replatforming services. Start the relevant service profile using Service Manager depending on which service you are working on:
+
+```bash
+sm2 --start CIS_ALL
+```
 
 ```bash
 sm2 --start NDDS_ALL
