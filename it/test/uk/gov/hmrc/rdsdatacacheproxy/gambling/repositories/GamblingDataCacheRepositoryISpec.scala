@@ -68,6 +68,11 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     ): Future[BusinessAddressDetails] =
       Future.successful(GamblingStubData.getBusinessAddressDetails(mgdRegNumber))
 
+    override def getControllingBodyDetails(
+                                            mgdRegNumber: String
+                                          ): Future[ControllingBodyDetails] =
+      Future.successful(GamblingStubData.getControllingBodyDetails(mgdRegNumber))
+
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
 
