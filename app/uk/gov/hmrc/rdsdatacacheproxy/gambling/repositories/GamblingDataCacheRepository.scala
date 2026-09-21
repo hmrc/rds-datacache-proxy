@@ -1108,25 +1108,7 @@ class GamblingDataCacheRepository @Inject() (
         if (rs == null) {
           val msg = s"Null cursor returned for mgdRegNumber=$regNumber"
           logger.error(s"[GamblingDataCacheRepository] $msg")
-          Right(
-            ReturnPeriods(
-              mgdRegNumber          = regNumber,
-              returnPeriodsId       = None,
-              nstpEndDate1          = None,
-              nstpEndDate2          = None,
-              nstpEndDate3          = None,
-              nstpEndDate4          = None,
-              nstpEndDate5          = None,
-              nstpEndDate6          = None,
-              nstpEndDate7          = None,
-              nstpEndDate8          = None,
-              isInLastNstp          = None,
-              finalPeriodWarning    = None,
-              hasExistingNstpValues = None,
-              systemDate            = None
-            )
-          )
-
+          Left(RecordNotFound(msg))
         } else {
           try {
             if (rs.next()) {

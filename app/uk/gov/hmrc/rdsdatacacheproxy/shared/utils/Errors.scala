@@ -18,8 +18,6 @@ package uk.gov.hmrc.rdsdatacacheproxy.shared.utils
 
 sealed trait RepositoryError { def msg: String }
 
-case class NullResultSet(msg: String) extends Throwable(msg) with RepositoryError
-
 case class RecordNotFound(msg: String) extends Throwable(msg) with RepositoryError
 
 case class DatabaseError(msg: String, cause: Throwable) extends Throwable(msg, cause) with RepositoryError

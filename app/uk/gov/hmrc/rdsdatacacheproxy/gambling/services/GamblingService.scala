@@ -354,34 +354,35 @@ class GamblingService @Inject() (
 
     val mgdRegNumber = regNumber.trim.toUpperCase
 
-    if (!regNumberPatternGTR.matcher(mgdRegNumber).matches()) {
-      logger.warn(
-        s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$mgdRegNumber"
-      )
-      Future.successful(Left(GamblingError.InvalidMgdRegNumber))
-    } else {
-      repository
-        .getReturnPeriods(mgdRegNumber)
-        .map {
-          case Right(periods) =>
-            Right(periods)
+    GRNValidator.validateRegNum(Regime.MGD, mgdRegNumber) match {
+      case Left(value) =>
+        logger.warn(s"[GamblingService][getReturnPeriods] Invalid pattern mgdRegNumber=$mgdRegNumber")
+        Future.successful(Left(GamblingError.InvalidMgdRegNumber))
 
-          case Left(RecordNotFound(msg)) =>
-            logger.warn(s"[GamblingService][getReturnPeriods] Record not found for mgdRegNumber=$mgdRegNumber: $msg")
-            Left(GamblingError.RecordNotFoundError)
+      case Right(value) => {
+        repository
+          .getReturnPeriods(mgdRegNumber)
+          .map {
+            case Right(periods) => Right(periods)
 
-          case Left(NullResultSet(msg)) =>
-            logger.error(s"[GamblingService][getReturnPeriods] Null cursor returned for mgdRegNumber=$mgdRegNumber: $msg")
-            Left(GamblingError.NullResultSetError)
+            case Left(RecordNotFound(msg)) =>
+              logger.warn(s"[GamblingService][getReturnPeriods] No Return Period details found for MGD registration number $mgdRegNumber: $msg")
+              Left(GamblingError.RecordNotFoundError)
 
-          case Left(DatabaseError(msg, cause)) =>
-            logger.error(s"[GamblingService][getReturnPeriods] Database error for mgdRegNumber=$mgdRegNumber: $msg", cause)
-            Left(GamblingError.DBSystemError)
-        }
-        .recover { case NonFatal(ex) =>
-          logger.error(s"[GamblingService][getReturnPeriods] Unexpected error for mgdRegNumber=$mgdRegNumber", ex)
-          Left(GamblingError.UnexpectedError)
-        }
+            case Left(DatabaseError(msg, cause)) =>
+              logger.error(
+                s"[GamblingService][getReturnPeriods] Failed while retrieving Return Period details for MGD registration number $mgdRegNumber: $msg",
+                cause
+              )
+              Left(GamblingError.DBSystemError)
+          }
+          .recover { case NonFatal(ex) =>
+            logger.error(s"[GamblingService][getReturnPeriods] Unexpected error for MGD registration number $mgdRegNumber", ex)
+            Left(GamblingError.UnexpectedError)
+          }
+      }
+
     }
+
   }
 }

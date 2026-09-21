@@ -202,7 +202,7 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         logger.warn(logMessage)
         NotFound(Json.toJson(error))
 
-      case NullResultSetError | DBSystemError | UnexpectedError =>
+      case DBSystemError | UnexpectedError =>
         logger.error(logMessage)
         InternalServerError(Json.toJson(error))
     }

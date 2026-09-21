@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{DBSystemError, InvalidMgdRegNumber, InvalidRegimeCode, NullResultSetError, RecordNotFoundError, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import javax.inject.Inject
@@ -57,7 +57,7 @@ class PartnerDetailsController @Inject() (authorise: AuthAction, service: Gambli
         logger.warn(logMessage)
         NotFound(Json.toJson(error))
 
-      case NullResultSetError | DBSystemError | UnexpectedError =>
+      case DBSystemError | UnexpectedError =>
         logger.error(logMessage)
         InternalServerError(Json.toJson(error))
     }
