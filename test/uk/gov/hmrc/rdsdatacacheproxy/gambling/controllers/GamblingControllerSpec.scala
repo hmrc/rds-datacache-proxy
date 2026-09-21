@@ -42,6 +42,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessType.SoleProprietor
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
@@ -677,7 +678,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         mobilePhoneNumber      = Some("foo"),
         faxNumber              = Some("foo"),
         emailAddr              = Some("foo"),
-        typeOfControllingBody  = Some(1),
+        typeOfControllingBody  = Some(SoleProprietor),
         isRepMemSameAsCb       = Some("foo"),
         isUkIncorporated       = Some("foo"),
         systemDate             = Some(fixedDate)
@@ -729,7 +730,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
         mobilePhoneNumber      = Some("foo"),
         faxNumber              = Some("foo"),
         emailAddr              = Some("foo"),
-        typeOfControllingBody  = Some(1),
+        typeOfControllingBody  = Some(SoleProprietor),
         isRepMemSameAsCb       = Some("foo"),
         isUkIncorporated       = Some("foo"),
         systemDate             = Some(fixedDate)

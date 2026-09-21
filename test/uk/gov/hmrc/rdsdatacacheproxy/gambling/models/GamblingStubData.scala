@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessType.SoleProprietor
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{RecordNotFound, RepositoryError}
 
 import java.time.LocalDate
@@ -179,7 +180,7 @@ object GamblingStubData {
           mobilePhoneNumber      = Some("foo"),
           faxNumber              = Some("foo"),
           emailAddr              = Some("foo"),
-          typeOfControllingBody  = Some(1),
+          typeOfControllingBody  = Some(SoleProprietor),
           isRepMemSameAsCb       = Some("foo"),
           isUkIncorporated       = Some("foo"),
           systemDate             = Some(fixedDate)
