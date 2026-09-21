@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, NullResultSet, RecordNotFound, RepositoryError}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError}
 
 import java.sql.SQLException
 import java.time.LocalDate
@@ -1108,7 +1108,25 @@ class GamblingDataCacheRepository @Inject() (
         if (rs == null) {
           val msg = s"Null cursor returned for mgdRegNumber=$regNumber"
           logger.error(s"[GamblingDataCacheRepository] $msg")
-          Left(NullResultSet(msg))
+          Right(
+            ReturnPeriods(
+              mgdRegNumber          = regNumber,
+              returnPeriodsId       = None,
+              nstpEndDate1          = None,
+              nstpEndDate2          = None,
+              nstpEndDate3          = None,
+              nstpEndDate4          = None,
+              nstpEndDate5          = None,
+              nstpEndDate6          = None,
+              nstpEndDate7          = None,
+              nstpEndDate8          = None,
+              isInLastNstp          = None,
+              finalPeriodWarning    = None,
+              hasExistingNstpValues = None,
+              systemDate            = None
+            )
+          )
+
         } else {
           try {
             if (rs.next()) {
