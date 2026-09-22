@@ -73,6 +73,7 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         handleError(error, logMessage)
     }
   }
+
   def getBusinessName(mgdRegNumber: String): Action[AnyContent] = authorise.async { implicit request =>
 
     service.getBusinessName(mgdRegNumber).map {
@@ -115,19 +116,6 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
           val logMessage = s"[GamblingController][getOperatorDetails] code=${error.code} mgdRegNumber=$mgdRegNumber"
           handleError(error, logMessage)
       }
-    }
-
-  private def handleError(error: GamblingError, logMessage: String): Result =
-    error match {
-      case InvalidMgdRegNumber =>
-        logger.warn(logMessage)
-        BadRequest(Json.toJson(error))
-      case UnexpectedError =>
-        logger.error(logMessage)
-        InternalServerError(Json.toJson(error))
-      case InvalidRegimeCode =>
-        logger.error(logMessage)
-        BadRequest(Json.toJson(error))
     }
 
   def getBusinessContactDetails(
@@ -193,4 +181,29 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         handleError(error, logMessage)
     }
   }
+
+  def getReturnPeriods(mgdRegNumber: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getReturnPeriods(mgdRegNumber).map {
+        case Right(details) =>
+          Ok(Json.toJson(details))
+        case Left(error) =>
+          handleError(error, s"[GamblingController][getReturnPeriods] code=${error.code} mgdRegNumber=$mgdRegNumber")
+      }
+    }
+
+  private def handleError(error: GamblingError, logMessage: String): Result =
+    error match {
+      case InvalidMgdRegNumber | InvalidRegimeCode =>
+        logger.warn(logMessage)
+        BadRequest(Json.toJson(error))
+
+      case RecordNotFoundError =>
+        logger.warn(logMessage)
+        NotFound(Json.toJson(error))
+
+      case DBSystemError | UnexpectedError =>
+        logger.error(logMessage)
+        InternalServerError(Json.toJson(error))
+    }
 }

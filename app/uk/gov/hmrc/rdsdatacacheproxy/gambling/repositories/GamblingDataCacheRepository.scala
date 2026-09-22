@@ -19,10 +19,13 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError}
 
+import java.sql.SQLException
+import java.time.LocalDate
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future, blocking}
-import java.time.LocalDate
+import scala.util.control.NonFatal
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
@@ -37,6 +40,7 @@ trait GamblingDataSource {
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
+  def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
 }
 
 @Singleton
@@ -612,6 +616,7 @@ class GamblingDataCacheRepository @Inject() (
       }
     })(ec)
   }
+
   override def getBusinessName(mgdRegNumber: String): Future[BusinessName] = {
 
     logger.info(s"[GamblingDataCacheRepository][getBusinessName] mgdRegNumber=$mgdRegNumber")
@@ -1083,6 +1088,69 @@ class GamblingDataCacheRepository @Inject() (
           partners   = partnerDetails,
           systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
         )
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
+
+  override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_RETURN_PERIODS(?, ?) }")
+
+      try {
+        cs.setString(1, regNumber)
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+        cs.execute()
+
+        val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+
+        if (rs == null) {
+          val msg = s"Null cursor returned for mgdRegNumber=$regNumber"
+          logger.error(s"[GamblingDataCacheRepository] $msg")
+          Left(RecordNotFound(msg))
+        } else {
+          try {
+            if (rs.next()) {
+              val returnPeriodIdRaw = rs.getInt("RETURN_PERIODS_ID")
+              val returnPeriodsId = if (rs.wasNull()) None else Some(returnPeriodIdRaw)
+
+              Right(
+                ReturnPeriods(
+                  mgdRegNumber          = rs.getString("MGD_REG_NUMBER"),
+                  returnPeriodsId       = returnPeriodsId,
+                  nstpEndDate1          = optDate("NSTP_END_DATE_1", rs),
+                  nstpEndDate2          = optDate("NSTP_END_DATE_2", rs),
+                  nstpEndDate3          = optDate("NSTP_END_DATE_3", rs),
+                  nstpEndDate4          = optDate("NSTP_END_DATE_4", rs),
+                  nstpEndDate5          = optDate("NSTP_END_DATE_5", rs),
+                  nstpEndDate6          = optDate("NSTP_END_DATE_6", rs),
+                  nstpEndDate7          = optDate("NSTP_END_DATE_7", rs),
+                  nstpEndDate8          = optDate("NSTP_END_DATE_8", rs),
+                  isInLastNstp          = Option(rs.getString("IS_IN_LAST_NSTP")),
+                  finalPeriodWarning    = Option(rs.getString("FINAL_PERIOD_WARNING")),
+                  hasExistingNstpValues = Option(rs.getString("HAS_EXISTING_NSTP_VALUES")),
+                  systemDate            = optDate("SYSTEM_DATE", rs)
+                )
+              )
+            } else {
+              val msg = s"No record found in ResultSet for mgdRegNumber=$regNumber"
+              logger.warn(s"[GamblingDataCacheRepository] $msg")
+              Left(RecordNotFound(msg))
+            }
+          } finally {
+            rs.close()
+          }
+        }
+      } catch {
+        case ex: SQLException =>
+          val msg = s"SQLException when calling GET_RETURN_PERIODS for $regNumber"
+          logger.error(s"[GamblingDataCacheRepository] $msg", ex)
+          Left(DatabaseError(msg, ex))
+        case NonFatal(ex) =>
+          val msg = s"Unexpected exception when calling GET_RETURN_PERIODS for $regNumber"
+          logger.error(s"[GamblingDataCacheRepository] $msg", ex)
+          Left(DatabaseError(msg, ex))
       } finally {
         closeQuietly(cs)
       }

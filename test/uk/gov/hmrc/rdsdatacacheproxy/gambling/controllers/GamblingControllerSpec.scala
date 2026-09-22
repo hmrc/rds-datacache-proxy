@@ -42,7 +42,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
 import java.time.LocalDate
@@ -175,6 +175,7 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getBusinessName(eqTo("XWM00000001770"))(any())
     }
   }
+
   "returns 400 when InvalidMgdRegNumber" in new Setup {
     when(mockService.getBusinessName(any())(any()))
       .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
@@ -733,4 +734,85 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getPremisesDetails(eqTo("ERR00001770"))(any())
     }
   }
+
+  "GamblingController#getReturnPeriods" - {
+    val returnPeriods = ReturnPeriods(
+      mgdRegNumber          = "XYM00000000000",
+      returnPeriodsId       = Some(1),
+      nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
+      nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
+      nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
+      nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
+      nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
+      nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
+      nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
+      nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
+      isInLastNstp          = Some("1"),
+      finalPeriodWarning    = Some("0"),
+      hasExistingNstpValues = Some("1"),
+      systemDate            = Some(LocalDate.of(2026, 5, 31))
+    )
+
+    "returns 200 when service succeeds" in new Setup {
+
+      when(mockService.getReturnPeriods(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(returnPeriods)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/XWM00000001770")
+      val res = controller.getReturnPeriods("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(returnPeriods)
+
+      verify(mockService).getReturnPeriods(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+
+      when(mockService.getReturnPeriods(any())(any()))
+        .thenReturn(Future.successful(Right(returnPeriods)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/XWM00000001770")
+      val res = controller.getReturnPeriods("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getReturnPeriods(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getReturnPeriods(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/bad")
+      val res = controller.getReturnPeriods("bad")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getReturnPeriods(eqTo("bad"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getReturnPeriods(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/return-periods/ERR00001770")
+      val res = controller.getReturnPeriods("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getReturnPeriods(eqTo("ERR00001770"))(any())
+    }
+  }
+
 }
