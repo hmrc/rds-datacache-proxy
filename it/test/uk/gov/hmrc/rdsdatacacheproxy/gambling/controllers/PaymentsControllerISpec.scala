@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Payments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PaymentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PaymentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, PaymentsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PaymentsStubData.getPaymentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, PaymentsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[PaymentsDataSource].toInstance(new PaymentsRdsStub)
+        bind[PaymentsDataSource].toInstance(new PaymentsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -163,5 +164,15 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
 
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$endpoint/$GBD/XGM00003122200?pageNo=1&pageSize=10").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 }

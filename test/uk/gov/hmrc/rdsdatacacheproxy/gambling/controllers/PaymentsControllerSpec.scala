@@ -36,7 +36,7 @@ class PaymentsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: PaymentsService = mock[PaymentsService]
-    val controller = new PaymentsController(fakeAuthAction, mockService, cc)
+    val controller = new PaymentsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "PaymentsController#getPayments" - {

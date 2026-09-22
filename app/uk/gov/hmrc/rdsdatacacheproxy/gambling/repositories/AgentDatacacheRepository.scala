@@ -29,8 +29,8 @@ import javax.inject.{Inject, Singleton}
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-trait GamblingAgentDataSource {
-  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400): Future[Int]
+trait AgentDataSource {
+  def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int = 14400): Future[Int]
   def getAllClients(regime: Regime,
                     credentialId: String,
                     start: Int = 0,
@@ -38,29 +38,30 @@ trait GamblingAgentDataSource {
                     sort: Int = 0,
                     order: String = "ASC"
                    ): Future[Either[StatementError, AgentClientListResponse]]
-  def hasClient(regime: Regime, credentialId: String, vrn: String): Future[Either[StatementError, Boolean]]
+  def hasClient(regime: Regime, credentialId: String, regNumber: String): Future[Either[StatementError, Boolean]]
 }
 
 @Singleton
-class GamblingAgentDatacacheRepository @Inject() (
+class AgentDatacacheRepository @Inject() (
   @NamedDatabase("gambling") mgdDb: MGDDatabase,
   @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
 )(implicit ec: ExecutionContext)
-    extends GamblingAgentDataSource
+    extends AgentDataSource
     with RepositorySupport
     with Logging {
 
-  override def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
-    logger.info(s"getClientListDownloadStatus(credentialId=$credentialId, serviceName=$serviceName, gracePeriod=$gracePeriod)")
+  override def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int): Future[Int] = {
+    logger.info(s"getClientListDownloadStatus(credentialId=$credentialId, regime=$regime, gracePeriod=$gracePeriod)")
 
     Future {
       mgdDb.underlying.withConnection { conn =>
         val cs: CallableStatement =
           conn.prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
+        // TODO : CALL SHARED_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS('0000000924135151', 'GBD', 14400, ?);  'MGD' works in DBBeaver, but GBD doesn't
 
         try {
           cs.setString(1, credentialId)
-          cs.setString(2, serviceName)
+          cs.setString(2, regime)
           cs.setInt(3, gracePeriod)
           cs.registerOutParameter(4, OracleTypes.INTEGER)
           cs.execute()
@@ -117,8 +118,8 @@ class GamblingAgentDatacacheRepository @Inject() (
     }
   }
 
-  override def hasClient(regime: Regime, credentialId: String, vrn: String): Future[Either[StatementError, Boolean]] = {
-    logger.info(s"hasClient(credentialId=$credentialId, vrn=$vrn)")
+  override def hasClient(regime: Regime, credentialId: String, regNumber: String): Future[Either[StatementError, Boolean]] = {
+    logger.info(s"hasClient(credentialId=$credentialId, regNumber=$regNumber)")
 
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
@@ -131,7 +132,7 @@ class GamblingAgentDatacacheRepository @Inject() (
 
         try {
           cs.setString(1, credentialId)
-          cs.setString(2, vrn)
+          cs.setString(2, regNumber)
           cs.registerOutParameter(3, OracleTypes.INTEGER) // P_EXISTS_O: 1=exists, 0=not
           cs.execute()
 
@@ -145,8 +146,9 @@ class GamblingAgentDatacacheRepository @Inject() (
     val buffer = ListBuffer[AgentClient]()
     while (rs.next()) {
       buffer += AgentClient(
-        name                  = Option(rs.getString("CLIENT_NAME")).map(_.trim).getOrElse(""),
-        vatRegistrationNumber = Option(rs.getString("VAT_REG_NUMBER")).map(_.trim).getOrElse("")
+        clientName  = Option(rs.getString("CLIENT_NAME")).map(_.trim).getOrElse(""),
+        regNumber   = Option(rs.getString("MGD_REG_NUMBER")).map(_.trim).getOrElse(""), // TODO : add other regimes
+        agentOwnRef = Option(rs.getString("AGENT_OWN_REF")).map(_.trim).getOrElse("")
       )
     }
     buffer.toList

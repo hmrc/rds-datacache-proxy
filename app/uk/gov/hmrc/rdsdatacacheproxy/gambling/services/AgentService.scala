@@ -20,25 +20,25 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClientListResponse, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingAgentDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AgentDataSource
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AgentService @Inject() (
-  repository: GamblingAgentDataSource
+  repository: AgentDataSource
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400)(using
+  def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int = 14400)(using
     ExecutionContext
   ): Future[Either[String, ClientListDownloadStatus]] = {
     repository
-      .getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
+      .getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
       .map(ClientListDownloadStatus.fromInt)
   }
 
-  def getClientList(
+  def getAllClients(
     regime: String,
     credentialId: String,
     start: Int,
@@ -54,7 +54,7 @@ class AgentService @Inject() (
     regime: String,
     credentialId: String,
     regNumber: String
-  )(implicit hc: HeaderCarrier): Future[Either[StatementError, Boolean]] = {
+  ): Future[Either[StatementError, Boolean]] = {
     withValidAgentParams(regime, credentialId, regNumber, "[hasClient]")(repository.hasClient)
   }
 }

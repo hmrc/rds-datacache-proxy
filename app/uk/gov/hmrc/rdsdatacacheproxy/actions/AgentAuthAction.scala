@@ -17,40 +17,35 @@
 package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc.*
-import play.api.mvc.Results.Unauthorized
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthorisationException, AuthorisedFunctions}
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import play.api.mvc.Results.Forbidden
+import uk.gov.hmrc.auth.core.AffinityGroup.Agent
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AgentService
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class DefaultAgentAuthAction @Inject() (
-//  override val authConnector: AuthConnector,
-service: AgentService,
-  val parser: BodyParsers.Default
-)(implicit val executionContext: ExecutionContext)
-    extends AgentAuthAction
-//    with AuthorisedFunctions
-    with Logging:
+class AgentAuthAction @Inject() (service: AgentService)(implicit ec: ExecutionContext) extends Logging {
 
-  override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] =
-    given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
-    val sessionId = hc.sessionId.getOrElse(throw new UnauthorizedException("Unable to retrieve session ID from headers"))
+  def apply(regime: String, regNumber: String): ActionFilter[AuthenticatedRequest] =
+    new ActionFilter[AuthenticatedRequest] {
 
-    service.hasClient()
-     {
-      case Some(internalId) ~ Some(credentials) ~ enrolments =>
-        block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId, enrolments))
-      case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
-    } recover { case ae: AuthorisationException =>
-      logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")
-      Unauthorized
+      override protected def executionContext: ExecutionContext = ec
+
+      override protected def filter[A](request: AuthenticatedRequest[A]): Future[Option[Result]] =
+        request.affinityGroup match {
+          case Some(Agent) =>
+            service.hasClient(regime, request.credentialId, regNumber).map {
+              case Right(true) => None
+              case _ =>
+                logger.warn(
+                  s"[AgentAuthAction] Agent not authorised for regNumber $regNumber under regime $regime"
+                )
+                Some(Forbidden(Json.obj("message" -> "Agent not authorised for the requested client")))
+            }
+          case _ => Future(None)
+        }
     }
-
-trait AgentAuthAction extends ActionBuilder[AuthenticatedRequest, AnyContent] with ActionFunction[Request, AuthenticatedRequest]
+}

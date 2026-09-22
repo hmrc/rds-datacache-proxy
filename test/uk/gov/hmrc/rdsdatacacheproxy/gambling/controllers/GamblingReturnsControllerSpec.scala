@@ -36,7 +36,7 @@ class GamblingReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: GamblingReturnsService = mock[GamblingReturnsService]
-    val controller = new GamblingReturnsController(fakeAuthAction, mockService, cc)
+    val controller = new GamblingReturnsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "GamblingReturnsController#getReturnsSubmitted" - {

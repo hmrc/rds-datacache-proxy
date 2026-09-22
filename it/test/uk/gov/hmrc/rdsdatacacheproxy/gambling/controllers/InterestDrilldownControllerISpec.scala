@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, InterestDrilldownItem, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, InterestDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDrilldownStubData.getInterestDrilldownData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, InterestDrilldownStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,7 +48,8 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestDataSource].toInstance(new InterestRdsStub)
+        bind[InterestDataSource].toInstance(new InterestRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -161,6 +162,17 @@ class InterestDrilldownControllerISpec extends AnyWordSpec with Matchers with Sc
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$endpoint/$GBD/XGM00003122200/$interestId?pageNo=1&pageSize=10").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
     }
   }
 }

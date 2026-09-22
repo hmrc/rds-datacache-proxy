@@ -36,7 +36,7 @@ class RepaymentInterestRepaidControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: RepaymentInterestRepaidService = mock[RepaymentInterestRepaidService]
-    val controller = new RepaymentInterestRepaidController(fakeAuthAction, mockService, cc)
+    val controller = new RepaymentInterestRepaidController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "RepaymentInterestRepaidController#getRepaymentInterestRepaid" - {

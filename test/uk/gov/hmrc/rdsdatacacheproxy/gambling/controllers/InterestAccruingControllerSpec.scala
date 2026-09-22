@@ -34,7 +34,7 @@ class InterestAccruingControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: InterestAccruingService = mock[InterestAccruingService]
-    val controller = new InterestAccruingController(fakeAuthAction, mockService, cc)
+    val controller = new InterestAccruingController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "InterestAccruingController#getInterestAccruingDrilldown" - {

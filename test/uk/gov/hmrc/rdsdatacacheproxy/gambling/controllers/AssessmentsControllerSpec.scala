@@ -36,7 +36,7 @@ class AssessmentsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: AssessmentsService = mock[AssessmentsService]
-    val controller = new AssessmentsController(fakeAuthAction, mockService, cc)
+    val controller = new AssessmentsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "AssessmentsController#getOtherAssessments" - {

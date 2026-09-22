@@ -34,15 +34,15 @@ class AgentController @Inject() (authorise: AuthAction, service: AgentService, c
 
   def getClientListDownloadStatus(
     credentialId: String,
-    serviceName: String,
+    regime: String,
     gracePeriod: Int = 14400
   ): Action[AnyContent] = authorise.async { implicit request =>
 
-    if (serviceName.trim().isEmpty || credentialId.trim().isEmpty) {
-      Future.successful(BadRequest(Json.obj("error" -> "credentialId and serviceName must be provided")))
+    if (regime.trim().isEmpty || credentialId.trim().isEmpty) {
+      Future.successful(BadRequest(Json.obj("error" -> "credentialId and regime must be provided")))
     } else {
       service
-        .getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
+        .getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
         .map {
           case Left(error)   => InternalServerError(Json.obj("error" -> error))
           case Right(status) => Ok(Json.obj("status" -> status.toString))
@@ -50,28 +50,37 @@ class AgentController @Inject() (authorise: AuthAction, service: AgentService, c
     }
   }
 
-  def getClientList(
-    regime: String,
+  def getAllClients(
     credentialId: String,
+    regime: String,
     start: Int = 0,
     count: Int = -1,
     sort: Int = 0,
     ascending: Boolean = true
   ): Action[AnyContent] = authorise.async { implicit request =>
-    service.getClientList(regime, credentialId, start, count, sort, ascending).map {
-      case Right(result) => Ok(Json.toJson(result))
-      case Left(error)   => handleError(error)
+
+    if (credentialId.trim().isEmpty) {
+      Future.successful(BadRequest(Json.obj("error" -> "credentialId must be provided")))
+    } else {
+      service.getAllClients(regime, credentialId, start, count, sort, ascending).map {
+        case Right(result) => Ok(Json.toJson(result))
+        case Left(error)   => handleError(error)
+      }
     }
   }
 
   def hasClient(
     regime: String,
-    credentialId: String,
-    regNumber: String
+    regNumber: String,
+    credentialId: String
   ): Action[AnyContent] = authorise.async { implicit request =>
-    service.hasClient(regime, credentialId, regNumber).map {
-      case Right(exists) => Ok(Json.obj("hasClient" -> exists))
-      case Left(error)   => handleError(error)
+    if (credentialId.trim().isEmpty) {
+      Future.successful(BadRequest(Json.obj("error" -> "credentialId must be provided")))
+    } else {
+      service.hasClient(regime, credentialId, regNumber).map {
+        case Right(exists) => Ok(Json.obj("hasClient" -> exists))
+        case Left(error)   => handleError(error)
+      }
     }
   }
 }

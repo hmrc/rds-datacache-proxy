@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, AssessmentsInAbsenceOfReturnsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, AssessmentsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnRdsStub)
+        bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -163,5 +164,15 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
 
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$endpoint/$GBD/XGM00003122200?pageNo=1&pageSize=10").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 }

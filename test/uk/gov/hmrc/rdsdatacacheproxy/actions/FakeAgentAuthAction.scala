@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent
+package uk.gov.hmrc.rdsdatacacheproxy.actions
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AgentService
 
-import play.api.libs.json.{Format, Json}
+import javax.inject.Inject
 
-case class AgentClient(
-  regNumber: String,
-  clientName: String,
-  agentOwnRef: String
-)
-
-object AgentClient {
-  implicit val format: Format[AgentClient] = Json.format[AgentClient]
-}
+class FakeAgentAuthAction @Inject() (service: AgentService) extends AgentAuthAction(service)(scala.concurrent.ExecutionContext.Implicits.global) {}

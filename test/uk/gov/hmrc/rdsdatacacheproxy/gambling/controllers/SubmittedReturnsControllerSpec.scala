@@ -37,7 +37,7 @@ class SubmittedReturnsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: SubmittedReturnsService = mock[SubmittedReturnsService]
-    val controller = new SubmittedReturnsController(fakeAuthAction, mockService, cc)
+    val controller = new SubmittedReturnsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   private val ASC = Some("ASC")

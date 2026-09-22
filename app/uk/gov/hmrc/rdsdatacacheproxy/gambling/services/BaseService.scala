@@ -199,7 +199,7 @@ trait BaseService extends Logging {
     baseText: String
   )(
     ifValid: (Regime, String, String) => Future[Either[StatementError, T]]
-  )(using hc: HeaderCarrier, ec: ExecutionContext): Future[Either[StatementError, T]] =
+  )(using ec: ExecutionContext): Future[Either[StatementError, T]] =
     val reqText = s"regime=$regime credentialId=$credentialId regNumber=$regNumber"
     logger.info(s"[$baseText] $reqText")
 

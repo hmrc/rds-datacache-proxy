@@ -20,13 +20,17 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestAccruingService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestAccruingController @Inject() (authorise: AuthAction, service: InterestAccruingService, cc: ControllerComponents)(implicit
+class InterestAccruingController @Inject() (authorise: AuthAction,
+                                            agentAuth: AgentAuthAction,
+                                            service: InterestAccruingService,
+                                            cc: ControllerComponents
+                                           )(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
@@ -38,7 +42,7 @@ class InterestAccruingController @Inject() (authorise: AuthAction, service: Inte
                                    paginationStart: Int,
                                    paginationMaxRows: Int
                                   ): Action[AnyContent] =
-    authorise.async { implicit request =>
+    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
       service.getInterestAccruingDrilldown(regime, regNumber, interestId, paginationStart, paginationMaxRows).map {
         case Right(interestAccruing) => Ok(Json.toJson(interestAccruing))
         case Left(error)             => handleError(error)

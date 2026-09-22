@@ -34,7 +34,7 @@ class UpdateStatusPeriodControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: UpdateStatusPeriodService = mock[UpdateStatusPeriodService]
-    val controller = new UpdateStatusPeriodController(fakeAuthAction, mockService, cc)
+    val controller = new UpdateStatusPeriodController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "UpdateStatusPeriodController#updateStatusPeriod" - {

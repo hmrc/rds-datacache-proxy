@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturnSingle
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnSingleDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.SubmittedReturnSingleStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, SubmittedReturnSingleDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.SubmittedReturnSingleStubData.getSubmittedReturnSingleData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, SubmittedReturnSingleStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[SubmittedReturnSingleDataSource].toInstance(new SubmittedReturnSingleRdsStub)
+        bind[SubmittedReturnSingleDataSource].toInstance(new SubmittedReturnSingleRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -153,5 +154,15 @@ class SubmittedReturnSingleControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
 
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$endpoint/XGM00003122200/23").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 }

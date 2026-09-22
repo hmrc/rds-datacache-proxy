@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestOverview, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestOverviewDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, InterestOverviewDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestOverviewStubData.getInterestOverviewData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, InterestOverviewStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -50,7 +50,8 @@ class InterestOverviewControllerISpec
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestOverviewDataSource].toInstance(new InterestOverviewRdsStub)
+        bind[InterestOverviewDataSource].toInstance(new InterestOverviewRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -176,5 +177,15 @@ class InterestOverviewControllerISpec
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
 
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$endpoint/$GBD/XGM00003122200").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 }

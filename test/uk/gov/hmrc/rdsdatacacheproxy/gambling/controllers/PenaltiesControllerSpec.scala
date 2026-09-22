@@ -36,7 +36,7 @@ class PenaltiesControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: PenaltiesService = mock[PenaltiesService]
-    val controller = new PenaltiesController(fakeAuthAction, mockService, cc)
+    val controller = new PenaltiesController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
   }
 
   "PenaltiesController#getPenalties" - {

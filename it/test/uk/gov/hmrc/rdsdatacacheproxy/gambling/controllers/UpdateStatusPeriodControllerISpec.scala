@@ -24,7 +24,8 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.UpdateStatusPeriodDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, UpdateStatusPeriodDataSource}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AgentRdsStub
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
@@ -43,7 +44,8 @@ class UpdateStatusPeriodControllerISpec extends AnyWordSpec with Matchers with S
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[UpdateStatusPeriodDataSource].toInstance(new UpdateStatusPeriodRdsStub)
+        bind[UpdateStatusPeriodDataSource].toInstance(new UpdateStatusPeriodRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -101,6 +103,17 @@ class UpdateStatusPeriodControllerISpec extends AnyWordSpec with Matchers with S
 
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = put(s"$endpoint/$MGD/XGM00003122200/3", Json.obj("status" -> 1)).futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
     }
   }
 }

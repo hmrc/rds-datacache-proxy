@@ -25,9 +25,8 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedF
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import javax.inject.Singleton
 
 @Singleton
 class DefaultAuthAction @Inject() (
@@ -42,9 +41,9 @@ class DefaultAuthAction @Inject() (
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
     val sessionId = hc.sessionId.getOrElse(throw new UnauthorizedException("Unable to retrieve session ID from headers"))
 
-    authorised().retrieve(Retrievals.internalId and Retrievals.credentials and Retrievals.allEnrolments) {
-      case Some(internalId) ~ Some(credentials) ~ enrolments =>
-        block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId, enrolments))
+    authorised().retrieve(Retrievals.internalId and Retrievals.credentials and Retrievals.allEnrolments and Retrievals.affinityGroup) {
+      case Some(internalId) ~ Some(credentials) ~ enrolments ~ affinityGroup =>
+        block(AuthenticatedRequest(request, internalId, credentials.providerId, sessionId, enrolments, affinityGroup))
       case _ => throw new UnauthorizedException("Unable to retrieve credential or internal Id")
     } recover { case ae: AuthorisationException =>
       logger.warn(s"[invokeBlock] Authorisation Exception ${ae.reason}")

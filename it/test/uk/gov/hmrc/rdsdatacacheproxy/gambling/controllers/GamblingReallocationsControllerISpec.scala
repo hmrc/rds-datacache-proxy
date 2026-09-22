@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, GamblingReallocationsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, GamblingReallocationsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +49,8 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[GamblingReallocationsDataSource].toInstance(new GamblingReallocationsRdsStub)
+        bind[GamblingReallocationsDataSource].toInstance(new GamblingReallocationsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -169,6 +170,17 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
+
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$inEndpoint/$GBD/XGM00003122200?pageNo=1&pageSize=10").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 
   "GET /gambling/reallocations-out (stubbed repo, no DB)" should {
@@ -281,6 +293,17 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
+
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$outEndpoint/$MGD/XGM00003122200?pageNo=1&pageSize=10").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
+    }
   }
 
   "GET /gambling/reallocations-details (stubbed repo, no DB)" should {
@@ -392,6 +415,17 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
+    }
+
+    "return 403 for Unauthorised Agent" in {
+      AuthStub.authorisedAgent()
+
+      val response = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
+
+      response.status mustBe FORBIDDEN
+      response.contentType mustBe "application/json"
+
+      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
     }
   }
 }

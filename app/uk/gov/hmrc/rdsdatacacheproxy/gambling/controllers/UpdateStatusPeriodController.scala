@@ -19,21 +19,25 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers
 import play.api.Logging
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.UpdateStatusPeriodRequest
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.UpdateStatusPeriodService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class UpdateStatusPeriodController @Inject() (authorise: AuthAction, service: UpdateStatusPeriodService, cc: ControllerComponents)(implicit
+class UpdateStatusPeriodController @Inject() (authorise: AuthAction,
+                                              agentAuth: AgentAuthAction,
+                                              service: UpdateStatusPeriodService,
+                                              cc: ControllerComponents
+                                             )(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
   def updateStatusPeriod(regime: String, regNumber: String, consecNo: Int): Action[UpdateStatusPeriodRequest] =
-    authorise.async(parse.json[UpdateStatusPeriodRequest]) { implicit request =>
+    authorise.andThen(agentAuth(regime, regNumber)).async(parse.json[UpdateStatusPeriodRequest]) { implicit request =>
       service.updateStatusPeriod(regime, regNumber, consecNo, request.body.status).map {
         case Right(())   => NoContent
         case Left(error) => handleError(error)
