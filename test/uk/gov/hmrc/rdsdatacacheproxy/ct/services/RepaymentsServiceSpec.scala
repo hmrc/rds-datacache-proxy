@@ -65,7 +65,7 @@ class RepaymentsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
 
   }
 
-  "RepaymentsServiceServiceSpec" - {
+  "RepaymentsServiceSpec" - {
     "must return repayments with one item" in new Setup {
       when(mockRepo.getRepayments(any[Long], any[Long]))
         .thenReturn(Future.successful(repaymentsWithOneItem))

@@ -18,3 +18,4 @@ GET        /statute-rule                                                    uk.g
 GET        /ct-form-data/:taxRef/:accPeriod                                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.FormDataController.getFormData(taxRef: Long, accPeriod: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams)
 
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
+GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
