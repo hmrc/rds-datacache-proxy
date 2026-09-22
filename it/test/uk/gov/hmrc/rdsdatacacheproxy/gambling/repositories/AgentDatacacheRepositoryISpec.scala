@@ -334,7 +334,7 @@ class AgentDatacacheRepositoryISpec extends AnyWordSpec with Matchers with Scala
         .hasClient(
           regime       = MGD,
           credentialId = "CRED-ABC-123",
-          regNumber    = "123"
+          regNumber    = "XEM00000000640"
         )
         .futureValue
 
@@ -438,7 +438,7 @@ class AgentDatacacheRepositoryISpec extends AnyWordSpec with Matchers with Scala
         .hasClient(
           regime       = MGD,
           credentialId = "CRED-ABC-123/XYZ",
-          regNumber    = "123"
+          regNumber    = "XEM00000000640"
         )
         .futureValue
 
@@ -462,7 +462,7 @@ class AgentDatacacheRepositoryISpec extends AnyWordSpec with Matchers with Scala
         .hasClient(
           regime       = MGD,
           credentialId = "CRED-ABC-123",
-          regNumber    = "456"
+          regNumber    = "XVM00000000495"
         )
         .futureValue
 
@@ -474,7 +474,7 @@ class AgentDatacacheRepositoryISpec extends AnyWordSpec with Matchers with Scala
         .hasClient(
           regime       = MGD,
           credentialId = "CRED-ABC-123",
-          regNumber    = "789"
+          regNumber    = "XHM00000000785"
         )
         .futureValue
 
@@ -486,7 +486,7 @@ class AgentDatacacheRepositoryISpec extends AnyWordSpec with Matchers with Scala
         .hasClient(
           regime       = GBD,
           credentialId = "CRED-XYZ-999",
-          regNumber    = "123"
+          regNumber    = "XVM00000000495"
         )
         .futureValue
 
