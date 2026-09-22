@@ -943,13 +943,6 @@ class GamblingDataCacheRepository @Inject() (
           "{ call MGD_DC_VARIATION_PK.GET_CONTROLLING_BODY_DETAILS(?, ?,?) }"
         )
 
-        def closeQuietly(c: AutoCloseable): Unit =
-          if (c != null)
-            try c.close()
-            catch {
-              case _: Throwable => ()
-            }
-
         try {
 
           cs.setString(1, mgdRegNumber)
