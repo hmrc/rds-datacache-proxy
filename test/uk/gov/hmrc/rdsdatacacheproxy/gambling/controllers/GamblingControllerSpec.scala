@@ -42,6 +42,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessType.SoleProprietor
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 
@@ -640,6 +641,142 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
       )
 
       verify(mockService).getBusinessAddressDetails(eqTo("ERR00001770"))(any())
+    }
+  }
+
+  "GamblingController#getControllingBodyDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+      val details = ControllingBodyDetails(
+        mgdRegNumber           = "XYZ00000000001",
+        businessPartnerNumber  = Some("foo"),
+        dateOfJoining          = Some(fixedDate),
+        dateOfLeaving          = Some(fixedDate),
+        solePropTitle          = Some("foo"),
+        solePropFirstName      = Some("foo"),
+        solePropMiddleName     = Some("foo"),
+        solePropLastName       = Some("foo"),
+        businessName           = Some("foo"),
+        tradingName            = Some("foo"),
+        dateOfBirth            = Some(fixedDate),
+        nino                   = Some("foo"),
+        utr                    = Some(1),
+        vrn                    = Some(2),
+        crn                    = Some("foo"),
+        dateOfIncorporation    = Some(fixedDate),
+        countryOfIncorporation = Some("foo"),
+        foreignCorporateRef    = Some("foo"),
+        address1               = Some("random street"),
+        address2               = Some("bar"),
+        address3               = Some("bar"),
+        address4               = Some("foo"),
+        postcode               = Some("SR1 4DE"),
+        country                = Some("Ingerland!"),
+        adi                    = Some("none"),
+        isIomOrCiFlag          = Some("true"),
+        phoneNumber            = Some("foo"),
+        mobilePhoneNumber      = Some("foo"),
+        faxNumber              = Some("foo"),
+        emailAddr              = Some("foo"),
+        typeOfControllingBody  = Some(SoleProprietor),
+        isRepMemSameAsCb       = Some("foo"),
+        isUkIncorporated       = Some("foo"),
+        systemDate             = Some(fixedDate)
+      )
+
+      when(mockService.getControllingBodyDetails(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/controlling-body-details/XWM00000001770")
+      val res = controller.getControllingBodyDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(details)
+
+      verify(mockService).getControllingBodyDetails(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "allows request through AuthAction" in new Setup {
+      val details = ControllingBodyDetails(
+        mgdRegNumber           = "XYZ00000000001",
+        businessPartnerNumber  = Some("foo"),
+        dateOfJoining          = Some(fixedDate),
+        dateOfLeaving          = Some(fixedDate),
+        solePropTitle          = Some("foo"),
+        solePropFirstName      = Some("foo"),
+        solePropMiddleName     = Some("foo"),
+        solePropLastName       = Some("foo"),
+        businessName           = Some("foo"),
+        tradingName            = Some("foo"),
+        dateOfBirth            = Some(fixedDate),
+        nino                   = Some("foo"),
+        utr                    = Some(1),
+        vrn                    = Some(2),
+        crn                    = Some("foo"),
+        dateOfIncorporation    = Some(fixedDate),
+        countryOfIncorporation = Some("foo"),
+        foreignCorporateRef    = Some("foo"),
+        address1               = Some("random street"),
+        address2               = Some("bar"),
+        address3               = Some("bar"),
+        address4               = Some("foo"),
+        postcode               = Some("SR1 4DE"),
+        country                = Some("Ingerland!"),
+        adi                    = Some("none"),
+        isIomOrCiFlag          = Some("true"),
+        phoneNumber            = Some("foo"),
+        mobilePhoneNumber      = Some("foo"),
+        faxNumber              = Some("foo"),
+        emailAddr              = Some("foo"),
+        typeOfControllingBody  = Some(SoleProprietor),
+        isRepMemSameAsCb       = Some("foo"),
+        isUkIncorporated       = Some("foo"),
+        systemDate             = Some(fixedDate)
+      )
+
+      when(mockService.getControllingBodyDetails(any())(any()))
+        .thenReturn(Future.successful(Right(details)))
+
+      val req = FakeRequest(GET, "/gambling/controlling-body-details/XWM00000001770")
+      val res = controller.getControllingBodyDetails("XWM00000001770")(req)
+
+      status(res) mustBe OK
+
+      verify(mockService).getControllingBodyDetails(eqTo("XWM00000001770"))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getControllingBodyDetails(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, "/gambling/controlling-body-details/bad")
+      val res = controller.getControllingBodyDetails("bad")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getControllingBodyDetails(eqTo("bad"))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getControllingBodyDetails(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, "/gambling/controlling-body-details/ERR00001770")
+      val res = controller.getControllingBodyDetails("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getControllingBodyDetails(eqTo("ERR00001770"))(any())
     }
   }
 

@@ -38,6 +38,7 @@ trait GamblingDataSource {
   def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
+  def getControllingBodyDetails(mgdRegNumber: String): Future[ControllingBodyDetails]
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
@@ -915,6 +916,151 @@ class GamblingDataCacheRepository @Inject() (
                   country      = None,
                   iomOrCiFlag  = None,
                   systemDate   = None
+                )
+              }
+
+          } finally {
+            optionResultSet.foreach(_.close())
+          }
+
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+
+    })(ec)
+  }
+
+  override def getControllingBodyDetails(
+    mgdRegNumber: String
+  ): Future[ControllingBodyDetails] = {
+
+    Future(blocking {
+
+      db.withConnection { conn =>
+
+        val cs = conn.prepareCall(
+          "{ call MGD_DC_VARIATION_PK.GET_CONTROLLING_BODY_DETAILS(?, ?,?) }"
+        )
+
+        try {
+
+          cs.setString(1, mgdRegNumber)
+          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+          cs.registerOutParameter(3, java.sql.Types.DATE)
+
+          cs.execute()
+
+          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
+
+          val systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
+
+          try {
+            optionResultSet
+              .filter(_.next())
+              .map { rs =>
+
+                def optString(col: String): Option[String] =
+                  Option(rs.getString(col))
+                    .map(_.trim)
+                    .filter(_.nonEmpty)
+
+                def optDate(col: String): Option[LocalDate] =
+                  Option(rs.getDate(col))
+                    .map(_.toLocalDate)
+
+                def optLong(col: String): Option[Long] =
+                  Option(rs.getObject(col)).map {
+                    case bd: java.math.BigDecimal => bd.longValue()
+                    case n: java.lang.Number      => n.longValue()
+                    case other                    => other.toString.toLong
+                  }
+
+                def optInt(col: String): Option[Int] =
+                  Option(rs.getObject(col)).map {
+                    case bd: java.math.BigDecimal => bd.intValue()
+                    case n: java.lang.Number      => n.intValue()
+                    case other                    => other.toString.toInt
+                  }
+
+                val typeOfControllingBody: Option[BusinessType] =
+                  optInt("TYPE_OF_CONTROLLING_BODY").flatMap(BusinessType.fromCode)
+
+                ControllingBodyDetails(
+                  mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
+                    .map(_.trim)
+                    .getOrElse(""),
+                  businessPartnerNumber  = optString("BUSINESS_PARTNER_NUMBER"),
+                  dateOfJoining          = optDate("DATE_OF_JOINING"),
+                  dateOfLeaving          = optDate("DATE_OF_LEAVING"),
+                  solePropTitle          = optString("SOLE_PROP_TITLE"),
+                  solePropFirstName      = optString("SOLE_PROP_FIRST_NAME"),
+                  solePropMiddleName     = optString("SOLE_PROP_MIDDLE_NAME"),
+                  solePropLastName       = optString("SOLE_PROP_LAST_NAME"),
+                  businessName           = optString("BUSINESS_NAME"),
+                  tradingName            = optString("TRADING_NAME"),
+                  dateOfBirth            = optDate("DATE_OF_BIRTH"),
+                  nino                   = optString("NINO"),
+                  utr                    = optLong("UTR"),
+                  vrn                    = optLong("VRN"),
+                  crn                    = optString("CRN"),
+                  dateOfIncorporation    = optDate("DATE_OF_INCORPORATION"),
+                  countryOfIncorporation = optString("COUNTRY_OF_INCORPORATION"),
+                  foreignCorporateRef    = optString("FOREIGN_CORPORATE_REF"),
+                  address1               = optString("ADDRESS_1"),
+                  address2               = optString("ADDRESS_2"),
+                  address3               = optString("ADDRESS_3"),
+                  address4               = optString("ADDRESS_4"),
+                  postcode               = optString("POSTCODE"),
+                  country                = optString("COUNTRY"),
+                  adi                    = optString("ADI"),
+                  isIomOrCiFlag          = optString("IS_IOM_OR_CI"),
+                  phoneNumber            = optString("PHONE_NUMBER"),
+                  mobilePhoneNumber      = optString("MOBILE_PHONE_NUMBER"),
+                  faxNumber              = optString("FAX_NUMBER"),
+                  emailAddr              = optString("EMAIL_ADDR"),
+                  typeOfControllingBody  = typeOfControllingBody,
+                  isRepMemSameAsCb       = optString("IS_REP_MEM_SAME_AS_CB"),
+                  isUkIncorporated       = optString("IS_UK_INCORPORATED"),
+                  systemDate             = systemDate
+                )
+              }
+              .getOrElse {
+                ControllingBodyDetails(
+                  mgdRegNumber           = "",
+                  businessPartnerNumber  = None,
+                  dateOfJoining          = None,
+                  dateOfLeaving          = None,
+                  solePropTitle          = None,
+                  solePropFirstName      = None,
+                  solePropMiddleName     = None,
+                  solePropLastName       = None,
+                  businessName           = None,
+                  tradingName            = None,
+                  dateOfBirth            = None,
+                  nino                   = None,
+                  utr                    = None,
+                  vrn                    = None,
+                  crn                    = None,
+                  dateOfIncorporation    = None,
+                  countryOfIncorporation = None,
+                  foreignCorporateRef    = None,
+                  address1               = None,
+                  address2               = None,
+                  address3               = None,
+                  address4               = None,
+                  postcode               = None,
+                  country                = None,
+                  adi                    = None,
+                  isIomOrCiFlag          = None,
+                  phoneNumber            = None,
+                  mobilePhoneNumber      = None,
+                  faxNumber              = None,
+                  emailAddr              = None,
+                  typeOfControllingBody  = None,
+                  isRepMemSameAsCb       = None,
+                  isUkIncorporated       = None,
+                  systemDate             = None
                 )
               }
 

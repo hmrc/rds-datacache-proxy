@@ -10,8 +10,9 @@ GET        /business-contact-details/mgd/:mgdRegNumber  uk.gov.hmrc.rdsdatacache
 GET        /mgd-details/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getMgdDetails(mgdRegNumber: String)
 GET        /trade-class/mgd/:mgdRegNumber               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getTradeClass(mgdRegNumber: String)
 GET        /correspondence-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getCorrespondenceDetails(mgdRegNumber: String)
-GET        /premises-details/mgd/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getPremisesDetails(mgdRegNumber: String)
-GET        /business-address/mgd/:mgdRegNumber          uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessAddressDetails(mgdRegNumber: String)
+GET        /premises-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getPremisesDetails(mgdRegNumber: String)
+GET        /business-address/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessAddressDetails(mgdRegNumber: String)
+GET        /controlling-body-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getControllingBodyDetails(mgdRegNumber: String)
 GET        /return-periods/mgd/:mgdRegNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnPeriods(mgdRegNumber: String)
 
 

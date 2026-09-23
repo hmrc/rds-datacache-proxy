@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.BusinessType.SoleProprietor
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{RecordNotFound, RepositoryError}
 
 import java.time.LocalDate
@@ -139,6 +140,91 @@ object GamblingStubData {
           country      = None,
           iomOrCiFlag  = None,
           systemDate   = Some(LocalDate.now())
+        )
+    }
+
+  def getControllingBodyDetails(
+    mgdRegNumber: String
+  ): ControllingBodyDetails =
+    mgdRegNumber match {
+
+      case "XYZ00000000001" =>
+        ControllingBodyDetails(
+          mgdRegNumber           = mgdRegNumber,
+          businessPartnerNumber  = Some("foo"),
+          dateOfJoining          = Some(fixedDate),
+          dateOfLeaving          = Some(fixedDate),
+          solePropTitle          = Some("foo"),
+          solePropFirstName      = Some("foo"),
+          solePropMiddleName     = Some("foo"),
+          solePropLastName       = Some("foo"),
+          businessName           = Some("foo"),
+          tradingName            = Some("foo"),
+          dateOfBirth            = Some(fixedDate),
+          nino                   = Some("foo"),
+          utr                    = Some(1),
+          vrn                    = Some(2),
+          crn                    = Some("foo"),
+          dateOfIncorporation    = Some(fixedDate),
+          countryOfIncorporation = Some("foo"),
+          foreignCorporateRef    = Some("foo"),
+          address1               = Some("random street"),
+          address2               = Some("bar"),
+          address3               = Some("bar"),
+          address4               = Some("foo"),
+          postcode               = Some("SR1 4DE"),
+          country                = Some("Ingerland!"),
+          adi                    = Some("none"),
+          isIomOrCiFlag          = Some("true"),
+          phoneNumber            = Some("foo"),
+          mobilePhoneNumber      = Some("foo"),
+          faxNumber              = Some("foo"),
+          emailAddr              = Some("foo"),
+          typeOfControllingBody  = Some(SoleProprietor),
+          isRepMemSameAsCb       = Some("foo"),
+          isUkIncorporated       = Some("foo"),
+          systemDate             = Some(fixedDate)
+        )
+
+      case "XER00000000000" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case _ =>
+        ControllingBodyDetails(
+          mgdRegNumber           = "",
+          businessPartnerNumber  = None,
+          dateOfJoining          = None,
+          dateOfLeaving          = None,
+          solePropTitle          = None,
+          solePropFirstName      = None,
+          solePropMiddleName     = None,
+          solePropLastName       = None,
+          businessName           = None,
+          tradingName            = None,
+          dateOfBirth            = None,
+          nino                   = None,
+          utr                    = None,
+          vrn                    = None,
+          crn                    = None,
+          dateOfIncorporation    = None,
+          countryOfIncorporation = None,
+          foreignCorporateRef    = None,
+          address1               = None,
+          address2               = None,
+          address3               = None,
+          address4               = None,
+          postcode               = None,
+          country                = None,
+          adi                    = None,
+          isIomOrCiFlag          = None,
+          phoneNumber            = None,
+          mobilePhoneNumber      = None,
+          faxNumber              = None,
+          emailAddr              = None,
+          typeOfControllingBody  = None,
+          isRepMemSameAsCb       = None,
+          isUkIncorporated       = None,
+          systemDate             = None
         )
     }
 
