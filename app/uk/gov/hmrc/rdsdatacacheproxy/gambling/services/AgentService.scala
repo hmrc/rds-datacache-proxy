@@ -30,12 +30,11 @@ class AgentService @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseService {
 
-  def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int = 14400)(using
+  def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int)(using
     ExecutionContext
-  ): Future[Either[String, ClientListDownloadStatus]] = {
+  ): Future[Either[StatementError, ClientListDownloadStatus]] = {
     repository
       .getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
-      .map(ClientListDownloadStatus.fromInt)
   }
 
   def getAllClients(

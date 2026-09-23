@@ -21,12 +21,13 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AgentService
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AgentController @Inject() (authorise: AuthAction, service: AgentService, cc: ControllerComponents)(implicit
+class AgentController @Inject (appConfig: AppConfig)(authorise: AuthAction, service: AgentService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
@@ -35,18 +36,16 @@ class AgentController @Inject() (authorise: AuthAction, service: AgentService, c
   def getClientListDownloadStatus(
     credentialId: String,
     regime: String,
-    gracePeriod: Int = 14400
+    gracePeriod: Int = appConfig.gracePeriod
   ): Action[AnyContent] = authorise.async { implicit request =>
 
     if (regime.trim().isEmpty || credentialId.trim().isEmpty) {
       Future.successful(BadRequest(Json.obj("error" -> "credentialId and regime must be provided")))
     } else {
-      service
-        .getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
-        .map {
-          case Left(error)   => InternalServerError(Json.obj("error" -> error))
-          case Right(status) => Ok(Json.obj("status" -> status.toString))
-        }
+      service.getAllClientsDownloadStatus(credentialId, regime, gracePeriod).map {
+        case Right(status) => Ok(Json.obj("status" -> status.toString))
+        case Left(error)   => handleError(error)
+      }
     }
   }
 

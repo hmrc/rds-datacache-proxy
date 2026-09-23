@@ -20,6 +20,7 @@ import org.mockito.ArgumentMatchers.eq as eqTo
 import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.ClientListDownloadStatus.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AgentDataSource
@@ -49,7 +50,7 @@ final class AgentServiceSpec extends SpecBase {
 
     "return Right(InitiateDownload) when repository returns -1" in {
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
-        .thenReturn(Future.successful(-1))
+        .thenReturn(Future.successful(Right(InitiateDownload)))
 
       val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
 
@@ -60,7 +61,7 @@ final class AgentServiceSpec extends SpecBase {
 
     "return Right(InProgress) when repository returns 0" in {
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
-        .thenReturn(Future.successful(0))
+        .thenReturn(Future.successful(Right(InProgress)))
 
       val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
 
@@ -71,7 +72,7 @@ final class AgentServiceSpec extends SpecBase {
 
     "return Right(Succeeded) when repository returns 1" in {
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
-        .thenReturn(Future.successful(1))
+        .thenReturn(Future.successful(Right(Succeeded)))
 
       val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
 
@@ -82,7 +83,7 @@ final class AgentServiceSpec extends SpecBase {
 
     "return Right(Failed) when repository returns 2" in {
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
-        .thenReturn(Future.successful(2))
+        .thenReturn(Future.successful(Right(Failed)))
 
       val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
 
@@ -91,22 +92,11 @@ final class AgentServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "return Left with error message when repository returns unrecognized status code" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
-        .thenReturn(Future.successful(99))
-
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
-
-      result mustBe Left("Could not map client list download status")
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
-      verifyNoMoreInteractions(repository)
-    }
-
     "use default grace period when not specified" in {
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(14400)))
-        .thenReturn(Future.successful(1))
+        .thenReturn(Future.successful(Right(Succeeded)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, 14400)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.Succeeded)
       verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(14400))

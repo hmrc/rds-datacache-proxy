@@ -27,11 +27,13 @@ import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime.MGD
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.ClientListDownloadStatus.Succeeded
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
 import java.sql.*
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 class AgentDatacacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
@@ -82,7 +84,7 @@ class AgentDatacacheRepositorySpec extends AnyFlatSpec with Matchers with Before
 
     val result = repository.getAllClientsDownloadStatus("cred-123", "GAMBLING", 14400).futureValue
 
-    result shouldBe 1
+    result shouldBe Right(Succeeded)
     verify(mockCsMgd).setString(1, "cred-123")
     verify(mockCsMgd).setString(2, "GAMBLING")
     verify(mockCsMgd).setInt(3, 14400)

@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.actions
 
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result, Results, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.SessionId
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthenticatedRequest.*
 
@@ -29,8 +29,7 @@ case class AuthenticatedRequest[A](
   internalId: String,
   credentialId: String,
   sessionId: SessionId,
-  enrolments: Enrolments,
-  affinityGroup: Option[AffinityGroup] = None
+  enrolments: Enrolments
 ) extends WrappedRequest[A](request) {
 
   def whenUserAuthorisedForCharity(charityReference: String)(block: => Future[Result]): Future[Result] =

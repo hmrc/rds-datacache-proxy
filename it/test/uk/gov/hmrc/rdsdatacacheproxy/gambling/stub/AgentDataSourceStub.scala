@@ -18,7 +18,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
 import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.ClientListDownloadStatus.{Failed, Succeeded}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AgentDataSource
 
@@ -28,7 +29,7 @@ import scala.concurrent.Future
 @Singleton
 class AgentDataSourceStub extends AgentDataSource with Logging {
 
-  override def getAllClientsDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
+  override def getAllClientsDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Either[StatementError, ClientListDownloadStatus]] = {
     val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
     val serviceNameExists = Option(serviceName).exists(_.trim.nonEmpty)
 
@@ -36,12 +37,12 @@ class AgentDataSourceStub extends AgentDataSource with Logging {
       logger.info(
         s"[STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} => status=1"
       )
-      Future.successful(1)
+      Future.successful(Right(Succeeded))
     } else {
       logger.warn(
         s"[STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID/SERVICE_NAME: CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} "
       )
-      Future.successful(2)
+      Future.successful(Right(Failed))
     }
   }
 

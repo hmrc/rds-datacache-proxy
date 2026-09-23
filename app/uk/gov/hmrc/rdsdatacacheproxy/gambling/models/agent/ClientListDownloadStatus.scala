@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent
 
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.InvalidClientListStatus
 import uk.gov.hmrc.rdsdatacacheproxy.shared.models.WithName
 
 sealed trait ClientListDownloadStatus
@@ -26,11 +28,11 @@ object ClientListDownloadStatus {
   case object Succeeded        extends ClientListDownloadStatus with WithName("Succeeded")
   case object Failed           extends ClientListDownloadStatus with WithName("Failed")
 
-  def fromInt(status: Int): Either[String, ClientListDownloadStatus] = status match {
+  def fromInt(status: Int): Either[StatementError, ClientListDownloadStatus] = status match {
     case -1 => Right(InitiateDownload)
     case 0  => Right(InProgress)
     case 1  => Right(Succeeded)
     case 2  => Right(Failed)
-    case _  => Left("Could not map client list download status")
+    case _  => Left(InvalidClientListStatus)
   }
 }

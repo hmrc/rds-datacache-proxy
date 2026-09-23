@@ -27,9 +27,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.config.AppConfig
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.InvalidRegimeCode
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidClientListStatus, InvalidRegimeCode}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AgentService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -86,14 +87,15 @@ class AgentControllerSpec extends SpecBase with MockitoSugar {
 
     "returns 500 with error message when service returns Left(error)" in new Setup {
       when(mockService.getAllClientsDownloadStatus(eqTo("cred-123"), eqTo("service-xyz"), eqTo(14400))(using any[ExecutionContext]))
-        .thenReturn(Future.successful(Left("Could not map client list download status")))
+        .thenReturn(Future.successful(Left(InvalidClientListStatus)))
 
       val req = FakeRequest(GET, "/client-list-status?credentialId=cred-123&regime=service-xyz&gracePeriod=14400")
       val res: Future[Result] = controller.getClientListDownloadStatus("cred-123", "service-xyz")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentType(res) mustBe Some(JSON)
-      (contentAsJson(res) \ "error").as[String] mustBe "Could not map client list download status"
+      (contentAsJson(res) \ "code").as[String] mustBe "INVALID_CLIENT_LIST_STATUS"
+      (contentAsJson(res) \ "message").as[String] mustBe "Could not map client list download status"
       verify(mockService).getAllClientsDownloadStatus(eqTo("cred-123"), eqTo("service-xyz"), eqTo(14400))(using any[ExecutionContext])
       verifyNoMoreInteractions(mockService)
     }
@@ -563,6 +565,8 @@ class AgentControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: AgentService = mock[AgentService]
-    val controller = new AgentController(fakeAuthAction, mockService, cc)(using ec)
+    private val mockAppConfig: AppConfig = mock[AppConfig]
+    when(mockAppConfig.gracePeriod).thenReturn(14400)
+    val controller = new AgentController(mockAppConfig)(fakeAuthAction, mockService, cc)(using ec)
   }
 }

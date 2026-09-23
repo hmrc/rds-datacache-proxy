@@ -20,7 +20,7 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.NamedDatabase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse, ClientListDownloadStatus}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepositorySupport.{GTRDatabase, MGDDatabase}
 
@@ -30,7 +30,10 @@ import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AgentDataSource {
-  def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int = 14400): Future[Int]
+  def getAllClientsDownloadStatus(credentialId: String,
+                                  regime: String,
+                                  gracePeriod: Int = 14400
+                                 ): Future[Either[StatementError, ClientListDownloadStatus]]
   def getAllClients(regime: Regime,
                     credentialId: String,
                     start: Int = 0,
@@ -50,7 +53,10 @@ class AgentDatacacheRepository @Inject() (
     with RepositorySupport
     with Logging {
 
-  override def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int): Future[Int] = {
+  override def getAllClientsDownloadStatus(credentialId: String,
+                                           regime: String,
+                                           gracePeriod: Int
+                                          ): Future[Either[StatementError, ClientListDownloadStatus]] = {
     // NAME: getClientListDownloadStatus
     // DESCRIPTION: Return the status of the client list download process. If no record found, or outside grace period return -1, else return the status.
     // -1 - Update should proceed
@@ -72,7 +78,7 @@ class AgentDatacacheRepository @Inject() (
           cs.registerOutParameter(4, OracleTypes.INTEGER)
           cs.execute()
 
-          cs.getInt(4)
+          ClientListDownloadStatus.fromInt(cs.getInt(4))
         } finally cs.close()
       }
     }

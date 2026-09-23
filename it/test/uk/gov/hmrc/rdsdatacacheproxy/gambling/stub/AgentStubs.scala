@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.stub
 
-import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.ClientListDownloadStatus.Succeeded
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.agent.{AgentClient, AgentClientListResponse}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AgentDataSource
 
-import javax.inject.Singleton
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -33,7 +32,7 @@ class AgentRdsStub extends AgentDataSource {
     }
 
   override def getAllClientsDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400) =
-    Future(1)
+    Future(Right(Succeeded))
 
   override def getAllClients(regime: Regime, credentialId: String, start: Int = 0, count: Int = -1, sort: Int = 0, order: String = "ASC") =
     Future(AgentStubs.getAgentClientListResponseData(2))
