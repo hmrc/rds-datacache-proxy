@@ -45,29 +45,25 @@ trait AgentDataSource {
 class AgentDatacacheRepository @Inject() (
   @NamedDatabase("gambling") mgdDb: MGDDatabase,
   @NamedDatabase("gambling.gtr") gtrDb: GTRDatabase
-//  ,  @NamedDatabase("cis") cisDb: Database
 )(implicit ec: ExecutionContext)
     extends AgentDataSource
     with RepositorySupport
     with Logging {
 
   override def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int): Future[Int] = {
+    // NAME: getClientListDownloadStatus
+    // DESCRIPTION: Return the status of the client list download process. If no record found, or outside grace period return -1, else return the status.
+    // -1 - Update should proceed 0
+    //  0 - Update is in progress
+    //  1 - No update in progress, last update succeeded
+    //  2 - No update in progress, last update failed
 
-    /** ************************************************************************** NAME: getClientListDownloadStatus DESCRIPTION: Return the status of
-      * the client list download process. If no record found, or outside grace period return -1, else return the status. -1 - Update should proceed 0
-      * \- Update is in progress 1 - No update in progress, last update succeeded 2 - No update in progress, last update failed
-      * ************************************************************************
-      */
     logger.info(s"getClientListDownloadStatus(credentialId=$credentialId, regime=$regime, gracePeriod=$gracePeriod)")
 
     Future {
       mgdDb.underlying.withConnection { conn =>
-//      cisDb.withConnection { conn =>
         val cs: CallableStatement =
           conn.prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
-        // TODO : CALL SHARED_DATA.CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS('0000000924135151', 'GBD', 14400, ?);  'MGD' works in DBBeaver, but GBD doesn't
-
-        System.out.println("JBS getAllClientsDownloadStatus 1 : ")
 
         try {
           cs.setString(1, credentialId)
@@ -76,7 +72,6 @@ class AgentDatacacheRepository @Inject() (
           cs.registerOutParameter(4, OracleTypes.INTEGER)
           cs.execute()
 
-          System.out.println("JBS getAllClientsDownloadStatus 2 : " + cs.getInt(4))
           cs.getInt(4)
         } finally cs.close()
       }
