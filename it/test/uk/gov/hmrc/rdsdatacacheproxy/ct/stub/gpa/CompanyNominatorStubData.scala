@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.stub
+package uk.gov.hmrc.rdsdatacacheproxy.ct.stub.gpa
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
 
 object CompanyNominatorStubData {
 

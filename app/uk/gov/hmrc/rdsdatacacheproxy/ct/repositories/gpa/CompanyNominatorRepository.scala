@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa
 
 import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepositoryDataSupport
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa
 
 import oracle.jdbc.OracleTypes
 import org.mockito.ArgumentMatchers.any
@@ -24,7 +24,7 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global

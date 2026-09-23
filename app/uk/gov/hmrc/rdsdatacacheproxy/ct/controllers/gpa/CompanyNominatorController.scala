@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa
 
 import play.api.Logging
 import play.api.libs.json.Json
@@ -22,8 +22,8 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.CompanyNominatorService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.CompanyNominatorService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

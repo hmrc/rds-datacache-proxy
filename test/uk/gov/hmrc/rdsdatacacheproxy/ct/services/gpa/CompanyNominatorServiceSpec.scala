@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.services
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -22,8 +22,8 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.CompanyNominatorRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.CompanyNominatorRepository
 
 import scala.concurrent.Future
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -23,9 +23,9 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.CompanyNominator
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.CompanyNominatorRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.CompanyNominatorStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.CompanyNominator
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.CompanyNominatorRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.gpa.CompanyNominatorStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
