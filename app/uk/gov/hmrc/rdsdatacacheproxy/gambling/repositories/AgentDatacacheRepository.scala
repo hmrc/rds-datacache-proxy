@@ -53,7 +53,7 @@ class AgentDatacacheRepository @Inject() (
   override def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int): Future[Int] = {
     // NAME: getClientListDownloadStatus
     // DESCRIPTION: Return the status of the client list download process. If no record found, or outside grace period return -1, else return the status.
-    // -1 - Update should proceed 0
+    // -1 - Update should proceed
     //  0 - Update is in progress
     //  1 - No update in progress, last update succeeded
     //  2 - No update in progress, last update failed
