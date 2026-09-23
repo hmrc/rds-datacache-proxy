@@ -26,6 +26,8 @@ trait RepositoryDataSupport extends Logging {
   def optDate(i: Int, cs: CallableStatement): Option[LocalDate] = Option(cs.getDate(i)).map(_.toLocalDate)
 
   def optBigDecimal(i: Int, cs: CallableStatement): Option[BigDecimal] = Option(cs.getBigDecimal(i))
+  
+  def optString(i: Int, cs: CallableStatement): Option[String] = Option(cs.getString(i))
 
   def processResultSetList[T](cs: CallableStatement, position: Int, processor: ResultSet => T, context: String): List[T] = {
     val rs = cs.getObject(position, classOf[ResultSet])
