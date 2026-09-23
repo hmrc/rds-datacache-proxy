@@ -20,14 +20,13 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AssessmentsInAbsenceOfReturnsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class AssessmentsInAbsenceOfReturnsController @Inject() (authorise: AuthAction,
-                                                         agentAuth: AgentAuthAction,
                                                          service: AssessmentsInAbsenceOfReturnsService,
                                                          cc: ControllerComponents
                                                         )(implicit
@@ -37,7 +36,7 @@ class AssessmentsInAbsenceOfReturnsController @Inject() (authorise: AuthAction,
     with Logging {
 
   def getAssessmentsInAbsenceOfReturns(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getAssessmentsInAbsenceOfReturns(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(assessments) => Ok(Json.toJson(assessments))
         case Left(error)        => handleError(error)

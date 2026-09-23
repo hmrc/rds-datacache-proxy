@@ -37,7 +37,7 @@ class SubmittedReturnSingleControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: SubmittedReturnSingleService = mock[SubmittedReturnSingleService]
-    val controller = new SubmittedReturnSingleController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
+    val controller = new SubmittedReturnSingleController(fakeAuthAction, mockService, cc)
   }
 
   "SubmittedReturnSingleController#getSubmittedReturnSingle" - {

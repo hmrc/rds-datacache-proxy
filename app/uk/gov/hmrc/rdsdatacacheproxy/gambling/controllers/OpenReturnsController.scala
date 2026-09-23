@@ -20,20 +20,20 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.OpenReturnsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class OpenReturnsController @Inject() (authorise: AuthAction, agentAuth: AgentAuthAction, service: OpenReturnsService, cc: ControllerComponents)(
-  implicit ec: ExecutionContext
+class OpenReturnsController @Inject() (authorise: AuthAction, service: OpenReturnsService, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
   def getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String]): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getOpenReturnPeriods(regime, regNumber, sortBy, orderBy).map {
         case Right(openReturnPeriods) => Ok(Json.toJson(openReturnPeriods))
         case Left(error)              => handleError(error)

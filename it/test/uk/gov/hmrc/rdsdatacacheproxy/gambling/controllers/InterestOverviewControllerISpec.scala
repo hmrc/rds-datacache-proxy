@@ -176,16 +176,6 @@ class InterestOverviewControllerISpec
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
-    "return 403 for Unauthorised Agent" in {
-      AuthStub.authorisedAgent()
-
-      val response = get(s"$endpoint/$GBD/XGM00003122200").futureValue
-
-      response.status mustBe FORBIDDEN
-      response.contentType mustBe "application/json"
-
-      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
-    }
+    
   }
 }

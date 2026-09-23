@@ -20,24 +20,20 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.InterestOverviewService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class InterestOverviewController @Inject() (authorise: AuthAction,
-                                            agentAuth: AgentAuthAction,
-                                            service: InterestOverviewService,
-                                            cc: ControllerComponents
-                                           )(implicit
+class InterestOverviewController @Inject() (authorise: AuthAction, service: InterestOverviewService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
   def getInterestOverview(regime: String, regNumber: String): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getInterestOverview(regime, regNumber).map {
         case Right(interestOverview) => Ok(Json.toJson(interestOverview))
         case Left(error)             => handleError(error)

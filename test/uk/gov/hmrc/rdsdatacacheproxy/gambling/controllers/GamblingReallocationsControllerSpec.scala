@@ -38,7 +38,7 @@ class GamblingReallocationsControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: GamblingReallocationsService = mock[GamblingReallocationsService]
-    val controller = new GamblingReallocationsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
+    val controller = new GamblingReallocationsController(fakeAuthAction, mockService, cc)
   }
 
   "GamblingReallocationsController#getReallocationsIn" - {

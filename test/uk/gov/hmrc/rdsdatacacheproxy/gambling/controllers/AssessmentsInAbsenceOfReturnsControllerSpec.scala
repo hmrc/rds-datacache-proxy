@@ -36,7 +36,7 @@ class AssessmentsInAbsenceOfReturnsControllerSpec extends SpecBase with MockitoS
 
   private trait Setup {
     val mockService: AssessmentsInAbsenceOfReturnsService = mock[AssessmentsInAbsenceOfReturnsService]
-    val controller = new AssessmentsInAbsenceOfReturnsController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
+    val controller = new AssessmentsInAbsenceOfReturnsController(fakeAuthAction, mockService, cc)
   }
 
   "AssessmentsInAbsenceServiceController#getAssessmentWithoutReturn" - {

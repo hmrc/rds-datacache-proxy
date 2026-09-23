@@ -36,7 +36,7 @@ class StatementOverviewControllerSpec extends SpecBase with MockitoSugar {
 
   private trait Setup {
     val mockService: StatementOverviewService = mock[StatementOverviewService]
-    val controller = new StatementOverviewController(fakeAuthAction, fakeAgentAuthAction, mockService, cc)
+    val controller = new StatementOverviewController(fakeAuthAction, mockService, cc)
   }
 
   "StatementOverviewController#getStatementOverview" - {

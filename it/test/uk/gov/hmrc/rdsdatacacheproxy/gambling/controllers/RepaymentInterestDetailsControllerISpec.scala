@@ -163,16 +163,6 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
-    "return 403 for Unauthorised Agent" in {
-      AuthStub.authorisedAgent()
-
-      val response = get(s"$endpoint/$MGD/XGM00003122200?pageNo=1&pageSize=10").futureValue
-
-      response.status mustBe FORBIDDEN
-      response.contentType mustBe "application/json"
-
-      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
-    }
+    
   }
 }

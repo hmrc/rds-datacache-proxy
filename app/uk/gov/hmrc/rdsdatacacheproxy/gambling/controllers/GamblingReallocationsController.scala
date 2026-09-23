@@ -20,24 +20,20 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GamblingReallocationsController @Inject() (authorise: AuthAction,
-                                                 agentAuth: AgentAuthAction,
-                                                 service: GamblingReallocationsService,
-                                                 cc: ControllerComponents
-                                                )(implicit
+class GamblingReallocationsController @Inject() (authorise: AuthAction, service: GamblingReallocationsService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
   def getReallocationsIn(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getReallocationsIn(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(allocations) => Ok(Json.toJson(allocations))
         case Left(error)        => handleError(error)
@@ -45,7 +41,7 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction,
     }
 
   def getReallocationsOut(regime: String, regNumber: String, paginationStart: Int, paginationMaxRows: Int): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getReallocationsOut(regime, regNumber, paginationStart, paginationMaxRows).map {
         case Right(allocations) => Ok(Json.toJson(allocations))
         case Left(error)        => handleError(error)
@@ -53,7 +49,7 @@ class GamblingReallocationsController @Inject() (authorise: AuthAction,
     }
 
   def getReallocationsDetails(regime: String, regNumber: String): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getReallocationsDetails(regime, regNumber).map {
         case Right(details) => Ok(Json.toJson(details))
         case Left(error)    => handleError(error)

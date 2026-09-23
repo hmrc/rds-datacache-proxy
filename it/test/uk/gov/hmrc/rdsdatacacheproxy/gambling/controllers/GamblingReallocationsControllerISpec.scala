@@ -170,17 +170,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
-    "return 403 for Unauthorised Agent" in {
-      AuthStub.authorisedAgent()
-
-      val response = get(s"$inEndpoint/$GBD/XGM00003122200?pageNo=1&pageSize=10").futureValue
-
-      response.status mustBe FORBIDDEN
-      response.contentType mustBe "application/json"
-
-      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
-    }
+    
   }
 
   "GET /gambling/reallocations-out (stubbed repo, no DB)" should {
@@ -293,17 +283,6 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
-    "return 403 for Unauthorised Agent" in {
-      AuthStub.authorisedAgent()
-
-      val response = get(s"$outEndpoint/$MGD/XGM00003122200?pageNo=1&pageSize=10").futureValue
-
-      response.status mustBe FORBIDDEN
-      response.contentType mustBe "application/json"
-
-      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
-    }
   }
 
   "GET /gambling/reallocations-details (stubbed repo, no DB)" should {
@@ -415,17 +394,6 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       response.status mustBe INTERNAL_SERVER_ERROR
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
-    }
-
-    "return 403 for Unauthorised Agent" in {
-      AuthStub.authorisedAgent()
-
-      val response = get(s"$detailsEndpoint/$MGD/XGM00003122200").futureValue
-
-      response.status mustBe FORBIDDEN
-      response.contentType mustBe "application/json"
-
-      (response.json \ "message").as[String] mustBe "Agent not authorised for the requested client"
     }
   }
 }

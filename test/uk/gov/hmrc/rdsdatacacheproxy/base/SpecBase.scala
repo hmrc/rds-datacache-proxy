@@ -30,9 +30,8 @@ import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FakeHeaders, FakeRequest}
 import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, FakeAgentAuthAction, FakeAuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.AgentService
 
 import scala.concurrent.ExecutionContext
 
@@ -58,8 +57,6 @@ trait SpecBase
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   val bodyParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
   val fakeAuthAction = new FakeAuthAction(bodyParsers)
-  val mockAgentService: AgentService = mock[AgentService]
-  val fakeAgentAuthAction: AgentAuthAction = new FakeAgentAuthAction(mockAgentService)
 
   def fakeAuthActionWithEnrolments(enrolments: Set[Enrolment]): FakeAuthAction =
     new FakeAuthAction(bodyParsers, enrolments)

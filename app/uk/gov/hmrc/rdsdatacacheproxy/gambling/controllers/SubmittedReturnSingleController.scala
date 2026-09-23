@@ -20,25 +20,21 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.Regime
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.SubmittedReturnSingleService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class SubmittedReturnSingleController @Inject() (authorise: AuthAction,
-                                                 agentAuth: AgentAuthAction,
-                                                 service: SubmittedReturnSingleService,
-                                                 cc: ControllerComponents
-                                                )(implicit
+class SubmittedReturnSingleController @Inject() (authorise: AuthAction, service: SubmittedReturnSingleService, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with BaseController
     with Logging {
 
   def getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int): Action[AnyContent] =
-    authorise.andThen(agentAuth(Regime.MGD.code, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getSubmittedReturnSingle(Regime.MGD, regNumber, consecNo).map {
         case Right(single) => Ok(Json.toJson(single))
         case Left(error)   => handleError(error)

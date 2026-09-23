@@ -20,7 +20,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.rdsdatacacheproxy.actions.{AgentAuthAction, AuthAction}
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.StatementOverviewService
 
 import javax.inject.Inject
@@ -28,7 +28,6 @@ import scala.concurrent.ExecutionContext
 
 class StatementOverviewController @Inject() (
   authorise: AuthAction,
-  agentAuth: AgentAuthAction,
   service: StatementOverviewService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
@@ -37,7 +36,7 @@ class StatementOverviewController @Inject() (
     with Logging {
 
   def getStatementOverview(regime: String, regNumber: String): Action[AnyContent] =
-    authorise.andThen(agentAuth(regime, regNumber)).async { implicit request =>
+    authorise.async { implicit request =>
       service.getStatementOverview(regime, regNumber).map {
         case Right(overview) => Ok(Json.toJson(overview))
         case Left(error)     => handleError(error)
