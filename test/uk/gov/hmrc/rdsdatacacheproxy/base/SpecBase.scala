@@ -28,12 +28,12 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContentAsEmpty, ControllerComponents, PlayBodyParsers}
 import play.api.test.Helpers.stubControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FakeHeaders, FakeRequest}
+import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.actions.FakeAuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.cis.models.CisTaxpayer
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.auth.core.Enrolment
 
 trait SpecBase
     extends AnyFreeSpec

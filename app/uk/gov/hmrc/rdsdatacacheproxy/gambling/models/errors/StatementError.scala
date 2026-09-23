@@ -27,7 +27,8 @@ enum StatementError(val code: String, val message: String) {
         "NOT_FOUND",
         "No statement overview found for the given registration number"
       )
-  case InvalidStatus extends StatementError("INVALID_STATUS", "status must be 0 (open) or 1 (closed)")
+  case InvalidStatus           extends StatementError("INVALID_STATUS", "status must be 0 (open) or 1 (closed)")
+  case InvalidClientListStatus extends StatementError("INVALID_CLIENT_LIST_STATUS", "Could not map client list download status")
 }
 
 object StatementError {

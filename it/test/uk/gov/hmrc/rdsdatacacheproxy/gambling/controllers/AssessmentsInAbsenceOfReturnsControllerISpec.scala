@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsInAbsenceOfReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, AssessmentsInAbsenceOfReturnsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, AssessmentsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnRdsStub)
+        bind[AssessmentsInAbsenceOfReturnsDataSource].toInstance(new AssessmentsInAbsenceOfReturnRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -162,6 +163,6 @@ class AssessmentsInAbsenceOfReturnsControllerISpec extends AnyWordSpec with Matc
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
+    
   }
 }

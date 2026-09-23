@@ -67,5 +67,6 @@ class Module extends AppModule:
       bind[TaxTransactionsDataSource].to(classOf[TaxTransactionsDataCacheRepository]),
       bind[PartnerDetailsDataSource].to(classOf[PartnerDetailsCacheRepository]),
       bind[LicenceDataSource].to(classOf[LicenceCacheRepository]),
-      bind[PaymentsCtDataCacheRepository].to(classOf[PaymentsCtDataCacheRepositoryImpl])
+      bind[PaymentsCtDataCacheRepository].to(classOf[PaymentsCtDataCacheRepositoryImpl]),
+      bind[AgentDataSource].to(classOf[AgentDatacacheRepository])
     )

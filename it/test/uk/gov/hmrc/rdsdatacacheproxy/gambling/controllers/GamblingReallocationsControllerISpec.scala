@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingReallocationsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, GamblingReallocationsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.GamblingReallocationsStubData.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, GamblingReallocationsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +49,8 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[GamblingReallocationsDataSource].toInstance(new GamblingReallocationsRdsStub)
+        bind[GamblingReallocationsDataSource].toInstance(new GamblingReallocationsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -169,6 +170,7 @@ class GamblingReallocationsControllerISpec extends AnyWordSpec with Matchers wit
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
+    
   }
 
   "GET /gambling/reallocations-out (stubbed repo, no DB)" should {

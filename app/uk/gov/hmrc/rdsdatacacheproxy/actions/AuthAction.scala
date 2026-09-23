@@ -25,9 +25,8 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedF
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import javax.inject.Singleton
 
 @Singleton
 class DefaultAuthAction @Inject() (

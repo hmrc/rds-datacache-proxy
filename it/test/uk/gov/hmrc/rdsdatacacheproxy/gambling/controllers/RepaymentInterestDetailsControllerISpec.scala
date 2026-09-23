@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.RepaymentInterestDetailsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentInterestDetailsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, RepaymentInterestDetailsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.RepaymentInterestDetailsStubData.getRepaymentInterestDetailsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, RepaymentInterestDetailsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[RepaymentInterestDetailsDataSource].toInstance(new RepaymentInterestDetailsRdsStub)
+        bind[RepaymentInterestDetailsDataSource].toInstance(new RepaymentInterestDetailsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -162,6 +163,6 @@ class RepaymentInterestDetailsControllerISpec extends AnyWordSpec with Matchers 
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
+    
   }
 }

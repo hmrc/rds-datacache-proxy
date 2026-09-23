@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.SubmittedReturns
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.SubmittedReturnsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.SubmittedReturnsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, SubmittedReturnsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.SubmittedReturnsStubData.{DEFAULT_ORDER_BY, DEFAULT_SORT_BY, getSubmittedReturnsData}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, SubmittedReturnsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class SubmittedReturnsControllerISpec extends AnyWordSpec with Matchers with Sca
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[SubmittedReturnsDataSource].toInstance(new SubmittedReturnsRdsStub)
+        bind[SubmittedReturnsDataSource].toInstance(new SubmittedReturnsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -166,6 +167,6 @@ class SubmittedReturnsControllerISpec extends AnyWordSpec with Matchers with Sca
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
+    
   }
 }

@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Payments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.PaymentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PaymentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, PaymentsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.PaymentsStubData.getPaymentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, PaymentsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[PaymentsDataSource].toInstance(new PaymentsRdsStub)
+        bind[PaymentsDataSource].toInstance(new PaymentsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -162,6 +163,6 @@ class PaymentsControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
+    
   }
 }

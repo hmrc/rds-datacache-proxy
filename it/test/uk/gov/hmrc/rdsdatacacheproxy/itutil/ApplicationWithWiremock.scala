@@ -27,8 +27,10 @@ import play.api.libs.json.JsValue
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import play.api.libs.ws.{WSClient, WSResponse}
 import uk.gov.hmrc.http.HeaderNames
-import uk.gov.hmrc.rdsdatacacheproxy.cis.{CisRdsStub, StubUtils}
 import uk.gov.hmrc.rdsdatacacheproxy.cis.repositories.CisMonthlyReturnSource
+import uk.gov.hmrc.rdsdatacacheproxy.cis.{CisRdsStub, StubUtils}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AgentDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AgentDataSourceStub
 
 import scala.concurrent.Future
 
@@ -51,7 +53,8 @@ trait ApplicationWithWiremock
   override lazy val app: Application = new GuiceApplicationBuilder()
     .configure(extraConfig)
     .overrides(
-      bind[CisMonthlyReturnSource].toInstance(new CisRdsStub(new StubUtils))
+      bind[CisMonthlyReturnSource].toInstance(new CisRdsStub(new StubUtils)),
+      bind[AgentDataSource].toInstance(new AgentDataSourceStub())
     )
     .build()
 

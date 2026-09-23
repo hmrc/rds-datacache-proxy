@@ -43,6 +43,26 @@ object AuthStub:
         )
     )
 
+  def authorisedAgent(): StubMapping =
+    stubFor(
+      post(urlPathEqualTo("/auth/authorise"))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withHeader("Content-Type", "application/json")
+            .withBody(
+              """{
+                |  "internalId": "testId",
+                |  "allEnrolments": [],
+                |  "affinityGroup": "Agent",
+                |  "credentialRole": "User",
+                |  "credentials": { "providerId": "testCredId", "providerType": "GovernmentGateway" },
+                |  "optionalCredentials": { "providerId": "testCredId", "providerType": "GovernmentGateway" }
+                |}""".stripMargin
+            )
+        )
+    )
+
   def unauthorised(): StubMapping =
     stubFor(
       post(urlPathMatching("/auth/authorise"))

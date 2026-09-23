@@ -26,8 +26,8 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.StatementError.{InvalidRegNumber, InvalidRegimeCode, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Reallocations, ReallocationsDetails, ReallocationsOut}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingReallocationsService
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validRegime, validResponseReallocationsIn}
 

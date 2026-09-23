@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestDetails, InterestDrilldown, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, InterestDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestDetailsStubData.getInterestDetailsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, InterestDetailsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,7 +48,8 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestDataSource].toInstance(new InterestDetailsRdsStub)
+        bind[InterestDataSource].toInstance(new InterestDetailsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
@@ -165,6 +166,6 @@ class InterestDetailsControllerISpec extends AnyWordSpec with Matchers with Scal
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
+    
   }
 }

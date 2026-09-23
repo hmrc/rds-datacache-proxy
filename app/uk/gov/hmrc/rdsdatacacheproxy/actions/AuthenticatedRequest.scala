@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.actions
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.http.SessionId
-import uk.gov.hmrc.auth.core.Enrolments
-import AuthenticatedRequest.*
-import scala.concurrent.Future
-import play.api.mvc.Results
 import play.api.libs.json.Json
-import play.api.mvc.Result
+import play.api.mvc.{Request, Result, Results, WrappedRequest}
+import uk.gov.hmrc.auth.core.Enrolments
+import uk.gov.hmrc.http.SessionId
+import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthenticatedRequest.*
+
+import scala.concurrent.Future
 
 case class AuthenticatedRequest[A](
   private val request: Request[A],

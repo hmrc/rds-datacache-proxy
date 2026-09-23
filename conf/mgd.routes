@@ -43,3 +43,8 @@ GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsda
 GET        /submitted-return-details/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnSingleController.getMgdSubmittedReturnSingle(regNumber: String, consecNo: Int)
 GET        /open-periods/:regime/:regNumber                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.OpenReturnsController.getOpenReturnPeriods(regime: String, regNumber: String, sortBy: Option[Int], orderBy: Option[String])
 PUT        /update-status-period/:regime/:regNumber/:consecNo  uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.UpdateStatusPeriodController.updateStatusPeriod(regime: String, regNumber: String, consecNo: Int)
+
+#Agent routes
+GET        /agent/client-list-status                                    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AgentController.getClientListDownloadStatus(credentialId: String, regime: String, gracePeriod: Int ?= 14400)
+GET        /agent/client-list                                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AgentController.getAllClients(credentialId: String, regime: String, start: Int ?= 0, count: Int ?= -1, sort: Int ?= 0, ascending: Boolean ?= true)
+GET        /agent/has-client/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.AgentController.hasClient(regime: String, regNumber: String, credentialId: String)

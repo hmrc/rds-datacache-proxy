@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{Assessments, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.AssessmentsDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, AssessmentsDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.AssessmentsStubData.getAssessmentsData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, AssessmentsStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,13 +45,14 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub)
+        bind[AssessmentsDataSource].toInstance(new AssessmentsRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
   private final val endpoint = "/gambling/other-assessments"
   private final val GBD = "gbd"
-  
+
   "GET /gambling/other-assessments (stubbed repo, no DB)" should {
 
     "return 200 with correct OtherAssessmentsData" in {
@@ -162,6 +163,5 @@ class AssessmentsControllerISpec extends AnyWordSpec with Matchers with ScalaFut
       (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
       (response.json \ "message").as[String] mustBe "Unexpected error occurred"
     }
-
   }
 }

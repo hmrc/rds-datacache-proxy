@@ -24,9 +24,9 @@ import play.api.http.Status.*
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{InterestAccruingDrilldown, InterestAccruingDrilldownItem, Regime}
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.InterestAccruingDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingDrilldownStubData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.{AgentDataSource, InterestAccruingDataSource}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.InterestAccruingDrilldownStubData.getInterestAccruingDrilldownData
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.stub.{AgentRdsStub, InterestAccruingDrilldownStubData}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,8 @@ class InterestAccruingControllerISpec extends AnyWordSpec with Matchers with Sca
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[InterestAccruingDataSource].toInstance(new InterestAccruingRdsStub)
+        bind[InterestAccruingDataSource].toInstance(new InterestAccruingRdsStub),
+        bind[AgentDataSource].toInstance(new AgentRdsStub)
       )
       .build()
 
