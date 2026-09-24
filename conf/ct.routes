@@ -16,5 +16,7 @@ GET        /accounting-period-details/:taxRef/:accPeriod                    uk.g
 GET        /repayments/:taxRef/:accPeriod                                   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.RepaymentsController.getRepayments(taxRef: Long, accPeriod: Long)
 GET        /statute-rule                                                    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.StatuteRuleController.getStatuteRule(queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.StatuteQueryParams)
 GET        /ct-form-data/:taxRef/:accPeriod                                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.FormDataController.getFormData(taxRef: Long, accPeriod: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams)
+
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
+GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
 GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)
