@@ -26,7 +26,7 @@ case class GpaGroupTaxCharges(pGppEndDate: Option[LocalDate],
                               pGppStatus: Option[String],
                               pGppCni: Option[LocalDate],
                               pGppApportionmentMethod: Option[String],
-                              pGpaUtr2: Option[Long],
+                              pGpaUtr2: Long,
                               pTotalNumOfRecords: Option[Int],
                               pGroupPaymentRecordCount: Option[Int],
                               pCurGroupTaxCharges: List[ParticipatorDetails]

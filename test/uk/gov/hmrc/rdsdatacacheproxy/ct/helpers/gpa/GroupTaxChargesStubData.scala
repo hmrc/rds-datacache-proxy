@@ -28,7 +28,7 @@ trait GroupTaxChargesStubData {
     pGppStatus               = Some("PENDING"),
     pGppCni                  = Some(LocalDate.of(2024, 3, 19)),
     pGppApportionmentMethod  = Some("NOT-EQUAL"),
-    pGpaUtr2                 = Some(1000L),
+    pGpaUtr2                 = 1000L,
     pTotalNumOfRecords       = Some(0),
     pGroupPaymentRecordCount = Some(0),
     pCurGroupTaxCharges      = List.empty
@@ -40,7 +40,7 @@ trait GroupTaxChargesStubData {
     pGppStatus               = Some("PENDING"),
     pGppCni                  = Some(LocalDate.of(2024, 3, 19)),
     pGppApportionmentMethod  = Some("                                   "),
-    pGpaUtr2                 = Some(1000L),
+    pGpaUtr2                 = 1000L,
     pTotalNumOfRecords       = Some(0),
     pGroupPaymentRecordCount = Some(0),
     pCurGroupTaxCharges      = List.empty
@@ -52,7 +52,7 @@ trait GroupTaxChargesStubData {
     pGppStatus               = Some("PENDING"),
     pGppCni                  = Some(LocalDate.of(2024, 3, 19)),
     pGppApportionmentMethod  = Some(""),
-    pGpaUtr2                 = Some(1000L),
+    pGpaUtr2                 = 1000L,
     pTotalNumOfRecords       = Some(0),
     pGroupPaymentRecordCount = Some(0),
     pCurGroupTaxCharges      = List.empty
@@ -65,7 +65,7 @@ trait GroupTaxChargesStubData {
     pGppStatus               = Some("SUBMITTED"),
     pGppCni                  = Some(LocalDate.of(2023, 3, 1)),
     pGppApportionmentMethod  = Some("EQUAL"),
-    pGpaUtr2                 = Some(200L),
+    pGpaUtr2                 = 200L,
     pTotalNumOfRecords       = Some(3),
     pGroupPaymentRecordCount = Some(3),
     pCurGroupTaxCharges = List(
