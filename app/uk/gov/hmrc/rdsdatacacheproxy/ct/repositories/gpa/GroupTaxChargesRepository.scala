@@ -71,7 +71,7 @@ class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
             pGppStatus               = optString(8, cs),
             pGppCni                  = optDate(9, cs),
             pGppApportionmentMethod  = optString(10, cs),
-            pGpaUtr2                 = optLong(11, cs),
+            pGpaUtr2                 = cs.getLong(11),
             pTotalNumOfRecords       = optInt(12, cs),
             pGroupPaymentRecordCount = optInt(13, cs),
             pCurGroupTaxCharges      = participatorDetails

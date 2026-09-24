@@ -41,10 +41,7 @@ class GroupTaxChargesController @Inject() (
     authorise.async { implicit request =>
       service
         .getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)
-        .map(payload =>
-          println(s"************ Payload ***********:$payload")
-          Ok(Json.toJson(payload))
-        )
+        .map(payload => Ok(Json.toJson(payload)))
         .recover { case ex: Throwable =>
           logger.error("Error while retrieving GpaGroupTaxCharges from oracle database", ex)
           InternalServerError(Json.obj("message" -> "Unexpected error"))
