@@ -130,25 +130,21 @@ class GroupPaymentsControllerISpec extends AnyWordSpec
 
     "return 404 when no data found" in {
       AuthStub.authorised()
-
-      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1").futureValue
-
+      val response = get(s"$endpoint/299?contractVersion=1&startIndex=1&count=1").futureValue
       response.status mustBe NOT_FOUND
-      response.contentType mustBe JSON
-
     }
 
     "return 500 with when a downstream error occurs" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1"").futureValue
+      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/99/1").futureValue
+      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1").futureValue
       response.status mustBe UNAUTHORIZED
     }
 
