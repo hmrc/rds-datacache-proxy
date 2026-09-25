@@ -22,8 +22,8 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.GroupPaymentPeriodsInRangeService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.GroupPaymentPeriodsInRangeService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext

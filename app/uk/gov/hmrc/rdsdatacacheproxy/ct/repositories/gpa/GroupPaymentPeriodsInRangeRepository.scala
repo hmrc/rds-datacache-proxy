@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

@@ -7,9 +7,10 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
 
 import scala.concurrent.Future
 
