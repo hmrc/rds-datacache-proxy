@@ -21,27 +21,33 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.Payments
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.PaymentsService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.GroupSummaryDetails
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentsRepository
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PaymentsController @Inject() (authorise: AuthAction, service: PaymentsService, cc: ControllerComponents)(implicit
+class GroupPaymentsController @Inject() (authorise: AuthAction, groupPaymentsRepository: GroupPaymentsRepository, cc: ControllerComponents)(implicit
   ec: ExecutionContext
 ) extends BackendController(cc)
     with Logging {
 
-  def getPayments(taxRef: Long, accPeriod: Long): Action[AnyContent] =
-    authorise.async { implicit request =>
-      service
-        .getPayments(taxRef, accPeriod)
-        .map { paymentTransactions =>
-          Ok(Json.toJson(Payments(paymentTransactions)))
+  def getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long): Action[AnyContent] =
+    authorise.async { request =>
+      groupPaymentsRepository
+        .getGroupSummary(
+          gpaUTR,
+          nomCompanyUTR
+        )
+        .map {
+          case Some(gpaRecord) =>
+            Ok(Json.toJson(gpaRecord))
+          case None =>
+            NotFound(Json.toJson(None))
         }
         .recover { case ex: Exception =>
-          logger.error("error while retrieving payment transactions", ex)
-          InternalServerError("Failed to retrieve payment transactions")
+          logger.error("error while retrieving group payments", ex)
+          InternalServerError("Failed to retrieve group payments")
         }
     }
 
