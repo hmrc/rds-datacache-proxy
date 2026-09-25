@@ -61,8 +61,11 @@ class GroupPaymentsController @Inject() (authorise: AuthAction, groupPaymentsRep
           queryParams.startIndex,
           queryParams.count
         )
-        .map { gpaPayDetails =>
-          Ok(Json.toJson(gpaPayDetails))
+        .map {
+          case Some(gpaPayDetails) =>
+            Ok(Json.toJson(gpaPayDetails))
+          case None =>
+            NotFound
         }
         .recover { case ex: Exception =>
           logger.error("error while retrieving group payments details", ex)
