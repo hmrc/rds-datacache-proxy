@@ -31,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[GroupPaymentsRepositoryImpl])
 trait GroupPaymentsRepository {
   def getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long): Future[Option[GroupSummaryDetails]]
-
   def getPaymentsDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Future[Option[GpaPaymentsDetails]]
 }
 
