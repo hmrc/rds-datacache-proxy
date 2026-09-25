@@ -36,7 +36,7 @@ class ReallocationFromAccPeriodRepositoryISpec
     with IntegrationPatience
     with GuiceOneAppPerSuite
     with ApplicationWithWiremock {
-
+ 
   class ReallocationFromAccPeriodRepositoryStub extends ReallocationFromAccPeriodRepository {
 
     override def getReallocationFromAccPeriod(taxRef: Long, accPeriod: Long): Future[ReallocationFromAccPeriod] =
