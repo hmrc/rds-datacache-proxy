@@ -21,7 +21,7 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.Database
 import play.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GroupReferenceNumberLstItem, GroupSummaryDetails, GroupSummaryDetailsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GpaPaymentsDetails, GroupReferenceNumberLstItem, GroupSummaryDetails, GroupSummaryDetailsItem}
 
 import java.sql.ResultSet
 import javax.inject.Inject
@@ -31,6 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[GroupPaymentsRepositoryImpl])
 trait GroupPaymentsRepository {
   def getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long): Future[Option[GroupSummaryDetails]]
+
+  def getPaymentsDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Future[GpaPaymentsDetails]
 }
 
 class GroupPaymentsRepositoryImpl @Inject() (
@@ -108,4 +110,20 @@ class GroupPaymentsRepositoryImpl @Inject() (
     buffer.toList
   }
 
+  private val paymentDetailsRec = GpaPaymentsDetails(
+    gpaPayments            = List.empty,
+    totalNumOfRecords      = None,
+    gppEndDate             = None,
+    gppTotalGroupPayment   = None,
+    gppTotalGroupTax       = None,
+    gppStatus              = "ACTIVE",
+    gppCni                 = None,
+    gppApportionmentMethod = "METHOD"
+  )
+
+  override def getPaymentsDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Future[GpaPaymentsDetails] = {
+    Future.successful(
+      paymentDetailsRec
+    )
+  }
 }
