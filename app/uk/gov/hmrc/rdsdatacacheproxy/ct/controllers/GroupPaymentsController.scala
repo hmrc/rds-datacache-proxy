@@ -22,6 +22,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.GroupSummaryDetails
+import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.GpaPaymentDetailsQueryParams
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentsRepository
 
 import javax.inject.Inject
@@ -50,5 +51,29 @@ class GroupPaymentsController @Inject() (authorise: AuthAction, groupPaymentsRep
           InternalServerError("Failed to retrieve group payments")
         }
     }
+
+  def getPaymentDetails(gpaUTR: Long, queryParams: GpaPaymentDetailsQueryParams): Action[AnyContent] = {
+    authorise.async { request =>
+      groupPaymentsRepository
+        .getPaymentsDetails(
+          gpaUTR,
+          queryParams.contractVersion,
+          queryParams.startIndex,
+          queryParams.count
+        )
+        .map {
+          case Some(gpaPayDetails) =>
+            Ok(Json.toJson(gpaPayDetails))
+          case None =>
+            NotFound
+        }
+        .recover { case ex: Exception =>
+          logger.error("error while retrieving group payments details", ex)
+          InternalServerError("Failed to retrieve group payments details")
+        }
+
+    }
+
+  }
 
 }
