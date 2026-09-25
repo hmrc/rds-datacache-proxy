@@ -24,22 +24,18 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[GroupPaymentPeriodInValidRangeRepositoryImpl])
-trait GroupPaymentPeriodInValidRangeRepository {
-  def getGroupPaymentPeriodInValidRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange]
+@ImplementedBy(classOf[GroupPaymentPeriodsInRangeRepositoryImpl])
+trait GroupPaymentPeriodsInRangeRepository {
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange]
 }
 
-class GroupPaymentPeriodInValidRangeRepositoryImpl @Inject() (
+class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
-    extends GroupPaymentPeriodInValidRangeRepository
+    extends GroupPaymentPeriodsInRangeRepository
     with Logging {
 
-  def getGroupPaymentPeriodInValidRange(gpaUTR: Long,
-                                        nominatedCompanyUTR: Long,
-                                        pPeriod: Long,
-                                        pMonthRestriction: Long
-                                       ): Future[PeriodWithinRange] = {
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange] = {
     logger.info(
       s"Input request: gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction: <$gpaUTR>, <$nominatedCompanyUTR>, <$pPeriod>, <$pMonthRestriction>"
     )

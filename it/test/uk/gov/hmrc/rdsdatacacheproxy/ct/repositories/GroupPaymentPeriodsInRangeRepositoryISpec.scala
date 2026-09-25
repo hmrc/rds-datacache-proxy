@@ -13,45 +13,45 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper.{periodW
 
 import scala.concurrent.Future
 
-class GroupPaymentPeriodInValidRangeRepositorySpec
+class GroupPaymentPeriodsInRangeRepositoryISpec
     extends AnyWordSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
     with GuiceOneAppPerSuite {
 
-  class GroupPaymentPeriodInValidRangeRepositoryStub extends GroupPaymentPeriodInValidRangeRepository {
-    override def getGroupPaymentPeriodInValidRange(gpaUTR: Long,
+  class GroupPaymentPeriodsInRangeRepositoryStub extends GroupPaymentPeriodsInRangRepository {
+    override def getGroupPaymentPeriodsInRange(gpaUTR: Long,
                                                    nominatedCompanyUTR: Long,
                                                    pPeriod: Long,
                                                    pMonthRestriction: Long
                                                   ): Future[PeriodWithinRange] =
-      Future.successful(PeriodWithinRangeHelper.getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
+      Future.successful(PeriodWithinRangeHelper.GroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()
-    .overrides(bind[GroupPaymentPeriodInValidRangeRepository].toInstance(new GroupPaymentPeriodInValidRangeRepositoryStub))
+    .overrides(bind[GroupPaymentPeriodsInRangeRepository].toInstance(new GroupPaymentPeriodsInRangeRepositoryStub))
     .build()
 
-  private lazy val repository: GroupPaymentPeriodInValidRangeRepository = app.injector.instanceOf[GroupPaymentPeriodInValidRangeRepository]
+  private lazy val repository: GroupPaymentPeriodsInRangeRepository = app.injector.instanceOf[GroupPaymentPeriodsInRangeRepository]
 
-  "getDisplayNeeded" should {
+  "getGroupPaymentPeriodsInRange" should {
 
     "return PeriodWithinRange as false" in {
-      val result = repository.getGroupPaymentPeriodInValidRange(10L, 1000L, 1L, 1L).futureValue
+      val result = repository.getGroupPaymentPeriodsInRange(10L, 1000L, 1L, 1L).futureValue
 
       result mustBe periodWithinRangeFalse
     }
 
     "return PeriodWithinRange as true" in {
-      val result = repository.getGroupPaymentPeriodInValidRange(20L, 1000L, 1L, 1L).futureValue
+      val result = repository.getGroupPaymentPeriodsInRange(20L, 1000L, 1L, 1L).futureValue
 
       result mustBe periodWithinRangeTrue
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getGroupPaymentPeriodInValidRange(999L, 1000L, 1L, 1L).futureValue
+        repository.getGroupPaymentPeriodsInRange(999L, 1000L, 1L, 1L).futureValue
       }
 
       exception.getMessage must include("Error from downstream")

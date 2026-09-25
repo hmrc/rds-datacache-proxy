@@ -18,23 +18,18 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentPeriodInValidRangeRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentPeriodsInRangeRepository
 
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class GroupPaymentPeriodInValidRangeService @Inject() (groupPaymentPeriodInValidRangeRepository: GroupPaymentPeriodInValidRangeRepository)
-    extends Logging {
+class GroupPaymentPeriodsInRangeService @Inject() (groupPaymentPeriodsInRangeRepository: GroupPaymentPeriodsInRangeRepository) extends Logging {
 
-  def getGroupPaymentPeriodInValidRange(gpaUTR: Long,
-                                        nominatedCompanyUTR: Long,
-                                        pPeriod: Long,
-                                        pMonthRestriction: Long
-                                       ): Future[PeriodWithinRange] = {
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange] = {
     logger.info(
       s"Calling repository for gpaUTR: $gpaUTR, nominatedCompanyUTR: $nominatedCompanyUTR, pPeriod: $pPeriod, pMonthRestriction: $pMonthRestriction"
     )
 
-    groupPaymentPeriodInValidRangeRepository.getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction)
+    groupPaymentPeriodsInRangeRepository.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction)
   }
 }

@@ -13,10 +13,10 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper.{periodW
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
 
   var db: Database = _
-  var repository: GroupPaymentPeriodInValidRangeRepositoryImpl = _
+  var repository: GroupPaymentPeriodsInRangeRepositoryImpl = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -34,10 +34,10 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
 
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCallableStatement)
 
-    repository = new GroupPaymentPeriodInValidRangeRepositoryImpl(db)
+    repository = new GroupPaymentPeriodsInRangeRepositoryImpl(db)
   }
 
-  "getGroupPaymentPeriodInValidRange" should "return PeriodWithinRange with field set to false" in {
+  "getGroupPaymentPeriodsInRange" should "return PeriodWithinRange with field set to false" in {
     val gpaUTR: Long = 10L
     val nominatedCompanyUTR: Long = 1000L
     val pPeriod: Long = 1L
@@ -45,7 +45,7 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
 
     when(mockCallableStatement.getString(5)).thenReturn("N")
 
-    val result = repository.getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).futureValue
+    val result = repository.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).futureValue
 
     result shouldBe periodWithinRangeFalse
 
@@ -63,7 +63,7 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
     verify(mockCallableStatement).close()
   }
 
-  "getGroupPaymentPeriodInValidRange" should "return PeriodWithinRange with field set to true" in {
+  "getGroupPaymentPeriodsInRange" should "return PeriodWithinRange with field set to true" in {
     val gpaUTR: Long = 20L
     val nominatedCompanyUTR: Long = 1000L
     val pPeriod: Long = 1L
@@ -71,7 +71,7 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
 
     when(mockCallableStatement.getString(5)).thenReturn("Y")
 
-    val result = repository.getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).futureValue
+    val result = repository.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).futureValue
 
     result shouldBe periodWithinRangeTrue
 
@@ -89,7 +89,7 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
     verify(mockCallableStatement).close()
   }
 
-  "getGroupPaymentPeriodInValidRange" should "close resources when execution throws exception" in {
+  "getGroupPaymentPeriodsInRange" should "close resources when execution throws exception" in {
     val gpaUTR: Long = 999L
     val nominatedCompanyUTR: Long = 1000L
     val pPeriod: Long = 1L
@@ -97,7 +97,7 @@ class GroupPaymentPeriodInValidRangeRepositorySpec extends AnyFlatSpec with Matc
 
     when(mockCallableStatement.execute()).thenThrow(new RuntimeException("Error from downstream"))
 
-    val ex = repository.getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).failed.futureValue
+    val ex = repository.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction).failed.futureValue
 
     ex.getMessage should include("Error from downstream")
 

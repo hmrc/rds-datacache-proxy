@@ -23,23 +23,23 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.GroupPaymentPeriodInValidRangeService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.GroupPaymentPeriodsInRangeService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GroupPaymentPeriodInValidRangeController @Inject() (
+class GroupPaymentPeriodsInRangeController @Inject() (
   authorise: AuthAction,
-  groupPaymentPeriodInValidRangeService: GroupPaymentPeriodInValidRangeService,
+  groupPaymentPeriodsInRangeService: GroupPaymentPeriodsInRangeService,
   cc: ControllerComponents
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
-  def getGroupPaymentPeriodInValidRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Action[AnyContent] =
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Action[AnyContent] =
     authorise.async { implicit request =>
-      groupPaymentPeriodInValidRangeService
-        .getGroupPaymentPeriodInValidRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction)
+      groupPaymentPeriodsInRangeService
+        .getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction)
         .map { isPeriodWithinRange =>
           Ok(Json.toJson(isPeriodWithinRange))
         }
