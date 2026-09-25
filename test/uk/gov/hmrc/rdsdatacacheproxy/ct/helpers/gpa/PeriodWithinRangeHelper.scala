@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa
 
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.services
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.PeriodWithinRange
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentPeriodsInRangeRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
 
 import javax.inject.Inject
 import scala.concurrent.Future

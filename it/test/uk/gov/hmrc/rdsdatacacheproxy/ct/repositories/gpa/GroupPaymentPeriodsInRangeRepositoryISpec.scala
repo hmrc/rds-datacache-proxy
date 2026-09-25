@@ -1,4 +1,4 @@
-package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -7,8 +7,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
 
@@ -21,13 +21,13 @@ class GroupPaymentPeriodsInRangeRepositoryISpec
     with IntegrationPatience
     with GuiceOneAppPerSuite {
 
-  class GroupPaymentPeriodsInRangeRepositoryStub extends GroupPaymentPeriodsInRangRepository {
+  class GroupPaymentPeriodsInRangeRepositoryStub extends GroupPaymentPeriodsInRangeRepository {
     override def getGroupPaymentPeriodsInRange(gpaUTR: Long,
                                                    nominatedCompanyUTR: Long,
                                                    pPeriod: Long,
                                                    pMonthRestriction: Long
                                                   ): Future[PeriodWithinRange] =
-      Future.successful(PeriodWithinRangeHelper.GroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
+      Future.successful(PeriodWithinRangeHelper.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
   }
 
   override lazy val app: Application = new GuiceApplicationBuilder()

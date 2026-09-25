@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa
 
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.matchers.should.Matchers.shouldBe
@@ -24,7 +24,6 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupPaymentPeriodsInRangeController
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.GroupPaymentPeriodsInRangeService

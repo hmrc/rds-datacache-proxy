@@ -1,4 +1,4 @@
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -7,8 +7,8 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
@@ -32,7 +32,7 @@ class GroupPaymentPeriodsInRangeControllerISpec extends AnyWordSpec with Matcher
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[GroupPaymentPeriodsInRangeRepository].toInstance(new GroupPaymentPeriodsInRangeRepositoryStub())
+        bind[GroupPaymentPeriodsInRangeRepository].toInstance(new GroupPaymentPeriodsInRangeStub())
       )
       .build()
 

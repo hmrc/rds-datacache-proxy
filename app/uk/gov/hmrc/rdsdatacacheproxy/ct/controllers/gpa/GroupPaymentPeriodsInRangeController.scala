@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa
 
 import play.api.Logging
 import play.api.libs.json.Json

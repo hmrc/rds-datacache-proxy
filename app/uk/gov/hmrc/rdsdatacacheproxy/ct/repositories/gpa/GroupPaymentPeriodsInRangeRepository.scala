@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa
 
 import com.google.inject.ImplementedBy
 import play.api.Logging
