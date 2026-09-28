@@ -37,7 +37,7 @@ class GroupPaymentPeriodsInRangeControllerSpec extends SpecBase with MockitoSuga
     val mockController: GroupPaymentPeriodsInRangeController = new GroupPaymentPeriodsInRangeController(fakeAuthAction, mockService, cc)
   }
 
-  "getDisplayNeeded" - {
+  "getGroupPaymentPeriodsInRange" - {
 
     "returns 200 with PeriodWithinRange with field set to false" in new Setup {
       val gpaUTR: Long = 10L
