@@ -190,8 +190,8 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getReturnPeriods(regNumber)
     }
 
-    override def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]] = Future {
-      GamblingStubData.getAgentBusinessDetails(agentReference)
+    override def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]] = Future {
+      GamblingStubData.getAgentDetails(agentReference)
     }
 
   }
@@ -873,7 +873,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       AuthStub.authorised()
       val response = get(s"$endpoint/AGENT001").futureValue
       response.status mustBe OK
-      response.json.as[AgentBusinessDetails] mustBe GamblingStubData.getAgentBusinessDetails("AGENT001").value
+      response.json.as[AgentDetails] mustBe GamblingStubData.getAgentDetails("AGENT001").value
     }
 
     "return 404 when agent is not found" in {

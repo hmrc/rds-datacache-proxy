@@ -640,36 +640,36 @@ final class GamblingServiceSpec extends SpecBase {
     }
   }
 
-  "GamblingService#getAgentBusinessDetails" - {
-    val details = GamblingStubData.getAgentBusinessDetails("AGENT001").toOption.get
+  "GamblingService#getAgentDetails" - {
+    val details = GamblingStubData.getAgentDetails("AGENT001").toOption.get
 
     "returns Right and trims the agent reference" in {
-      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+      when(repository.getAgentDetails(eqTo("AGENT001")))
         .thenReturn(Future.successful(Right(details)))
 
-      service.getAgentBusinessDetails("  AGENT001 ").futureValue mustBe Right(details)
-      verify(repository).getAgentBusinessDetails(eqTo("AGENT001"))
+      service.getAgentDetails("  AGENT001 ").futureValue mustBe Right(details)
+      verify(repository).getAgentDetails(eqTo("AGENT001"))
     }
 
     "maps RecordNotFound to RecordNotFoundError" in {
-      when(repository.getAgentBusinessDetails(eqTo("UNKNOWN")))
+      when(repository.getAgentDetails(eqTo("UNKNOWN")))
         .thenReturn(Future.successful(Left(RecordNotFound("not found"))))
 
-      service.getAgentBusinessDetails("UNKNOWN").futureValue mustBe Left(RecordNotFoundError)
+      service.getAgentDetails("UNKNOWN").futureValue mustBe Left(RecordNotFoundError)
     }
 
     "maps DatabaseError to DBSystemError" in {
-      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+      when(repository.getAgentDetails(eqTo("AGENT001")))
         .thenReturn(Future.successful(Left(DatabaseError("boom", new RuntimeException("boom")))))
 
-      service.getAgentBusinessDetails("AGENT001").futureValue mustBe Left(DBSystemError)
+      service.getAgentDetails("AGENT001").futureValue mustBe Left(DBSystemError)
     }
 
     "maps a failed future to UnexpectedError" in {
-      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+      when(repository.getAgentDetails(eqTo("AGENT001")))
         .thenReturn(Future.failed(new RuntimeException("boom")))
 
-      service.getAgentBusinessDetails("AGENT001").futureValue mustBe Left(UnexpectedError)
+      service.getAgentDetails("AGENT001").futureValue mustBe Left(UnexpectedError)
     }
   }
 }

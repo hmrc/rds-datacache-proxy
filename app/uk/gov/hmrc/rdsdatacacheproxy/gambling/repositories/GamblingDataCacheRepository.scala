@@ -42,7 +42,7 @@ trait GamblingDataSource {
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
-  def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]]
+  def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
 
 @Singleton
@@ -1304,7 +1304,7 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]] = Future(blocking {
+  override def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]] = Future(blocking {
     db.withConnection { conn =>
       val cs = conn.prepareCall("{ call MGD_DC_AGENT_PK.GET_AGENT_DETAILS(?, ?, ?, ?) }")
       var addressRs: java.sql.ResultSet = null
@@ -1322,7 +1322,7 @@ class GamblingDataCacheRepository @Inject() (
 
         if (addressRs == null || !addressRs.next()) {
           val msg = s"No agent details found for agentReference=$agentReference"
-          logger.warn(s"[GamblingDataCacheRepository] $msg")
+          logger.warn(msg)
           Left(RecordNotFound(msg))
         } else {
           contactRs.next()
@@ -1331,7 +1331,7 @@ class GamblingDataCacheRepository @Inject() (
             Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
 
           Right(
-            AgentBusinessDetails(
+            AgentDetails(
               businessName      = Option(cs.getString(2)).map(_.trim).filter(_.nonEmpty),
               addressLine1      = optString(addressRs, "ADDR_1"),
               addressLine2      = optString(addressRs, "ADDR_2"),
@@ -1350,7 +1350,7 @@ class GamblingDataCacheRepository @Inject() (
       } catch {
         case NonFatal(ex) =>
           val msg = s"Exception when calling GET_AGENT_DETAILS for $agentReference"
-          logger.error(s"[GamblingDataCacheRepository] $msg", ex)
+          logger.error(msg, ex)
           Left(DatabaseError(msg, ex))
       } finally {
         closeQuietly(addressRs)

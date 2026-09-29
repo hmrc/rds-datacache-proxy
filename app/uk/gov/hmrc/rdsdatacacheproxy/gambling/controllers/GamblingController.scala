@@ -192,13 +192,13 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
       }
     }
 
-  def getAgentBusinessDetails(agentReference: String): Action[AnyContent] =
+  def getAgentDetails(agentReference: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getAgentBusinessDetails(agentReference).map {
+      service.getAgentDetails(agentReference).map {
         case Right(details) =>
           Ok(Json.toJson(details))
         case Left(error) =>
-          handleError(error, s"[GamblingController][getAgentBusinessDetails] code=${error.code} agentReference=$agentReference")
+          handleError(error, s"Unable to get agent details due to error code=${error.code} for agentReference=$agentReference")
       }
     }
 

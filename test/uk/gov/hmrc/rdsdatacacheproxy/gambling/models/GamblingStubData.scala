@@ -716,11 +716,11 @@ object GamblingStubData {
       }
     }
 
-  def getAgentBusinessDetails(agentReference: String): Either[RepositoryError, AgentBusinessDetails] =
+  def getAgentDetails(agentReference: String): Either[RepositoryError, AgentDetails] =
     agentReference match {
       case "AGENT001" =>
         Right(
-          AgentBusinessDetails(
+          AgentDetails(
             businessName      = Some("Gambling company 1"),
             addressLine1      = Some("1"),
             addressLine2      = Some("Example street"),

@@ -765,7 +765,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).close()
   }
 
-  "getAgentBusinessDetails" should "return Right(AgentBusinessDetails) when name, address and contact are all present" in {
+  "getAgentDetails" should "return Right(AgentDetails) when name, address and contact are all present" in {
 
     val agentReference = "AGENT001"
 
@@ -788,10 +788,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(agentContactRs.getString("FAX_NUMBER")).thenReturn("02079460123")
     when(agentContactRs.getString("EMAIL_ADDR")).thenReturn("user@example.com")
 
-    val result = repository.getAgentBusinessDetails(agentReference).futureValue
+    val result = repository.getAgentDetails(agentReference).futureValue
 
     result shouldBe Right(
-      AgentBusinessDetails(
+      AgentDetails(
         businessName      = Some("Gambling company 1"),
         addressLine1      = Some("1"),
         addressLine2      = Some("Example street"),
@@ -822,7 +822,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockCs.getObject(3)).thenReturn(agentAddressRs)
     when(agentAddressRs.next()).thenReturn(false)
 
-    val result = repository.getAgentBusinessDetails("UNKNOWN").futureValue
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
 
     result shouldBe Left(RecordNotFound("No agent details found for agentReference=UNKNOWN"))
 
@@ -834,7 +834,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     when(mockCs.getObject(3)).thenReturn(null)
 
-    val result = repository.getAgentBusinessDetails("UNKNOWN").futureValue
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
 
     result shouldBe Left(RecordNotFound("No agent details found for agentReference=UNKNOWN"))
 
@@ -856,7 +856,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(mockCs.getObject(4)).thenReturn(agentContactRs)
     when(agentContactRs.next()).thenReturn(true)
 
-    val result = repository.getAgentBusinessDetails("AGENT001").futureValue.toOption.get
+    val result = repository.getAgentDetails("AGENT001").futureValue.toOption.get
 
     result.businessName shouldBe Some("Gambling company 1")
     result.addressLine1 shouldBe Some("1")
@@ -868,7 +868,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     when(mockCs.execute()).thenThrow(new java.sql.SQLException("ORA-01403: no data found", "02000", 1403))
 
-    val result = repository.getAgentBusinessDetails("UNKNOWN").futureValue
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
 
     result match {
       case Left(DatabaseError(msg, _)) => msg should include("GET_AGENT_DETAILS")

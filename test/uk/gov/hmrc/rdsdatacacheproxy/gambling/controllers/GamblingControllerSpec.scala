@@ -952,14 +952,14 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-  "GamblingController#getAgentBusinessDetails" - {
-    val details = GamblingStubData.getAgentBusinessDetails("AGENT001").toOption.get
+  "GamblingController#getAgentDetails" - {
+    val details = GamblingStubData.getAgentDetails("AGENT001").toOption.get
 
     "returns 200 when service succeeds" in new Setup {
-      when(mockService.getAgentBusinessDetails(eqTo("AGENT001"))(any()))
+      when(mockService.getAgentDetails(eqTo("AGENT001"))(any()))
         .thenReturn(Future.successful(Right(details)))
 
-      val res = controller.getAgentBusinessDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
+      val res = controller.getAgentDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
@@ -967,30 +967,30 @@ class GamblingControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "returns 404 when RecordNotFoundError" in new Setup {
-      when(mockService.getAgentBusinessDetails(any())(any()))
+      when(mockService.getAgentDetails(any())(any()))
         .thenReturn(Future.successful(Left(RecordNotFoundError)))
 
-      val res = controller.getAgentBusinessDetails("UNKNOWN")(FakeRequest(GET, "/gambling/agent-details/UNKNOWN"))
+      val res = controller.getAgentDetails("UNKNOWN")(FakeRequest(GET, "/gambling/agent-details/UNKNOWN"))
 
       status(res) mustBe NOT_FOUND
       (contentAsJson(res) \ "code").as[String] mustBe "RECORD_NOT_FOUND"
     }
 
     "returns 500 when DBSystemError" in new Setup {
-      when(mockService.getAgentBusinessDetails(any())(any()))
+      when(mockService.getAgentDetails(any())(any()))
         .thenReturn(Future.successful(Left(DBSystemError)))
 
-      val res = controller.getAgentBusinessDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
+      val res = controller.getAgentDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       (contentAsJson(res) \ "code").as[String] mustBe "DATABASE_ERROR"
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getAgentBusinessDetails(any())(any()))
+      when(mockService.getAgentDetails(any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
-      val res = controller.getAgentBusinessDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
+      val res = controller.getAgentDetails("AGENT001")(FakeRequest(GET, "/gambling/agent-details/AGENT001"))
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       (contentAsJson(res) \ "code").as[String] mustBe "UNEXPECTED_ERROR"

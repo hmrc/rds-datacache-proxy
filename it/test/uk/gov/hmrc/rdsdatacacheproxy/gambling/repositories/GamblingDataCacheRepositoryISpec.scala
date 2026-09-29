@@ -80,8 +80,8 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] =
       Future.successful(GamblingStubData.getReturnPeriods(regNumber))
 
-    override def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]] =
-      Future.successful(GamblingStubData.getAgentBusinessDetails(agentReference))
+    override def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]] =
+      Future.successful(GamblingStubData.getAgentDetails(agentReference))
 
     override def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse] =
       Future.successful(GamblingStubData.getPremisesDetails(mgdRegNumber))

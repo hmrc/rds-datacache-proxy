@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class AgentBusinessDetails(
+case class AgentDetails(
   businessName: Option[String],
   addressLine1: Option[String],
   addressLine2: Option[String],
@@ -33,6 +33,6 @@ case class AgentBusinessDetails(
   email: Option[String]
 )
 
-object AgentBusinessDetails {
-  implicit val format: OFormat[AgentBusinessDetails] = Json.format[AgentBusinessDetails]
+object AgentDetails {
+  implicit val format: OFormat[AgentDetails] = Json.format[AgentDetails]
 }

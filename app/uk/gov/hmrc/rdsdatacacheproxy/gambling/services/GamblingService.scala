@@ -414,11 +414,11 @@ class GamblingService @Inject() (
 
   }
 
-  def getAgentBusinessDetails(rawAgentReference: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, AgentBusinessDetails]] = {
+  def getAgentDetails(rawAgentReference: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, AgentDetails]] = {
     val agentReference = rawAgentReference.trim
 
     repository
-      .getAgentBusinessDetails(agentReference)
+      .getAgentDetails(agentReference)
       .map {
         case Right(details) => Right(details)
         case Left(RecordNotFound(msg)) =>
@@ -429,7 +429,7 @@ class GamblingService @Inject() (
           Left(GamblingError.DBSystemError)
       }
       .recover { case NonFatal(ex) =>
-        logger.error(s"Unexpected error for agentReference=$agentReference", ex)
+        logger.error(s"Unexpected error while retrieving agent details for agentReference=$agentReference", ex)
         Left(GamblingError.UnexpectedError)
       }
   }
