@@ -42,6 +42,7 @@ trait GamblingDataSource {
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
+  def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]]
 }
 
 @Singleton
@@ -1298,6 +1299,62 @@ class GamblingDataCacheRepository @Inject() (
           logger.error(s"[GamblingDataCacheRepository] $msg", ex)
           Left(DatabaseError(msg, ex))
       } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
+
+  override def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = conn.prepareCall("{ call MGD_DC_AGENT_PK.GET_AGENT_DETAILS(?, ?, ?, ?) }")
+      var addressRs: java.sql.ResultSet = null
+      var contactRs: java.sql.ResultSet = null
+
+      try {
+        cs.setString(1, agentReference) // IN P_MGD_AGENT_REF
+        cs.registerOutParameter(2, java.sql.Types.VARCHAR) // OUT P_FULL_NAME
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR) // OUT P_ADDRESS_DETAILS
+        cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR) // OUT P_BUSINESS_CONTACT_DETAILS
+        cs.execute()
+
+        addressRs = cs.getObject(3).asInstanceOf[java.sql.ResultSet]
+        contactRs = cs.getObject(4).asInstanceOf[java.sql.ResultSet]
+
+        if (addressRs == null || !addressRs.next()) {
+          val msg = s"No agent details found for agentReference=$agentReference"
+          logger.warn(s"[GamblingDataCacheRepository] $msg")
+          Left(RecordNotFound(msg))
+        } else {
+          contactRs.next()
+
+          def optString(rs: java.sql.ResultSet, col: String): Option[String] =
+            Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
+
+          Right(
+            AgentBusinessDetails(
+              businessName      = Option(cs.getString(2)).map(_.trim).filter(_.nonEmpty),
+              addressLine1      = optString(addressRs, "ADDR_1"),
+              addressLine2      = optString(addressRs, "ADDR_2"),
+              addressLine3      = optString(addressRs, "ADDR_3"),
+              addressLine4      = optString(addressRs, "ADDR_4"),
+              postcode          = optString(addressRs, "POST_CODE"),
+              country           = optString(addressRs, "COUNTRY"),
+              abroadSignal      = optString(addressRs, "ABROAD_SIGNAL"),
+              phoneNumber       = optString(contactRs, "PHONE_NUMBER"),
+              mobilePhoneNumber = optString(contactRs, "MOBILE_PHONE_NUMBER"),
+              faxNumber         = optString(contactRs, "FAX_NUMBER"),
+              email             = optString(contactRs, "EMAIL_ADDR")
+            )
+          )
+        }
+      } catch {
+        case NonFatal(ex) =>
+          val msg = s"Exception when calling GET_AGENT_DETAILS for $agentReference"
+          logger.error(s"[GamblingDataCacheRepository] $msg", ex)
+          Left(DatabaseError(msg, ex))
+      } finally {
+        closeQuietly(addressRs)
+        closeQuietly(contactRs)
         closeQuietly(cs)
       }
     }

@@ -715,4 +715,31 @@ object GamblingStubData {
           Left(RecordNotFound(s"Unknown registration number: $unknown"))
       }
     }
+
+  def getAgentBusinessDetails(agentReference: String): Either[RepositoryError, AgentBusinessDetails] =
+    agentReference match {
+      case "AGENT001" =>
+        Right(
+          AgentBusinessDetails(
+            businessName      = Some("Gambling company 1"),
+            addressLine1      = Some("1"),
+            addressLine2      = Some("Example street"),
+            addressLine3      = Some("Town"),
+            addressLine4      = Some("County"),
+            postcode          = Some("SW1A 1AA"),
+            country           = Some("United Kingdom"),
+            abroadSignal      = Some("N"),
+            phoneNumber       = Some("02079460000"),
+            mobilePhoneNumber = Some("07700900999"),
+            faxNumber         = Some("02079460123"),
+            email             = Some("user@example.com")
+          )
+        )
+
+      case "AGENTERR" =>
+        throw new RuntimeException("Simulated downstream failure")
+
+      case unknown =>
+        Left(RecordNotFound(s"Unknown agent reference: $unknown"))
+    }
 }

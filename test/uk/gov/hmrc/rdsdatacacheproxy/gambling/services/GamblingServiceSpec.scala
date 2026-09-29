@@ -21,8 +21,9 @@ import org.mockito.Mockito.{reset, verify, verifyNoMoreInteractions, when}
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, UnexpectedError}
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{DBSystemError, InvalidMgdRegNumber, RecordNotFoundError, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -636,6 +637,39 @@ final class GamblingServiceSpec extends SpecBase {
 
       verify(repository).getPremisesDetails(eqTo(validMgdRegNumber))
       verifyNoMoreInteractions(repository)
+    }
+  }
+
+  "GamblingService#getAgentBusinessDetails" - {
+    val details = GamblingStubData.getAgentBusinessDetails("AGENT001").toOption.get
+
+    "returns Right and trims the agent reference" in {
+      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+        .thenReturn(Future.successful(Right(details)))
+
+      service.getAgentBusinessDetails("  AGENT001 ").futureValue mustBe Right(details)
+      verify(repository).getAgentBusinessDetails(eqTo("AGENT001"))
+    }
+
+    "maps RecordNotFound to RecordNotFoundError" in {
+      when(repository.getAgentBusinessDetails(eqTo("UNKNOWN")))
+        .thenReturn(Future.successful(Left(RecordNotFound("not found"))))
+
+      service.getAgentBusinessDetails("UNKNOWN").futureValue mustBe Left(RecordNotFoundError)
+    }
+
+    "maps DatabaseError to DBSystemError" in {
+      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+        .thenReturn(Future.successful(Left(DatabaseError("boom", new RuntimeException("boom")))))
+
+      service.getAgentBusinessDetails("AGENT001").futureValue mustBe Left(DBSystemError)
+    }
+
+    "maps a failed future to UnexpectedError" in {
+      when(repository.getAgentBusinessDetails(eqTo("AGENT001")))
+        .thenReturn(Future.failed(new RuntimeException("boom")))
+
+      service.getAgentBusinessDetails("AGENT001").futureValue mustBe Left(UnexpectedError)
     }
   }
 }

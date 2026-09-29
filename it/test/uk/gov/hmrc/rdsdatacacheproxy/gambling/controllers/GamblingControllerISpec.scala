@@ -190,6 +190,10 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getReturnPeriods(regNumber)
     }
 
+    override def getAgentBusinessDetails(agentReference: String): Future[Either[RepositoryError, AgentBusinessDetails]] = Future {
+      GamblingStubData.getAgentBusinessDetails(agentReference)
+    }
+
   }
 
   override lazy val app: Application =
@@ -862,4 +866,34 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
 
   }
 
+  "GET /gambling/agent-details" should {
+    val endpoint = "/gambling/agent-details"
+
+    "return 200 with agent business details" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/AGENT001").futureValue
+      response.status mustBe OK
+      response.json.as[AgentBusinessDetails] mustBe GamblingStubData.getAgentBusinessDetails("AGENT001").value
+    }
+
+    "return 404 when agent is not found" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/UNKNOWN").futureValue
+      response.status mustBe NOT_FOUND
+      (response.json \ "code").as[String] mustBe "RECORD_NOT_FOUND"
+    }
+
+    "return 500 when stub simulates failure" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/AGENTERR").futureValue
+      response.status mustBe INTERNAL_SERVER_ERROR
+      (response.json \ "code").as[String] mustBe "UNEXPECTED_ERROR"
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$endpoint/AGENT001").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+  }
 }

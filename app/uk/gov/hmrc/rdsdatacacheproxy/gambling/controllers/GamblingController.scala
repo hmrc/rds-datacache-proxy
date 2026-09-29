@@ -192,6 +192,16 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
       }
     }
 
+  def getAgentBusinessDetails(agentReference: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getAgentBusinessDetails(agentReference).map {
+        case Right(details) =>
+          Ok(Json.toJson(details))
+        case Left(error) =>
+          handleError(error, s"[GamblingController][getAgentBusinessDetails] code=${error.code} agentReference=$agentReference")
+      }
+    }
+
   private def handleError(error: GamblingError, logMessage: String): Result =
     error match {
       case InvalidMgdRegNumber | InvalidRegimeCode =>
