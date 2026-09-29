@@ -36,9 +36,9 @@ class GroupTaxChargesControllerSpec extends SpecBase with GroupTaxChargesStubDat
     val controller = new GroupTaxChargesController(cc, fakeAuthAction, mockService)
 
     val pGpaUtr = 19L
-    val pGppContractVersion = 12L
-    val pStartIndex = 21L
-    val pCount = 33L
+    val pGppContractVersion = 12
+    val pStartIndex = 21
+    val pCount = 33
   }
 
   "GroupTaxChargesController" - {

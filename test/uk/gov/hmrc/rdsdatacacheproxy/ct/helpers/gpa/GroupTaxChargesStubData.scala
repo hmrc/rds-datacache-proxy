@@ -94,7 +94,7 @@ trait GroupTaxChargesStubData {
     )
   )
 
-  def getGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): GpaGroupTaxCharges = {
+  def getGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): GpaGroupTaxCharges = {
     (pGpaUtr, pGppContractVersion, pStartIndex, pCount) match {
       case (1, 2, 3, 4)     => gpaWithEmptyParticipator
       case (12, 13, 14, 15) => gpaWithNonEmptyParticipator

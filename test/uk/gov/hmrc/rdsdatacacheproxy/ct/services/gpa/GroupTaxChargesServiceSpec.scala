@@ -70,8 +70,8 @@ class GroupTaxChargesServiceSpec extends AnyFreeSpec with Matchers with ScalaFut
     val mockRepo: GroupTaxChargesRepository = mock[GroupTaxChargesRepository]
     val service = new GroupTaxChargesService(mockRepo)
     val pGpaUtr = 19L
-    val pGppContractVersion = 12L
-    val pStartIndex = 21L
-    val pCount = 33L
+    val pGppContractVersion = 12
+    val pStartIndex = 21
+    val pCount = 33
   }
 }

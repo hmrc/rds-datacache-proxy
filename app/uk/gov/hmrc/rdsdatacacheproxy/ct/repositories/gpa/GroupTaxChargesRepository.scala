@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[GroupTaxChargesRepositoryImpl])
 trait GroupTaxChargesRepository {
-  def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges]
+  def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Future[GpaGroupTaxCharges]
 }
 
 class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Database)(implicit ec: ExecutionContext)
@@ -38,7 +38,7 @@ class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
     with RepositoryDataSupport
     with Logging {
 
-  override def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] = {
+  override def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Future[GpaGroupTaxCharges] = {
     val context = s"Invoking repository"
     logger.info(s"Retrieving GpaGroupTaxCharges for pGpaUtr: $pGpaUtr, pGppContractVersion: $pGppContractVersion")
     Future {
@@ -46,9 +46,9 @@ class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
         val cs = connection.prepareCall("call CT_GPA_PK.getGPAGroupTaxCharges(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
         try {
           cs.setLong(1, pGpaUtr)
-          cs.setLong(2, pGppContractVersion)
-          cs.setLong(3, pStartIndex)
-          cs.setLong(4, pCount)
+          cs.setInt(2, pGppContractVersion)
+          cs.setInt(3, pStartIndex)
+          cs.setInt(4, pCount)
 
           cs.registerOutParameter(5, java.sql.Types.DATE) // pGPP_END_DATE
           cs.registerOutParameter(6, java.sql.Types.NUMERIC) // pGPP_TOTAL_GROUP_PAYMENT

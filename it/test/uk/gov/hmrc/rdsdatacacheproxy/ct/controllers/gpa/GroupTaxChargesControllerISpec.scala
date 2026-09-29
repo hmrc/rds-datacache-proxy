@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class GroupTaxChargesControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock with GroupTaxChargesStubData {
 
   class GroupTaxChargesStub extends GroupTaxChargesRepository {
-    override def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] =
+    override def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Future[GpaGroupTaxCharges] =
       Future {
         getGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)
       }

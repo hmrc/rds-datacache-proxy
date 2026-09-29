@@ -25,7 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class GroupTaxChargesService @Inject() (repository: GroupTaxChargesRepository)(implicit ec: ExecutionContext) extends Logging {
 
-  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] = {
+  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Future[GpaGroupTaxCharges] = {
     logger.info(
       s"Retrieving GroupTaxCharges for pGpaUtr :: $pGpaUtr, pGppContractVersion :: $pGppContractVersion"
     )

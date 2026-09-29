@@ -37,9 +37,9 @@ class GroupTaxChargesRepositoryISpec
     with GroupTaxChargesStubData {
 
   class GroupTaxChargesRepositoryRdsStub extends GroupTaxChargesRepository {
-    def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] =
+    def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Future[GpaGroupTaxCharges] =
       Future.successful(
-        getGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long)
+        getGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int)
       )
   }
 
@@ -52,20 +52,20 @@ class GroupTaxChargesRepositoryISpec
   "getGPAGroupTaxCharges" should {
 
     "return correct GpaGroupTaxCharges with empty ParticipatorDetails" in {
-      val result = repository.getGPAGroupTaxCharges(1L, 2L, 3L, 4L).futureValue
+      val result = repository.getGPAGroupTaxCharges(1L, 2, 3, 4).futureValue
 
       result mustBe gpaWithEmptyParticipator
     }
 
     "return correct GpaGroupTaxCharges with Participator Details" in {
-      val result = repository.getGPAGroupTaxCharges(12L, 13L, 14L, 15L).futureValue
+      val result = repository.getGPAGroupTaxCharges(12L, 13, 14, 15).futureValue
 
       result mustBe gpaWithNonEmptyParticipator
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[Error] {
-        repository.getGPAGroupTaxCharges(5L, 6L, 7L, 8L).futureValue
+        repository.getGPAGroupTaxCharges(5L, 6, 7, 8).futureValue
       }
 
       exception.getMessage must include("No Data found")

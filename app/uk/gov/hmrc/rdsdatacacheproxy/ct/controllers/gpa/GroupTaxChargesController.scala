@@ -37,7 +37,7 @@ class GroupTaxChargesController @Inject() (
     with I18nSupport
     with Logging {
 
-  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Action[AnyContent] =
+  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex: Int, pCount: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       service
         .getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)

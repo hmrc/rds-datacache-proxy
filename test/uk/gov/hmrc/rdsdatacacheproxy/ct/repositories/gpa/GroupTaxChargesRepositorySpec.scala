@@ -57,9 +57,9 @@ class GroupTaxChargesRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
   "getGPAGroupTaxCharges" should "return GpaGroupTaxCharges containing empty ParticipatorDetails from DB when stored procedure is invoked" in {
     val pGpaUtr = 19L
-    val pGppContractVersion = 12L
-    val pStartIndex = 21L
-    val pCount = 33L
+    val pGppContractVersion = 12
+    val pStartIndex = 21
+    val pCount = 33
 
     when(mockCallableStatement.getDate(5)).thenReturn(Date.valueOf("2023-04-05"))
     when(mockCallableStatement.getBigDecimal(6)).thenReturn(BigDecimal(0).bigDecimal)
@@ -81,9 +81,9 @@ class GroupTaxChargesRepositorySpec extends AnyFlatSpec with Matchers with Befor
     verify(mockConnection).prepareCall("call CT_GPA_PK.getGPAGroupTaxCharges(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
     verify(mockCallableStatement).setLong(1, pGpaUtr)
-    verify(mockCallableStatement).setLong(2, pGppContractVersion)
-    verify(mockCallableStatement).setLong(3, pStartIndex)
-    verify(mockCallableStatement).setLong(4, pCount)
+    verify(mockCallableStatement).setInt(2, pGppContractVersion)
+    verify(mockCallableStatement).setInt(3, pStartIndex)
+    verify(mockCallableStatement).setInt(4, pCount)
 
     verify(mockCallableStatement).registerOutParameter(14, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
@@ -96,9 +96,9 @@ class GroupTaxChargesRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
   "getGPAGroupTaxCharges" should "return GpaGroupTaxCharges containing multiple ParticipatorDetails from DB when stored procedure is invoked" in {
     val pGpaUtr = 19L
-    val pGppContractVersion = 12L
-    val pStartIndex = 21L
-    val pCount = 33L
+    val pGppContractVersion = 12
+    val pStartIndex = 21
+    val pCount = 33
 
     when(mockCallableStatement.getDate(5)).thenReturn(Date.valueOf("2023-04-05"))
     when(mockCallableStatement.getBigDecimal(6)).thenReturn(BigDecimal(15000.50).bigDecimal)
@@ -130,9 +130,9 @@ class GroupTaxChargesRepositorySpec extends AnyFlatSpec with Matchers with Befor
     verify(mockConnection).prepareCall("call CT_GPA_PK.getGPAGroupTaxCharges(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 
     verify(mockCallableStatement).setLong(1, pGpaUtr)
-    verify(mockCallableStatement).setLong(2, pGppContractVersion)
-    verify(mockCallableStatement).setLong(3, pStartIndex)
-    verify(mockCallableStatement).setLong(4, pCount)
+    verify(mockCallableStatement).setInt(2, pGppContractVersion)
+    verify(mockCallableStatement).setInt(3, pStartIndex)
+    verify(mockCallableStatement).setInt(4, pCount)
 
     verify(mockCallableStatement).registerOutParameter(14, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
@@ -144,9 +144,9 @@ class GroupTaxChargesRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
   "getGPAGroupTaxCharges" should "return an exception and close the connection when an exception occurs in Downstream services" in {
     val pGpaUtr = 123456789L
-    val pGppContractVersion = 12L
-    val pStartIndex = 21L
-    val pCount = 33L
+    val pGppContractVersion = 12
+    val pStartIndex = 21
+    val pCount = 33
 
     when(mockCallableStatement.execute()).thenThrow(new RuntimeException("DB error"))
 
