@@ -24,7 +24,6 @@ import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.GroupTaxChargesStubData
-import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.GpaGroupTaxChargesQueryParams
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.GroupTaxChargesService
 
 import scala.concurrent.Future
@@ -49,7 +48,7 @@ class GroupTaxChargesControllerSpec extends SpecBase with GroupTaxChargesStubDat
       when(mockService.getGpaGroupTaxCharges(any(), any(), any(), any())).thenReturn(Future.successful(gpaWithNonEmptyParticipator))
 
       val result: Future[Result] =
-        controller.getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, GpaGroupTaxChargesQueryParams(pStartIndex, pCount))(fakeRequest)
+        controller.getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)(fakeRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
@@ -64,7 +63,7 @@ class GroupTaxChargesControllerSpec extends SpecBase with GroupTaxChargesStubDat
       when(mockService.getGpaGroupTaxCharges(any(), any(), any(), any())).thenReturn(Future.failed(new RuntimeException("Boom")))
 
       val result: Future[Result] =
-        controller.getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, GpaGroupTaxChargesQueryParams(pStartIndex, pCount))(fakeRequest)
+        controller.getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)(fakeRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentType(result) mustBe Some("application/json")
