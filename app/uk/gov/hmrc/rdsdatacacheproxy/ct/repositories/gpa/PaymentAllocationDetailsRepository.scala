@@ -60,7 +60,7 @@ class PaymentAllocationDetailsRepositoryImpl @Inject() (
           sp.setLong(2, gppContractVersion)
           sp.setLong(3, participatorUtr)
           sp.setLong(4, participatorAp)
-          sp.setInt(5, startIndex)
+          sp.setInt(5, startIndex) // StartIndex starts with 0
           sp.setInt(6, count)
 
           // getGPAPaymentAllocOverview

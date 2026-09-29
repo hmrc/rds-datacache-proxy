@@ -83,7 +83,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(5, 6) // StartIndex starts with 0
       verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
@@ -137,7 +137,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(5, 6) // StartIndex starts with 0
       verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
@@ -191,7 +191,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(5, 6) // StartIndex starts with 0
       verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
