@@ -53,7 +53,7 @@ class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 200 and payment allocation details" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/gpa-payment-allocation-details/10/2/3/4/5/6").futureValue
+      val response = get(s"$endpoint/gpa-payment-allocation-details/10/2/3/4?startIndex=0&count=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -64,7 +64,7 @@ class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 200 and payment allocation details with multiple allocation details" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/gpa-payment-allocation-details/20/2/3/4/5/6").futureValue
+      val response = get(s"$endpoint/gpa-payment-allocation-details/20/2/3/4?startIndex=0&count=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -75,7 +75,7 @@ class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 200 and payment allocation details with minimal details" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/gpa-payment-allocation-details/30/2/3/4/5/6").futureValue
+      val response = get(s"$endpoint/gpa-payment-allocation-details/30/2/3/4?startIndex=0&count=10").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -86,7 +86,7 @@ class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 500 when stub fails" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/gpa-payment-allocation-details/200/2/3/4/5/6").futureValue
+      val response = get(s"$endpoint/gpa-payment-allocation-details/200/2/3/4?startIndex=0&count=10").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
@@ -94,7 +94,7 @@ class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/gpa-payment-allocation-details/40/2/3/4/5/6").futureValue
+      val response = get(s"$endpoint/gpa-payment-allocation-details/40/2/3/4?startIndex=0&count=10").futureValue
 
       response.status mustBe UNAUTHORIZED
     }
