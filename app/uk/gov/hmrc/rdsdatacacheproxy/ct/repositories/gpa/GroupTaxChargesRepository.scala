@@ -39,8 +39,8 @@ class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
     with Logging {
 
   override def getGPAGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] = {
-    val context = s"Retrieving getGPAGroupTaxCharges from GroupTaxChargesRepository "
-    logger.info(s"Retrieving GpaGroupTaxCharges in GroupTaxChargesRepository for pGpaUtr: $pGpaUtr, pGppContractVersion: $pGppContractVersion")
+    val context = s"Invoking repository"
+    logger.info(s"Retrieving GpaGroupTaxCharges for pGpaUtr: $pGpaUtr, pGppContractVersion: $pGppContractVersion")
     Future {
       db.withConnection { connection =>
         val cs = connection.prepareCall("call CT_GPA_PK.getGPAGroupTaxCharges(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")

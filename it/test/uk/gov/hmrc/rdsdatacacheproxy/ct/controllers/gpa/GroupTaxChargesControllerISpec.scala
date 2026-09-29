@@ -57,7 +57,7 @@ class GroupTaxChargesControllerISpec extends AnyWordSpec with Matchers with Scal
     "return 200 with GpaGroupTaxCharges" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/group-tax-charges/12/13/14/15").futureValue
+      val response = get(s"$endpoint/group-tax-charges/12/13?pStartIndex=14&pCount=15").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -70,7 +70,7 @@ class GroupTaxChargesControllerISpec extends AnyWordSpec with Matchers with Scal
 
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/group-tax-charges/9798/3786/1/2").futureValue
+      val response = get(s"$endpoint/group-tax-charges/9798/3786?pStartIndex=1&pCount=10").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
 
@@ -80,7 +80,7 @@ class GroupTaxChargesControllerISpec extends AnyWordSpec with Matchers with Scal
 
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/group-tax-charges/3/12/14/15").futureValue
+      val response = get(s"$endpoint/group-tax-charges/3/12/?pStartIndex=1&pCount=10").futureValue
 
       response.status mustBe UNAUTHORIZED
     }

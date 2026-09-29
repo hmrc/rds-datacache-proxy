@@ -24,9 +24,7 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.GroupTaxChargesStubData
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.APBalancedItem
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.GpaGroupTaxCharges
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.AccountingPeriodDetailsStubData
 
 import scala.concurrent.Future
 

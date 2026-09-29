@@ -18,8 +18,8 @@ GET        /statute-rule                                                    uk.g
 GET        /ct-form-data/:taxRef/:accPeriod                                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.FormDataController.getFormData(taxRef: Long, accPeriod: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams)
 
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
-GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
-GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)
 
 # GPA Routes
-GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion/:pStartIndex/:pCount    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupTaxChargesController.getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long)
+GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupTaxChargesController.getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.GpaGroupTaxChargesQueryParams)
+GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
+GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)

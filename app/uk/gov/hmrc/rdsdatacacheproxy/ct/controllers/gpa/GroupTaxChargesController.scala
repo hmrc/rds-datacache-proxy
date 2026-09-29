@@ -23,6 +23,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.GpaGroupTaxCharges
+import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.GpaGroupTaxChargesQueryParams
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.GroupTaxChargesService
 
 import javax.inject.Inject
@@ -37,10 +38,10 @@ class GroupTaxChargesController @Inject() (
     with I18nSupport
     with Logging {
 
-  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Action[AnyContent] =
+  def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, queryParams: GpaGroupTaxChargesQueryParams): Action[AnyContent] =
     authorise.async { implicit request =>
       service
-        .getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount)
+        .getGpaGroupTaxCharges(pGpaUtr, pGppContractVersion, queryParams.pStartIndex, queryParams.pCount)
         .map(payload => Ok(Json.toJson(payload)))
         .recover { case ex: Throwable =>
           logger.error("Error while retrieving GpaGroupTaxCharges from oracle database", ex)

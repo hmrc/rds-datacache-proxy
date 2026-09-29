@@ -27,7 +27,7 @@ class GroupTaxChargesService @Inject() (repository: GroupTaxChargesRepository)(i
 
   def getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Long, pStartIndex: Long, pCount: Long): Future[GpaGroupTaxCharges] = {
     logger.info(
-      s"Calling GroupTaxChargesRepository to retrieve GroupTaxCharges pGpaUtr :: $pGpaUtr, pGppContractVersion :: $pGppContractVersion , pStartIndex :: $pStartIndex, pCount :: $pCount"
+      s"Retrieving GroupTaxCharges for pGpaUtr :: $pGpaUtr, pGppContractVersion :: $pGppContractVersion"
     )
     repository.getGPAGroupTaxCharges(pGpaUtr, pGppContractVersion, pStartIndex, pCount).map { value =>
       val preProcessedPGppApportionmentMethod = value.pGppApportionmentMethod.map(_.trim)
