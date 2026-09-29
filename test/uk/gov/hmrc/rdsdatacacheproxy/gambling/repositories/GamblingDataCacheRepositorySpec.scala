@@ -24,6 +24,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
@@ -47,6 +48,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var correspondenceRs: ResultSet = _
   var businessAddressRs: ResultSet = _
   var premisesRs: ResultSet = _
+  var agentAddressRs: ResultSet = _
+  var agentContactRs: ResultSet = _
 
   before {
     db                = mock(classOf[Database])
@@ -64,6 +67,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     correspondenceRs  = mock(classOf[ResultSet])
     businessAddressRs = mock(classOf[ResultSet])
     premisesRs        = mock(classOf[ResultSet])
+    agentAddressRs    = mock(classOf[ResultSet])
+    agentContactRs    = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -756,6 +761,119 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val ex = repository.getMgdCertificate("XWM00000001770").failed.futureValue
     ex.getMessage should include("DB error")
+
+    verify(mockCs).close()
+  }
+
+  "getAgentDetails" should "return Right(AgentDetails) when name, address and contact are all present" in {
+
+    val agentReference = "AGENT001"
+
+    when(mockCs.getString(2)).thenReturn("Gambling company 1")
+
+    when(mockCs.getObject(3)).thenReturn(agentAddressRs)
+    when(agentAddressRs.next()).thenReturn(true)
+    when(agentAddressRs.getString("ADDR_1")).thenReturn("1")
+    when(agentAddressRs.getString("ADDR_2")).thenReturn("Example street")
+    when(agentAddressRs.getString("ADDR_3")).thenReturn("Town")
+    when(agentAddressRs.getString("ADDR_4")).thenReturn("County")
+    when(agentAddressRs.getString("POST_CODE")).thenReturn("SW1A 1AA")
+    when(agentAddressRs.getString("COUNTRY")).thenReturn("United Kingdom")
+    when(agentAddressRs.getString("ABROAD_SIGNAL")).thenReturn("N")
+
+    when(mockCs.getObject(4)).thenReturn(agentContactRs)
+    when(agentContactRs.next()).thenReturn(true)
+    when(agentContactRs.getString("PHONE_NUMBER")).thenReturn("02079460000")
+    when(agentContactRs.getString("MOBILE_PHONE_NUMBER")).thenReturn("07700900999")
+    when(agentContactRs.getString("FAX_NUMBER")).thenReturn("02079460123")
+    when(agentContactRs.getString("EMAIL_ADDR")).thenReturn("user@example.com")
+
+    val result = repository.getAgentDetails(agentReference).futureValue
+
+    result shouldBe Right(
+      AgentDetails(
+        businessName      = Some("Gambling company 1"),
+        addressLine1      = Some("1"),
+        addressLine2      = Some("Example street"),
+        addressLine3      = Some("Town"),
+        addressLine4      = Some("County"),
+        postcode          = Some("SW1A 1AA"),
+        country           = Some("United Kingdom"),
+        abroadSignal      = Some("N"),
+        phoneNumber       = Some("02079460000"),
+        mobilePhoneNumber = Some("07700900999"),
+        faxNumber         = Some("02079460123"),
+        email             = Some("user@example.com")
+      )
+    )
+
+    verify(mockCs).setString(1, agentReference)
+    verify(mockCs).registerOutParameter(2, java.sql.Types.VARCHAR)
+    verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).execute()
+    verify(agentAddressRs).close()
+    verify(agentContactRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "return Left(RecordNotFound) when the address cursor is empty" in {
+
+    when(mockCs.getObject(3)).thenReturn(agentAddressRs)
+    when(agentAddressRs.next()).thenReturn(false)
+
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
+
+    result shouldBe Left(RecordNotFound("No agent details found for agentReference=UNKNOWN"))
+
+    verify(agentAddressRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "return Left(RecordNotFound) when the address cursor is null" in {
+
+    when(mockCs.getObject(3)).thenReturn(null)
+
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
+
+    result shouldBe Left(RecordNotFound("No agent details found for agentReference=UNKNOWN"))
+
+    verify(mockCs).close()
+  }
+
+  it should "trim values and treat blank strings as None" in {
+
+    when(mockCs.getString(2)).thenReturn("  Gambling company 1  ")
+    when(mockCs.getObject(3)).thenReturn(agentAddressRs)
+    when(agentAddressRs.next()).thenReturn(true)
+    when(agentAddressRs.getString("ADDR_1")).thenReturn(" 1 ")
+    when(agentAddressRs.getString("ADDR_2")).thenReturn("")
+    when(agentAddressRs.getString("ADDR_3")).thenReturn(null)
+    when(agentAddressRs.getString("ADDR_4")).thenReturn(null)
+    when(agentAddressRs.getString("POST_CODE")).thenReturn(null)
+    when(agentAddressRs.getString("COUNTRY")).thenReturn(null)
+    when(agentAddressRs.getString("ABROAD_SIGNAL")).thenReturn(null)
+    when(mockCs.getObject(4)).thenReturn(agentContactRs)
+    when(agentContactRs.next()).thenReturn(true)
+
+    val result = repository.getAgentDetails("AGENT001").futureValue.toOption.get
+
+    result.businessName shouldBe Some("Gambling company 1")
+    result.addressLine1 shouldBe Some("1")
+    result.addressLine2 shouldBe None
+    result.addressLine3 shouldBe None
+  }
+
+  it should "return Left(DatabaseError) and still close resources when execute throws" in {
+
+    when(mockCs.execute()).thenThrow(new java.sql.SQLException("ORA-01403: no data found", "02000", 1403))
+
+    val result = repository.getAgentDetails("UNKNOWN").futureValue
+
+    result match {
+      case Left(DatabaseError(msg, _)) => msg should include("GET_AGENT_DETAILS")
+      case other                       => fail(s"expected Left(DatabaseError), got $other")
+    }
 
     verify(mockCs).close()
   }
