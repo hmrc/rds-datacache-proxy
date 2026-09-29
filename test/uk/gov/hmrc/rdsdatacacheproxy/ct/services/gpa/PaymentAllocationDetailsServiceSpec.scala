@@ -39,50 +39,50 @@ class PaymentAllocationDetailsServiceSpec extends AnyFreeSpec with Matchers with
 
   "PaymentAllocationDetailsServiceSpec" - {
     "must return payment allocation details" in new Setup {
-      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(fullPaymentAllocationDetails))
 
-      val result = service.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = service.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe fullPaymentAllocationDetails
 
-      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)
     }
 
     "must return payment allocation details with multiple allocation details" in new Setup {
-      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(paymentAllocationDetailsWithMultipleAllocationDetails))
 
-      val result = service.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = service.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe paymentAllocationDetailsWithMultipleAllocationDetails
 
-      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)
 
     }
 
     "must return payment allocation details with minimal details" in new Setup {
-      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(minimalPaymentAllocationDetails))
 
-      val result = service.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = service.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe minimalPaymentAllocationDetails
 
-      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)
     }
 
     "must propagate failure from repository" in new Setup {
       val exception = new RuntimeException("Error")
 
-      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockRepo.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L).failed.futureValue
+      val result = service.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6).failed.futureValue
 
       result mustBe exception
 
-      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockRepo, times(1)).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)
     }
   }
 

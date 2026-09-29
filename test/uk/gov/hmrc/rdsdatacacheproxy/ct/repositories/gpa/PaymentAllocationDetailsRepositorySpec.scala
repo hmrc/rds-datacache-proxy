@@ -74,7 +74,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       when(rs.getBigDecimal("payment_amount")).thenReturn(scala.math.BigDecimal(10).bigDecimal)
       when(mockCS.getBigDecimal(19)).thenReturn(scala.math.BigDecimal(10).bigDecimal)
 
-      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6L, 7L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6, 7).futureValue
       result shouldBe fullPaymentAllocationDetails
 
       verify(mockConnection).prepareCall("{call CT_GPA_PK.getGPAPaymentAllocationDetail(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -83,8 +83,8 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setLong(5, 6L)
-      verify(mockCS).setLong(6, 7L)
+      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
       verify(mockCS).registerOutParameter(8, OracleTypes.NUMERIC) // pGPP_TOTAL_GROUP_PAYMENT
@@ -128,7 +128,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       when(rs.getBigDecimal("payment_amount")).thenReturn(scala.math.BigDecimal(20).bigDecimal, scala.math.BigDecimal(20).bigDecimal)
       when(mockCS.getBigDecimal(19)).thenReturn(scala.math.BigDecimal(20).bigDecimal)
 
-      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6L, 7L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6, 7).futureValue
       result shouldBe paymentAllocationDetailsWithMultipleAllocationDetails
 
       verify(mockConnection).prepareCall("{call CT_GPA_PK.getGPAPaymentAllocationDetail(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -137,8 +137,8 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setLong(5, 6L)
-      verify(mockCS).setLong(6, 7L)
+      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
       verify(mockCS).registerOutParameter(8, OracleTypes.NUMERIC) // pGPP_TOTAL_GROUP_PAYMENT
@@ -182,7 +182,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       when(rs.getBigDecimal("payment_amount")).thenReturn(scala.math.BigDecimal(30).bigDecimal)
       when(mockCS.getBigDecimal(19)).thenReturn(scala.math.BigDecimal(30).bigDecimal)
 
-      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6L, 7L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6, 7).futureValue
       result shouldBe minimalPaymentAllocationDetails
 
       verify(mockConnection).prepareCall("{call CT_GPA_PK.getGPAPaymentAllocationDetail(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -191,8 +191,8 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
       verify(mockCS).setLong(2, 3L)
       verify(mockCS).setLong(3, 4L)
       verify(mockCS).setLong(4, 5L)
-      verify(mockCS).setLong(5, 6L)
-      verify(mockCS).setLong(6, 7L)
+      verify(mockCS).setInt(5, 6)
+      verify(mockCS).setInt(6, 7)
 
       verify(mockCS).registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
       verify(mockCS).registerOutParameter(8, OracleTypes.NUMERIC) // pGPP_TOTAL_GROUP_PAYMENT
@@ -219,7 +219,7 @@ class PaymentAllocationDetailsRepositorySpec extends AnyFreeSpec with Matchers w
     "return an exception and close the connection" in {
       when(mockCS.execute()).thenThrow(new RuntimeException("DB error"))
 
-      val ex = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6L, 7L).failed.futureValue
+      val ex = repo.getGPAPaymentAllocationDetail(2L, 3L, 4L, 5L, 6, 7).failed.futureValue
       ex.getMessage should include("DB error")
 
       verify(mockCS).close()

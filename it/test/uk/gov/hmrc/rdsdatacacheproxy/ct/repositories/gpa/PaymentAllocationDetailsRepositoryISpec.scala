@@ -39,8 +39,8 @@ class PaymentAllocationDetailsRepositoryISpec
 
   class PaymentAllocationDetailsRepositoryStub extends PaymentAllocationDetailsRepository {
 
-    override def getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Long, count: Long): Future[PaymentAllocationDetails] =
-      Future.successful(PaymentAllocationDetailsStubData.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Long, count: Long))
+    override def getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int, count: Int): Future[PaymentAllocationDetails] =
+      Future.successful(PaymentAllocationDetailsStubData.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int, count: Int))
   }
 
   override lazy val app: Application =
@@ -57,7 +57,7 @@ class PaymentAllocationDetailsRepositoryISpec
 
     "return payment allocation details" in {
 
-      val result = repo.getGPAPaymentAllocationDetail(10L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(10L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe PaymentAllocationDetailsStubData.fullPaymentAllocationDetails
 
@@ -65,14 +65,14 @@ class PaymentAllocationDetailsRepositoryISpec
 
     "return payment allocation details with multiple allocation details" in {
 
-      val result = repo.getGPAPaymentAllocationDetail(20L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(20L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe PaymentAllocationDetailsStubData.paymentAllocationDetailsWithMultipleAllocationDetails
     }
 
     "return payment allocation details with minimal details" in {
 
-      val result = repo.getGPAPaymentAllocationDetail(30L, 2L, 3L, 4L, 5L, 6L).futureValue
+      val result = repo.getGPAPaymentAllocationDetail(30L, 2L, 3L, 4L, 5, 6).futureValue
 
       result mustBe PaymentAllocationDetailsStubData.minimalPaymentAllocationDetails
 
@@ -81,7 +81,7 @@ class PaymentAllocationDetailsRepositoryISpec
     "return downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
 
-        repo.getGPAPaymentAllocationDetail(200L, 2L, 3L, 4L, 5L, 6L).futureValue
+        repo.getGPAPaymentAllocationDetail(200L, 2L, 3L, 4L, 5, 6).futureValue
       }
 
       exception.getMessage must include("Downstream error")

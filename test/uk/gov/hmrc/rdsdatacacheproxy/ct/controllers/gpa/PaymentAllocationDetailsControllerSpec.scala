@@ -27,7 +27,6 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.PaymentAllocationDetailsService
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PaymentAllocationDetailsHelper
-import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.gpa.PaymentAllocationDetailsQueryParams
 
 import scala.concurrent.Future
 
@@ -36,58 +35,55 @@ class PaymentAllocationDetailsControllerSpec extends SpecBase with MockitoSugar 
   private class Setup {
     val mockService: PaymentAllocationDetailsService = mock[PaymentAllocationDetailsService]
     val controller: PaymentAllocationDetailsController = new PaymentAllocationDetailsController(fakeAuthAction, mockService, cc)
-
-    val startIndex = 5L
-    val count = 6L
   }
 
   "PaymentAllocationDetailsControllerSpec" - {
     "return a 200 and a successful response for payment allocation details" in new Setup {
-      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(fullPaymentAllocationDetails))
 
       val result: Future[Result] =
-        controller.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, PaymentAllocationDetailsQueryParams(startIndex, count))(fakeRequest)
+        controller.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockService).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)
     }
 
     "return a 200 and a successful response for payment allocation details with multiple allocation details" in new Setup {
-      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(paymentAllocationDetailsWithMultipleAllocationDetails))
 
       val result: Future[Result] =
-        controller.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, PaymentAllocationDetailsQueryParams(startIndex, count))(fakeRequest)
+        controller.getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockService).getGPAPaymentAllocationDetail(6212811176L, 2L, 3L, 4L, 5, 6)
     }
 
     "return a 200 and a successful response for payment allocation details with minimal details" in new Setup {
-      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(minimalPaymentAllocationDetails))
 
       val result: Future[Result] =
-        controller.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, PaymentAllocationDetailsQueryParams(startIndex, count))(fakeRequest)
+        controller.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockService).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)
     }
 
     "return 500 and when repository call fails" in new Setup {
-      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Long], any[Long]))
+      when(mockService.getGPAPaymentAllocationDetail(any[Long], any[Long], any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.failed(new RuntimeException("Error")))
 
       val result: Future[Result] =
-        controller.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, PaymentAllocationDetailsQueryParams(startIndex, count))(fakeRequest)
+        controller.getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)(fakeRequest)
 
       status(result)      shouldBe INTERNAL_SERVER_ERROR
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5L, 6L)
+      verify(mockService).getGPAPaymentAllocationDetail(1L, 2L, 3L, 4L, 5, 6)
     }
 
   }

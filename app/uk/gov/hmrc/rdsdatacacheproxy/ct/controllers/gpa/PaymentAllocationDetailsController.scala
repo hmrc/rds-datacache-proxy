@@ -23,7 +23,6 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PaymentAllocationDetails
-import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.gpa.PaymentAllocationDetailsQueryParams
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.PaymentAllocationDetailsService
 
 import javax.inject.Inject
@@ -41,10 +40,11 @@ class PaymentAllocationDetailsController @Inject() (
                                     gppContractVersion: Long,
                                     participatorUtr: Long,
                                     participatorAp: Long,
-                                    queryParams: PaymentAllocationDetailsQueryParams
+                                    startIndex: Int,
+                                    count: Int
                                    ): Action[AnyContent] = authorise.async { implicit request =>
     paymentAllocationDetailsService
-      .getGPAPaymentAllocationDetail(gpaUtr, gppContractVersion, participatorUtr, participatorAp, queryParams.startIndex, queryParams.count)
+      .getGPAPaymentAllocationDetail(gpaUtr, gppContractVersion, participatorUtr, participatorAp, startIndex, count)
       .map { paymentAllocationDetails =>
         Ok(Json.toJson(paymentAllocationDetails))
       }

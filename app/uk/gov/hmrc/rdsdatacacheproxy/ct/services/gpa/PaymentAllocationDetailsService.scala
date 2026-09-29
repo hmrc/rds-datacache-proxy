@@ -29,8 +29,8 @@ class PaymentAllocationDetailsService @Inject() (paymentAllocationDetailsReposit
                                     gppContractVersion: Long,
                                     participatorUtr: Long,
                                     participatorAp: Long,
-                                    startIndex: Long,
-                                    count: Long
+                                    startIndex: Int,
+                                    count: Int
                                    ): Future[PaymentAllocationDetails] = {
     logger.info(
       s"Calling repository for gpaUtr: $gpaUtr, gppContractVersion: $gppContractVersion, participatorUtr: $participatorUtr, participatorAp: $participatorAp, startIndex: $startIndex and count: $count"
@@ -40,8 +40,8 @@ class PaymentAllocationDetailsService @Inject() (paymentAllocationDetailsReposit
                                                                      gppContractVersion: Long,
                                                                      participatorUtr: Long,
                                                                      participatorAp: Long,
-                                                                     startIndex: Long,
-                                                                     count: Long
+                                                                     startIndex: Int,
+                                                                     count: Int
                                                                     )
   }
 }

@@ -33,8 +33,8 @@ import scala.concurrent.Future
 class PaymentAllocationDetailsControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class PaymentAllocationDetailsRepositoryStub extends PaymentAllocationDetailsRepository {
-    override def getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Long, count: Long): Future[PaymentAllocationDetails] = {
-      Future.successful(PaymentAllocationDetailsStubData.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Long, count: Long))
+    override def getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int, count: Int): Future[PaymentAllocationDetails] = {
+      Future.successful(PaymentAllocationDetailsStubData.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int, count: Int))
     }
   }
 

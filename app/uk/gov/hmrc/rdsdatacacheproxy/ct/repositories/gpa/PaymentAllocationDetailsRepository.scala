@@ -33,8 +33,8 @@ trait PaymentAllocationDetailsRepository {
                                     gppContractVersion: Long,
                                     participatorUtr: Long,
                                     participatorAp: Long,
-                                    startIndex: Long,
-                                    count: Long
+                                    startIndex: Int,
+                                    count: Int
                                    ): Future[PaymentAllocationDetails]
 }
 
@@ -48,8 +48,8 @@ class PaymentAllocationDetailsRepositoryImpl @Inject() (
                                     gppContractVersion: Long,
                                     participatorUtr: Long,
                                     participatorAp: Long,
-                                    startIndex: Long,
-                                    count: Long
+                                    startIndex: Int,
+                                    count: Int
                                    ): Future[PaymentAllocationDetails] = {
     Future {
       db.withConnection { connect =>
@@ -60,8 +60,8 @@ class PaymentAllocationDetailsRepositoryImpl @Inject() (
           sp.setLong(2, gppContractVersion)
           sp.setLong(3, participatorUtr)
           sp.setLong(4, participatorAp)
-          sp.setLong(5, startIndex)
-          sp.setLong(6, count)
+          sp.setInt(5, startIndex)
+          sp.setInt(6, count)
 
           // getGPAPaymentAllocOverview
           sp.registerOutParameter(7, OracleTypes.DATE) // pGPP_END_DATE
