@@ -111,7 +111,8 @@ class PrepopController @Inject() (
                     title              = r.title.getOrElse(""),
                     firstName          = r.firstName.getOrElse(""),
                     secondName         = r.secondName.getOrElse(""),
-                    surname            = r.surname.getOrElse("")
+                    surname            = r.surname.getOrElse(""),
+                    tradingName        = r.tradingName
                   )
                 }
 

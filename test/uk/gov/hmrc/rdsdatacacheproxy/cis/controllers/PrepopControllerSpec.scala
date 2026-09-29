@@ -228,6 +228,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       (subJson \ "firstName").as[String] mustBe "Bob"
       (subJson \ "secondName").as[String] mustBe ""
       (subJson \ "surname").as[String] mustBe "Builder"
+      (subJson \ "tradingName").as[String] mustBe "Bob Builder Ltd"
 
       verify(mockService).getSubcontractorsPrepopByKnownFacts(
         eqTo("123"),
