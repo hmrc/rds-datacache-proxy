@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.Helpers.JSON
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.GroupPaymentsHelper
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GroupReferenceNumberLstItem, GroupSummaryDetails}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GpaPaymentsDetails, GroupReferenceNumberLstItem, GroupSummaryDetails}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.GroupPaymentsRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
@@ -42,9 +42,9 @@ class GroupPaymentsControllerISpec extends AnyWordSpec
       )
       .build()
 
-  private final val endpoint = "/corporation-tax/group-summary"
 
   "GET /corporation-tax/group-summary" should {
+    val endpoint = "/corporation-tax/group-summary"
 
     "return 200 with correct Group Payment" in {
       AuthStub.authorised()
@@ -95,7 +95,7 @@ class GroupPaymentsControllerISpec extends AnyWordSpec
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
-    
+
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
       val response = get(s"$endpoint/99/1").futureValue
@@ -103,4 +103,51 @@ class GroupPaymentsControllerISpec extends AnyWordSpec
     }
 
   }
+
+  "GET /corporation-tax/gpa-payment-details" should {
+    val endpoint = "/corporation-tax/gpa-payment-details"
+
+    "return 200 with correct Get Payments Details: default record" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/1?contractVersion=1&startIndex=1&count=1").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe JSON
+      response.json.as[GpaPaymentsDetails] mustBe defaultPaymentDetails
+    }
+
+
+    "return 200 with correct Get Payments Details: empty record" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/11?contractVersion=1&startIndex=1&count=1").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe JSON
+      response.json.as[GpaPaymentsDetails] mustBe emptyPaymentDetailsRec
+    }
+
+    "return 404 when no data found" in {
+      AuthStub.authorised()
+      val response = get(s"$endpoint/299?contractVersion=1&startIndex=1&count=1").futureValue
+      response.status mustBe NOT_FOUND
+    }
+
+    "return 500 with when a downstream error occurs" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1").futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+    }
+
+    "return 401 when unauthorised" in {
+      AuthStub.unauthorised()
+      val response = get(s"$endpoint/99?contractVersion=1&startIndex=1&count=1").futureValue
+      response.status mustBe UNAUTHORIZED
+    }
+
+  }
+
 }
