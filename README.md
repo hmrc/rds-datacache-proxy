@@ -535,6 +535,43 @@ Sample GET request from local::
 }
 ```
 
+#### Get Agent Business Details
+
+Retrieves an agent's business name, address and contact details.
+
+Oracle stored procedure: `MGD_DC_AGENT_PK.GET_AGENT_DETAILS`
+
+```
+GET /gambling/agent-details/:agentReference
+```
+
+Example:
+
+```bash
+curl http://localhost:6992/rds-datacache-proxy/gambling/agent-details/AGENT001
+```
+
+Sample response:
+
+```json
+{
+  "businessName": "Gambling company 1",
+  "addressLine1": "1",
+  "addressLine2": "Example street",
+  "addressLine3": "Town",
+  "addressLine4": "County",
+  "postcode": "SW1A 1AA",
+  "country": "United Kingdom",
+  "abroadSignal": "N",
+  "phoneNumber": "02079460000",
+  "mobilePhoneNumber": "07700900999",
+  "faxNumber": "02079460123",
+  "email": "user@example.com"
+}
+```
+
+Returns `404` with `RECORD_NOT_FOUND` for an unknown agent reference.
+
 ### License
 
 ### Corporation Tax
