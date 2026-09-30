@@ -65,7 +65,7 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
 
     result shouldBe periodWithinRangeFalse
 
-    verify(mockConnection).prepareCall("{call CT_DC_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
+    verify(mockConnection).prepareCall("{call CT_GPA_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
 
     verify(mockCallableStatement).setLong(1, gpaUTR)
     verify(mockCallableStatement).setLong(2, nominatedCompanyUTR)
@@ -91,7 +91,7 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
 
     result shouldBe periodWithinRangeTrue
 
-    verify(mockConnection).prepareCall("{call CT_DC_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
+    verify(mockConnection).prepareCall("{call CT_GPA_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
 
     verify(mockCallableStatement).setLong(1, gpaUTR)
     verify(mockCallableStatement).setLong(2, nominatedCompanyUTR)

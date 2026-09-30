@@ -41,7 +41,7 @@ class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
     )
     Future {
       db.withConnection { connect =>
-        val storedProcedure = connect.prepareCall("{call CT_DC_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
+        val storedProcedure = connect.prepareCall("{call CT_GPA_PK.isGrpPaymntPeriodInValidRange(?, ?, ?, ?, ?)}")
         try {
           storedProcedure.setLong(1, gpaUTR)
           storedProcedure.setLong(2, nominatedCompanyUTR)
@@ -53,7 +53,7 @@ class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
           storedProcedure.execute()
 
           PeriodWithinRange(
-            isPeriodWithinRange = storedProcedure.getString(5)
+            isPeriodWithinRange = storedProcedure.getString(5).trim()
           )
         } finally {
           storedProcedure.close()
