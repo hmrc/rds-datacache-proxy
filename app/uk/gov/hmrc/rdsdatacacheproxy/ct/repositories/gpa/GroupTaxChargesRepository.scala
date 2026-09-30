@@ -88,11 +88,11 @@ class GroupTaxChargesRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
       participatorName             = rs.getString("PARTICIPATOR_NAME"),
       participatorReference        = rs.getLong("PARTICIPATOR_REFERENCE"),
       participatorApEndDate        = rs.getDate("PARTICIPATOR_AP_END_DATE").toLocalDate,
-      participatorTaxCharge        = rs.getBigDecimal("PARTICIPATOR_TAX_CHARGE"),
+      participatorTaxCharge        = Option(rs.getBigDecimal("PARTICIPATOR_TAX_CHARGE")),
       participatorTaxChargePrsnt   = rs.getString("PARTICIPATOR_TAX_CHARGE_PRSNT"),
       participatorAccountingPeriod = rs.getLong("PARTICIPATOR_ACCOUNTING_PERIOD"),
       contractVersion              = rs.getLong("CONTRACT_VERSION"),
-      allocatedPayment             = rs.getBigDecimal("ALLOCATED_PAYMENT"),
+      allocatedPayment             = Option(rs.getBigDecimal("ALLOCATED_PAYMENT")),
       allocatedPaymentRecordCount  = rs.getInt("ALLOCATED_PAYMENT_RECORD_COUNT")
     )
   }

@@ -73,22 +73,22 @@ trait GroupTaxChargesStubData {
         participatorName             = "Company A Ltd",
         participatorReference        = 1234567890L,
         participatorApEndDate        = LocalDate.of(2023, 3, 31),
-        participatorTaxCharge        = BigDecimal(1066.92),
+        participatorTaxCharge        = Some(BigDecimal(1066.92)),
         participatorTaxChargePrsnt   = "Y",
         participatorAccountingPeriod = 1L,
         contractVersion              = 1L,
-        allocatedPayment             = BigDecimal(5000.00),
+        allocatedPayment             = Some(BigDecimal(5000.00)),
         allocatedPaymentRecordCount  = 1
       ),
       ParticipatorDetails(
         participatorName             = "Company B Ltd",
         participatorReference        = 2345678901L,
         participatorApEndDate        = LocalDate.of(2023, 3, 31),
-        participatorTaxCharge        = BigDecimal(1280.11),
+        participatorTaxCharge        = Some(BigDecimal(1280.11)),
         participatorTaxChargePrsnt   = "Y",
         participatorAccountingPeriod = 1L,
         contractVersion              = 1L,
-        allocatedPayment             = BigDecimal(6000.50),
+        allocatedPayment             = Some(BigDecimal(6000.50)),
         allocatedPaymentRecordCount  = 1
       )
     )
