@@ -91,7 +91,7 @@ class PaymentAllocationDetailsRepositoryImpl @Inject() (
             gppTotalGroupPayment      = Option(sp.getBigDecimal(8)),
             gppTotalGroupTax          = Option(sp.getBigDecimal(9)),
             gppStatus                 = sp.getString(10),
-            gppApportionmentMethod    = Option(sp.getString(11)),
+            gppApportionmentMethod    = Option(sp.getString(11)).map(_.trim),
             participatingCompanyDesc  = sp.getString(12),
             participatorAccPeriodEnd  = sp.getDate(13).toLocalDate,
             participatorTaxCharge     = sp.getBigDecimal(14),
