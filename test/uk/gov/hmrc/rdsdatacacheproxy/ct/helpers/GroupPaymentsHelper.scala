@@ -70,7 +70,7 @@ trait GroupPaymentsHelper {
     gppTotalGroupTax       = Some(BigDecimal(16.21)),
     gppStatus              = "ACTIVE",
     gppCni                 = Some(LocalDate.of(2026, 5, 3)),
-    gppApportionmentMethod = "METHOD"
+    gppApportionmentMethod = Some("METHOD")
   )
 
   val emptyPaymentDetailsRec = GpaPaymentsDetails(
@@ -81,7 +81,7 @@ trait GroupPaymentsHelper {
     gppTotalGroupTax       = None,
     gppStatus              = "ACTIVE",
     gppCni                 = None,
-    gppApportionmentMethod = "METHOD"
+    gppApportionmentMethod = Some("METHOD")
   )
 
   class GroupPaymentsRepositoryDataSource extends GroupPaymentsRepository {
