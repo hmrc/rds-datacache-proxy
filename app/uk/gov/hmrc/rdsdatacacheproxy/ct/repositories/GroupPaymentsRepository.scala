@@ -149,7 +149,7 @@ class GroupPaymentsRepositoryImpl @Inject() (
               gppTotalGroupTax       = Option(cs.getBigDecimal(9)),
               gppStatus              = Option(cs.getString(10)).getOrElse(""),
               gppCni                 = Option(cs.getDate(11)).map(_.toLocalDate),
-              gppApportionmentMethod = Option(cs.getString(12)).getOrElse("")
+              gppApportionmentMethod = Option(cs.getString(12))
             )
           )
         } catch {
