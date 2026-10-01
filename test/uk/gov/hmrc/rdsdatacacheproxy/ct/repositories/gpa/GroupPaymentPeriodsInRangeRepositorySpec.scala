@@ -56,8 +56,8 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
   "getGroupPaymentPeriodsInRange" should "return PeriodWithinRange with field set to false" in {
     val gpaUTR: Long = 10L
     val nominatedCompanyUTR: Long = 1000L
-    val pPeriod: Long = 1L
-    val pMonthRestriction: Long = 1L
+    val pPeriod: Int = 1
+    val pMonthRestriction: Int = 1
 
     when(mockCallableStatement.getString(5)).thenReturn("N")
 
@@ -82,8 +82,8 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
   "getGroupPaymentPeriodsInRange" should "return PeriodWithinRange with field set to true" in {
     val gpaUTR: Long = 20L
     val nominatedCompanyUTR: Long = 1000L
-    val pPeriod: Long = 1L
-    val pMonthRestriction: Long = 1L
+    val pPeriod: Int = 1
+    val pMonthRestriction: Int = 1
 
     when(mockCallableStatement.getString(5)).thenReturn("Y")
 
@@ -108,8 +108,8 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
   "getGroupPaymentPeriodsInRange" should "close resources when execution throws exception" in {
     val gpaUTR: Long = 999L
     val nominatedCompanyUTR: Long = 1000L
-    val pPeriod: Long = 1L
-    val pMonthRestriction: Long = 1L
+    val pPeriod: Int = 1
+    val pMonthRestriction: Int = 1
 
     when(mockCallableStatement.execute()).thenThrow(new RuntimeException("Error from downstream"))
 

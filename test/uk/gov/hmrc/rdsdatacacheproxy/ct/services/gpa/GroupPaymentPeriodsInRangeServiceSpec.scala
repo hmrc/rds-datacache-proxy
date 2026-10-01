@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.services
+package uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
@@ -25,9 +25,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.services.gpa.GroupPaymentPeriodsInRangeService
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class GroupPaymentPeriodsInRangeServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar {
 
@@ -36,44 +35,46 @@ class GroupPaymentPeriodsInRangeServiceSpec extends AnyFreeSpec with Matchers wi
     val mockRepo: GroupPaymentPeriodsInRangeRepository = mock[GroupPaymentPeriodsInRangeRepository]
 
     val service = new GroupPaymentPeriodsInRangeService(mockRepo)
+
+    implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   }
 
   "GroupPaymentPeriodsInRangeServiceSpec" - {
-    "must return PeriodWithinRange with field set to false" in new Setup {
-      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Long], any[Long]))
+    "must return PeriodWithinRange with field set to No" in new Setup {
+      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(periodWithinRangeFalse))
 
-      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(10L, 1000L, 1L, 1L).futureValue
+      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(10L, 1000L, 1, 1)(using ec).futureValue
 
       result mustBe periodWithinRangeFalse
 
-      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(10L, 1000L, 1L, 1L)
+      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(10L, 1000L, 1, 1)
 
     }
 
-    "must return PeriodWithinRange with field set to true" in new Setup {
-      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Long], any[Long]))
+    "must return PeriodWithinRange with field set to Yes" in new Setup {
+      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.successful(periodWithinRangeTrue))
 
-      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(20L, 1000L, 1L, 1L).futureValue
+      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(20L, 1000L, 1, 1)(using ec).futureValue
 
       result mustBe periodWithinRangeTrue
 
-      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(20L, 1000L, 1L, 1L)
+      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(20L, 1000L, 1, 1)
 
     }
 
     "must propagate failure from repository" in new Setup {
       val exception = new RuntimeException("Error from downstream")
 
-      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Long], any[Long]))
+      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Int], any[Int]))
         .thenReturn(Future.failed(exception))
 
-      val result: Throwable = service.getGroupPaymentPeriodsInRange(999L, 1000L, 1L, 1L).failed.futureValue
+      val result: Throwable = service.getGroupPaymentPeriodsInRange(999L, 1000L, 1, 1)(using ec).failed.futureValue
 
       result mustBe exception
 
-      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(999L, 1000L, 1L, 1L)
+      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(999L, 1000L, 1, 1)
 
     }
   }

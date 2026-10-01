@@ -28,7 +28,7 @@ object PeriodWithinRangeHelper {
     isPeriodWithinRange = "Y"
   )
 
-  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): PeriodWithinRange = {
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int): PeriodWithinRange = {
     gpaUTR match {
       case 10L  => periodWithinRangeFalse
       case 20L  => periodWithinRangeTrue

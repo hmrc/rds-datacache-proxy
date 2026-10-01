@@ -37,8 +37,8 @@ class GroupPaymentPeriodsInRangeControllerISpec extends AnyWordSpec with Matcher
 
     override def getGroupPaymentPeriodsInRange(gpaUTR: Long,
                                                    nominatedCompanyUTR: Long,
-                                                   pPeriod: Long,
-                                                   pMonthRestriction: Long
+                                                   pPeriod: Int,
+                                                   pMonthRestriction: Int
                                                   ): Future[PeriodWithinRange] = {
       Future.successful(PeriodWithinRangeHelper.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
     }
@@ -56,7 +56,7 @@ class GroupPaymentPeriodsInRangeControllerISpec extends AnyWordSpec with Matcher
 
   "GET /group-payment-periods-in-range" should {
 
-    "return 200 and PeriodWithinRange as false" in {
+    "return 200 and PeriodWithinRange as No" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/group-payment-periods-in-range/10/1000/1/1").futureValue
@@ -67,7 +67,7 @@ class GroupPaymentPeriodsInRangeControllerISpec extends AnyWordSpec with Matcher
       response.json.as[PeriodWithinRange] mustBe periodWithinRangeFalse
     }
 
-    "return 200 and PeriodWithinRange as true" in {
+    "return 200 and PeriodWithinRange as Yes" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/group-payment-periods-in-range/20/1000/1/1").futureValue

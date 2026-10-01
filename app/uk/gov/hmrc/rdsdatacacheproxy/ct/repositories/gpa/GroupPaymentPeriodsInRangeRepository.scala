@@ -26,7 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[GroupPaymentPeriodsInRangeRepositoryImpl])
 trait GroupPaymentPeriodsInRangeRepository {
-  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange]
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int): Future[PeriodWithinRange]
 }
 
 class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
@@ -35,7 +35,7 @@ class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
     extends GroupPaymentPeriodsInRangeRepository
     with Logging {
 
-  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Future[PeriodWithinRange] = {
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int): Future[PeriodWithinRange] = {
     logger.info(
       s"Input request: gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction: <$gpaUTR>, <$nominatedCompanyUTR>, <$pPeriod>, <$pMonthRestriction>"
     )
@@ -53,7 +53,7 @@ class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
           storedProcedure.execute()
 
           PeriodWithinRange(
-            isPeriodWithinRange = storedProcedure.getString(5).trim()
+            isPeriodWithinRange = storedProcedure.getString(5)
           )
         } finally {
           storedProcedure.close()

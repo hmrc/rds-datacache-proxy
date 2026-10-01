@@ -39,11 +39,11 @@ class GroupPaymentPeriodsInRangeControllerSpec extends SpecBase with MockitoSuga
 
   "getGroupPaymentPeriodsInRange" - {
 
-    "returns 200 with PeriodWithinRange with field set to false" in new Setup {
+    "returns 200 with PeriodWithinRange with field set to No" in new Setup {
       val gpaUTR: Long = 10L
       val nominatedCompanyUTR: Long = 1000L
-      val pPeriod: Long = 1L
-      val pMonthRestriction: Long = 1L
+      val pPeriod: Int = 1
+      val pMonthRestriction: Int = 1
 
       when(mockService.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
         .thenReturn(Future.successful(periodWithinRangeFalse))
@@ -59,11 +59,11 @@ class GroupPaymentPeriodsInRangeControllerSpec extends SpecBase with MockitoSuga
 
     }
 
-    "returns 200 with PeriodWithinRange with field set to true" in new Setup {
+    "returns 200 with PeriodWithinRange with field set to Yes" in new Setup {
       val gpaUTR: Long = 20L
       val nominatedCompanyUTR: Long = 1000L
-      val pPeriod: Long = 1L
-      val pMonthRestriction: Long = 1L
+      val pPeriod: Int = 1
+      val pMonthRestriction: Int = 1
 
       when(mockService.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
         .thenReturn(Future.successful(periodWithinRangeTrue))
@@ -82,8 +82,8 @@ class GroupPaymentPeriodsInRangeControllerSpec extends SpecBase with MockitoSuga
     "returns 500 with generic error message on runtime exception" in new Setup {
       val gpaUTR: Long = 20L
       val nominatedCompanyUTR: Long = 1000L
-      val pPeriod: Long = 1L
-      val pMonthRestriction: Long = 1L
+      val pPeriod: Int = 1
+      val pMonthRestriction: Int = 1
 
       when(mockService.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
         .thenReturn(Future.failed(new RuntimeException("Error from downstream")))

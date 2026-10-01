@@ -40,8 +40,8 @@ class GroupPaymentPeriodsInRangeRepositoryISpec
   class GroupPaymentPeriodsInRangeRepositoryStub extends GroupPaymentPeriodsInRangeRepository {
     override def getGroupPaymentPeriodsInRange(gpaUTR: Long,
                                                    nominatedCompanyUTR: Long,
-                                                   pPeriod: Long,
-                                                   pMonthRestriction: Long
+                                                   pPeriod: Int,
+                                                   pMonthRestriction: Int
                                                   ): Future[PeriodWithinRange] =
       Future.successful(PeriodWithinRangeHelper.getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction))
   }
@@ -54,21 +54,21 @@ class GroupPaymentPeriodsInRangeRepositoryISpec
 
   "getGroupPaymentPeriodsInRange" should {
 
-    "return PeriodWithinRange as false" in {
-      val result = repository.getGroupPaymentPeriodsInRange(10L, 1000L, 1L, 1L).futureValue
+    "return PeriodWithinRange as No" in {
+      val result = repository.getGroupPaymentPeriodsInRange(10L, 1000L, 1, 1).futureValue
 
       result mustBe periodWithinRangeFalse
     }
 
-    "return PeriodWithinRange as true" in {
-      val result = repository.getGroupPaymentPeriodsInRange(20L, 1000L, 1L, 1L).futureValue
+    "return PeriodWithinRange as Yes" in {
+      val result = repository.getGroupPaymentPeriodsInRange(20L, 1000L, 1, 1).futureValue
 
       result mustBe periodWithinRangeTrue
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getGroupPaymentPeriodsInRange(999L, 1000L, 1L, 1L).futureValue
+        repository.getGroupPaymentPeriodsInRange(999L, 1000L, 1, 1).futureValue
       }
 
       exception.getMessage must include("Error from downstream")

@@ -36,7 +36,7 @@ class GroupPaymentPeriodsInRangeController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Long, pMonthRestriction: Long): Action[AnyContent] =
+  def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int): Action[AnyContent] =
     authorise.async { implicit request =>
       groupPaymentPeriodsInRangeService
         .getGroupPaymentPeriodsInRange(gpaUTR, nominatedCompanyUTR, pPeriod, pMonthRestriction)
