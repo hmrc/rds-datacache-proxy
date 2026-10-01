@@ -18,6 +18,9 @@ GET        /statute-rule                                                    uk.g
 GET        /ct-form-data/:taxRef/:accPeriod                                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.FormDataController.getFormData(taxRef: Long, accPeriod: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams)
 
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
+
+# GPA Routes
+GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupTaxChargesController.getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex:Int ?=0 , pCount:Int ?=10)
 GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
 GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)
 GET        /gpa-payment-details/:gpaUTR                                     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getPaymentDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int)
