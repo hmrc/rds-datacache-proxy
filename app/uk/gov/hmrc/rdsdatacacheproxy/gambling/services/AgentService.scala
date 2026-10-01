@@ -33,8 +33,10 @@ class AgentService @Inject() (
   def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int)(using
     ExecutionContext
   ): Future[Either[StatementError, ClientListDownloadStatus]] = {
-    repository
-      .getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
+    val reqText = s"regime=$regime gracePeriod=$gracePeriod"
+    runAndRecoverEither("client list download status", reqText)(
+      repository.getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
+    )
   }
 
   def getAllClients(
@@ -46,7 +48,7 @@ class AgentService @Inject() (
     ascending: Boolean
   )(implicit hc: HeaderCarrier): Future[Either[StatementError, AgentClientListResponse]] = {
     val order = if (ascending) "ASC" else "DESC"
-    withValidAgentParams(regime, credentialId, start, count, sort, order, "[getClientList]")(repository.getAllClients)
+    withValidAgentParams(regime, credentialId, start, count, sort, order, "retrieving client list")(repository.getAllClients)
   }
 
   def hasClient(
@@ -54,6 +56,6 @@ class AgentService @Inject() (
     credentialId: String,
     regNumber: String
   ): Future[Either[StatementError, Boolean]] = {
-    withValidAgentParams(regime, credentialId, regNumber, "[hasClient]")(repository.hasClient)
+    withValidAgentParams(regime, credentialId, regNumber, "checking client")(repository.hasClient)
   }
 }
