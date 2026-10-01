@@ -51,4 +51,28 @@ class GroupPaymentsController @Inject() (authorise: AuthAction, groupPaymentsRep
         }
     }
 
+  def getPaymentDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Action[AnyContent] = {
+    authorise.async { request =>
+      groupPaymentsRepository
+        .getPaymentsDetails(
+          gpaUTR,
+          contractVersion,
+          startIndex,
+          count
+        )
+        .map {
+          case Some(gpaPayDetails) =>
+            Ok(Json.toJson(gpaPayDetails))
+          case None =>
+            NotFound
+        }
+        .recover { case ex: Exception =>
+          logger.error("error while retrieving group payments details", ex)
+          InternalServerError("Failed to retrieve group payments details")
+        }
+
+    }
+
+  }
+
 }

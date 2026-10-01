@@ -38,8 +38,8 @@ class AgentController @Inject (appConfig: AppConfig)(authorise: AuthAction, serv
     regime: String,
     gracePeriod: Int = appConfig.gracePeriod
   ): Action[AnyContent] = authorise.async { implicit request =>
-
     if (regime.trim().isEmpty || credentialId.trim().isEmpty) {
+      logger.warn(s"client list download status rejected: credentialId and regime must be provided regime=$regime")
       Future.successful(BadRequest(Json.obj("error" -> "credentialId and regime must be provided")))
     } else {
       service.getAllClientsDownloadStatus(credentialId, regime, gracePeriod).map {
@@ -57,8 +57,8 @@ class AgentController @Inject (appConfig: AppConfig)(authorise: AuthAction, serv
     sort: Int = 0,
     ascending: Boolean = true
   ): Action[AnyContent] = authorise.async { implicit request =>
-
     if (credentialId.trim().isEmpty) {
+      logger.warn(s"client list rejected: credentialId must be provided regime=$regime")
       Future.successful(BadRequest(Json.obj("error" -> "credentialId must be provided")))
     } else {
       service.getAllClients(regime, credentialId, start, count, sort, ascending).map {
@@ -74,6 +74,7 @@ class AgentController @Inject (appConfig: AppConfig)(authorise: AuthAction, serv
     credentialId: String
   ): Action[AnyContent] = authorise.async { implicit request =>
     if (credentialId.trim().isEmpty) {
+      logger.warn(s"client check rejected: credentialId must be provided regime=$regime regNumber=$regNumber")
       Future.successful(BadRequest(Json.obj("error" -> "credentialId must be provided")))
     } else {
       service.hasClient(regime, credentialId, regNumber).map {

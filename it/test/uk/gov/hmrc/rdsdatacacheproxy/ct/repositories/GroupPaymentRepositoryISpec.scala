@@ -77,4 +77,30 @@ class GroupPaymentRepositoryISpec extends AnyWordSpec
 
   }
 
+  "getPaymentDetails" should {
+
+    "return correct PaymentDetails record" in {
+      val result = repository.getPaymentsDetails(1L, 2, 2, 3).futureValue
+
+      result mustBe Some(defaultPaymentDetails)
+    }
+
+
+    "return correct PaymentDetails record with empty refs" in {
+      val result = repository.getPaymentsDetails(11L, 2, 2, 3).futureValue
+
+      result mustBe Some(emptyPaymentDetailsRec)
+    }
+
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[Error] {
+        repository.getPaymentsDetails(99L, 2, 2, 3).futureValue
+      }
+
+      exception.getMessage must include("Boom")
+    }
+
+  }
+
 }

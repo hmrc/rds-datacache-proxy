@@ -103,14 +103,14 @@ final class AgentServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
 
-    "propagate exceptions from repository" in {
+    "recover repository exceptions to Left(UnexpectedError)" in {
       val exception = new RuntimeException("Database error")
       when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).failed.futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
 
-      result mustBe exception
+      result mustBe Left(UnexpectedError)
       verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
       verifyNoMoreInteractions(repository)
     }

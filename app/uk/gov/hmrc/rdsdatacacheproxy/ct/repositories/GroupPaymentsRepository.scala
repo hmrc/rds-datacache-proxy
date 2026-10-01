@@ -21,7 +21,7 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.Database
 import play.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GroupReferenceNumberLstItem, GroupSummaryDetails, GroupSummaryDetailsItem}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{GpaPaymentsDetails, GpaPaymentsItem, GroupReferenceNumberLstItem, GroupSummaryDetails, GroupSummaryDetailsItem}
 
 import java.sql.ResultSet
 import javax.inject.Inject
@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[GroupPaymentsRepositoryImpl])
 trait GroupPaymentsRepository {
   def getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long): Future[Option[GroupSummaryDetails]]
+  def getPaymentsDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Future[Option[GpaPaymentsDetails]]
 }
 
 class GroupPaymentsRepositoryImpl @Inject() (
@@ -108,4 +109,76 @@ class GroupPaymentsRepositoryImpl @Inject() (
     buffer.toList
   }
 
+  override def getPaymentsDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int): Future[Option[GpaPaymentsDetails]] = {
+    logger.info(
+      s"Retrieving Payments Details: $gpaUTR - $contractVersion - $startIndex - $count"
+    )
+    Future {
+      db.withConnection { connection =>
+        val cs = connection.prepareCall("{call CT_GPA_PK.getGPAPaymentDetails(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )}")
+
+        try {
+          cs.setLong(1, gpaUTR)
+          cs.setInt(2, contractVersion)
+          cs.setInt(3, startIndex)
+          cs.setInt(4, count)
+
+          cs.registerOutParameter(5, OracleTypes.CURSOR)
+          // other 6 - 14
+          cs.registerOutParameter(6, java.sql.Types.INTEGER) // pTOTAL_NUM_RECORDS
+          cs.registerOutParameter(7, java.sql.Types.DATE) // gGPP_END_DATE
+          cs.registerOutParameter(8, java.sql.Types.DECIMAL) // pGPP_TOTAL_GROUP_PAYMENT
+          cs.registerOutParameter(9, java.sql.Types.DECIMAL) // pGPP_TOTAL_GROUP_TAX
+          cs.registerOutParameter(10, java.sql.Types.VARCHAR) // pGPP_STATUS
+          cs.registerOutParameter(11, java.sql.Types.DATE) // pGPP_CNI
+          cs.registerOutParameter(12, java.sql.Types.VARCHAR) // + pGPP_APPORTIONMENT_METHOD
+          cs.registerOutParameter(13, java.sql.Types.INTEGER) // pGPA_UTR_OUT
+          cs.registerOutParameter(14, java.sql.Types.INTEGER) // pGPP_CONTRACT_VERSION_OUT
+
+          cs.execute()
+          val curGpaPaymentsRds = cs.getObject(5, classOf[ResultSet])
+
+          val curGpaPayments = Option(curGpaPaymentsRds).map(readGpaPayments).getOrElse(List.empty)
+
+          Some(
+            GpaPaymentsDetails(
+              gpaPayments            = curGpaPayments,
+              totalNumOfRecords      = Option(cs.getInt(6)),
+              gppEndDate             = Option(cs.getDate(7)).map(_.toLocalDate),
+              gppTotalGroupPayment   = Option(cs.getBigDecimal(8)),
+              gppTotalGroupTax       = Option(cs.getBigDecimal(9)),
+              gppStatus              = Option(cs.getString(10)).getOrElse(""),
+              gppCni                 = Option(cs.getDate(11)).map(_.toLocalDate),
+              gppApportionmentMethod = Option(cs.getString(12))
+            )
+          )
+        } catch {
+          case sqlException: java.sql.SQLException if sqlException.getMessage.contains("no data found") =>
+            logger.info("No data found")
+            None // no other exceptions to be caught
+        } finally {
+          cs.close()
+        }
+      }
+    }
+  }
+
+  private def readGpaPayments(rs: ResultSet): List[GpaPaymentsItem] = {
+    val buffer = ListBuffer[GpaPaymentsItem]()
+    while (rs.next()) {
+      buffer += GpaPaymentsItem(
+        displayDate             = Option(rs.getDate("DISPLAY_DATE")).map(_.toLocalDate),
+        total                   = Option(rs.getBigDecimal("TOTAL")),
+        tablename               = Option(rs.getString("TABLENAME")),
+        targetTaxpayerReference = Option(rs.getString("TARGET_TAXPAYER_REFERENCE")),
+        paymentType             = Option(rs.getString("PAYMENT_TYPE")),
+        repaymentType           = Option(rs.getString("REPAYMENT_TYPE")),
+        targetApNo              = Option(rs.getInt("TARGET_AP_NO")),
+        targetApEndDate         = Option(rs.getDate("TARGET_AP_END_DATE")).map(_.toLocalDate),
+        contractEndDate         = Option(rs.getDate("CONTRACT_END_DATE")).map(_.toLocalDate),
+        participatorCount       = Option(rs.getLong("PARTICIPATOR_COUNT"))
+      )
+    }
+    buffer.toList
+  }
 }

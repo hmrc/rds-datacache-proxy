@@ -25,9 +25,11 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.GroupPaymentsHelper
+
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.sql.Date
+import java.time.LocalDate
 
 class GroupPaymentRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter with GroupPaymentsHelper {
 
@@ -112,6 +114,50 @@ class GroupPaymentRepositorySpec extends AnyFlatSpec with Matchers with BeforeAn
 
     verify(rs, times(2)).next()
     verify(rs2, times(2)).next()
+
+    verify(mockCallableStatement).close()
+  }
+
+  "getPaymentsDetails" should "return default record" in {
+    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(rs)
+
+    when(rs.next()).thenReturn(true, false)
+
+    when(rs.getDate("DISPLAY_DATE")).thenReturn(Date.valueOf(LocalDate.of(2026, 2, 3)))
+    when(rs.getBigDecimal("TOTAL")).thenReturn(BigDecimal(6.71).bigDecimal)
+    when(rs.getString("TABLENAME")).thenReturn("Payslip")
+
+    when(rs.getString("TARGET_TAXPAYER_REFERENCE")).thenReturn("005")
+    when(rs.getInt("TARGET_AP_NO")).thenReturn(5)
+    when(rs.getDate("TARGET_AP_END_DATE")).thenReturn(Date.valueOf(LocalDate.of(2025, 7, 3)))
+    when(rs.getDate("CONTRACT_END_DATE")).thenReturn(Date.valueOf(LocalDate.of(2026, 8, 3)))
+    when(rs.getLong("PARTICIPATOR_COUNT")).thenReturn(15L)
+
+    when(rs.getString("PAYMENT_TYPE")).thenReturn("A")
+    when(rs.getString("REPAYMENT_TYPE")).thenReturn("B")
+
+    when(mockCallableStatement.getInt(6)).thenReturn(5)
+    when(mockCallableStatement.getDate(7)).thenReturn(Date.valueOf(LocalDate.of(2026, 2, 3)))
+    when(mockCallableStatement.getBigDecimal(8)).thenReturn(java.math.BigDecimal.valueOf(346.71))
+    when(mockCallableStatement.getBigDecimal(9)).thenReturn(java.math.BigDecimal.valueOf(16.21))
+    when(mockCallableStatement.getString(10)).thenReturn("ACTIVE")
+    when(mockCallableStatement.getDate(11)).thenReturn(Date.valueOf(LocalDate.of(2026, 5, 3)))
+    when(mockCallableStatement.getString(12)).thenReturn("METHOD")
+
+    val result = repository.getPaymentsDetails(1L, 2, 3, 4).futureValue
+    result shouldBe Some(defaultPaymentDetails)
+
+    verify(mockConnection).prepareCall("{call CT_GPA_PK.getGPAPaymentDetails(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )}")
+
+    verify(mockCallableStatement).setLong(1, 1L)
+    verify(mockCallableStatement).setInt(2, 2)
+    verify(mockCallableStatement).setInt(3, 3)
+    verify(mockCallableStatement).setInt(4, 4)
+
+    verify(mockCallableStatement).registerOutParameter(5, OracleTypes.CURSOR)
+    verify(mockCallableStatement).execute()
+
+    verify(rs, times(2)).next()
 
     verify(mockCallableStatement).close()
   }

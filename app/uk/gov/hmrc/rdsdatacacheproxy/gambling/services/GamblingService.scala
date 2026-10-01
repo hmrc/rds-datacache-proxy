@@ -420,16 +420,12 @@ class GamblingService @Inject() (
     repository
       .getAgentDetails(agentReference)
       .map {
-        case Right(details) => Right(details)
-        case Left(RecordNotFound(msg)) =>
-          logger.warn(s"No agent details found for agentReference=$agentReference: $msg")
-          Left(GamblingError.RecordNotFoundError)
-        case Left(DatabaseError(msg, cause)) =>
-          logger.error(s"Failed while retrieving agent details for agentReference=$agentReference: $msg", cause)
-          Left(GamblingError.DBSystemError)
+        case Right(details)            => Right(details)
+        case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
+        case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
       }
       .recover { case NonFatal(ex) =>
-        logger.error(s"Unexpected error while retrieving agent details for agentReference=$agentReference", ex)
+        logger.error(s"unexpected error retrieving agent details agentReference=$agentReference", ex)
         Left(GamblingError.UnexpectedError)
       }
   }
