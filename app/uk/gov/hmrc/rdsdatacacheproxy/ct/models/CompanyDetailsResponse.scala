@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa
+package uk.gov.hmrc.rdsdatacacheproxy.ct.models
 
 import play.api.libs.json.{Json, OFormat}
 
@@ -24,14 +24,14 @@ object CompanyDetailsResponse {
   implicit val format: OFormat[CompanyDetailsResponse] = Json.format[CompanyDetailsResponse]
 }
 case class CompanyDetails(orgUnitId: String,
-                           companyName: String,
-                           companyRegNo: Option[String],
-                           addressLine1: Option[String],
-                           addressLine2: Option[String],
-                           addressLine3: Option[String],
-                           addressLine4: Option[String],
-                           postCode: Option[String]
-                          )
+                          companyName: String,
+                          companyRegNo: Option[String],
+                          addressLine1: Option[String],
+                          addressLine2: Option[String],
+                          addressLine3: Option[String],
+                          addressLine4: Option[String],
+                          postCode: Option[String]
+                         )
 
 object CompanyDetails {
   implicit val format: OFormat[CompanyDetails] = Json.format[CompanyDetails]

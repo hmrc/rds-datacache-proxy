@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa
+package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories
 
 import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.{CompanyDetails, CompanyDetailsResponse}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepositoryDataSupport
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{CompanyDetails, CompanyDetailsResponse}
 
 import java.sql.{Connection, ResultSet}
 import javax.inject.Inject
@@ -39,13 +38,13 @@ class CompanyDetailsRepositoryImpl @Inject() (
     with RepositoryDataSupport
     with Logging {
 
-  override def getCompanyDetails(taxPayerReference: Long): Future[CompanyDetailsResponse] = {
+  override def getCompanyDetails(taxPayerReference: Long): Future[CompanyDetailsResponse] =
+    logger.info(s"Invoking stored procedure to retrieve CompanyDetailsResponse for taxRef :: $taxPayerReference")
     Future {
       db.withConnection { connection =>
         retrieveCompanyDetails(connection, taxPayerReference)
       }
     }
-  }
 
   private def retrieveCompanyDetails(connection: Connection, taxPayerReference: Long): CompanyDetailsResponse = {
     val context: String = s"Retrieving CompanyDetails"
