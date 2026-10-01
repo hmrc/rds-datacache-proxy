@@ -228,7 +228,7 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
       (subJson \ "firstName").as[String] mustBe "Bob"
       (subJson \ "secondName").as[String] mustBe ""
       (subJson \ "surname").as[String] mustBe "Builder"
-      (subJson \ "tradingName").as[String] mustBe "Bob Builder Ltd"
+      (subJson \ "tradingName").asOpt[String] mustBe Some("Bob Builder Ltd")
 
       verify(mockService).getSubcontractorsPrepopByKnownFacts(
         eqTo("123"),
@@ -236,6 +236,34 @@ class PrepopControllerSpec extends SpecBase with MockitoSugar {
         eqTo("123PA12345678")
       )
       verifyNoMoreInteractions(mockService)
+    }
+
+    "returns tradingName as null when the record has no trading name" in new Setup {
+      val sub = SubcontractorPrepopRecord(
+        subcontractorType  = "C",
+        subcontractorUtr   = "1123456789",
+        verificationNumber = "12345678901",
+        verificationSuffix = None,
+        title              = None,
+        firstName          = None,
+        secondName         = None,
+        surname            = None,
+        tradingName        = None
+      )
+
+      when(
+        mockService.getSubcontractorsPrepopByKnownFacts(
+          eqTo("123"),
+          eqTo("AB456"),
+          eqTo("123PA12345678")
+        )
+      ).thenReturn(Future.successful(Seq(sub)))
+
+      val res = controller.getSubcontractorsPrepopByKnownFacts(requestWithKnownFactsJson("123", "AB456", "123PA12345678"))
+
+      status(res) mustBe OK
+      val subJson = (contentAsJson(res) \ "prePopSubcontractors" \ "subcontractors")(0)
+      (subJson \ "tradingName").asOpt[String] mustBe None
     }
 
     "returns 404 with NOT FOUND message when service throws NoSuchElementException" in new Setup {
