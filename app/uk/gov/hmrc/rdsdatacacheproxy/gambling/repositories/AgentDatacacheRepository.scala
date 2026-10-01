@@ -64,8 +64,6 @@ class AgentDatacacheRepository @Inject() (
     //  1 - No update in progress, last update succeeded
     //  2 - No update in progress, last update failed
 
-    logger.info(s"getClientListDownloadStatus(credentialId=$credentialId, regime=$regime, gracePeriod=$gracePeriod)")
-
     Future {
       mgdDb.underlying.withConnection { conn =>
         val cs: CallableStatement =
@@ -78,7 +76,10 @@ class AgentDatacacheRepository @Inject() (
           cs.registerOutParameter(4, OracleTypes.INTEGER)
           cs.execute()
 
-          ClientListDownloadStatus.fromInt(cs.getInt(4))
+          val statusCode = cs.getInt(4)
+          val status = ClientListDownloadStatus.fromInt(statusCode)
+          logger.info(s"client list download statusCode=$statusCode status=${status.fold(_.code, _.toString)} regime=$regime")
+          status
         } finally cs.close()
       }
     }
@@ -91,8 +92,6 @@ class AgentDatacacheRepository @Inject() (
                              sort: Int,
                              order: String
                             ): Future[Either[StatementError, AgentClientListResponse]] = {
-    logger.info(s"getAllClients(credentialId=$credentialId, start=$start, count=$count, sort=$sort, order=$order)")
-
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs =
@@ -120,6 +119,7 @@ class AgentDatacacheRepository @Inject() (
           try {
             val clients = Option(clientListRs).map(readClientList).getOrElse(List.empty)
             val nameChars = Option(clientNameCharsRs).map(readClientNameChars).getOrElse(List.empty)
+            logger.info(s"client list retrieved totalCount=$clientCount returned=${clients.size} regime=$regime")
             Right(AgentClientListResponse(clients, clientCount, nameChars))
           } finally {
             if (clientListRs != null) clientListRs.close()
@@ -131,8 +131,6 @@ class AgentDatacacheRepository @Inject() (
   }
 
   override def hasClient(regime: Regime, credentialId: String, regNumber: String): Future[Either[StatementError, Boolean]] = {
-    logger.info(s"hasClient(credentialId=$credentialId, regNumber=$regNumber)")
-
     Future {
       getDb(regime, mgdDb, gtrDb).underlying.withConnection { connection =>
         val cs: CallableStatement =
@@ -148,7 +146,9 @@ class AgentDatacacheRepository @Inject() (
           cs.registerOutParameter(3, OracleTypes.INTEGER) // P_EXISTS_O: 1=exists, 0=not
           cs.execute()
 
-          Right(cs.getInt(3) == 1)
+          val hasClient = cs.getInt(3) == 1
+          logger.info(s"client check hasClient=$hasClient regime=$regime regNumber=$regNumber")
+          Right(hasClient)
         } finally cs.close()
       }
     }
