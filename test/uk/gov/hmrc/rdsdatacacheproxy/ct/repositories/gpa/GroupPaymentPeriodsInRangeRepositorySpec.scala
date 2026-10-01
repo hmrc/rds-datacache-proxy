@@ -69,8 +69,8 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
 
     verify(mockCallableStatement).setLong(1, gpaUTR)
     verify(mockCallableStatement).setLong(2, nominatedCompanyUTR)
-    verify(mockCallableStatement).setLong(3, pPeriod)
-    verify(mockCallableStatement).setLong(4, pMonthRestriction)
+    verify(mockCallableStatement).setInt(3, pPeriod)
+    verify(mockCallableStatement).setInt(4, pMonthRestriction)
 
     verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.VARCHAR) // pIS_PERIOD_WITHIN_RANGE
 
@@ -95,8 +95,8 @@ class GroupPaymentPeriodsInRangeRepositorySpec extends AnyFlatSpec with Matchers
 
     verify(mockCallableStatement).setLong(1, gpaUTR)
     verify(mockCallableStatement).setLong(2, nominatedCompanyUTR)
-    verify(mockCallableStatement).setLong(3, pPeriod)
-    verify(mockCallableStatement).setLong(4, pMonthRestriction)
+    verify(mockCallableStatement).setInt(3, pPeriod)
+    verify(mockCallableStatement).setInt(4, pMonthRestriction)
 
     verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.VARCHAR) // pIS_PERIOD_WITHIN_RANGE
 

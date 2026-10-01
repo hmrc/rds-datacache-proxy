@@ -45,8 +45,8 @@ class GroupPaymentPeriodsInRangeRepositoryImpl @Inject() (
         try {
           storedProcedure.setLong(1, gpaUTR)
           storedProcedure.setLong(2, nominatedCompanyUTR)
-          storedProcedure.setLong(3, pPeriod)
-          storedProcedure.setLong(4, pMonthRestriction)
+          storedProcedure.setInt(3, pPeriod)
+          storedProcedure.setInt(4, pMonthRestriction)
 
           storedProcedure.registerOutParameter(5, java.sql.Types.VARCHAR) // pIS_PERIOD_WITHIN_RANGE
 
