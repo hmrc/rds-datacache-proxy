@@ -28,6 +28,14 @@ object PeriodWithinRangeHelper {
     isPeriodWithinRange = "Y"
   )
 
+  val periodWithinRangeTrueWithWhiteSpace: PeriodWithinRange = PeriodWithinRange(
+    isPeriodWithinRange = "          Y          "
+  )
+
+  val periodWithinRangeFalseWithWhiteSpace: PeriodWithinRange = PeriodWithinRange(
+    isPeriodWithinRange = " N          "
+  )
+
   def getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int): PeriodWithinRange = {
     gpaUTR match {
       case 10L  => periodWithinRangeFalse

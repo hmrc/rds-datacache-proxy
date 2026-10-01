@@ -22,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeTrue}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.gpa.PeriodWithinRangeHelper.{periodWithinRangeFalse, periodWithinRangeFalseWithWhiteSpace, periodWithinRangeTrue, periodWithinRangeTrueWithWhiteSpace}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.gpa.PeriodWithinRange
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.gpa.GroupPaymentPeriodsInRangeRepository
 
@@ -75,6 +75,30 @@ class GroupPaymentPeriodsInRangeServiceSpec extends AnyFreeSpec with Matchers wi
       result mustBe exception
 
       verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(999L, 1000L, 1, 1)
+
+    }
+
+    "must return PeriodWithinRange with the value No trimmed. Extra white space added" in new Setup {
+      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Int], any[Int]))
+        .thenReturn(Future.successful(periodWithinRangeFalseWithWhiteSpace))
+
+      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(10L, 1000L, 1, 1)(using ec).futureValue
+
+      result mustBe periodWithinRangeFalse
+
+      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(10L, 1000L, 1, 1)
+
+    }
+
+    "must return PeriodWithinRange with the value Yes trimmed. Extra white space added" in new Setup {
+      when(mockRepo.getGroupPaymentPeriodsInRange(any[Long], any[Long], any[Int], any[Int]))
+        .thenReturn(Future.successful(periodWithinRangeTrueWithWhiteSpace))
+
+      val result: PeriodWithinRange = service.getGroupPaymentPeriodsInRange(20L, 1000L, 1, 1)(using ec).futureValue
+
+      result mustBe periodWithinRangeTrue
+
+      verify(mockRepo, times(1)).getGroupPaymentPeriodsInRange(20L, 1000L, 1, 1)
 
     }
   }
