@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, OracleErrorHandling, RecordNotFound, RepositoryError}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RepositoryErrorHandling, RecordNotFound, RepositoryError}
 
 import java.sql.SQLException
 import java.time.LocalDate
@@ -50,7 +50,7 @@ class GamblingDataCacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
     with RepositorySupport
-    with OracleErrorHandling {
+    with RepositoryErrorHandling {
 
   override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] = {
 
@@ -1347,7 +1347,7 @@ class GamblingDataCacheRepository @Inject() (
           )
         }
       } catch {
-        oracleErrorHandler[AgentDetails]("GET_AGENT_DETAILS", agentReference)
+        handleError[AgentDetails]("GET_AGENT_DETAILS", agentReference)
       } finally {
         closeQuietly(addressRs)
         closeQuietly(contactRs)

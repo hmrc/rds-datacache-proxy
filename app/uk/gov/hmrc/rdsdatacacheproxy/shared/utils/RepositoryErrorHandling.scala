@@ -21,21 +21,21 @@ import play.api.Logging
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
-trait OracleErrorHandling extends Logging {
+trait RepositoryErrorHandling extends Logging {
 
   private val noDataFound = 1403
 
-  def oracleErrorHandler[A](query: String, key: String): PartialFunction[Throwable, Either[RepositoryError, A]] = {
+  def handleError[A](sproc: String, key: String): PartialFunction[Throwable, Either[RepositoryError, A]] = {
     case ex: SQLException if ex.getErrorCode == noDataFound =>
-      val msg = s"No data found (ORA-01403) when calling $query for $key"
+      val msg = s"No data found (ORA-01403) when calling $sproc for $key"
       logger.warn(msg)
       Left(RecordNotFound(msg))
     case ex: SQLException =>
-      val msg = s"SQLException when calling $query for $key"
+      val msg = s"SQLException when calling $sproc for $key"
       logger.error(msg, ex)
       Left(DatabaseError(msg, ex))
     case NonFatal(ex) =>
-      val msg = s"Unexpected exception when calling $query for $key"
+      val msg = s"Unexpected exception when calling $sproc for $key"
       logger.error(msg, ex)
       Left(DatabaseError(msg, ex))
   }

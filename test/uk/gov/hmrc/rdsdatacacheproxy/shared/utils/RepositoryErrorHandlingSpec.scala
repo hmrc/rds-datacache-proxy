@@ -21,11 +21,11 @@ import org.scalatest.matchers.should.Matchers
 
 import java.sql.SQLException
 
-class OracleErrorHandlingSpec extends AnyFlatSpec with Matchers with OracleErrorHandling {
+class RepositoryErrorHandlingSpec extends AnyFlatSpec with Matchers with RepositoryErrorHandling {
 
   private def run(f: => Either[RepositoryError, String]): Either[RepositoryError, String] =
     try f
-    catch oracleErrorHandler[String]("QUERY_NAME", "KEY")
+    catch handleError[String]("QUERY_NAME", "KEY")
 
   "oracleErrorHandler" should "return Right when nothing is thrown" in {
     run(Right("ok")) shouldBe Right("ok")
