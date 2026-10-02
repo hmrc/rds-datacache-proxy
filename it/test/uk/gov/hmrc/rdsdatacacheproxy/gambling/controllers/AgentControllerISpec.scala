@@ -40,7 +40,7 @@ class AgentControllerISpec
 
     "return 200 with status 'Succeeded' when authorised and parameters are valid" in {
       AuthStub.authorisedAgent()
-      val res = getClientListStatus("cred-123", "regime-xyz")
+      val res = getClientListStatus("cred-123", "gbd")
 
       res.status mustBe OK
       (res.json \ "status").as[String] mustBe "Succeeded"
@@ -48,7 +48,7 @@ class AgentControllerISpec
 
     "return 200 with status 'Succeeded' when using default grace period" in {
       AuthStub.authorisedAgent()
-      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123&regime=regime-xyz").futureValue
+      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123&regime=gbd").futureValue
 
       res.status mustBe OK
       (res.json \ "status").as[String] mustBe "Succeeded"
@@ -80,7 +80,7 @@ class AgentControllerISpec
 
     "return 200 with status 'Succeeded' when regime has whitespace" in {
       AuthStub.authorisedAgent()
-      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123&regime=%20%20regime-xyz%20%20&gracePeriod=14400").futureValue
+      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123&regime=%20%20gbd%20%20&gracePeriod=14400").futureValue
 
       res.status mustBe OK
       (res.json \ "status").as[String] mustBe "Succeeded"
@@ -88,18 +88,26 @@ class AgentControllerISpec
 
     "return 200 with status 'Succeeded' for custom grace period values" in {
       AuthStub.authorisedAgent()
-      val res1 = getClientListStatus("cred-123", "regime-xyz", 7200)
+      val res1 = getClientListStatus("cred-123", "gbd", 7200)
       res1.status mustBe OK
       (res1.json \ "status").as[String] mustBe "Succeeded"
 
-      val res2 = getClientListStatus("cred-123", "regime-xyz", 0)
+      val res2 = getClientListStatus("cred-123", "gbd", 0)
       res2.status mustBe OK
       (res2.json \ "status").as[String] mustBe "Succeeded"
     }
 
+    "return 400 with INVALID_REGIME_CODE when regime is not a known regime code" in {
+      AuthStub.authorisedAgent()
+      val res = getClientListStatus("cred-123", "regime-xyz")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "code").as[String] mustBe "INVALID_REGIME_CODE"
+    }
+
     "return 401 when there is no active session" in {
       AuthStub.unauthorised()
-      val res = getClientListStatus("cred-123", "regime-xyz")
+      val res = getClientListStatus("cred-123", "gbd")
 
       res.status mustBe UNAUTHORIZED
     }
@@ -132,9 +140,9 @@ class AgentControllerISpec
       res.status mustBe NOT_FOUND
     }
 
-    "handle special characters in credentialId and regime" in {
+    "handle special characters in credentialId" in {
       AuthStub.authorisedAgent()
-      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123%2Bspecial&regime=regime-xyz%2Ftest&gracePeriod=14400").futureValue
+      val res = get(s"$clientListStatusEndpoint?credentialId=cred-123%2Bspecial&regime=gbd&gracePeriod=14400").futureValue
 
       res.status mustBe OK
       (res.json \ "status").as[String] mustBe "Succeeded"

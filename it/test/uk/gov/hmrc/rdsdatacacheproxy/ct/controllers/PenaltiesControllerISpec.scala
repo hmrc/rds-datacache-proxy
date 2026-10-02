@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -25,8 +25,9 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Penalties, PenaltyTransaction}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PenaltiesDatacacheRepository
-import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.*
+import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
+
 import scala.concurrent.Future
 
 class PenaltiesControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {

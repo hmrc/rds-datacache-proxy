@@ -41,7 +41,6 @@ final class AgentServiceSpec extends SpecBase {
   private val validRegimeString = "MGD"
 
   private val credentialId = "cred-123"
-  private val serviceName = "service-xyz"
   private val gracePeriod = 14400
   private val invalidRegNumber = "123"
   private val validMgdRegNumber = "XWM12345678901"
@@ -49,69 +48,76 @@ final class AgentServiceSpec extends SpecBase {
   "ClientService#getAllClientsDownloadStatus" - {
 
     "return Right(InitiateDownload) when repository returns -1" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod)))
         .thenReturn(Future.successful(Right(InitiateDownload)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, gracePeriod)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.InitiateDownload)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod))
       verifyNoMoreInteractions(repository)
     }
 
     "return Right(InProgress) when repository returns 0" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod)))
         .thenReturn(Future.successful(Right(InProgress)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, gracePeriod)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.InProgress)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod))
       verifyNoMoreInteractions(repository)
     }
 
     "return Right(Succeeded) when repository returns 1" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod)))
         .thenReturn(Future.successful(Right(Succeeded)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, gracePeriod)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.Succeeded)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod))
       verifyNoMoreInteractions(repository)
     }
 
     "return Right(Failed) when repository returns 2" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod)))
         .thenReturn(Future.successful(Right(Failed)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, gracePeriod)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.Failed)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod))
       verifyNoMoreInteractions(repository)
     }
 
     "use default grace period when not specified" in {
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(14400)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(14400)))
         .thenReturn(Future.successful(Right(Succeeded)))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, 14400)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, 14400)(using ec).futureValue
 
       result mustBe Right(ClientListDownloadStatus.Succeeded)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(14400))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(14400))
       verifyNoMoreInteractions(repository)
     }
 
     "recover repository exceptions to Left(UnexpectedError)" in {
       val exception = new RuntimeException("Database error")
-      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod)))
+      when(repository.getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod)))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getAllClientsDownloadStatus(credentialId, serviceName, gracePeriod)(using ec).futureValue
+      val result = service.getAllClientsDownloadStatus(credentialId, validRegimeString, gracePeriod)(using ec).futureValue
 
       result mustBe Left(UnexpectedError)
-      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(serviceName), eqTo(gracePeriod))
+      verify(repository).getAllClientsDownloadStatus(eqTo(credentialId), eqTo(validRegime), eqTo(gracePeriod))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return Left(InvalidRegimeCode) and not call repository when regime is invalid" in {
+      val result = service.getAllClientsDownloadStatus(credentialId, "INVALID", gracePeriod)(using ec).futureValue
+
+      result mustBe Left(InvalidRegimeCode)
       verifyNoMoreInteractions(repository)
     }
   }

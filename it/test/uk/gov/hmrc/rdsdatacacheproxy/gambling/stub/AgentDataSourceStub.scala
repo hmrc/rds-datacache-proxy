@@ -29,18 +29,17 @@ import scala.concurrent.Future
 @Singleton
 class AgentDataSourceStub extends AgentDataSource with Logging {
 
-  override def getAllClientsDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Either[StatementError, ClientListDownloadStatus]] = {
+  override def getAllClientsDownloadStatus(credentialId: String, regime: Regime, gracePeriod: Int): Future[Either[StatementError, ClientListDownloadStatus]] = {
     val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
-    val serviceNameExists = Option(serviceName).exists(_.trim.nonEmpty)
 
-    if (credentialIdExists && serviceNameExists) {
+    if (credentialIdExists) {
       logger.info(
-        s"[STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} => status=1"
+        s"[STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${credentialId.trim}, regime=${regime.code} => status=1"
       )
       Future.successful(Right(Succeeded))
     } else {
       logger.warn(
-        s"[STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID/SERVICE_NAME: CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} "
+        s"[STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID: regime=${regime.code}"
       )
       Future.successful(Right(Failed))
     }
