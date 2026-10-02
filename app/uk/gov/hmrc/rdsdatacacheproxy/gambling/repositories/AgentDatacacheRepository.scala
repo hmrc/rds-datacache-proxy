@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AgentDataSource {
   def getAllClientsDownloadStatus(credentialId: String,
-                                  regime: String,
+                                  regime: Regime,
                                   gracePeriod: Int = 14400
                                  ): Future[Either[StatementError, ClientListDownloadStatus]]
   def getAllClients(regime: Regime,
@@ -54,7 +54,7 @@ class AgentDatacacheRepository @Inject() (
     with Logging {
 
   override def getAllClientsDownloadStatus(credentialId: String,
-                                           regime: String,
+                                           regime: Regime,
                                            gracePeriod: Int
                                           ): Future[Either[StatementError, ClientListDownloadStatus]] = {
     // NAME: getClientListDownloadStatus
@@ -65,20 +65,20 @@ class AgentDatacacheRepository @Inject() (
     //  2 - No update in progress, last update failed
 
     Future {
-      mgdDb.underlying.withConnection { conn =>
+      getDb(regime, mgdDb, gtrDb).underlying.withConnection { conn =>
         val cs: CallableStatement =
           conn.prepareCall("{ call CLIENT_LIST_STATUS.GETCLIENTLISTDOWNLOADSTATUS(?, ?, ?, ?) }")
 
         try {
           cs.setString(1, credentialId)
-          cs.setString(2, regime)
+          cs.setString(2, regime.clientListStatusService)
           cs.setInt(3, gracePeriod)
           cs.registerOutParameter(4, OracleTypes.INTEGER)
           cs.execute()
 
           val statusCode = cs.getInt(4)
           val status = ClientListDownloadStatus.fromInt(statusCode)
-          logger.info(s"client list download statusCode=$statusCode status=${status.fold(_.code, _.toString)} regime=$regime")
+          logger.info(s"client list download statusCode=$statusCode status=${status.fold(_.code, _.toString)} regime=${regime.code}")
           status
         } finally cs.close()
       }

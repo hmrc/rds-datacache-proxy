@@ -33,10 +33,16 @@ class AgentService @Inject() (
   def getAllClientsDownloadStatus(credentialId: String, regime: String, gracePeriod: Int)(using
     ExecutionContext
   ): Future[Either[StatementError, ClientListDownloadStatus]] = {
+    val baseText = "client list download status"
     val reqText = s"regime=$regime gracePeriod=$gracePeriod"
-    runAndRecoverEither("client list download status", reqText)(
-      repository.getAllClientsDownloadStatus(credentialId, regime, gracePeriod)
-    )
+    Regime.fromString(regime.trim) match
+      case Left(error) =>
+        logger.error(s"$baseText failed $error $reqText")
+        Future.successful(Left(error))
+      case Right(validRegime) =>
+        runAndRecoverEither(baseText, reqText)(
+          repository.getAllClientsDownloadStatus(credentialId, validRegime, gracePeriod)
+        )
   }
 
   def getAllClients(
