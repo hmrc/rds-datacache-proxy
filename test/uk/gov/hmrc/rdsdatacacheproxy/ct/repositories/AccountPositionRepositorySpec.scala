@@ -82,55 +82,16 @@ class AccountPositionRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
     verify(mockCallableStatement).setLong(1, 17L)
 
-//    verify(mockCallableStatement).registerOutParameter(3, oracle.jdbc.OracleTypes.VARCHAR)
-//    verify(mockCallableStatement).registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR)
-//    verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR)
-//
-//    verify(mockCallableStatement).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-//    verify(mockCallableStatement).registerOutParameter(7, oracle.jdbc.OracleTypes.DECIMAL)
-//    verify(mockCallableStatement).registerOutParameter(8, oracle.jdbc.OracleTypes.DECIMAL)
-//    verify(mockCallableStatement).registerOutParameter(9, oracle.jdbc.OracleTypes.DECIMAL)
-//    verify(mockCallableStatement).registerOutParameter(10, oracle.jdbc.OracleTypes.DECIMAL)
-
-    verify(mockCallableStatement).execute()
-
-    verify(mockCallableStatement).close()
-  }
-
-  /*
-  "getIsAPBalanced" should "return empty record" in {
-    when(mockCallableStatement.getString(3)).thenReturn(null)
-    when(mockCallableStatement.getString(4)).thenReturn(null)
-    when(mockCallableStatement.getString(5)).thenReturn(null)
-
-    when(mockCallableStatement.getBigDecimal(6)).thenReturn(null)
-    when(mockCallableStatement.getBigDecimal(7)).thenReturn(null)
-    when(mockCallableStatement.getBigDecimal(8)).thenReturn(null)
-    when(mockCallableStatement.getBigDecimal(9)).thenReturn(null)
-    when(mockCallableStatement.getBigDecimal(10)).thenReturn(null)
-
-    val result = repository.getIsAPBalanced(taxRef = 17L, accPeriod = 2L).futureValue
-    result shouldBe aPBalancedItemEmpty
-
-    verify(mockConnection).prepareCall("{call CT_LNP_PK.isAPBalanced(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
-
-    verify(mockCallableStatement).setLong(1, 17L)
-    verify(mockCallableStatement).setLong(2, 2L)
-
+    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.NUMERIC)
     verify(mockCallableStatement).registerOutParameter(3, oracle.jdbc.OracleTypes.VARCHAR)
-    verify(mockCallableStatement).registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR)
-    verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR)
-
-    verify(mockCallableStatement).registerOutParameter(6, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCallableStatement).registerOutParameter(7, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCallableStatement).registerOutParameter(8, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCallableStatement).registerOutParameter(9, oracle.jdbc.OracleTypes.DECIMAL)
-    verify(mockCallableStatement).registerOutParameter(10, oracle.jdbc.OracleTypes.DECIMAL)
+    verify(mockCallableStatement).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR)
 
     verify(mockCallableStatement).execute()
 
     verify(mockCallableStatement).close()
   }
-   */
 
 }
