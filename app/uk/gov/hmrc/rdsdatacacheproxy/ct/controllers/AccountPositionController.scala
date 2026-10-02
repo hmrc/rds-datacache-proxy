@@ -38,7 +38,6 @@ class AccountPositionController @Inject() (
     repository
       .getAccountPosition(taxRef)
       .map(record =>
-        println(s"HereIsRecord: $record")
         Ok(Json.toJson(record))
       )
       .recover { case ex: Exception =>
