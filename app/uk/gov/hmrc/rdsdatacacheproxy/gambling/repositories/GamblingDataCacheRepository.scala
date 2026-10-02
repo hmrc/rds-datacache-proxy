@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RepositoryErrorHandling, RecordNotFound, RepositoryError}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError, RepositoryErrorHandling}
 
 import java.sql.SQLException
 import java.time.LocalDate
