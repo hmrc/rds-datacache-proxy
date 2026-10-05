@@ -37,7 +37,12 @@ class AccountPositionController @Inject() (
   def getAccountPosition(taxRef: Long): Action[AnyContent] = authorise.async { implicit request =>
     repository
       .getAccountPosition(taxRef)
-      .map(record => Ok(Json.toJson(record)))
+      .map {
+        case Some(record) =>
+          Ok(Json.toJson(record))
+        case None =>
+          NotFound(Json.toJson(None))
+      }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving account position", ex)
         InternalServerError(Json.obj("error" -> "Failed to retrieve account position"))

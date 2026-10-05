@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AccountPositionRepositoryImpl])
 trait AccountPositionRepository {
-  def getAccountPosition(taxRef: Long): Future[AccountPositionResponse]
+  def getAccountPosition(taxRef: Long): Future[Option[AccountPositionResponse]]
 }
 
 class AccountPositionRepositoryImpl @Inject() (
@@ -38,7 +38,7 @@ class AccountPositionRepositoryImpl @Inject() (
     extends AccountPositionRepository
     with Logging {
 
-  def getAccountPosition(taxRef: Long): Future[AccountPositionResponse] = {
+  def getAccountPosition(taxRef: Long): Future[Option[AccountPositionResponse]] = {
     logger.info(s"Input request: ")
     Future {
       db.withConnection { connection =>
@@ -63,15 +63,22 @@ class AccountPositionRepositoryImpl @Inject() (
 
           val aPAmounts = Option(aPAmountsRds).map(readApAmounts).getOrElse(List.empty)
 
-          AccountPositionResponse(
-            amountDue        = Option(cs.getBigDecimal(2)),
-            asOnDate         = Option(cs.getDate(4)).map(_.toLocalDate),
-            gpaLinkFlag      = Option(cs.getString(3)),
-            taxpayerList     = taxpayerList,
-            apAmounts        = aPAmounts,
-            doesCompanyExist = Option(cs.getString(7))
+          Some(
+            AccountPositionResponse(
+              amountDue        = Option(cs.getBigDecimal(2)),
+              asOnDate         = Option(cs.getDate(4)).map(_.toLocalDate),
+              gpaLinkFlag      = Option(cs.getString(3)),
+              taxpayerList     = taxpayerList,
+              apAmounts        = aPAmounts,
+              doesCompanyExist = Option(cs.getString(7))
+            )
           )
 
+        } catch {
+          // sql.SQLException: ORA-01422: exact fetch returns more than requested number of rows
+          case sqlException: java.sql.SQLException if sqlException.getMessage.contains("exact fetch returns more than requested number of rows") =>
+            logger.info("No data found")
+            None // no other exceptions to be caught
         } finally {
           cs.close()
         }
