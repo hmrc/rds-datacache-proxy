@@ -41,7 +41,7 @@ class AccountPositionController @Inject() (
         case Some(record) =>
           Ok(Json.toJson(record))
         case None =>
-          NotFound(Json.toJson(None))
+          NotFound(Json.obj("error" -> "Data not found"))
       }
       .recover { case ex: Exception =>
         logger.error("Error while retrieving account position", ex)
