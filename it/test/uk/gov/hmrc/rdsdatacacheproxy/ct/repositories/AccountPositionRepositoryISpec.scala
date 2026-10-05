@@ -42,14 +42,20 @@ class AccountPositionRepositoryISpec extends AnyWordSpec
     "return correct AccountPositionResponse item" in {
       val result = repository.getAccountPosition(1L).futureValue
 
-      result mustBe defaultRecord
+      result mustBe Some(defaultRecord)
     }
 
 
     "return correct AccountPositionResponse empty record" in {
       val result = repository.getAccountPosition(17L).futureValue
 
-      result mustBe emptyRecord
+      result mustBe Some(emptyRecord)
+    }
+
+    "return No Data found" in {
+      val result = repository.getAccountPosition(31L).futureValue
+
+      result mustBe None
     }
 
 
