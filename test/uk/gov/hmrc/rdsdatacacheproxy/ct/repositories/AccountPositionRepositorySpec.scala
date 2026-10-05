@@ -24,7 +24,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.AccountPositionHelper
-import java.sql.{CallableStatement, Date, ResultSet}
+
+import java.sql.{CallableStatement, Date, ResultSet, SQLException}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.ArgumentMatchers.eq as eqTo
@@ -76,7 +77,7 @@ class AccountPositionRepositorySpec extends AnyFlatSpec with Matchers with Befor
     when(rs2.getString("AP_Status")).thenReturn("N")
 
     val result = repository.getAccountPosition(taxRef = 17L).futureValue
-    result shouldBe defaultRecord
+    result shouldBe Some(defaultRecord)
 
     verify(mockConnection).prepareCall("{call CT_LNP_PK.getAccountPosition(?, ?, ?, ?, ?, ?, ?)}")
 
@@ -92,6 +93,48 @@ class AccountPositionRepositorySpec extends AnyFlatSpec with Matchers with Befor
     verify(mockCallableStatement).execute()
 
     verify(mockCallableStatement).close()
+  }
+
+  "getAccountPosition" should "return record with empty values" in {
+    when(mockCallableStatement.getBigDecimal(2)).thenReturn(null)
+    when(mockCallableStatement.getDate(4)).thenReturn(null)
+    when(mockCallableStatement.getString(3)).thenReturn(null)
+    when(mockCallableStatement.getString(7)).thenReturn(null)
+
+    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(rs)
+    when(rs.next()).thenReturn(false)
+
+    when(mockCallableStatement.getObject(eqTo(6), eqTo(classOf[ResultSet]))).thenReturn(rs2)
+    when(rs2.next()).thenReturn(false)
+
+    val result = repository.getAccountPosition(taxRef = 17L).futureValue
+    result shouldBe Some(emptyRecord)
+
+    verify(mockConnection).prepareCall("{call CT_LNP_PK.getAccountPosition(?, ?, ?, ?, ?, ?, ?)}")
+
+    verify(mockCallableStatement).setLong(1, 17L)
+
+    verify(mockCallableStatement).registerOutParameter(2, oracle.jdbc.OracleTypes.NUMERIC)
+    verify(mockCallableStatement).registerOutParameter(3, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCallableStatement).registerOutParameter(4, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(6, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR)
+
+    verify(mockCallableStatement).execute()
+
+    verify(mockCallableStatement).close()
+  }
+
+  "getAccountPosition" should "return no data" in {
+    when(mockCallableStatement.execute()).thenThrow(new SQLException("exact fetch returns more than requested number of rows"))
+
+    val result = repository.getAccountPosition(taxRef = 17L).futureValue
+    result shouldBe None
+
+    verify(mockCallableStatement).close()
+
+    verify(mockCallableStatement).execute()
   }
 
 }
