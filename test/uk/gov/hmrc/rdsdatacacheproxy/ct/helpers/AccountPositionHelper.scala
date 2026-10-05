@@ -53,17 +53,19 @@ trait AccountPositionHelper {
 
   class AccountPositionRepositoryRdsStub extends AccountPositionRepository {
 
-    def getAccountPosition(taxRef: Long): Future[AccountPositionResponse] = {
+    def getAccountPosition(taxRef: Long): Future[Option[AccountPositionResponse]] = {
       taxRef match {
         case 1L =>
           Future.successful {
-            defaultRecord
+            Some(defaultRecord)
           }
         case 11L =>
           Future.successful(throw new Error("Simulated downstream failure"))
+        case 31L =>
+          Future.successful(None)
         case _ =>
           Future.successful {
-            emptyRecord
+            Some(emptyRecord)
           }
       }
     }

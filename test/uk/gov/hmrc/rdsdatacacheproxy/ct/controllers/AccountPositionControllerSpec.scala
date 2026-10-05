@@ -38,11 +38,11 @@ class AccountPositionControllerSpec extends SpecBase with MockitoSugar with Acco
       new AccountPositionController(fakeAuthAction, mockAccountPositionRepository, cc)
   }
 
-  "AccountingPeriodDetailsController#getIsAPBalanced" - {
+  "getAccountPosition" - {
 
     "return 200 and a successful response when repository return default record" in new SetUp {
       when(mockAccountPositionRepository.getAccountPosition(any[Long]))
-        .thenReturn(Future.successful(defaultRecord))
+        .thenReturn(Future.successful(Some(defaultRecord)))
 
       val result: Future[Result] = controller.getAccountPosition(1L)(fakeRequest)
 
@@ -54,7 +54,7 @@ class AccountPositionControllerSpec extends SpecBase with MockitoSugar with Acco
 
     "return 200 and a successful response when repository return empty record" in new SetUp {
       when(mockAccountPositionRepository.getAccountPosition(any[Long]))
-        .thenReturn(Future.successful(emptyRecord))
+        .thenReturn(Future.successful(Some(emptyRecord)))
 
       val result: Future[Result] = controller.getAccountPosition(1L)(fakeRequest)
 
@@ -62,6 +62,15 @@ class AccountPositionControllerSpec extends SpecBase with MockitoSugar with Acco
       contentType(result)   shouldBe Some("application/json")
       contentAsJson(result) shouldBe Json.toJson(emptyRecord)
       verify(mockAccountPositionRepository).getAccountPosition(1L)
+    }
+
+    "return 404 when SQL Level exception raised" in new SetUp {
+      when(mockAccountPositionRepository.getAccountPosition(any[Long]))
+        .thenReturn(Future.successful(None))
+
+      val result: Future[Result] = controller.getAccountPosition(31L)(fakeRequest)
+
+      status(result) shouldBe NOT_FOUND
     }
 
     "return 500 and when repository call fails" in new SetUp {
