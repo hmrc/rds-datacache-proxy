@@ -104,9 +104,12 @@ class PrepopController @Inject() (
               .map { subcontractors =>
                 val subs = subcontractors.map { r =>
                   PrePopSubcontractor(
-                    subcontractorType  = r.subcontractorType,
-                    utr                = r.subcontractorUtr,
-                    verificationNumber = r.verificationNumber,
+                    subcontractorType = r.subcontractorType,
+                    utr               = r.subcontractorUtr,
+                    verificationNumber = Option(r.verificationNumber)
+                      .map(_.trim)
+                      .filter(value => value.nonEmpty && !value.equalsIgnoreCase("null"))
+                      .getOrElse(""),
                     verificationSuffix = r.verificationSuffix.getOrElse(""),
                     title              = r.title.getOrElse(""),
                     firstName          = r.firstName.getOrElse(""),
