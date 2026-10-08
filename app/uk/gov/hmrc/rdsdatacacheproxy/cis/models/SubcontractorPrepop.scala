@@ -42,7 +42,8 @@ final case class PrePopSubcontractor(
   title: String,
   firstName: String,
   secondName: String,
-  surname: String
+  surname: String,
+  tradingName: Option[String] = None
 )
 
 object PrePopSubcontractor {
