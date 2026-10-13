@@ -10,3 +10,4 @@
 ->         /rds-datacache-proxy                         ndds.Routes
 ->         /rds-datacache-proxy/direct-debits           ndds.Routes
 ->         /rds-datacache-proxy/nova                    nova.Routes
+->         /rds-datacache-proxy/pas                     pas.Routes
