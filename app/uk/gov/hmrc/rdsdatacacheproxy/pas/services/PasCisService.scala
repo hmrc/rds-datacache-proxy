@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.pas.services
 
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse}
-import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisRepository
+import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisSource
 
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class PasCisService @Inject (repository: PasCisRepository) {
+class PasCisService @Inject (pasCisSource: PasCisSource) {
 
-  def createCisAppeal(createCisAppealRequest: CreateCisAppealRequest)(implicit hc: HeaderCarrier): Future[CreateCisAppealResponse] =
-    repository.createCisAppeal(createCisAppealRequest)
+  def createCisAppeal(createCisAppealRequest: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
+    pasCisSource.createCisAppeal(createCisAppealRequest)
 }

@@ -19,7 +19,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.pas.models
 import play.api.libs.json.{Json, OFormat}
 
 case class CreateCisAppealRequest(
-  penaltyId: Int
+  penaltyId: Long
 )
 
 object CreateCisAppealRequest {
