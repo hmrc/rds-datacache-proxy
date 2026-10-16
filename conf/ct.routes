@@ -1,5 +1,8 @@
 # microservice specific routes
 
+GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int)
+
+#Accounting Periods Routes
 GET        /penalty-transactions/:taxRef/:accPeriod                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
 GET        /interest-charge-summary/:taxPayerReference                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:Long)
 GET        /tax-transactions/:taxRef/:accPeriod                             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
