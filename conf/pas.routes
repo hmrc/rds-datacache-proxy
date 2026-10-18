@@ -1,0 +1,3 @@
+# microservice specific routes
+
+POST        /cis/appeal           uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.createCisAppeal()
