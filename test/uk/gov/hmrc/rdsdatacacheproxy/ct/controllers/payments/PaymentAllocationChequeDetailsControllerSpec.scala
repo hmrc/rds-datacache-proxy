@@ -46,13 +46,13 @@ class PaymentAllocationChequeDetailsControllerSpec extends SpecBase {
         PaymentAllocationChequeRow(
           accountingPeriod       = 729372L,
           apEndDate              = LocalDate.of(2017, 4, 21),
-          amount                 = BigDecimal(2342.922),
+          amount                 = Some(BigDecimal(2342.922)),
           effectiveDateOfPayment = LocalDate.of(2021, 9, 1)
         ),
         PaymentAllocationChequeRow(
           accountingPeriod       = 7292L,
           apEndDate              = LocalDate.of(2025, 4, 21),
-          amount                 = BigDecimal(23426225.922),
+          amount                 = Some(BigDecimal(23426225.922)),
           effectiveDateOfPayment = LocalDate.of(2011, 9, 1)
         )
       )

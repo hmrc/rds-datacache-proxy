@@ -26,7 +26,7 @@ object PaymentAllocationChequeDetails {
   implicit val format: OFormat[PaymentAllocationChequeDetails] = Json.format[PaymentAllocationChequeDetails]
 }
 
-case class PaymentAllocationChequeRow(accountingPeriod: Long, apEndDate: LocalDate, amount: BigDecimal, effectiveDateOfPayment: LocalDate)
+case class PaymentAllocationChequeRow(accountingPeriod: Long, apEndDate: LocalDate, amount: Option[BigDecimal], effectiveDateOfPayment: LocalDate)
 
 object PaymentAllocationChequeRow {
   implicit val format: OFormat[PaymentAllocationChequeRow] = Json.format[PaymentAllocationChequeRow]

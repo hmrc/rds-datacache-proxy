@@ -72,7 +72,7 @@ class PaymentAllocationChequeDetailsRepositoryImpl @Inject() (@NamedDatabase("ct
     PaymentAllocationChequeRow(
       accountingPeriod       = rs.getLong("ACCOUNTING_PERIOD"), // ACCOUNTING_PERIOD
       apEndDate              = rs.getDate("AP_END_DATE").toLocalDate, // AP_END_DATE
-      amount                 = rs.getBigDecimal("AMOUNT"), // AMOUNT
+      amount                 = Option(rs.getBigDecimal("AMOUNT")), // AMOUNT
       effectiveDateOfPayment = rs.getDate("EFFECTIVE_DATE_OF_PAYMENT").toLocalDate // EFFECTIVE_DATE_OF_PAYMENT
     )
 

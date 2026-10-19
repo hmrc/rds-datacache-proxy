@@ -71,13 +71,13 @@ class PaymentAllocationChequeDetailsRepositorySpec extends AnyFlatSpec with Matc
       PaymentAllocationChequeRow(
         accountingPeriod       = 12820832002L,
         apEndDate              = LocalDate.of(2016, 11, 9),
-        amount                 = BigDecimal(7205720.982),
+        amount                 = Some(BigDecimal(7205720.982)),
         effectiveDateOfPayment = LocalDate.of(2026, 11, 12)
       ),
       PaymentAllocationChequeRow(
         accountingPeriod       = 1232002L,
         apEndDate              = LocalDate.of(2017, 11, 9),
-        amount                 = BigDecimal(7200.982),
+        amount                 = Some(BigDecimal(7200.982)),
         effectiveDateOfPayment = LocalDate.of(2026, 12, 12)
       )
     )
@@ -142,7 +142,7 @@ class PaymentAllocationChequeDetailsRepositorySpec extends AnyFlatSpec with Matc
       PaymentAllocationChequeRow(
         accountingPeriod       = 12820832002L,
         apEndDate              = LocalDate.of(2016, 11, 9),
-        amount                 = BigDecimal(7205720.982),
+        amount                 = Some(BigDecimal(7205720.982)),
         effectiveDateOfPayment = LocalDate.of(2026, 11, 12)
       )
     )
