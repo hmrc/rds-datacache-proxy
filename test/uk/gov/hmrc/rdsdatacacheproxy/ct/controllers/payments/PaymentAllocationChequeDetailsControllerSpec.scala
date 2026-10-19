@@ -75,7 +75,7 @@ class PaymentAllocationChequeDetailsControllerSpec extends SpecBase {
       verify(mockService, times(1)).getPaymentAllocationChequeDetails(taxRef, chequeId)
 
     }
-    "should return 200 OK with list ReallocationFromAccPeriod containing multiple elements " in new Setup {
+    "should return 200 OK with list PaymentAllocationChequeDetails containing multiple elements " in new Setup {
 
       when(mockService.getPaymentAllocationChequeDetails(any(), any())).thenReturn(Future.successful(paymentAllocationChequeDetails))
 
@@ -83,7 +83,7 @@ class PaymentAllocationChequeDetailsControllerSpec extends SpecBase {
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(emptyList)
+      contentAsJson(result) mustBe Json.toJson(paymentAllocationChequeDetails)
 
       verify(mockService).getPaymentAllocationChequeDetails(taxRef, chequeId)
       verify(mockService, times(1)).getPaymentAllocationChequeDetails(taxRef, chequeId)

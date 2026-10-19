@@ -34,7 +34,7 @@ trait PaymentAllocationChequeDetailsRepository {
 
 }
 
-class PaymentAllocationChequeDetailsRepositoryImpl @Inject() @NamedDatabase("ct-core") (db: Database)(implicit ec: ExecutionContext)
+class PaymentAllocationChequeDetailsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Database)(implicit ec: ExecutionContext)
     extends PaymentAllocationChequeDetailsRepository
     with Logging
     with RepositoryDataSupport {
