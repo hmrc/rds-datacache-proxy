@@ -85,7 +85,7 @@ class StatuteRuleControllerISpec extends AnyWordSpec with Matchers
       response.status mustBe INTERNAL_SERVER_ERROR
     }
 
-    "return 500 when incorret dates / query params" in {
+    "return 500 when incorrect dates / query params" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/statute-rule?ruleKey=C5&startDate=1990-04-&endDate=1990-06-2").futureValue
 
