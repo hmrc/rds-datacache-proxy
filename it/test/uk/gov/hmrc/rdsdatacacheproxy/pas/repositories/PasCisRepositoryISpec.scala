@@ -24,9 +24,10 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasCisStubData
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class PasCisRepositoryISpec
@@ -40,7 +41,12 @@ class PasCisRepositoryISpec
   class PasCisCacheRepositoryStub extends PasCisSource {
     override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
       Future.successful(
-        PasCisStubData.getCreateCisAppealResponse(request)
+        PasCisStubData.makeCreateCisAppealResponse(request)
+      )
+
+    override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
+      Future.successful(
+        PasCisStubData.makeGetCisAppealablePenaltyResponse(request)
       )
   }
 
@@ -66,6 +72,40 @@ class PasCisRepositoryISpec
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
         repository.createCisAppeal(CreateCisAppealRequest(500L)).futureValue
+      }
+
+      exception.getMessage must include("Error from downstream")
+    }
+  }
+
+  "getCisAppealablePenalty" should {
+
+    "return GetCisAppealablePenaltyResponse" in {
+
+      val result = repository.getCisAppealablePenalty(
+        GetCisAppealablePenaltyRequest(
+          penaltyId             = 1L,
+          hmrcOfficeNumber      = "840123",
+          schemeReferenceNumber = "098345"
+        )).futureValue
+
+      result mustBe GetCisAppealablePenaltyResponse(
+        uniqueId = None,
+        issueDate        = Some(LocalDate.of(2023, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+        penaltyType      = Some("CIS003"),
+        penaltyAmount    = Some(BigDecimal(999.23))
+      )
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getCisAppealablePenalty(
+          GetCisAppealablePenaltyRequest(
+            penaltyId             = 500L,
+            hmrcOfficeNumber      = "840123",
+            schemeReferenceNumber = "098345"
+          )).futureValue
       }
 
       exception.getMessage must include("Error from downstream")

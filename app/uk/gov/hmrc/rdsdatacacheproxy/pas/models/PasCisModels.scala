@@ -18,6 +18,8 @@ package uk.gov.hmrc.rdsdatacacheproxy.pas.models
 
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.LocalDate
+
 case class CreateCisAppealRequest(
   penaltyId: Long
 )
@@ -32,4 +34,26 @@ case class CreateCisAppealResponse(
 
 object CreateCisAppealResponse {
   implicit val format: OFormat[CreateCisAppealResponse] = Json.format[CreateCisAppealResponse]
+}
+
+case class GetCisAppealablePenaltyRequest(
+  penaltyId: Long,
+  hmrcOfficeNumber: String,
+  schemeReferenceNumber: String
+)
+
+object GetCisAppealablePenaltyRequest {
+  implicit val format: OFormat[GetCisAppealablePenaltyRequest] = Json.format[GetCisAppealablePenaltyRequest]
+}
+
+case class GetCisAppealablePenaltyResponse(
+  uniqueId: Option[Int],
+  issueDate: Option[LocalDate],
+  taxPeriodEndDate: Option[LocalDate],
+  penaltyType: Option[String],
+  penaltyAmount: Option[BigDecimal]
+)
+
+object GetCisAppealablePenaltyResponse {
+  implicit val format: OFormat[GetCisAppealablePenaltyResponse] = Json.format[GetCisAppealablePenaltyResponse]
 }
