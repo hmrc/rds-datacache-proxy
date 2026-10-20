@@ -27,3 +27,7 @@ GET        /group-payment-periods-in-range/:gpaUTR/:nominatedCompanyUTR/:pPeriod
 GET        /gpa-payment-allocation-details/:gpaUtr/:gppContractVersion/:participatorUtr/:participatorAp           uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.PaymentAllocationDetailsController.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int ?= 0, count: Int ?= 10)
 GET        /account-position/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountPositionController.getAccountPosition(taxRef: Long)
 GET        /company-details/:taxRef                                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyDetailsController.getCompanyDetails(taxRef: Long)
+
+# Payment Routes
+
+GET       /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
