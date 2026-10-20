@@ -25,6 +25,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import play.api.db.Database
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.ClientDownloadStatus
 
 import java.sql.{CallableStatement, Connection, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -59,7 +60,7 @@ class ClientListDownloadStatusRepositorySpec extends AnyFlatSpec with Matchers w
 
     val result = repository.getClientListDownloadStatus("1", "CT", 14400).futureValue
 
-    result shouldBe 1
+    result shouldBe ClientDownloadStatus(1)
     verify(mockCallableStatement).setString(1, "1")
     verify(mockCallableStatement).setString(2, "CT")
     verify(mockCallableStatement).setInt(3, 14400)

@@ -41,7 +41,7 @@ class ClientListDownloadStatusController @Inject() (
   ): Action[AnyContent] = authorise.async { implicit request =>
     service
       .getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
-      .map(status => Ok(Json.toJson(ClientDownloadStatus(status))))
+      .map(status => Ok(Json.toJson(status)))
       .recover { case ex: Exception =>
         logger.error("Error while retrieving client list download status", ex)
         InternalServerError(Json.obj("message" -> "Unexpected error"))

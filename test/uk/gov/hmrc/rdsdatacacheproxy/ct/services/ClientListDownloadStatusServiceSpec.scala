@@ -24,6 +24,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.mockito.MockitoSugar.mock
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.ClientListDownloadStatusRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.ClientDownloadStatus
 
 import scala.concurrent.Future
 
@@ -37,7 +38,7 @@ class ClientListDownloadStatusServiceSpec extends AnyWordSpec with Matchers with
     val serviceName: String = "CT"
     val gracePeriod: Int = 14400
 
-    val initiateDownload: Int = -1
+    val initiateDownload: ClientDownloadStatus = ClientDownloadStatus(-1)
 
   }
 
@@ -46,7 +47,7 @@ class ClientListDownloadStatusServiceSpec extends AnyWordSpec with Matchers with
     when(mockRepository.getClientListDownloadStatus(any[String], any[String], any[Int]))
       .thenReturn(Future.successful(initiateDownload))
 
-    val result: Int = service.getClientListDownloadStatus(credentialId, serviceName, gracePeriod).futureValue
+    val result: ClientDownloadStatus = service.getClientListDownloadStatus(credentialId, serviceName, gracePeriod).futureValue
 
     result mustBe initiateDownload
 

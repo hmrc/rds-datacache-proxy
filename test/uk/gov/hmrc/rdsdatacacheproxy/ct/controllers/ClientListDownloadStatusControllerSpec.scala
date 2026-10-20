@@ -39,10 +39,10 @@ class ClientListDownloadStatusControllerSpec extends SpecBase {
     val serviceName: String = "CT"
     val gracePeriod: Int = 14400
 
-    val initiateDownload: Int = -1
-    val inProgress: Int = 0
-    val succeeded: Int = 1
-    val failed: Int = 2
+    val initiateDownload: ClientDownloadStatus = ClientDownloadStatus(-1)
+    val inProgress: ClientDownloadStatus = ClientDownloadStatus(0)
+    val succeeded: ClientDownloadStatus = ClientDownloadStatus(1)
+    val failed: ClientDownloadStatus = ClientDownloadStatus(2)
 
   }
 
@@ -56,7 +56,7 @@ class ClientListDownloadStatusControllerSpec extends SpecBase {
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(ClientDownloadStatus(initiateDownload))
+      contentAsJson(result) mustBe Json.toJson(initiateDownload)
 
       verify(mockService).getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
       verify(mockService, times(1)).getClientListDownloadStatus(credentialId, serviceName, gracePeriod)

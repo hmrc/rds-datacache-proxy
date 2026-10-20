@@ -20,13 +20,14 @@ import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.ClientDownloadStatus
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[ClientListDownloadStatusRepositoryImpl])
 trait ClientListDownloadStatusRepository {
-  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int]
+  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[ClientDownloadStatus]
 }
 
 class ClientListDownloadStatusRepositoryImpl @Inject() (
@@ -35,7 +36,7 @@ class ClientListDownloadStatusRepositoryImpl @Inject() (
     extends ClientListDownloadStatusRepository
     with Logging {
 
-  override def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
+  override def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[ClientDownloadStatus] = {
     logger.info(s"Invoking stored procedure to retrieve Client List Download Status")
     Future {
       db.withConnection { connection =>
@@ -48,7 +49,10 @@ class ClientListDownloadStatusRepositoryImpl @Inject() (
           storedProcedure.registerOutParameter(4, OracleTypes.INTEGER) // OUT P_STATUS
           storedProcedure.execute()
 
-          storedProcedure.getInt(4)
+          val record = ClientDownloadStatus(status = storedProcedure.getInt(4))
+
+          record
+
         } finally storedProcedure.close()
       }
     }

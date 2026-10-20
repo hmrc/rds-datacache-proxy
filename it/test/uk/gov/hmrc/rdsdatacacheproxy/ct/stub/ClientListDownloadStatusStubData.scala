@@ -28,12 +28,12 @@ object ClientListDownloadStatusStubData {
   
   def getClientListDownloadStatus(   credentialId: String,
                                      serviceName: String,
-                                     gracePeriod: Int): Int = {
+                                     gracePeriod: Int): ClientDownloadStatus = {
     credentialId match {
-      case "1"  => initiateDownload
-      case "2"  => inProgress
-      case "3"  => succeeded
-      case "4"  => failed
+      case "1"  => ClientDownloadStatus(initiateDownload)
+      case "2"  => ClientDownloadStatus(inProgress)
+      case "3"  => ClientDownloadStatus(succeeded)
+      case "4"  => ClientDownloadStatus(failed)
       case "99"  => throw new RuntimeException("Downstream error")
     }
   }

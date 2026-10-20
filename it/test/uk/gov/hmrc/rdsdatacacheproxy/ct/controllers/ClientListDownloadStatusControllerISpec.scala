@@ -36,7 +36,7 @@ class ClientListDownloadStatusControllerISpec extends AnyWordSpec with Matchers 
   class ClientListDownloadStatusStub extends ClientListDownloadStatusRepository {
     override def getClientListDownloadStatus(credentialId: String,
                                              serviceName: String,
-                                             gracePeriod: Int): Future[Int] =
+                                             gracePeriod: Int): Future[ClientDownloadStatus] =
       Future {
         ClientListDownloadStatusStubData.getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
       }
@@ -67,11 +67,11 @@ class ClientListDownloadStatusControllerISpec extends AnyWordSpec with Matchers 
       response.json.as[ClientDownloadStatus] mustBe ClientDownloadStatus(ClientListDownloadStatusStubData.initiateDownload)
     }
 
-    "return 200 with ClientListDownloadStatus succeeded" in {
+    "return 200 with ClientListDownloadStatus succeeded with default params" in {
 
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/3?serviceName=CT&gracePeriod=14400").futureValue
+      val response = get(s"$endpoint/3").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
@@ -99,23 +99,6 @@ class ClientListDownloadStatusControllerISpec extends AnyWordSpec with Matchers 
       response.status mustBe UNAUTHORIZED
     }
 
-    "return 400 when serviceName missing" in {
-
-      AuthStub.unauthorised()
-
-      val response = get(s"$endpoint/3?gracePeriod=14400").futureValue
-
-      response.status mustBe BAD_REQUEST
-    }
-
-    "return 400 when gracePeriod missing" in {
-
-      AuthStub.unauthorised()
-
-      val response = get(s"$endpoint/3?serviceName=CT").futureValue
-
-      response.status mustBe BAD_REQUEST
-    }
   }
 
 

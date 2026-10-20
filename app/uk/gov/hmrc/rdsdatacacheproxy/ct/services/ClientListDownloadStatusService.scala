@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services
 
 import play.api.Logging
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.ClientDownloadStatus
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.ClientListDownloadStatusRepository
 
 import javax.inject.Inject
@@ -24,7 +25,7 @@ import scala.concurrent.Future
 
 class ClientListDownloadStatusService @Inject() (repository: ClientListDownloadStatusRepository) extends Logging {
 
-  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
+  def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int): Future[ClientDownloadStatus] = {
     logger.info(s"Calling client download status for ct core repository with credentialId: $credentialId")
     repository.getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
 
