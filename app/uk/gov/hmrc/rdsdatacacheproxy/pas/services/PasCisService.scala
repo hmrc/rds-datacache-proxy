@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.pas.services
 
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisSource
 
 import javax.inject.Inject
@@ -26,4 +26,7 @@ class PasCisService @Inject (pasCisSource: PasCisSource) {
 
   def createCisAppeal(createCisAppealRequest: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
     pasCisSource.createCisAppeal(createCisAppealRequest)
+
+  def getCisAppealablePenalty(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
+    pasCisSource.getCisAppealablePenalty(getCisAppealablePenaltyRequest)
 }
