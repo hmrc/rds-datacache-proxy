@@ -44,6 +44,11 @@ class PasCisRepositoryISpec
         PasCisStubData.makeCreateCisAppealResponse(request)
       )
 
+    override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+      Future.successful(
+        PasCisStubData.makeGetCisAppealablePenaltiesResponse(request)
+      )
+
     override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
       Future.successful(
         PasCisStubData.makeGetCisAppealablePenaltyResponse(request)
@@ -75,6 +80,77 @@ class PasCisRepositoryISpec
       }
 
       exception.getMessage must include("Error from downstream")
+    }
+  }
+
+  "getCisAppealablePenalties" should {
+
+    "return GetCisAppealablePenaltiesResponse when 2 items in List" in {
+
+      val request = GetCisAppealablePenaltiesRequest(
+        hmrcOfficeNumber = "123",
+        schemeReferenceNumber = "AB456",
+        startRow = 1L,
+        endRow = 10L
+      )
+
+      val expectedResponse = GetCisAppealablePenaltiesResponse(
+        total = 2,
+        appealablePenalties = List(
+          GetCisAppealablePenaltyResponse(
+            uniqueId = Some(10001),
+            issueDate = Some(LocalDate.of(2023, 1, 1)),
+            taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+            penaltyType = Some("CIS03"),
+            penaltyAmount = Some(BigDecimal(999.23))
+          ),
+          GetCisAppealablePenaltyResponse(
+            uniqueId = Some(10002),
+            issueDate = Some(LocalDate.of(2023, 1, 1)),
+            taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+            penaltyType = Some("CIS03"),
+            penaltyAmount = Some(BigDecimal(999.23))
+          )
+        )
+      )
+
+      val result = repository.getCisAppealablePenalties(request).futureValue
+
+      result mustBe expectedResponse
+    }
+
+    "return GetCisAppealablePenaltiesResponse when no items in List" in {
+
+      val request = GetCisAppealablePenaltiesRequest(
+        hmrcOfficeNumber = "456",
+        schemeReferenceNumber = "AB456",
+        startRow = 1L,
+        endRow = 10L
+      )
+
+      val expectedResponse = GetCisAppealablePenaltiesResponse(
+        total = 0,
+        appealablePenalties = List.empty
+      )
+
+      val result = repository.getCisAppealablePenalties(request).futureValue
+
+      result mustBe expectedResponse
+    }
+
+    "propagate downstream failure from stub" in {
+      val request = GetCisAppealablePenaltiesRequest(
+        hmrcOfficeNumber = "789",
+        schemeReferenceNumber = "AB456",
+        startRow = 1L,
+        endRow = 10L
+      )
+
+      val exception = intercept[Error] {
+        repository.getCisAppealablePenalties(request).futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
     }
   }
 
@@ -111,4 +187,5 @@ class PasCisRepositoryISpec
       exception.getMessage must include("Error from downstream")
     }
   }
+
 }
