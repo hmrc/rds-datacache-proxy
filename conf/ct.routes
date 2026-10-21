@@ -2,7 +2,7 @@
 
 GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String = "CT", gracePeriod: Int = 14400)
 
-#Accounting Periods Routes
+# Accounting Periods Routes
 GET        /penalty-transactions/:taxRef/:accPeriod                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
 GET        /interest-charge-summary/:taxPayerReference                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:Long)
 GET        /tax-transactions/:taxRef/:accPeriod                             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
@@ -31,6 +31,7 @@ GET        /gpa-payment-allocation-details/:gpaUtr/:gppContractVersion/:particip
 GET        /account-position/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountPositionController.getAccountPosition(taxRef: Long)
 GET        /company-details/:taxRef                                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyDetailsController.getCompanyDetails(taxRef: Long)
 
-# Payment Routes
-GET       /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
+# Payments Routes
+GET        /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
 GET        /payment-search-result/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)
+GET        /electronic-payment-allocation-details/:taxRef/:accPeriod/:payslipId            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.ElectronicPaymentAllocationDetailsController.getPayAllocationElectronicDtls(taxRef: Long, accPeriod: Long, payslipId: Long)
