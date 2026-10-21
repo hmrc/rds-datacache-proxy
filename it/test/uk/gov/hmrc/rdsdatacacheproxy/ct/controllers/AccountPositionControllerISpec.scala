@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.matchers.must.Matchers
@@ -23,68 +23,65 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.{Penalties, PenaltyTransaction}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.PenaltiesDatacacheRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.AccountPositionHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.AccountPositionResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.AccountPositionRepository
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.*
-import scala.concurrent.Future
 
-class PenaltiesControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
-
-  class PenaltiesRdsStub extends PenaltiesDatacacheRepository {
-
-    def getPenaltyTransactionList(taxRef: Long, accPeriod: Long): Future[List[PenaltyTransaction]] = {
-      Future.successful(CorporationTaxStubData.getPenaltiesItems(taxRef))
-    }
-
-  }
+class AccountPositionControllerISpec extends AnyWordSpec
+  with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock
+  with AccountPositionHelper {
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
       .overrides(
-        bind[PenaltiesDatacacheRepository].toInstance(new PenaltiesRdsStub())
+        bind[AccountPositionRepository].toInstance(new AccountPositionRepositoryRdsStub())
       )
       .build()
 
   private final val endpoint = "/corporation-tax"
 
-  "GET /corporation-tax/penalty-transactions" should {
+  "GET ~/account-position" should {
 
-    "return 200 with PenaltiesData list contains two items" in {
+    "return 200 with default record" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/penalty-transactions/1/3").futureValue
+      val response = get(s"$endpoint/account-position/1").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Penalties] mustBe Penalties(penaltyTransactions = CorporationTaxStubData.penaltiesItems)
+      response.json.as[AccountPositionResponse] mustBe defaultRecord
     }
 
-    "return 200 with PenaltiesData empty list" in {
+
+    "return 200 with empty record" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/penalty-transactions/8/3").futureValue
+      val response = get(s"$endpoint/account-position/2").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[Penalties] mustBe Penalties(penaltyTransactions = List[PenaltyTransaction]())
+      response.json.as[AccountPositionResponse] mustBe emptyRecord
     }
 
     "return 500 when stub simulates failure" in {
       AuthStub.authorised()
-      val response = get(s"$endpoint/penalty-transactions/19/3").futureValue
+      val response = get(s"$endpoint/account-position/11").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
     }
 
     "return 401 when unauthorised" in {
       AuthStub.unauthorised()
-      val response = get(s"$endpoint/penalty-transactions/8/3").futureValue
+      val response = get(s"$endpoint/account-position/1").futureValue
       response.status mustBe UNAUTHORIZED
     }
+
   }
 
+
 }
+

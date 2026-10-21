@@ -1,5 +1,8 @@
 # microservice specific routes
 
+GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String = "CT", gracePeriod: Int = 14400)
+
+#Accounting Periods Routes
 GET        /penalty-transactions/:taxRef/:accPeriod                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.PenaltiesController.getPenaltyTransactionList(taxRef: Long, accPeriod: Long)
 GET        /interest-charge-summary/:taxPayerReference                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.InterestChargeSummaryController.getInterestController(taxPayerReference:Long)
 GET        /tax-transactions/:taxRef/:accPeriod                             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.TaxTransactionsController.getTaxTransactions(taxRef: Long, accPeriod: Long)
@@ -16,7 +19,6 @@ GET        /accounting-period-details/:taxRef/:accPeriod                    uk.g
 GET        /repayments/:taxRef/:accPeriod                                   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.RepaymentsController.getRepayments(taxRef: Long, accPeriod: Long)
 GET        /statute-rule                                                    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.StatuteRuleController.getStatuteRule(queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.StatuteQueryParams)
 GET        /ct-form-data/:taxRef/:accPeriod                                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.FormDataController.getFormData(taxRef: Long, accPeriod: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.FormDataQueryParams)
-
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
 
 # GPA Routes
@@ -24,3 +26,11 @@ GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion                uk.go
 GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
 GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)
 GET        /gpa-payment-details/:gpaUTR                                     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getPaymentDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int)
+GET        /group-payment-periods-in-range/:gpaUTR/:nominatedCompanyUTR/:pPeriod/:pMonthRestriction                              uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupPaymentPeriodsInRangeController.getGroupPaymentPeriodsInRange(gpaUTR: Long, nominatedCompanyUTR: Long, pPeriod: Int, pMonthRestriction: Int)
+GET        /gpa-payment-allocation-details/:gpaUtr/:gppContractVersion/:participatorUtr/:participatorAp           uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.PaymentAllocationDetailsController.getGPAPaymentAllocationDetail(gpaUtr: Long, gppContractVersion: Long, participatorUtr: Long, participatorAp: Long, startIndex: Int ?= 0, count: Int ?= 10)
+GET        /account-position/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.AccountPositionController.getAccountPosition(taxRef: Long)
+GET        /company-details/:taxRef                                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyDetailsController.getCompanyDetails(taxRef: Long)
+
+# Payment Routes
+GET       /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
+GET        /payment-search-result/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)

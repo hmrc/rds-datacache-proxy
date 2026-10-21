@@ -864,11 +864,25 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     result.addressLine3 shouldBe None
   }
 
-  it should "return Left(DatabaseError) and still close resources when execute throws" in {
+  it should "return Left(RecordNotFound) and still close resources when execute throws ORA-01403" in {
 
     when(mockCs.execute()).thenThrow(new java.sql.SQLException("ORA-01403: no data found", "02000", 1403))
 
     val result = repository.getAgentDetails("UNKNOWN").futureValue
+
+    result match {
+      case Left(RecordNotFound(msg)) => msg should include("GET_AGENT_DETAILS")
+      case other                     => fail(s"expected Left(RecordNotFound), got $other")
+    }
+
+    verify(mockCs).close()
+  }
+
+  it should "return Left(DatabaseError) and still close resources when execute throws another SQLException" in {
+
+    when(mockCs.execute()).thenThrow(new java.sql.SQLException("ORA-00942: table or view does not exist", "42000", 942))
+
+    val result = repository.getAgentDetails("AGENT001").futureValue
 
     result match {
       case Left(DatabaseError(msg, _)) => msg should include("GET_AGENT_DETAILS")

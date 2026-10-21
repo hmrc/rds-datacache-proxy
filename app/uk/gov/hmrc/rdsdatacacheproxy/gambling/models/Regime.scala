@@ -22,7 +22,12 @@ final case class RefRange(min: Long, max: Long) {
   def contains(ref: Long): Boolean = ref >= min && ref <= max
 }
 
-sealed trait Regime(val code: String, val refRange: Option[RefRange])
+sealed trait Regime(val code: String, val refRange: Option[RefRange]) {
+
+  def clientListStatusService: String = this match
+    case Regime.MGD => "MGD"
+    case regime     => s"GTR_${regime.code.toUpperCase}"
+}
 
 object Regime {
   case object GBD extends Regime("gbd", Some(RefRange(3000000, 3199999)))

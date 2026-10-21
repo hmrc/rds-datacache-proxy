@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
-import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError, RepositoryErrorHandling}
 
 import java.sql.SQLException
 import java.time.LocalDate
@@ -51,7 +50,7 @@ class GamblingDataCacheRepository @Inject() (
 )(implicit ec: ExecutionContext)
     extends GamblingDataSource
     with RepositorySupport
-    with Logging {
+    with RepositoryErrorHandling {
 
   override def getMgdDetails(mgdRegNumber: String): Future[MgdDetails] = {
 
@@ -1348,10 +1347,7 @@ class GamblingDataCacheRepository @Inject() (
           )
         }
       } catch {
-        case NonFatal(ex) =>
-          val msg = s"Exception when calling GET_AGENT_DETAILS for $agentReference"
-          logger.error(msg, ex)
-          Left(DatabaseError(msg, ex))
+        handleError[AgentDetails]("GET_AGENT_DETAILS", agentReference)
       } finally {
         closeQuietly(addressRs)
         closeQuietly(contactRs)

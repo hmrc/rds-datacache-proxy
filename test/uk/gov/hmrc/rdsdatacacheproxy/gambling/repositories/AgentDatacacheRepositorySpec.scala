@@ -79,18 +79,36 @@ class AgentDatacacheRepositorySpec extends AnyFlatSpec with Matchers with Before
     when(gtrMockConnection.prepareCall(any[String])).thenReturn(mockCsGtr)
   }
 
-  "getClientListDownloadStatus" should "return the status integer from the stored procedure" in {
+  "getClientListDownloadStatus" should "use the MGD database and MGD service when regime is MGD" in {
     when(mockCsMgd.getInt(4)).thenReturn(1)
 
-    val result = repository.getAllClientsDownloadStatus("cred-123", "GAMBLING", 14400).futureValue
+    val result = repository.getAllClientsDownloadStatus("cred-123", MGD, 14400).futureValue
 
     result shouldBe Right(Succeeded)
     verify(mockCsMgd).setString(1, "cred-123")
-    verify(mockCsMgd).setString(2, "GAMBLING")
+    verify(mockCsMgd).setString(2, "MGD")
     verify(mockCsMgd).setInt(3, 14400)
     verify(mockCsMgd).registerOutParameter(4, OracleTypes.INTEGER)
     verify(mockCsMgd).execute()
     verify(mockCsMgd).close()
+    verify(mockCsGtr, never()).execute()
+  }
+
+  Regime.values.toList.filter(_ != Regime.MGD).foreach { regime =>
+    "getClientListDownloadStatus" should s"use the GTR database and GTR_${regime.code.toUpperCase} service when regime is $regime" in {
+      when(mockCsGtr.getInt(4)).thenReturn(1)
+
+      val result = repository.getAllClientsDownloadStatus("cred-123", regime, 14400).futureValue
+
+      result shouldBe Right(Succeeded)
+      verify(mockCsGtr).setString(1, "cred-123")
+      verify(mockCsGtr).setString(2, s"GTR_${regime.code.toUpperCase}")
+      verify(mockCsGtr).setInt(3, 14400)
+      verify(mockCsGtr).registerOutParameter(4, OracleTypes.INTEGER)
+      verify(mockCsGtr).execute()
+      verify(mockCsGtr).close()
+      verify(mockCsMgd, never()).execute()
+    }
   }
 
   Regime.values.toList.filter(_ != Regime.MGD).foreach { regime =>

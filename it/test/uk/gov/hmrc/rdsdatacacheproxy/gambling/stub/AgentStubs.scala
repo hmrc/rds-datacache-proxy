@@ -31,7 +31,7 @@ class AgentRdsStub extends AgentDataSource {
       Right(false)
     }
 
-  override def getAllClientsDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400) =
+  override def getAllClientsDownloadStatus(credentialId: String, regime: Regime, gracePeriod: Int = 14400) =
     Future(Right(Succeeded))
 
   override def getAllClients(regime: Regime, credentialId: String, start: Int = 0, count: Int = -1, sort: Int = 0, order: String = "ASC") =
