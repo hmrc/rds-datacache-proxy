@@ -22,7 +22,7 @@ import play.api.libs.json.{JsError, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltyRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltyRequest, GetCisPenaltyAllowedRequest}
 import uk.gov.hmrc.rdsdatacacheproxy.pas.services.PasCisService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -85,6 +85,23 @@ class PasCisController @Inject() (
               }
               .recover { case t =>
                 logger.error("[getCisAppealablePenalty] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
+
+  def getCisPenaltyAllowed: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[GetCisPenaltyAllowedRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .getCisPenaltyAllowed(body)
+              .map(response => Ok(Json.toJson(response)))
+              .recover { case t =>
+                logger.error("[getCisPenaltyAllowed] failed", t)
                 InternalServerError(Json.obj("message" -> "Unexpected error"))
               }
         )

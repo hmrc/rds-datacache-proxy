@@ -53,6 +53,11 @@ class PasCisRepositoryISpec
       Future.successful(
         PasCisStubData.makeGetCisAppealablePenaltyResponse(request)
       )
+
+    override def getCisPenaltyAllowed(request: GetCisPenaltyAllowedRequest): Future[GetCisPenaltyAllowedResponse] =
+      Future.successful(
+        PasCisStubData.makeGetCisPenaltyAllowedResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -160,17 +165,17 @@ class PasCisRepositoryISpec
 
       val result = repository.getCisAppealablePenalty(
         GetCisAppealablePenaltyRequest(
-          penaltyId             = 1L,
-          hmrcOfficeNumber      = "840123",
+          penaltyId = 1L,
+          hmrcOfficeNumber = "840123",
           schemeReferenceNumber = "098345"
         )).futureValue
 
       result mustBe GetCisAppealablePenaltyResponse(
         uniqueId = None,
-        issueDate        = Some(LocalDate.of(2023, 1, 1)),
+        issueDate = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-        penaltyType      = Some("CIS003"),
-        penaltyAmount    = Some(BigDecimal(999.23))
+        penaltyType = Some("CIS003"),
+        penaltyAmount = Some(BigDecimal(999.23))
       )
     }
 
@@ -178,8 +183,8 @@ class PasCisRepositoryISpec
       val exception = intercept[RuntimeException] {
         repository.getCisAppealablePenalty(
           GetCisAppealablePenaltyRequest(
-            penaltyId             = 500L,
-            hmrcOfficeNumber      = "840123",
+            penaltyId = 500L,
+            hmrcOfficeNumber = "840123",
             schemeReferenceNumber = "098345"
           )).futureValue
       }
@@ -188,4 +193,35 @@ class PasCisRepositoryISpec
     }
   }
 
+  "getCisPenaltyAllowed" should {
+
+    "return GetCisPenaltyAllowedResponse" in {
+
+      val result = repository.getCisPenaltyAllowed(
+        GetCisPenaltyAllowedRequest(
+          districtNumber = 1L,
+          employerReference = "840123",
+          uniqueId = 1L
+        )).futureValue
+
+      result mustBe GetCisPenaltyAllowedResponse(
+        allowed = true
+      )
+    }
+
+
+    "propagate downstream failure from stub" in {
+      val request = GetCisPenaltyAllowedRequest(
+        districtNumber = 2L,
+        employerReference = "AB456",
+        uniqueId = 2L
+      )
+
+      val exception = intercept[Error] {
+        repository.getCisPenaltyAllowed(request).futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
 }

@@ -57,6 +57,10 @@ object PasCisStubData {
     penaltyType      = Some("CIS003"),
     penaltyAmount    = Some(BigDecimal(999.23))
   )
+  
+  val getCisPenaltyAllowedSuccessResponse = GetCisPenaltyAllowedResponse(
+    allowed = true
+  )
 
   def makeCreateCisAppealResponse(createCisAppealRequest: CreateCisAppealRequest): CreateCisAppealResponse = {
     createCisAppealRequest.penaltyId match {
@@ -77,6 +81,13 @@ object PasCisStubData {
     getCisAppealablePenaltyRequest.penaltyId match {
       case 1 => getCisAppealablePenaltySuccessResponse
       case _ => throw new RuntimeException("Error from downstream")
+    }
+  }
+
+  def makeGetCisPenaltyAllowedResponse(request: GetCisPenaltyAllowedRequest): GetCisPenaltyAllowedResponse = {
+    request.uniqueId match {
+      case 1 => getCisPenaltyAllowedSuccessResponse
+      case _ => throw new Error("Simulated downstream failure")
     }
   }
 }

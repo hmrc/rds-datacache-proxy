@@ -32,4 +32,7 @@ class PasCisService @Inject (pasCisSource: PasCisSource) {
 
   def getCisAppealablePenalty(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
     pasCisSource.getCisAppealablePenalty(getCisAppealablePenaltyRequest)
+  
+  def getCisPenaltyAllowed(getCisPenaltyAllowedRequest: GetCisPenaltyAllowedRequest): Future[GetCisPenaltyAllowedResponse] =
+    pasCisSource.getCisPenaltyAllowed(getCisPenaltyAllowedRequest)
 }

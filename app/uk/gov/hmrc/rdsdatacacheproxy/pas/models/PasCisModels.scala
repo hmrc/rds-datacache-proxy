@@ -77,3 +77,21 @@ case class GetCisAppealablePenaltyResponse(
 object GetCisAppealablePenaltyResponse {
   implicit val format: OFormat[GetCisAppealablePenaltyResponse] = Json.format[GetCisAppealablePenaltyResponse]
 }
+
+case class GetCisPenaltyAllowedRequest(
+                                           districtNumber: Long,
+                                           employerReference: String,
+                                           uniqueId: Long
+                                         )
+
+object GetCisPenaltyAllowedRequest {
+  implicit val format: OFormat[GetCisPenaltyAllowedRequest] = Json.format[GetCisPenaltyAllowedRequest]
+}
+
+case class GetCisPenaltyAllowedResponse(
+                                              allowed: Boolean
+                                            )
+
+object GetCisPenaltyAllowedResponse {
+  implicit val format: OFormat[GetCisPenaltyAllowedResponse] = Json.format[GetCisPenaltyAllowedResponse]
+}
