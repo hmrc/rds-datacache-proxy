@@ -16,23 +16,27 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.pas.repositories
 
-import play.api.Logging
+import oracle.jdbc.OracleTypes
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
-import java.sql.{Connection, Types}
+import java.sql.{Connection, ResultSet, Types}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PasCisSource {
   def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse]
+  def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse]
   def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse]
 }
 class PasCisRepository @Inject() (
   @NamedDatabase("pas") db: Database
 )(implicit ec: ExecutionContext)
     extends PasCisSource
-    with Logging {
+    with RepositoryHelper {
+
+  private val DefaultSortField = "unique_id"
+  private val DefaultSortOrder = "desc"
 
   override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] = {
     Future {
@@ -62,6 +66,63 @@ class PasCisRepository @Inject() (
       cs.close()
     }
   }
+
+  override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] = {
+    Future {
+      db.withConnection { conn =>
+        callGetCisAppealablePenalties(
+          conn                   = conn,
+          p_hmrc_office_number   = request.hmrcOfficeNumber,
+          p_cis_scheme_reference = request.schemeReferenceNumber,
+          p_start_row            = request.startRow,
+          p_end_row              = request.endRow
+        )
+      }
+    }
+  }
+
+  private def callGetCisAppealablePenalties(conn: Connection,
+                                            p_hmrc_office_number: String,
+                                            p_cis_scheme_reference: String,
+                                            p_start_row: Long,
+                                            p_end_row: Long
+                                           ): GetCisAppealablePenaltiesResponse = {
+
+    val cs = conn.prepareCall("{call CIS_PAS.get_defaults_by_emp_ref(?, ?, ?, ?, ?, ?, ?, ?)}")
+
+    try {
+      cs.setString(1, p_hmrc_office_number)
+      cs.setString(2, p_cis_scheme_reference)
+      cs.setLong(3, p_start_row)
+      cs.setLong(4, p_end_row)
+      cs.setString(5, DefaultSortField)
+      cs.setString(6, DefaultSortOrder)
+
+      cs.registerOutParameter(7, OracleTypes.NUMERIC)
+      cs.registerOutParameter(8, OracleTypes.CURSOR)
+      cs.execute()
+
+      val count = cs.getLong(7)
+      val appealablePenaltiesList: Seq[GetCisAppealablePenaltyResponse] = processResultSetSeq(cs, 8, processAppealablePenalties)
+
+      GetCisAppealablePenaltiesResponse(
+        total               = count,
+        appealablePenalties = appealablePenaltiesList
+      )
+
+    } finally {
+      cs.close()
+    }
+  }
+
+  private def processAppealablePenalties(rs: ResultSet): GetCisAppealablePenaltyResponse =
+    GetCisAppealablePenaltyResponse(
+      uniqueId         = Option(rs.getLong("UNIQUE_ID")),
+      issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
+      taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
+      penaltyType      = Option(rs.getString("PENALTY_TYPE")),
+      penaltyAmount    = Option(rs.getBigDecimal("PENALTY_AMOUNT")).map(BigDecimal(_))
+    )
 
   override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] = {
     Future {

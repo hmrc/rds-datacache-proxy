@@ -16,13 +16,39 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.pas.stub
 
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltyRequest, GetCisAppealablePenaltyResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
 import java.time.LocalDate
-
 object PasCisStubData {
   
   val createCisAppealSuccessResponse = CreateCisAppealResponse(created = true)
+
+  val appealablePenalties: GetCisAppealablePenaltiesResponse =
+    GetCisAppealablePenaltiesResponse(
+      total = 2,
+      appealablePenalties = List(
+        GetCisAppealablePenaltyResponse(
+          uniqueId = Some(10001),
+          issueDate = Some(LocalDate.of(2023, 1, 1)),
+          taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+          penaltyType = Some("CIS03"),
+          penaltyAmount = Some(BigDecimal(999.23))
+        ),
+        GetCisAppealablePenaltyResponse(
+          uniqueId = Some(10002),
+          issueDate = Some(LocalDate.of(2023, 1, 1)),
+          taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+          penaltyType = Some("CIS03"),
+          penaltyAmount = Some(BigDecimal(999.23))
+        )
+      )
+    )
+
+  val appealablePenaltiesEmpty =
+    GetCisAppealablePenaltiesResponse(
+      total = 0,
+      appealablePenalties = List.empty
+    )
 
   val getCisAppealablePenaltySuccessResponse = GetCisAppealablePenaltyResponse(
     uniqueId = None,
@@ -38,7 +64,15 @@ object PasCisStubData {
       case _ => throw new RuntimeException("Error from downstream")
     }
   }
-  
+
+  def makeGetCisAppealablePenaltiesResponse(request: GetCisAppealablePenaltiesRequest): GetCisAppealablePenaltiesResponse = {
+    request.hmrcOfficeNumber match {
+      case "123" => appealablePenalties
+      case "456" => appealablePenaltiesEmpty
+      case _     => throw new Error("Simulated downstream failure")
+    }
+  }
+
   def makeGetCisAppealablePenaltyResponse(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): GetCisAppealablePenaltyResponse = {
     getCisAppealablePenaltyRequest.penaltyId match {
       case 1 => getCisAppealablePenaltySuccessResponse

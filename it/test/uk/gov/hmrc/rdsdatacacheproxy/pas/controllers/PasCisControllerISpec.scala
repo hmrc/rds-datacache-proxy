@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, inject}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltyRequest, GetCisAppealablePenaltyResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltiesResponse, GetCisAppealablePenaltyRequest, GetCisAppealablePenaltyResponse}
 import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisSource
 import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasCisStubData
 
@@ -42,6 +42,11 @@ class PasCisControllerISpec
     override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
       Future.successful(
         PasCisStubData.makeCreateCisAppealResponse(request)
+      )
+
+    override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+      Future.successful(
+        PasCisStubData.makeGetCisAppealablePenaltiesResponse(request)
       )
 
     override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
@@ -98,6 +103,77 @@ class PasCisControllerISpec
         "penaltyId" -> 1L
       )
       val response = post(s"$endpoint/cis/appeal", requestJson).futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
+
+  "POST /pas/cis/penalties" should {
+
+    "return 200 with a valid GetCisAppealablePenaltiesResponse when List contains 2 items" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "123",
+        "schemeReferenceNumber" -> "AB456",
+        "startRow" -> 1,
+        "endRow" -> 10
+      )
+
+      val response = post(s"$endpoint/cis/penalties", requestJson).futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[GetCisAppealablePenaltiesResponse] mustBe PasCisStubData.appealablePenalties
+    }
+
+    "return 200 with a valid GetCisAppealablePenaltiesResponse when List is empty" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "456",
+        "schemeReferenceNumber" -> "AB456",
+        "startRow" -> 1,
+        "endRow" -> 10
+      )
+
+      val response = post(s"$endpoint/cis/penalties", requestJson).futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[GetCisAppealablePenaltiesResponse] mustBe PasCisStubData.appealablePenaltiesEmpty
+    }
+
+    "return 500 when stub simulates failure" in {
+
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "789",
+        "schemeReferenceNumber" -> "AB456",
+        "startRow" -> 1,
+        "endRow" -> 10
+      )
+
+      val response = post(s"$endpoint/cis/penalties", requestJson).futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+    }
+
+    "return 401 when unauthorised" in {
+
+      AuthStub.unauthorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "123",
+        "schemeReferenceNumber" -> "AB456",
+        "startRow" -> 1,
+        "endRow" -> 10
+      )
+
+      val response = post(s"$endpoint/cis/penalties", requestJson).futureValue
 
       response.status mustBe UNAUTHORIZED
     }

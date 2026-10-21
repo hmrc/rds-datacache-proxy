@@ -103,6 +103,148 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     }
   }
 
+  "GetCisAppealablePenaltiesRequest" should {
+
+    "serialize to JSON correctly" in {
+      val request = GetCisAppealablePenaltiesRequest(
+        hmrcOfficeNumber      = "123",
+        schemeReferenceNumber = "AB456",
+        startRow              = 1L,
+        endRow                = 10L
+      )
+
+      val json = Json.toJson(request)
+
+      (json \ "hmrcOfficeNumber").as[String] mustBe "123"
+      (json \ "schemeReferenceNumber").as[String] mustBe "AB456"
+      (json \ "startRow").as[Long] mustBe 1L
+      (json \ "endRow").as[Long] mustBe 10L
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "hmrcOfficeNumber"      -> "123",
+        "schemeReferenceNumber" -> "AB456",
+        "startRow"              -> 1L,
+        "endRow"                -> 10L
+      )
+
+      val result = json.validate[GetCisAppealablePenaltiesRequest]
+
+      result mustBe a[JsSuccess[_]]
+      val request = result.get
+
+      request.hmrcOfficeNumber mustBe "123"
+      request.schemeReferenceNumber mustBe "AB456"
+      request.startRow mustBe 1L
+      request.endRow mustBe 10L
+    }
+
+    "fail to deserialize when entire request is missing" in {
+      val json = Json.obj()
+
+      val result = json.validate[GetCisAppealablePenaltiesRequest]
+
+      result.isError mustBe true
+    }
+  }
+  "GetCisAppealablePenaltiesResponse" should {
+
+    "serialize to JSON correctly" in {
+      val penalty1 = GetCisAppealablePenaltyResponse(
+        uniqueId         = Some(10001),
+        issueDate        = Some(LocalDate.of(2023, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+        penaltyType      = Some("CIS003"),
+        penaltyAmount    = Some(BigDecimal("999.23"))
+      )
+
+      val penalty2 = GetCisAppealablePenaltyResponse(
+        uniqueId         = Some(10002),
+        issueDate        = Some(LocalDate.of(2025, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2026, 4, 1)),
+        penaltyType      = Some("CIS005"),
+        penaltyAmount    = Some(BigDecimal("148.29"))
+      )
+
+      val response = GetCisAppealablePenaltiesResponse(
+        total               = 2,
+        appealablePenalties = List(penalty1, penalty2)
+      )
+
+      val json = Json.toJson(response)
+
+      (json \ "total").as[Int] mustBe 2
+
+      val first = (json \ "appealablePenalties" \ 0).get
+      (first \ "uniqueId").as[Int] mustBe 10001
+      (first \ "issueDate").as[LocalDate] mustBe LocalDate.of(2023, 1, 1)
+      (first \ "taxPeriodEndDate").as[LocalDate] mustBe LocalDate.of(2023, 4, 1)
+      (first \ "penaltyType").as[String] mustBe "CIS003"
+      (first \ "penaltyAmount").as[BigDecimal] mustBe BigDecimal("999.23")
+
+      val second = (json \ "appealablePenalties" \ 1).get
+      (second \ "uniqueId").as[Int] mustBe 10002
+      (second \ "issueDate").as[LocalDate] mustBe LocalDate.of(2025, 1, 1)
+      (second \ "taxPeriodEndDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 1)
+      (second \ "penaltyType").as[String] mustBe "CIS005"
+      (second \ "penaltyAmount").as[BigDecimal] mustBe BigDecimal("148.29")
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "total" -> 2,
+        "appealablePenalties" -> Json.arr(
+          Json.obj(
+            "uniqueId"         -> 1001,
+            "issueDate"        -> "2026-01-15",
+            "taxPeriodEndDate" -> "2025-12-05",
+            "penaltyType"      -> "CIS003",
+            "penaltyAmount"    -> 100
+          ),
+          Json.obj(
+            "uniqueId"         -> 1002,
+            "issueDate"        -> "2026-02-20",
+            "taxPeriodEndDate" -> "2026-01-05",
+            "penaltyType"      -> "CIS005",
+            "penaltyAmount"    -> 200
+          )
+        )
+      )
+
+      val result = json.validate[GetCisAppealablePenaltiesResponse]
+
+      result mustBe a[JsSuccess[_]]
+      val response = result.get
+
+      response.total mustBe 2
+      response.appealablePenalties mustBe List(
+        GetCisAppealablePenaltyResponse(
+          uniqueId         = Some(1001),
+          issueDate        = Some(LocalDate.of(2026, 1, 15)),
+          taxPeriodEndDate = Some(LocalDate.of(2025, 12, 5)),
+          penaltyType      = Some("CIS003"),
+          penaltyAmount    = Some(BigDecimal(100))
+        ),
+        GetCisAppealablePenaltyResponse(
+          uniqueId         = Some(1002),
+          issueDate        = Some(LocalDate.of(2026, 2, 20)),
+          taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
+          penaltyType      = Some("CIS005"),
+          penaltyAmount    = Some(BigDecimal(200))
+        )
+      )
+    }
+
+    "fail to deserialize when request is missing" in {
+      val json = Json.obj()
+
+      val result = json.validate[GetCisAppealablePenaltiesResponse]
+
+      result.isError mustBe true
+    }
+  }
+
   "GetCisAppealablePenaltyRequest" should {
 
     "serialize to JSON correctly" in {

@@ -27,6 +27,9 @@ class PasCisService @Inject (pasCisSource: PasCisSource) {
   def createCisAppeal(createCisAppealRequest: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
     pasCisSource.createCisAppeal(createCisAppealRequest)
 
+  def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+    pasCisSource.getCisAppealablePenalties(request)
+
   def getCisAppealablePenalty(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
     pasCisSource.getCisAppealablePenalty(getCisAppealablePenaltyRequest)
 }
