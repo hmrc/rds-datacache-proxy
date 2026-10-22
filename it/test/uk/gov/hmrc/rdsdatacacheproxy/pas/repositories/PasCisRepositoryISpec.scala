@@ -101,14 +101,14 @@ class PasCisRepositoryISpec
             uniqueId = Some(10001),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-            penaltyType = Some("CIS03"),
+            penaltyType = Some("F"),
             penaltyAmount = Some(BigDecimal(999.23))
           ),
           GetAppealablePenaltyResponse(
             uniqueId = Some(10002),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-            penaltyType = Some("CIS03"),
+            penaltyType = Some("F"),
             penaltyAmount = Some(BigDecimal(999.23))
           )
         )
