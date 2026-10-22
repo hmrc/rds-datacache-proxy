@@ -25,7 +25,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasCisStubData
+import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasStubData
 
 import java.time.LocalDate
 import scala.concurrent.Future
@@ -39,19 +39,19 @@ class PasCisRepositoryISpec
     with ApplicationWithWiremock {
 
   class PasCisCacheRepositoryStub extends PasCisSource {
-    override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
+    override def createCisAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] =
       Future.successful(
-        PasCisStubData.makeCreateCisAppealResponse(request)
+        PasStubData.makeCreateAppealResponse(request)
       )
 
-    override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+    override def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
       Future.successful(
-        PasCisStubData.makeGetCisAppealablePenaltiesResponse(request)
+        PasStubData.makeGetAppealablePenaltiesResponse(request)
       )
 
-    override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
+    override def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
       Future.successful(
-        PasCisStubData.makeGetCisAppealablePenaltyResponse(request)
+        PasStubData.makeGetAppealablePenaltyResponse(request)
       )
   }
 
@@ -67,16 +67,16 @@ class PasCisRepositoryISpec
 
   "createCisAppeal" should {
 
-    "return CreateCisAppealResponse" in {
+    "return CreateAppealResponse" in {
 
-      val result = repository.createCisAppeal(CreateCisAppealRequest(1L)).futureValue
+      val result = repository.createCisAppeal(CreateAppealRequest(1L)).futureValue
 
-      result mustBe CreateCisAppealResponse(true)
+      result mustBe CreateAppealResponse(true)
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.createCisAppeal(CreateCisAppealRequest(500L)).futureValue
+        repository.createCisAppeal(CreateAppealRequest(500L)).futureValue
       }
 
       exception.getMessage must include("Error from downstream")
@@ -85,26 +85,26 @@ class PasCisRepositoryISpec
 
   "getCisAppealablePenalties" should {
 
-    "return GetCisAppealablePenaltiesResponse when 2 items in List" in {
+    "return GetAppealablePenaltiesResponse when 2 items in List" in {
 
-      val request = GetCisAppealablePenaltiesRequest(
+      val request = GetAppealablePenaltiesRequest(
         hmrcOfficeNumber = "123",
         schemeReferenceNumber = "AB456",
         startRow = 1L,
         endRow = 10L
       )
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total = 2,
         appealablePenalties = List(
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId = Some(10001),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType = Some("CIS03"),
             penaltyAmount = Some(BigDecimal(999.23))
           ),
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId = Some(10002),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -119,16 +119,16 @@ class PasCisRepositoryISpec
       result mustBe expectedResponse
     }
 
-    "return GetCisAppealablePenaltiesResponse when no items in List" in {
+    "return GetAppealablePenaltiesResponse when no items in List" in {
 
-      val request = GetCisAppealablePenaltiesRequest(
+      val request = GetAppealablePenaltiesRequest(
         hmrcOfficeNumber = "456",
         schemeReferenceNumber = "AB456",
         startRow = 1L,
         endRow = 10L
       )
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total = 0,
         appealablePenalties = List.empty
       )
@@ -139,7 +139,7 @@ class PasCisRepositoryISpec
     }
 
     "propagate downstream failure from stub" in {
-      val request = GetCisAppealablePenaltiesRequest(
+      val request = GetAppealablePenaltiesRequest(
         hmrcOfficeNumber = "789",
         schemeReferenceNumber = "AB456",
         startRow = 1L,
@@ -156,16 +156,16 @@ class PasCisRepositoryISpec
 
   "getCisAppealablePenalty" should {
 
-    "return GetCisAppealablePenaltyResponse" in {
+    "return GetAppealablePenaltyResponse" in {
 
       val result = repository.getCisAppealablePenalty(
-        GetCisAppealablePenaltyRequest(
+        GetAppealablePenaltyRequest(
           penaltyId             = 1L,
           hmrcOfficeNumber      = "840123",
           schemeReferenceNumber = "098345"
         )).futureValue
 
-      result mustBe GetCisAppealablePenaltyResponse(
+      result mustBe GetAppealablePenaltyResponse(
         uniqueId = None,
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -177,7 +177,7 @@ class PasCisRepositoryISpec
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
         repository.getCisAppealablePenalty(
-          GetCisAppealablePenaltyRequest(
+          GetAppealablePenaltyRequest(
             penaltyId             = 500L,
             hmrcOfficeNumber      = "840123",
             schemeReferenceNumber = "098345"
