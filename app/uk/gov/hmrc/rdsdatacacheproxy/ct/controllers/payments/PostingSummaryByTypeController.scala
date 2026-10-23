@@ -27,7 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.payments.PostingSummaryByTy
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class PostingSummaryByTypeController @Inject()(
+class PostingSummaryByTypeController @Inject() (
   cc: ControllerComponents,
   authorise: AuthAction,
   repository: PostingSummaryByTypeRepository
