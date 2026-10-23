@@ -29,4 +29,7 @@ class PasPayeService @Inject (pasPayeSource: PasPayeSource) {
 
   def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
     pasPayeSource.getPayeAppealablePenalties(request)
+
+  def getPayeAppealablePenalty(getPayeAppealablePenaltyRequest: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
+    pasPayeSource.getPayeAppealablePenalty(getPayeAppealablePenaltyRequest)
 }

@@ -48,6 +48,11 @@ class PasPayeRepositoryISpec
       Future.successful(
         PasStubData.makeGetAppealablePenaltiesResponse(request)
       )
+
+    override def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
+      Future.successful(
+        PasStubData.makeGetAppealablePenaltyResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -147,4 +152,37 @@ class PasPayeRepositoryISpec
     }
   }
 
+  "getPayeAppealablePenalty" should {
+
+    "return GetAppealablePenaltyResponse" in {
+
+      val result = repository.getPayeAppealablePenalty(
+        GetAppealablePenaltyRequest(
+          penaltyId = 1L,
+          hmrcOfficeNumber = "840123",
+          schemeReferenceNumber = "098345"
+        )).futureValue
+
+      result mustBe GetAppealablePenaltyResponse(
+        uniqueId = None,
+        issueDate = Some(LocalDate.of(2023, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+        penaltyType = Some("CIS003"),
+        penaltyAmount = Some(BigDecimal(999.23))
+      )
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getPayeAppealablePenalty(
+          GetAppealablePenaltyRequest(
+            penaltyId = 500L,
+            hmrcOfficeNumber = "840123",
+            schemeReferenceNumber = "098345"
+          )).futureValue
+      }
+
+      exception.getMessage must include("Error from downstream")
+    }
+  }
 }
