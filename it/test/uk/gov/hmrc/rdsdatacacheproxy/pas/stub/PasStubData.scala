@@ -19,38 +19,38 @@ package uk.gov.hmrc.rdsdatacacheproxy.pas.stub
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
 import java.time.LocalDate
-object PasCisStubData {
+object PasStubData {
   
-  val createCisAppealSuccessResponse = CreateCisAppealResponse(created = true)
+  val createAppealSuccessResponse = CreateAppealResponse(created = true)
 
-  val appealablePenalties: GetCisAppealablePenaltiesResponse =
-    GetCisAppealablePenaltiesResponse(
+  val appealablePenalties: GetAppealablePenaltiesResponse =
+    GetAppealablePenaltiesResponse(
       total = 2,
       appealablePenalties = List(
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId = Some(10001),
           issueDate = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-          penaltyType = Some("CIS03"),
+          penaltyType = Some("F"),
           penaltyAmount = Some(BigDecimal(999.23))
         ),
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId = Some(10002),
           issueDate = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-          penaltyType = Some("CIS03"),
+          penaltyType = Some("F"),
           penaltyAmount = Some(BigDecimal(999.23))
         )
       )
     )
 
   val appealablePenaltiesEmpty =
-    GetCisAppealablePenaltiesResponse(
+    GetAppealablePenaltiesResponse(
       total = 0,
       appealablePenalties = List.empty
     )
 
-  val getCisAppealablePenaltySuccessResponse = GetCisAppealablePenaltyResponse(
+  val getAppealablePenaltySuccessResponse = GetAppealablePenaltyResponse(
     uniqueId = None,
     issueDate        = Some(LocalDate.of(2023, 1, 1)),
     taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -58,14 +58,14 @@ object PasCisStubData {
     penaltyAmount    = Some(BigDecimal(999.23))
   )
 
-  def makeCreateCisAppealResponse(createCisAppealRequest: CreateCisAppealRequest): CreateCisAppealResponse = {
-    createCisAppealRequest.penaltyId match {
-      case 1 => createCisAppealSuccessResponse
+  def makeCreateAppealResponse(createAppealRequest: CreateAppealRequest): CreateAppealResponse = {
+    createAppealRequest.penaltyId match {
+      case 1 => createAppealSuccessResponse
       case _ => throw new RuntimeException("Error from downstream")
     }
   }
 
-  def makeGetCisAppealablePenaltiesResponse(request: GetCisAppealablePenaltiesRequest): GetCisAppealablePenaltiesResponse = {
+  def makeGetAppealablePenaltiesResponse(request: GetAppealablePenaltiesRequest): GetAppealablePenaltiesResponse = {
     request.hmrcOfficeNumber match {
       case "123" => appealablePenalties
       case "456" => appealablePenaltiesEmpty
@@ -73,9 +73,9 @@ object PasCisStubData {
     }
   }
 
-  def makeGetCisAppealablePenaltyResponse(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): GetCisAppealablePenaltyResponse = {
-    getCisAppealablePenaltyRequest.penaltyId match {
-      case 1 => getCisAppealablePenaltySuccessResponse
+  def makeGetAppealablePenaltyResponse(getAppealablePenaltyRequest: GetAppealablePenaltyRequest): GetAppealablePenaltyResponse = {
+    getAppealablePenaltyRequest.penaltyId match {
+      case 1 => getAppealablePenaltySuccessResponse
       case _ => throw new RuntimeException("Error from downstream")
     }
   }

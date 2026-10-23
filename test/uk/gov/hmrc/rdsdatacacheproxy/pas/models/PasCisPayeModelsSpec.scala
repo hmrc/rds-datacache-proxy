@@ -22,12 +22,12 @@ import play.api.libs.json.{JsSuccess, Json}
 
 import java.time.LocalDate
 
-class PasCisModelsSpec extends AnyWordSpec with Matchers {
+class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
-  "CreateCisAppealRequest" should {
+  "CreateAppealRequest" should {
 
     "serialize to JSON correctly" in {
-      val request = CreateCisAppealRequest(
+      val request = CreateAppealRequest(
         penaltyId = 1L
       )
 
@@ -41,7 +41,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "penaltyId" -> 1L
       )
 
-      val result = json.validate[CreateCisAppealRequest]
+      val result = json.validate[CreateAppealRequest]
 
       result mustBe a[JsSuccess[_]]
       val request = result.get
@@ -53,15 +53,15 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
       val json = Json.obj(
       )
 
-      val result = json.validate[CreateCisAppealRequest]
+      val result = json.validate[CreateAppealRequest]
 
       result.isError mustBe true
     }
   }
-  "CreateCisAppealResponse" should {
+  "CreateAppealResponse" should {
 
     "serialize to JSON correctly when created is true" in {
-      val response = CreateCisAppealResponse(created = true)
+      val response = CreateAppealResponse(created = true)
 
       val json = Json.toJson(response)
 
@@ -69,7 +69,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     }
 
     "serialize to JSON correctly when created is false" in {
-      val response = CreateCisAppealResponse(created = false)
+      val response = CreateAppealResponse(created = false)
 
       val json = Json.toJson(response)
 
@@ -79,7 +79,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     "deserialize from JSON correctly when created is true" in {
       val json = Json.obj("created" -> true)
 
-      val result = json.validate[CreateCisAppealResponse]
+      val result = json.validate[CreateAppealResponse]
 
       result mustBe a[JsSuccess[_]]
       result.get.created mustBe true
@@ -88,7 +88,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     "deserialize from JSON correctly when created is false" in {
       val json = Json.obj("created" -> false)
 
-      val result = json.validate[CreateCisAppealResponse]
+      val result = json.validate[CreateAppealResponse]
 
       result mustBe a[JsSuccess[_]]
       result.get.created mustBe false
@@ -97,16 +97,16 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     "fail to deserialize when created field is missing" in {
       val json = Json.obj()
 
-      val result = json.validate[CreateCisAppealResponse]
+      val result = json.validate[CreateAppealResponse]
 
       result.isError mustBe true
     }
   }
 
-  "GetCisAppealablePenaltiesRequest" should {
+  "GetAppealablePenaltiesRequest" should {
 
     "serialize to JSON correctly" in {
-      val request = GetCisAppealablePenaltiesRequest(
+      val request = GetAppealablePenaltiesRequest(
         hmrcOfficeNumber      = "123",
         schemeReferenceNumber = "AB456",
         startRow              = 1L,
@@ -129,7 +129,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "endRow"                -> 10L
       )
 
-      val result = json.validate[GetCisAppealablePenaltiesRequest]
+      val result = json.validate[GetAppealablePenaltiesRequest]
 
       result mustBe a[JsSuccess[_]]
       val request = result.get
@@ -143,15 +143,15 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     "fail to deserialize when entire request is missing" in {
       val json = Json.obj()
 
-      val result = json.validate[GetCisAppealablePenaltiesRequest]
+      val result = json.validate[GetAppealablePenaltiesRequest]
 
       result.isError mustBe true
     }
   }
-  "GetCisAppealablePenaltiesResponse" should {
+  "GetAppealablePenaltiesResponse" should {
 
     "serialize to JSON correctly" in {
-      val penalty1 = GetCisAppealablePenaltyResponse(
+      val penalty1 = GetAppealablePenaltyResponse(
         uniqueId         = Some(10001),
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -159,7 +159,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         penaltyAmount    = Some(BigDecimal("999.23"))
       )
 
-      val penalty2 = GetCisAppealablePenaltyResponse(
+      val penalty2 = GetAppealablePenaltyResponse(
         uniqueId         = Some(10002),
         issueDate        = Some(LocalDate.of(2025, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2026, 4, 1)),
@@ -167,7 +167,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         penaltyAmount    = Some(BigDecimal("148.29"))
       )
 
-      val response = GetCisAppealablePenaltiesResponse(
+      val response = GetAppealablePenaltiesResponse(
         total               = 2,
         appealablePenalties = List(penalty1, penalty2)
       )
@@ -212,21 +212,21 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         )
       )
 
-      val result = json.validate[GetCisAppealablePenaltiesResponse]
+      val result = json.validate[GetAppealablePenaltiesResponse]
 
       result mustBe a[JsSuccess[_]]
       val response = result.get
 
       response.total mustBe 2
       response.appealablePenalties mustBe List(
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId         = Some(1001),
           issueDate        = Some(LocalDate.of(2026, 1, 15)),
           taxPeriodEndDate = Some(LocalDate.of(2025, 12, 5)),
           penaltyType      = Some("CIS003"),
           penaltyAmount    = Some(BigDecimal(100))
         ),
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId         = Some(1002),
           issueDate        = Some(LocalDate.of(2026, 2, 20)),
           taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
@@ -239,16 +239,16 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
     "fail to deserialize when request is missing" in {
       val json = Json.obj()
 
-      val result = json.validate[GetCisAppealablePenaltiesResponse]
+      val result = json.validate[GetAppealablePenaltiesResponse]
 
       result.isError mustBe true
     }
   }
 
-  "GetCisAppealablePenaltyRequest" should {
+  "GetAppealablePenaltyRequest" should {
 
     "serialize to JSON correctly" in {
-      val request = GetCisAppealablePenaltyRequest(
+      val request = GetAppealablePenaltyRequest(
         penaltyId             = 1L,
         hmrcOfficeNumber      = "840123",
         schemeReferenceNumber = "098345"
@@ -268,7 +268,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "schemeReferenceNumber" -> "098345"
       )
 
-      val result = json.validate[GetCisAppealablePenaltyRequest]
+      val result = json.validate[GetAppealablePenaltyRequest]
 
       result mustBe a[JsSuccess[_]]
       val request = result.get
@@ -284,16 +284,16 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "schemeReferenceNumber" -> "098345"
       )
 
-      val result = json.validate[GetCisAppealablePenaltyRequest]
+      val result = json.validate[GetAppealablePenaltyRequest]
 
       result.isError mustBe true
     }
   }
 
-  "GetCisAppealablePenaltyResponse" should {
+  "GetAppealablePenaltyResponse" should {
 
     "serialize to JSON correctly" in {
-      val response = GetCisAppealablePenaltyResponse(
+      val response = GetAppealablePenaltyResponse(
         uniqueId         = Some(10001),
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -319,7 +319,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "penaltyAmount"    -> 999.23
       )
 
-      val result = json.validate[GetCisAppealablePenaltyResponse]
+      val result = json.validate[GetAppealablePenaltyResponse]
 
       result mustBe a[JsSuccess[_]]
       result.get.uniqueId mustBe Some(10001)
@@ -334,7 +334,7 @@ class PasCisModelsSpec extends AnyWordSpec with Matchers {
         "uniqueId" -> "10001"
       )
 
-      val result = json.validate[GetCisAppealablePenaltyResponse]
+      val result = json.validate[GetAppealablePenaltyResponse]
 
       result.isError mustBe true
     }

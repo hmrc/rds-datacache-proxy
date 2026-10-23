@@ -26,7 +26,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltiesResponse, GetCisAppealablePenaltyResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.services.PasCisService
 
 import java.time.LocalDate
@@ -38,9 +38,9 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
 
     "return 201 with CreateCisAppealResponse when service succeeds" in new Setup {
 
-      val createCisAppealRequest = CreateCisAppealRequest(1L)
+      val createCisAppealRequest = CreateAppealRequest(1L)
       val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(createCisAppealRequest), "/pas/cis/appeal")
-      val createCisAppealResponse: CreateCisAppealResponse = CreateCisAppealResponse(true)
+      val createCisAppealResponse: CreateAppealResponse = CreateAppealResponse(true)
 
       when(mockService.createCisAppeal(eqTo(createCisAppealRequest))).thenReturn(Future.successful(createCisAppealResponse))
 
@@ -55,7 +55,7 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
 
     "return 500 with generic message on unexpected exception" in new Setup {
 
-      val createCisAppealRequest = CreateCisAppealRequest(1L)
+      val createCisAppealRequest = CreateAppealRequest(1L)
       val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(createCisAppealRequest), "/pas/cis/appeal")
 
       when(mockService.createCisAppeal(eqTo(createCisAppealRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
@@ -72,26 +72,26 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
 
   "getCisAppealablePenalties" - {
 
-    val testRequest: GetCisAppealablePenaltiesRequest = GetCisAppealablePenaltiesRequest(
+    val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(
       hmrcOfficeNumber      = "123",
       schemeReferenceNumber = "AB456",
       startRow              = 1L,
       endRow                = 10L
     )
 
-    "return 200 with GetCisAppealablePenaltiesResponse when service succeeds with 2 results" in new Setup {
+    "return 200 with GetAppealablePenaltiesResponse when service succeeds with 2 results" in new Setup {
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total = 2,
         appealablePenalties = List(
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId         = Some(10001),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("CIS003"),
             penaltyAmount    = Some(BigDecimal(999.23))
           ),
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId         = Some(10002),
             issueDate        = Some(LocalDate.of(2026, 2, 20)),
             taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
@@ -113,9 +113,9 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService, times(1)).getCisAppealablePenalties(testRequest)
     }
 
-    "return 200 with GetCisAppealablePenaltiesResponse when service succeeds with an empty list" in new Setup {
+    "return 200 with GetAppealablePenaltiesResponse when service succeeds with an empty list" in new Setup {
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total               = 0,
         appealablePenalties = List.empty
       )

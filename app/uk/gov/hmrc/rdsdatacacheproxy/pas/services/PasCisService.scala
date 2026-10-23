@@ -24,12 +24,12 @@ import scala.concurrent.Future
 
 class PasCisService @Inject (pasCisSource: PasCisSource) {
 
-  def createCisAppeal(createCisAppealRequest: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
+  def createCisAppeal(createCisAppealRequest: CreateAppealRequest): Future[CreateAppealResponse] =
     pasCisSource.createCisAppeal(createCisAppealRequest)
 
-  def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+  def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
     pasCisSource.getCisAppealablePenalties(request)
 
-  def getCisAppealablePenalty(getCisAppealablePenaltyRequest: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
+  def getCisAppealablePenalty(getCisAppealablePenaltyRequest: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
     pasCisSource.getCisAppealablePenalty(getCisAppealablePenaltyRequest)
 }

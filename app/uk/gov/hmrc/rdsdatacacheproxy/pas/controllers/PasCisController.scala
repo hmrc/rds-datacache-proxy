@@ -22,7 +22,7 @@ import play.api.libs.json.{JsError, JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltyRequest}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.services.PasCisService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,17 +35,17 @@ class PasCisController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def createCisAppeal(): Action[JsValue] =
+  def createCisAppeal: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body
-        .validate[CreateCisAppealRequest]
+        .validate[CreateAppealRequest]
         .fold(
           errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
           body =>
             service
               .createCisAppeal(body)
-              .map { CreateCisAppealResponse =>
-                Created(Json.toJson(CreateCisAppealResponse))
+              .map { CreateAppealResponse =>
+                Created(Json.toJson(CreateAppealResponse))
               }
               .recover { case t =>
                 logger.error("[createCisAppeal] failed", t)
@@ -57,7 +57,7 @@ class PasCisController @Inject() (
   def getCisAppealablePenalties: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body
-        .validate[GetCisAppealablePenaltiesRequest]
+        .validate[GetAppealablePenaltiesRequest]
         .fold(
           errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
           body =>
@@ -71,17 +71,17 @@ class PasCisController @Inject() (
         )
     }
 
-  def getCisAppealablePenalty(): Action[JsValue] =
+  def getCisAppealablePenalty: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body
-        .validate[GetCisAppealablePenaltyRequest]
+        .validate[GetAppealablePenaltyRequest]
         .fold(
           errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
           body =>
             service
               .getCisAppealablePenalty(body)
-              .map { GetCisAppealablePenaltyResponse =>
-                Ok(Json.toJson(GetCisAppealablePenaltyResponse))
+              .map { GetAppealablePenaltyResponse =>
+                Ok(Json.toJson(GetAppealablePenaltyResponse))
               }
               .recover { case t =>
                 logger.error("[getCisAppealablePenalty] failed", t)

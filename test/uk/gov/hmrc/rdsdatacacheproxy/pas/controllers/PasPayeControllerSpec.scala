@@ -1,0 +1,136 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.rdsdatacacheproxy.pas.controllers
+
+import org.mockito.ArgumentMatchers.eq as eqTo
+import org.mockito.Mockito.{times, verify, verifyNoInteractions, when}
+import org.scalatest.matchers.should.Matchers.shouldBe
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.mvc.Result
+import play.api.test.FakeRequest
+import play.api.test.Helpers.*
+import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.pas.services.PasPayeService
+
+import java.time.LocalDate
+import scala.concurrent.Future
+
+class PasPayeControllerSpec extends SpecBase with MockitoSugar {
+
+  "getPayeAppealablePenalties" - {
+
+    val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(
+      hmrcOfficeNumber      = "123",
+      schemeReferenceNumber = "AB456",
+      startRow              = 1L,
+      endRow                = 10L
+    )
+
+    "return 200 with GetAppealablePenaltiesResponse when service succeeds with 2 results" in new Setup {
+
+      val expectedResponse = GetAppealablePenaltiesResponse(
+        total = 2,
+        appealablePenalties = List(
+          GetAppealablePenaltyResponse(
+            uniqueId         = Some(10001),
+            issueDate        = Some(LocalDate.of(2023, 1, 1)),
+            taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+            penaltyType      = Some("F"),
+            penaltyAmount    = Some(BigDecimal(999.23))
+          ),
+          GetAppealablePenaltyResponse(
+            uniqueId         = Some(10002),
+            issueDate        = Some(LocalDate.of(2026, 2, 20)),
+            taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
+            penaltyType      = Some("P"),
+            penaltyAmount    = Some(BigDecimal(928.23))
+          )
+        )
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/penalties")
+
+      when(mockService.getPayeAppealablePenalties(eqTo(testRequest))).thenReturn(Future.successful(expectedResponse))
+
+      val result: Future[Result] = controller.getPayeAppealablePenalties()(request)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
+
+      verify(mockService, times(1)).getPayeAppealablePenalties(testRequest)
+    }
+
+    "return 200 with GetAppealablePenaltiesResponse when service succeeds with an empty list" in new Setup {
+
+      val expectedResponse = GetAppealablePenaltiesResponse(
+        total               = 0,
+        appealablePenalties = List.empty
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/penalties")
+
+      when(mockService.getPayeAppealablePenalties(eqTo(testRequest))).thenReturn(Future.successful(expectedResponse))
+
+      val result: Future[Result] = controller.getPayeAppealablePenalties()(request)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
+
+      verify(mockService, times(1)).getPayeAppealablePenalties(testRequest)
+    }
+
+    "return 400 when payload is invalid" in new Setup {
+      val badRequest: JsObject = Json.obj(
+        "foo" -> "bar"
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(badRequest, "/pas/paye/penalties")
+
+      val result: Future[Result] = controller.getPayeAppealablePenalties()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] mustBe "Invalid payload"
+      verifyNoInteractions(mockService)
+    }
+
+    "return 500 with generic message on unexpected exception" in new Setup {
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/penalties")
+
+      when(mockService.getPayeAppealablePenalties(eqTo(testRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val result: Future[Result] = controller.getPayeAppealablePenalties()(request)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
+
+      verify(mockService, times(1)).getPayeAppealablePenalties(testRequest)
+    }
+  }
+
+  private trait Setup {
+    val mockService: PasPayeService = mock[PasPayeService]
+    val controller: PasPayeController = new PasPayeController(fakeAuthAction, mockService, cc)
+
+    def makeJsonRequest(body: JsValue, path: String): FakeRequest[JsValue] =
+      FakeRequest(POST, path)
+        .withHeaders(CONTENT_TYPE -> JSON, ACCEPT -> JSON)
+        .withBody(body)
+  }
+}

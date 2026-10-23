@@ -27,7 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.*
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.controllers.DirectDebitController
 import uk.gov.hmrc.rdsdatacacheproxy.ndds.repositories.{RdsDataSource, RdsDatacacheRepository, RdsStub}
 import uk.gov.hmrc.rdsdatacacheproxy.nova.repositories.{NovaDataSource, NovaDatacacheRepository}
-import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.{PasCisRepository, PasCisSource}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.{PasCisRepository, PasCisSource, PasPayeRepository, PasPayeSource}
 
 class Module extends AppModule:
 
@@ -70,5 +70,6 @@ class Module extends AppModule:
       bind[LicenceDataSource].to(classOf[LicenceCacheRepository]),
       bind[PaymentsCtDataCacheRepository].to(classOf[PaymentsCtDataCacheRepositoryImpl]),
       bind[AgentDataSource].to(classOf[AgentDatacacheRepository]),
-      bind[PasCisSource].to(classOf[PasCisRepository])
+      bind[PasCisSource].to(classOf[PasCisRepository]),
+      bind[PasPayeSource].to(classOf[PasPayeRepository])
     )
