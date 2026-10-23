@@ -60,9 +60,6 @@ class PaymentSearchResultRepositorySpec extends AnyFlatSpec with Matchers with B
     when(mockCallableStatement.getObject(eqTo(2), eqTo(classOf[ResultSet]))).thenReturn(rs)
     when(rs.next()).thenReturn(true, false)
 
-    when(rs.getString("form_type")).thenReturn("A")
-    when(rs.getString("xml_data")).thenReturn("xml_data")
-
     val result = repository.getPaymentSearchResult(taxRef = 1L, Some(LocalDate.parse("2006-01-01")), Some(LocalDate.parse("2006-12-31"))).futureValue
 
     result shouldBe PaymentSearchResultResponse(paymentSearchResult = List.empty)
