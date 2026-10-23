@@ -6,4 +6,5 @@ POST        /cis/penalties           uk.gov.hmrc.rdsdatacacheproxy.pas.controlle
 POST        /cis/penalty             uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisAppealablePenalty()
 
 # PAYE routes
+POST        /paye/appeal             uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.createPayeAppeal()
 POST        /paye/penalties          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeAppealablePenalties()

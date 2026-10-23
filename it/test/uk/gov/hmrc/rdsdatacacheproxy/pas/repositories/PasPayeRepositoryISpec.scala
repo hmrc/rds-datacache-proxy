@@ -39,6 +39,11 @@ class PasPayeRepositoryISpec
     with ApplicationWithWiremock {
 
   class PasPayeCacheRepositoryStub extends PasPayeSource {
+    override def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] =
+      Future.successful(
+        PasStubData.makeCreateAppealResponse(request)
+      )
+
     override def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
       Future.successful(
         PasStubData.makeGetAppealablePenaltiesResponse(request)
@@ -54,6 +59,24 @@ class PasPayeRepositoryISpec
       .build()
 
   private lazy val repository = app.injector.instanceOf[PasPayeSource]
+
+  "createPayeAppeal" should {
+
+    "return CreateAppealResponse" in {
+
+      val result = repository.createPayeAppeal(CreateAppealRequest(1L)).futureValue
+
+      result mustBe CreateAppealResponse(true)
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.createPayeAppeal(CreateAppealRequest(500L)).futureValue
+      }
+
+      exception.getMessage must include("Error from downstream")
+    }
+  }
 
   "getPayeAppealablePenalties" should {
 

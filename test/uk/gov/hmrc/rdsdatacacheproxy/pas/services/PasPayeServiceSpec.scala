@@ -37,6 +37,39 @@ final class PasPayeServiceSpec extends SpecBase {
     reset(source)
   }
 
+  "PasPayeService.createPayeAppeal" - {
+
+    "return CreateAppealResponse when the repository returns CreateAppealResponse" in {
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val createPayeAppealResponse = CreateAppealResponse(true)
+
+      when(source.createPayeAppeal(createPayeAppealRequest)).thenReturn(Future.successful(createPayeAppealResponse))
+
+      val out = service.createPayeAppeal(createPayeAppealRequest).futureValue
+
+      out mustBe createPayeAppealResponse
+
+      verify(source).createPayeAppeal(eqTo(createPayeAppealRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.createPayeAppeal(createPayeAppealRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .createPayeAppeal(createPayeAppealRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).createPayeAppeal(createPayeAppealRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
   "PasPayeService.getPayeAppealablePenalties" - {
 
     val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(

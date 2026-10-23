@@ -50,6 +50,29 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
     repository = new PasPayeRepository(db)
   }
 
+  "createPayeAppeal" should {
+
+    "call create_appeal stored procedure and return CreateAppealResponse" in {
+
+      when(db.withTransaction(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val createPayeAppealResponse = CreateAppealResponse(true)
+
+      val result = repository.createPayeAppeal(createPayeAppealRequest).futureValue
+
+      result shouldBe createPayeAppealResponse
+
+      verify(mockConnection).prepareCall("{call PAYE_PAS.create_appeal(?)}")
+      verify(mockCallableStatement).setLong(1, createPayeAppealRequest.penaltyId)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+  }
+
   "getPayeAppealablePenalties" should {
 
     val testRequest = GetAppealablePenaltiesRequest(
