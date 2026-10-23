@@ -24,6 +24,9 @@ import scala.concurrent.Future
 
 class PasPayeService @Inject (pasPayeSource: PasPayeSource) {
 
+  def createPayeAppeal(createPayeAppealRequest: CreateAppealRequest): Future[CreateAppealResponse] =
+    pasPayeSource.createPayeAppeal(createPayeAppealRequest)
+
   def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
     pasPayeSource.getPayeAppealablePenalties(request)
 }

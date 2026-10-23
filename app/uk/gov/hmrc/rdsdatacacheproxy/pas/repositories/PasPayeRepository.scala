@@ -25,6 +25,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PasPayeSource {
+  def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse]
   def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse]
 }
 class PasPayeRepository @Inject() (
@@ -35,6 +36,35 @@ class PasPayeRepository @Inject() (
 
   private val DefaultSortField = "unique_id"
   private val DefaultSortOrder = "desc"
+
+  override def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] = {
+    Future {
+      db.withTransaction { conn =>
+        callCreatePayeAppeal(
+          conn         = conn,
+          p_penalty_id = request.penaltyId
+        )
+      }
+    }
+  }
+
+  private def callCreatePayeAppeal(conn: Connection, p_penalty_id: Long): CreateAppealResponse = {
+
+    val cs = conn.prepareCall("{call PAYE_PAS.create_appeal(?)}")
+
+    try {
+      cs.setLong(1, p_penalty_id)
+
+      cs.execute()
+
+      CreateAppealResponse(
+        created = true
+      )
+
+    } finally {
+      cs.close()
+    }
+  }
 
   override def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] = {
     Future {
