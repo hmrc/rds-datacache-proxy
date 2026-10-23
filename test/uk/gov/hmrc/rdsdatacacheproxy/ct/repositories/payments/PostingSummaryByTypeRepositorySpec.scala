@@ -79,7 +79,8 @@ class PostingSummaryByTypeRepositorySpec extends AnyFlatSpec with Matchers with 
 
     when(rs.getBigDecimal("ACCOUNTING_PERIOD")).thenReturn(BigDecimal(1).bigDecimal, BigDecimal(2).bigDecimal, BigDecimal(3).bigDecimal)
     when(rs.getBigDecimal("SETTLEMENT_SEQUENCE_NO")).thenReturn(BigDecimal(1).bigDecimal, BigDecimal(2).bigDecimal, BigDecimal(3).bigDecimal)
-    when(rs.getBigDecimal("POSTING_AMOUNT_SUM")).thenReturn(BigDecimal(123456).bigDecimal, BigDecimal(456789).bigDecimal, BigDecimal(159159).bigDecimal)
+    when(rs.getBigDecimal("POSTING_AMOUNT_SUM"))
+      .thenReturn(BigDecimal(123456).bigDecimal, BigDecimal(456789).bigDecimal, BigDecimal(159159).bigDecimal)
 
     val result = repository.getPostingSummaryByType(1, "PAF").futureValue
 

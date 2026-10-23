@@ -16,28 +16,28 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PostingSummaryByTypeRow, PostingSummaryByTypeResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PostingSummaryByTypeResponse, PostingSummaryByTypeRow}
 
 trait PostingSummaryByTypeStubData {
-  
+
   val emptyPostingSummaryByTypeResponses: PostingSummaryByTypeResponse = PostingSummaryByTypeResponse(postingSummaryByTypeResponse = List.empty)
 
   val postingSummaryByTypeRowMultiple: PostingSummaryByTypeResponse = PostingSummaryByTypeResponse(
     List(
       PostingSummaryByTypeRow(
-        accountingPeriod       = Some(1),
+        accountingPeriod     = Some(1),
         settlementSequenceNo = Some(1),
-        postingAmountSum = Some(123456)
+        postingAmountSum     = Some(123456)
       ),
       PostingSummaryByTypeRow(
-        accountingPeriod       = Some(2),
+        accountingPeriod     = Some(2),
         settlementSequenceNo = Some(2),
-        postingAmountSum = Some(456789)
+        postingAmountSum     = Some(456789)
       ),
       PostingSummaryByTypeRow(
-        accountingPeriod       = Some(3),
+        accountingPeriod     = Some(3),
         settlementSequenceNo = Some(3),
-        postingAmountSum = Some(159159)
+        postingAmountSum     = Some(159159)
       )
     )
   )
@@ -46,29 +46,29 @@ trait PostingSummaryByTypeStubData {
     PostingSummaryByTypeResponse(
       List(
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(1),
+          accountingPeriod     = Some(1),
           settlementSequenceNo = Some(1),
-          postingAmountSum = None
+          postingAmountSum     = None
         ),
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(2),
+          accountingPeriod     = Some(2),
           settlementSequenceNo = None,
-          postingAmountSum = Some(456789)
+          postingAmountSum     = Some(456789)
         ),
         PostingSummaryByTypeRow(
-          accountingPeriod       = None,
+          accountingPeriod     = None,
           settlementSequenceNo = Some(3),
-          postingAmountSum = Some(159159)
+          postingAmountSum     = Some(159159)
         )
       )
     )
-    
+
   def getPostingSummaryByTypeSummary(taxRef: Long, postingType: String): PostingSummaryByTypeResponse = {
     (taxRef, postingType) match {
       case (1L, "PAF") => postingSummaryByTypeRowMultiple
       case (2L, "PYT") => postingSummaryByTypeRowMultipleMissingFields
-      case (3L, "SAM") => emptyPostingSummaryByTypeResponses 
-      case (_, _) => throw new RuntimeException("Error from downstream")
+      case (3L, "SAM") => emptyPostingSummaryByTypeResponses
+      case (_, _)      => throw new RuntimeException("Error from downstream")
     }
   }
 }

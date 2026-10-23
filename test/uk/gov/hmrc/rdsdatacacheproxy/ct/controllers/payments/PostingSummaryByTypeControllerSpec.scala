@@ -58,7 +58,6 @@ class PostingSummaryByTypeControllerSpec extends SpecBase with MockitoSugar with
       when(mockPostingTypeBySummaryRepository.getPostingSummaryByType(any[Long], any[String]))
         .thenReturn(Future.successful(emptyPostingSummaryByTypeResponses))
 
-
       val result: Future[Result] =
         controller.getPostingSummaryByType(3L, "SAM")(fakeRequest)
 

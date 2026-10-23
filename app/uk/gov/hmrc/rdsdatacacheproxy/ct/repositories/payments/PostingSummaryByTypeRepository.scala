@@ -52,12 +52,12 @@ class PostingSummaryByTypeRepositoryImpl @Inject() (
           sp.registerOutParameter(3, OracleTypes.CURSOR)
 
           sp.execute()
-          
+
           val postingSummaryByTypeRows: List[PostingSummaryByTypeRow] = processResultSetList(sp, 3, retrievePostingSummaryByType, context)
           PostingSummaryByTypeResponse(
             postingSummaryByTypeResponse = postingSummaryByTypeRows
           )
-       
+
         } finally {
           sp.close()
         }
@@ -66,10 +66,9 @@ class PostingSummaryByTypeRepositoryImpl @Inject() (
 
   private def retrievePostingSummaryByType(rs: ResultSet): PostingSummaryByTypeRow =
     PostingSummaryByTypeRow(
-      accountingPeriod       = Option(rs.getBigDecimal("ACCOUNTING_PERIOD")),
-      settlementSequenceNo   = Option(rs.getBigDecimal("SETTLEMENT_SEQUENCE_NO")),
-      postingAmountSum       = Option(rs.getBigDecimal("POSTING_AMOUNT_SUM"))
+      accountingPeriod     = Option(rs.getBigDecimal("ACCOUNTING_PERIOD")),
+      settlementSequenceNo = Option(rs.getBigDecimal("SETTLEMENT_SEQUENCE_NO")),
+      postingAmountSum     = Option(rs.getBigDecimal("POSTING_AMOUNT_SUM"))
     )
-
 
 }
