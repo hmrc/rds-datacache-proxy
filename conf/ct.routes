@@ -22,7 +22,7 @@ GET        /ct-form-data/:taxRef/:accPeriod                                 uk.g
 GET        /display-needed/:taxRef/:accPeriod                               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.DisplayNeededController.getDisplayNeeded(taxRef: Long, accPeriod: Long)
 
 # GPA Routes
-GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupTaxChargesController.getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex:Int ?=0 , pCount:Int ?=10)
+GET        /group-tax-charges/:pGpaUtr/:pGppContractVersion                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.GroupTaxChargesController.getGpaGroupTaxCharges(pGpaUtr: Long, pGppContractVersion: Int, pStartIndex:Int ?=0 , pCount:Int ?=10)
 GET        /is-company-nominator/:gpaUtr/:nominatedCompanyUtr               uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.gpa.CompanyNominatorController.getIsCompanyNominatorOfGPA(gpaUtr: Long, nominatedCompanyUtr: Long)
 GET        /group-summary/:gpaUTR/:nomCompanyUTR                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getGroupSummary(gpaUTR: Long, nomCompanyUTR: Long)
 GET        /gpa-payment-details/:gpaUTR                                     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.GroupPaymentsController.getPaymentDetails(gpaUTR: Long, contractVersion: Int, startIndex: Int, count: Int)
@@ -32,5 +32,6 @@ GET        /account-position/:taxRef                                        uk.g
 GET        /company-details/:taxRef                                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyDetailsController.getCompanyDetails(taxRef: Long)
 
 # Payment Routes
-GET       /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
-GET        /payment-search-result/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)
+GET        /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
+GET        /payment-search-result/:taxRef                                   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)
+GET        /posting-summary/:taxRef/:postingType                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PostingSummaryByTypeController.getPostingSummaryByType(taxRef: Long, postingType: String)
