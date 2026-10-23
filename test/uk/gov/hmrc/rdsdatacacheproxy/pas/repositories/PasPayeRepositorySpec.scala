@@ -27,7 +27,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
-import java.sql.{CallableStatement, Connection, ResultSet}
+import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -169,6 +169,50 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       verify(mockCallableStatement).registerOutParameter(8, OracleTypes.CURSOR)
       verify(mockCallableStatement).execute()
       verify(mockResultSet, times(3)).next()
+      verify(mockCallableStatement).close()
+    }
+  }
+
+  "getPayeAppealablePenalty" should {
+
+    "call get_appealable_penalty_by_id stored procedure and return GetAppealablePenaltyResponse" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("CIS003")
+      when(mockCallableStatement.getDate(5)).thenReturn(Date.valueOf(LocalDate.of(2023, 1, 1)))
+      when(mockCallableStatement.getBigDecimal(6)).thenReturn(scala.math.BigDecimal(999.23).bigDecimal)
+      when(mockCallableStatement.getDate(7)).thenReturn(Date.valueOf(LocalDate.of(2023, 4, 1)))
+
+      val getPayeAppealablePenaltyRequest = GetAppealablePenaltyRequest(
+        penaltyId             = 1L,
+        hmrcOfficeNumber      = "840123",
+        schemeReferenceNumber = "098345"
+      )
+      val getPayeAppealablePenaltyResponse = GetAppealablePenaltyResponse(
+        uniqueId         = None,
+        issueDate        = Some(LocalDate.of(2023, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+        penaltyType      = Some("CIS003"),
+        penaltyAmount    = Some(999.23)
+      )
+
+      val result = repository.getPayeAppealablePenalty(getPayeAppealablePenaltyRequest).futureValue
+
+      result shouldBe getPayeAppealablePenaltyResponse
+
+      verify(mockConnection).prepareCall("{call PAYE_PAS.get_appealable_penalty_by_id(?, ?, ?, ?, ?, ?, ?)}")
+      verify(mockCallableStatement).setString(1, getPayeAppealablePenaltyRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, getPayeAppealablePenaltyRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).setLong(3, getPayeAppealablePenaltyRequest.penaltyId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.DATE)
+      verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.NUMERIC)
+      verify(mockCallableStatement).registerOutParameter(7, java.sql.Types.DATE)
+      verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()
     }
   }
