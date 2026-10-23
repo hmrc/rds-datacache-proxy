@@ -62,12 +62,16 @@ class CisDatacacheRepository @Inject() (
   private def str(rs: ResultSet, col: String): Option[String] =
     Option(rs.getString(col)).map(_.trim).filter(_.nonEmpty)
 
+  // AO_DISTRICT is a NUMBER column so leading zeros are lost (070 -> 70); an AO district is always 3 digits
+  private def aoDistrict(rs: ResultSet): Option[String] =
+    str(rs, "AO_DISTRICT").map(d => if (d.forall(_.isDigit)) d.reverse.padTo(3, '0').reverse else d)
+
   private def toCisTaxpayer(rs: ResultSet): CisTaxpayer =
     CisTaxpayer(
       uniqueId          = str(rs, "UNIQUE_ID").getOrElse(""),
       taxOfficeNumber   = str(rs, "TAX_OFFICE_NUMBER").getOrElse(""),
       taxOfficeRef      = str(rs, "TAX_OFFICE_REF").getOrElse(""),
-      aoDistrict        = str(rs, "AO_DISTRICT"),
+      aoDistrict        = aoDistrict(rs),
       aoPayType         = str(rs, "AO_PAY_TYPE"),
       aoCheckCode       = str(rs, "AO_CHECK_CODE"),
       aoReference       = str(rs, "AO_REFERENCE"),
@@ -87,7 +91,7 @@ class CisDatacacheRepository @Inject() (
       uniqueId          = str(rs, "UNIQUE_ID").getOrElse(""),
       taxOfficeNumber   = str(rs, "TAX_OFFICE_NUMBER").getOrElse(""),
       taxOfficeRef      = str(rs, "TAX_OFFICE_REF").getOrElse(""),
-      aoDistrict        = str(rs, "AO_DISTRICT"),
+      aoDistrict        = aoDistrict(rs),
       aoPayType         = str(rs, "AO_PAY_TYPE"),
       aoCheckCode       = str(rs, "AO_CHECK_CODE"),
       aoReference       = str(rs, "AO_REFERENCE"),
