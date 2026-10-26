@@ -98,7 +98,7 @@ final class PasCisServiceSpec extends SpecBase {
       )
     )
 
-    "return GetCisAppealablePenaltiesResponse from the repository" in {
+    "return GetAppealablePenaltiesResponse from the repository" in {
       when(source.getCisAppealablePenalties(testRequest)).thenReturn(Future.successful(testResponse))
 
       val out = service.getCisAppealablePenalties(testRequest).futureValue
@@ -121,6 +121,49 @@ final class PasCisServiceSpec extends SpecBase {
 
       ex mustBe boom
       verify(source).getCisAppealablePenalties(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
+  "PasCisService.getCisAppealablePenalty" - {
+
+    val testRequest: GetAppealablePenaltyRequest = GetAppealablePenaltyRequest(
+      penaltyId             = 1L,
+      hmrcOfficeNumber      = "840123",
+      schemeReferenceNumber = "098345"
+    )
+
+    val testResponse: GetAppealablePenaltyResponse = GetAppealablePenaltyResponse(
+      uniqueId         = None,
+      issueDate        = Some(LocalDate.of(2023, 1, 1)),
+      taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+      penaltyType      = Some("CIS003"),
+      penaltyAmount    = Some(BigDecimal(999.23))
+    )
+
+    "return GetAppealablePenaltyResponse from the repository" in {
+      when(source.getCisAppealablePenalty(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getCisAppealablePenalty(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getCisAppealablePenalty(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getCisAppealablePenalty(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getCisAppealablePenalty(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getCisAppealablePenalty(testRequest)
       verifyNoMoreInteractions(source)
     }
   }

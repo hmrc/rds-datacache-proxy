@@ -39,9 +39,19 @@ class PasPayeControllerISpec
     with ApplicationWithWiremock {
 
   class PasPayeStub extends PasPayeSource {
+    override def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] =
+      Future.successful(
+        PasStubData.makeCreateAppealResponse(request)
+      )
+
     override def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
       Future.successful(
         PasStubData.makeGetAppealablePenaltiesResponse(request)
+      )
+
+    override def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
+      Future.successful(
+        PasStubData.makeGetAppealablePenaltyResponse(request)
       )
   }
 
@@ -55,6 +65,48 @@ class PasPayeControllerISpec
 
 
   private final val endpoint = "/pas"
+
+  "POST /pas/paye/appeal" should {
+
+    "return 201 with a valid CreateAppealResponse" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 1L
+      )
+      val response = post(s"$endpoint/paye/appeal", requestJson).futureValue
+
+      response.status mustBe CREATED
+      response.contentType mustBe "application/json"
+
+      response.json.as[CreateAppealResponse] mustBe PasStubData.createAppealSuccessResponse
+    }
+
+    "return 500 when stub simulates failure" in {
+
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 500L
+      )
+      val response = post(s"$endpoint/paye/appeal", requestJson).futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+
+    }
+
+    "return 401 when unauthorised" in {
+
+      AuthStub.unauthorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 1L
+      )
+      val response = post(s"$endpoint/paye/appeal", requestJson).futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
 
   "POST /pas/paye/penalties" should {
 
@@ -127,4 +179,51 @@ class PasPayeControllerISpec
     }
   }
 
+  "POST /pas/paye/penalty" should {
+
+    "return 200 with a valid GetAppealablePenaltyResponse" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 1L,
+        "hmrcOfficeNumber" -> "1234",
+        "schemeReferenceNumber" -> "5678"
+      )
+      val response = post(s"$endpoint/paye/penalty", requestJson).futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[GetAppealablePenaltyResponse] mustBe PasStubData.getAppealablePenaltySuccessResponse
+    }
+
+    "return 500 when stub simulates failure" in {
+
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 500L,
+        "hmrcOfficeNumber" -> "1234",
+        "schemeReferenceNumber" -> "5678"
+      )
+      val response = post(s"$endpoint/paye/penalty", requestJson).futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+
+    }
+
+    "return 401 when unauthorised" in {
+
+      AuthStub.unauthorised()
+
+      val requestJson = Json.obj(
+        "penaltyId" -> 1L,
+        "hmrcOfficeNumber" -> "1234",
+        "schemeReferenceNumber" -> "5678"
+      )
+      val response = post(s"$endpoint/paye/penalty", requestJson).futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
 }

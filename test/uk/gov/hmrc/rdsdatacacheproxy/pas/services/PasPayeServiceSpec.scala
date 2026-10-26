@@ -37,6 +37,39 @@ final class PasPayeServiceSpec extends SpecBase {
     reset(source)
   }
 
+  "PasPayeService.createPayeAppeal" - {
+
+    "return CreateAppealResponse when the repository returns CreateAppealResponse" in {
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val createPayeAppealResponse = CreateAppealResponse(true)
+
+      when(source.createPayeAppeal(createPayeAppealRequest)).thenReturn(Future.successful(createPayeAppealResponse))
+
+      val out = service.createPayeAppeal(createPayeAppealRequest).futureValue
+
+      out mustBe createPayeAppealResponse
+
+      verify(source).createPayeAppeal(eqTo(createPayeAppealRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.createPayeAppeal(createPayeAppealRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .createPayeAppeal(createPayeAppealRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).createPayeAppeal(createPayeAppealRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
   "PasPayeService.getPayeAppealablePenalties" - {
 
     val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(
@@ -88,6 +121,49 @@ final class PasPayeServiceSpec extends SpecBase {
 
       ex mustBe boom
       verify(source).getPayeAppealablePenalties(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
+  "PasPayeService.getPayeAppealablePenalty" - {
+
+    val testRequest: GetAppealablePenaltyRequest = GetAppealablePenaltyRequest(
+      penaltyId             = 1L,
+      hmrcOfficeNumber      = "840123",
+      schemeReferenceNumber = "098345"
+    )
+
+    val testResponse: GetAppealablePenaltyResponse = GetAppealablePenaltyResponse(
+      uniqueId         = None,
+      issueDate        = Some(LocalDate.of(2023, 1, 1)),
+      taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+      penaltyType      = Some("CIS003"),
+      penaltyAmount    = Some(BigDecimal(999.23))
+    )
+
+    "return GetAppealablePenaltyResponse from the repository" in {
+      when(source.getPayeAppealablePenalty(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getPayeAppealablePenalty(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getPayeAppealablePenalty(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getPayeAppealablePenalty(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getPayeAppealablePenalty(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getPayeAppealablePenalty(testRequest)
       verifyNoMoreInteractions(source)
     }
   }

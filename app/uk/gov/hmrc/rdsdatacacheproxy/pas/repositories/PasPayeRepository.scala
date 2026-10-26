@@ -20,12 +20,14 @@ import oracle.jdbc.OracleTypes
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
-import java.sql.{Connection, ResultSet}
+import java.sql.{Connection, ResultSet, Types}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PasPayeSource {
+  def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse]
   def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse]
+  def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse]
 }
 class PasPayeRepository @Inject() (
   @NamedDatabase("pas") db: Database
@@ -35,6 +37,35 @@ class PasPayeRepository @Inject() (
 
   private val DefaultSortField = "unique_id"
   private val DefaultSortOrder = "desc"
+
+  override def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] = {
+    Future {
+      db.withTransaction { conn =>
+        callCreatePayeAppeal(
+          conn         = conn,
+          p_penalty_id = request.penaltyId
+        )
+      }
+    }
+  }
+
+  private def callCreatePayeAppeal(conn: Connection, p_penalty_id: Long): CreateAppealResponse = {
+
+    val cs = conn.prepareCall("{call PAYE_PAS.create_appeal(?)}")
+
+    try {
+      cs.setLong(1, p_penalty_id)
+
+      cs.execute()
+
+      CreateAppealResponse(
+        created = true
+      )
+
+    } finally {
+      cs.close()
+    }
+  }
 
   override def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] = {
     Future {
@@ -92,5 +123,51 @@ class PasPayeRepository @Inject() (
       penaltyType      = Option(rs.getString("DEFAULT_TYPE")),
       penaltyAmount    = Option(rs.getBigDecimal("PENALTY_AMOUNT")).map(BigDecimal(_))
     )
+
+  override def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] = {
+    Future {
+      db.withConnection { conn =>
+        callGetPayeAppealablePenalty(
+          conn                    = conn,
+          p_penalty_id            = request.penaltyId,
+          p_hmrc_office_number    = request.hmrcOfficeNumber,
+          p_paye_scheme_reference = request.schemeReferenceNumber
+        )
+      }
+    }
+  }
+
+  private def callGetPayeAppealablePenalty(conn: Connection,
+                                           p_penalty_id: Long,
+                                           p_hmrc_office_number: String,
+                                           p_paye_scheme_reference: String
+                                          ): GetAppealablePenaltyResponse = {
+
+    val cs = conn.prepareCall("{call PAYE_PAS.get_appealable_penalty_by_id(?, ?, ?, ?, ?, ?, ?)}")
+
+    try {
+      cs.setString(1, p_hmrc_office_number)
+      cs.setString(2, p_paye_scheme_reference)
+      cs.setLong(3, p_penalty_id)
+
+      cs.registerOutParameter(4, Types.VARCHAR) // p_default_type
+      cs.registerOutParameter(5, Types.DATE) // p_issue_date
+      cs.registerOutParameter(6, Types.NUMERIC) // p_penalty_amount
+      cs.registerOutParameter(7, Types.DATE) // p_tax_period_end_date
+
+      cs.execute()
+
+      GetAppealablePenaltyResponse(
+        uniqueId         = None,
+        issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
+        taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
+        penaltyType      = Option(cs.getString(4)),
+        penaltyAmount    = Option(cs.getBigDecimal(6)).map(BigDecimal(_))
+      )
+
+    } finally {
+      cs.close()
+    }
+  }
 
 }

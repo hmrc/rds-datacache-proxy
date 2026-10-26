@@ -35,6 +35,23 @@ class PasPayeController @Inject() (
     extends BackendController(cc)
     with Logging {
 
+  def createPayeAppeal: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[CreateAppealRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .createPayeAppeal(body)
+              .map(response => Created(Json.toJson(response)))
+              .recover { case t =>
+                logger.error("[createPayeAppeal] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
+
   def getPayeAppealablePenalties: Action[JsValue] =
     authorise.async(parse.json) { implicit request =>
       request.body
@@ -52,4 +69,22 @@ class PasPayeController @Inject() (
         )
     }
 
+  def getPayeAppealablePenalty: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[GetAppealablePenaltyRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .getPayeAppealablePenalty(body)
+              .map { GetAppealablePenaltyResponse =>
+                Ok(Json.toJson(GetAppealablePenaltyResponse))
+              }
+              .recover { case t =>
+                logger.error("[getPayeAppealablePenalty] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
 }

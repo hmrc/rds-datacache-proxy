@@ -34,6 +34,42 @@ import scala.concurrent.Future
 
 class PasPayeControllerSpec extends SpecBase with MockitoSugar {
 
+  "createPayeAppeal" - {
+
+    "return 201 with CreateAppealResponse when service succeeds" in new Setup {
+
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(createPayeAppealRequest), "/pas/paye/appeal")
+      val createPayeAppealResponse: CreateAppealResponse = CreateAppealResponse(true)
+
+      when(mockService.createPayeAppeal(eqTo(createPayeAppealRequest))).thenReturn(Future.successful(createPayeAppealResponse))
+
+      val result: Future[Result] = controller.createPayeAppeal()(request)
+
+      status(result)        shouldBe CREATED
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(createPayeAppealResponse)
+
+      verify(mockService, times(1)).createPayeAppeal(createPayeAppealRequest)
+    }
+
+    "return 500 with generic message on unexpected exception" in new Setup {
+
+      val createPayeAppealRequest = CreateAppealRequest(1L)
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(createPayeAppealRequest), "/pas/paye/appeal")
+
+      when(mockService.createPayeAppeal(eqTo(createPayeAppealRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val result: Future[Result] = controller.createPayeAppeal()(request)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
+
+      verify(mockService, times(1)).createPayeAppeal(createPayeAppealRequest)
+    }
+  }
+
   "getPayeAppealablePenalties" - {
 
     val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(
@@ -121,6 +157,65 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
       (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
 
       verify(mockService, times(1)).getPayeAppealablePenalties(testRequest)
+    }
+  }
+
+  "getPayeAppealablePenalty" - {
+
+    val testRequest: GetAppealablePenaltyRequest = GetAppealablePenaltyRequest(
+      penaltyId             = 1L,
+      hmrcOfficeNumber      = "840123",
+      schemeReferenceNumber = "098345"
+    )
+
+    "return 200 with GetAppealablePenaltyResponse when service succeeds" in new Setup {
+
+      val expectedResponse = GetAppealablePenaltyResponse(
+        uniqueId         = None,
+        issueDate        = Some(LocalDate.of(2023, 1, 1)),
+        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+        penaltyType      = Some("CIS003"),
+        penaltyAmount    = Some(BigDecimal(999.23))
+      )
+
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/cis/penalty")
+
+      when(mockService.getPayeAppealablePenalty(eqTo(testRequest))).thenReturn(Future.successful(expectedResponse))
+
+      val result: Future[Result] = controller.getPayeAppealablePenalty()(request)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
+
+      verify(mockService, times(1)).getPayeAppealablePenalty(testRequest)
+    }
+
+    "return 400 when payload is invalid" in new Setup {
+      val badRequest: JsObject = Json.obj(
+        "foo" -> "bar"
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(badRequest, "/pas/cis/penalty")
+
+      val result: Future[Result] = controller.getPayeAppealablePenalty()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] mustBe "Invalid payload"
+      verifyNoInteractions(mockService)
+    }
+
+    "return 500 with generic message on unexpected exception" in new Setup {
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/cis/penalty")
+
+      when(mockService.getPayeAppealablePenalty(eqTo(testRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val result: Future[Result] = controller.getPayeAppealablePenalty()(request)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
+
+      verify(mockService, times(1)).getPayeAppealablePenalty(testRequest)
     }
   }
 
