@@ -32,10 +32,10 @@ class SetPeriodStatusController @Inject() (service: UpdateStatusPeriodService, c
     with BaseController
     with Logging {
 
-  def setPeriodStatus(regNumber: String, consecNo: Int): Action[AnyContent] =
+  def setPeriodStatus(regNumber: String, consecNo: Int, status: Int): Action[AnyContent] =
     Action.async { implicit request =>
-      service.updateStatusPeriod(Regime.MGD.code, regNumber, consecNo, 0).map {
-        case Right(())   => Ok(s"MGD_DC_RTN_PCK.SET_PERIOD_STATUS completed for Regime=MGD / RegNumber=$regNumber / ConsecNo=$consecNo / STATUS=0")
+      service.updateStatusPeriod(Regime.MGD.code, regNumber, consecNo, status).map {
+        case Right(())   => Ok(s"Period status completed for Regime=MGD / RegNumber=$regNumber / ConsecNo=$consecNo / STATUS=$status")
         case Left(error) => handleError(error)
       }
     }
