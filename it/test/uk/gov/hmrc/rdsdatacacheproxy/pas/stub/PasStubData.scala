@@ -58,6 +58,16 @@ object PasStubData {
     penaltyAmount    = Some(BigDecimal(999.23))
   )
 
+  val payeTaxpayer: GetPayeTaxpayerResponse = GetPayeTaxpayerResponse(
+    uniqueId       = 1L,
+    instanceId     = 1L,
+    districtNumber = "123",
+    employerRef    = "AB456",
+    employerName1  = Some("TEST EMPLOYER"),
+    employerName2  = Some("LTD"),
+    agentOwnRef    = Some("AGENTREF")
+  )
+
   def makeCreateAppealResponse(createAppealRequest: CreateAppealRequest): CreateAppealResponse = {
     createAppealRequest.penaltyId match {
       case 1 => createAppealSuccessResponse
@@ -77,6 +87,14 @@ object PasStubData {
     getAppealablePenaltyRequest.penaltyId match {
       case 1 => getAppealablePenaltySuccessResponse
       case _ => throw new RuntimeException("Error from downstream")
+    }
+  }
+
+  def makeGetPayeTaxpayerResponse(request: GetTaxpayerRequest): Option[GetPayeTaxpayerResponse] = {
+    request.hmrcOfficeNumber match {
+      case "123" => Some(payeTaxpayer)
+      case "456" => None
+      case _     => throw new Error("Error from downstream")
     }
   }
 }

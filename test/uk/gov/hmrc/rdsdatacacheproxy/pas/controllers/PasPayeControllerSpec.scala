@@ -219,6 +219,93 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "getPayeTaxpayer" - {
+
+    val testRequest: GetTaxpayerRequest = GetTaxpayerRequest(
+      hmrcOfficeNumber      = "123",
+      schemeReferenceNumber = "AB456"
+    )
+
+    "return 200 with GetPayeTaxpayerResponse when service returns a taxpayer" in new Setup {
+
+      val expectedResponse = GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = Some("TEST EMPLOYER"),
+        employerName2  = Some("LTD"),
+        agentOwnRef    = Some("AGENTREF")
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/taxpayer")
+
+      when(mockService.getPayeTaxpayer(eqTo(testRequest))).thenReturn(Future.successful(Some(expectedResponse)))
+
+      val result: Future[Result] = controller.getPayeTaxpayer()(request)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
+
+      verify(mockService, times(1)).getPayeTaxpayer(testRequest)
+    }
+
+    "return 404 when service returns None" in new Setup {
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/taxpayer")
+
+      when(mockService.getPayeTaxpayer(eqTo(testRequest))).thenReturn(Future.successful(None))
+
+      val result: Future[Result] = controller.getPayeTaxpayer()(request)
+
+      status(result)      shouldBe NOT_FOUND
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "PAYE taxpayer not found"
+
+      verify(mockService, times(1)).getPayeTaxpayer(testRequest)
+    }
+
+    "return 400 when payload is invalid" in new Setup {
+      val badRequest: JsObject = Json.obj(
+        "foo" -> "bar"
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(badRequest, "/pas/paye/taxpayer")
+
+      val result: Future[Result] = controller.getPayeTaxpayer()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] mustBe "Invalid payload"
+      verifyNoInteractions(mockService)
+    }
+
+    "return 400 when required fields are missing" in new Setup {
+      val badRequest: JsObject = Json.obj(
+        "hmrcOfficeNumber" -> "123"
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(badRequest, "/pas/paye/taxpayer")
+
+      val result: Future[Result] = controller.getPayeTaxpayer()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] mustBe "Invalid payload"
+      (contentAsJson(result) \ "errors").toOption must not be empty
+      verifyNoInteractions(mockService)
+    }
+
+    "return 500 with generic message on unexpected exception" in new Setup {
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/taxpayer")
+
+      when(mockService.getPayeTaxpayer(eqTo(testRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val result: Future[Result] = controller.getPayeTaxpayer()(request)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
+
+      verify(mockService, times(1)).getPayeTaxpayer(testRequest)
+    }
+  }
+
   private trait Setup {
     val mockService: PasPayeService = mock[PasPayeService]
     val controller: PasPayeController = new PasPayeController(fakeAuthAction, mockService, cc)

@@ -339,4 +339,144 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       result.isError mustBe true
     }
   }
+
+  "GetTaxpayerRequest" should {
+
+    "serialize to JSON correctly" in {
+      val request = GetTaxpayerRequest(
+        hmrcOfficeNumber      = "123",
+        schemeReferenceNumber = "AB456"
+      )
+
+      val json = Json.toJson(request)
+
+      (json \ "hmrcOfficeNumber").as[String] mustBe "123"
+      (json \ "schemeReferenceNumber").as[String] mustBe "AB456"
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "hmrcOfficeNumber"      -> "123",
+        "schemeReferenceNumber" -> "AB456"
+      )
+
+      val result = json.validate[GetTaxpayerRequest]
+
+      result mustBe a[JsSuccess[_]]
+      val request = result.get
+
+      request.hmrcOfficeNumber mustBe "123"
+      request.schemeReferenceNumber mustBe "AB456"
+    }
+
+    "fail to deserialize when schemeReferenceNumber is missing" in {
+      val json = Json.obj(
+        "hmrcOfficeNumber" -> "123"
+      )
+
+      val result = json.validate[GetTaxpayerRequest]
+
+      result.isError mustBe true
+    }
+
+    "fail to deserialize when entire request is missing" in {
+      val json = Json.obj()
+
+      val result = json.validate[GetTaxpayerRequest]
+
+      result.isError mustBe true
+    }
+  }
+
+  "GetPayeTaxpayerResponse" should {
+
+    "serialize to JSON correctly" in {
+      val response = GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = Some("TEST EMPLOYER"),
+        employerName2  = Some("LTD"),
+        agentOwnRef    = Some("AGENTREF")
+      )
+
+      val json = Json.toJson(response)
+
+      (json \ "uniqueId").as[Long] mustBe 1L
+      (json \ "instanceId").as[Long] mustBe 2L
+      (json \ "districtNumber").as[String] mustBe "123"
+      (json \ "employerRef").as[String] mustBe "AB456"
+      (json \ "employerName1").as[String] mustBe "TEST EMPLOYER"
+      (json \ "employerName2").as[String] mustBe "LTD"
+      (json \ "agentOwnRef").as[String] mustBe "AGENTREF"
+    }
+
+    "omit optional fields from JSON when they are None" in {
+      val response = GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = None,
+        employerName2  = None,
+        agentOwnRef    = None
+      )
+
+      val json = Json.toJson(response)
+
+      (json \ "employerName1").toOption mustBe None
+      (json \ "employerName2").toOption mustBe None
+      (json \ "agentOwnRef").toOption mustBe None
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "uniqueId"       -> 1L,
+        "instanceId"     -> 2L,
+        "districtNumber" -> "123",
+        "employerRef"    -> "AB456",
+        "employerName1"  -> "TEST EMPLOYER",
+        "employerName2"  -> "LTD",
+        "agentOwnRef"    -> "AGENTREF"
+      )
+
+      val result = json.validate[GetPayeTaxpayerResponse]
+
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = Some("TEST EMPLOYER"),
+        employerName2  = Some("LTD"),
+        agentOwnRef    = Some("AGENTREF")
+      )
+    }
+
+    "fail to deserialize when required fields are missing" in {
+      val json = Json.obj(
+        "uniqueId"      -> 1L,
+        "employerName1" -> "TEST EMPLOYER"
+      )
+
+      val result = json.validate[GetPayeTaxpayerResponse]
+
+      result.isError mustBe true
+    }
+
+    "fail to deserialize when uniqueId is a string" in {
+      val json = Json.obj(
+        "uniqueId"       -> "1",
+        "instanceId"     -> 2L,
+        "districtNumber" -> "123",
+        "employerRef"    -> "AB456"
+      )
+
+      val result = json.validate[GetPayeTaxpayerResponse]
+
+      result.isError mustBe true
+    }
+  }
 }

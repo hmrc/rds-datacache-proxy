@@ -17,6 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.pas.repositories
 
 import oracle.jdbc.OracleTypes
+import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
@@ -28,12 +29,14 @@ trait PasPayeSource {
   def createPayeAppeal(request: CreateAppealRequest): Future[CreateAppealResponse]
   def getPayeAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse]
   def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse]
+  def getPayeTaxpayer(request: GetTaxpayerRequest): Future[Option[GetPayeTaxpayerResponse]]
 }
 class PasPayeRepository @Inject() (
   @NamedDatabase("pas") db: Database
 )(implicit ec: ExecutionContext)
     extends PasPayeSource
-    with RepositoryHelper {
+    with RepositoryHelper
+    with Logging {
 
   private val DefaultSortField = "unique_id"
   private val DefaultSortOrder = "desc"
@@ -169,5 +172,64 @@ class PasPayeRepository @Inject() (
       cs.close()
     }
   }
+
+  override def getPayeTaxpayer(request: GetTaxpayerRequest): Future[Option[GetPayeTaxpayerResponse]] = {
+    Future {
+      db.withConnection { conn =>
+        callGetPayeTaxpayer(
+          conn              = conn,
+          p_district_number = request.hmrcOfficeNumber,
+          p_employer_ref    = request.schemeReferenceNumber
+        )
+      }
+    }
+  }
+
+  private def callGetPayeTaxpayer(conn: Connection, p_district_number: String, p_employer_ref: String): Option[GetPayeTaxpayerResponse] = {
+
+    val cs = conn.prepareCall("{call PAYE_KF_PK.getPayeTaxpayerByTaxReference(?, ?, ?)}")
+
+    try {
+      cs.setString(1, p_district_number)
+      cs.setString(2, p_employer_ref)
+
+      cs.registerOutParameter(3, OracleTypes.CURSOR)
+      cs.execute()
+
+      val rs = cs.getObject(3, classOf[ResultSet])
+      try
+        if (rs != null && rs.next()) {
+          val first = processPayeTaxpayer(rs)
+
+          if (rs.next()) {
+            logger.warn(
+              s"[getPayeTaxpayer] multiple rows for districtNumber=$p_district_number, employerRef=$p_employer_ref; using first row (UNIQUEID=${first.uniqueId})"
+            )
+          }
+          Some(first)
+        } else None
+      finally if (rs != null) rs.close()
+
+    } finally {
+      cs.close()
+    }
+  }
+
+  // DISTRICT_NUMBER is a NUMBER column so leading zeros are lost (070 -> 70); a district number is always 3 digits
+  private def districtNumber(rs: ResultSet): String =
+    Option(rs.getString("DISTRICT_NUMBER"))
+      .map(d => if (d.nonEmpty && d.forall(_.isDigit)) d.reverse.padTo(3, '0').reverse else d)
+      .getOrElse("")
+
+  private def processPayeTaxpayer(rs: ResultSet): GetPayeTaxpayerResponse =
+    GetPayeTaxpayerResponse(
+      uniqueId       = rs.getLong("UNIQUEID"),
+      instanceId     = rs.getLong("INSTANCE_ID"),
+      districtNumber = districtNumber(rs),
+      employerRef    = Option(rs.getString("EMPLOYER_REF")).getOrElse(""),
+      employerName1  = Option(rs.getString("EMPLOYER_NAME1")),
+      employerName2  = Option(rs.getString("EMPLOYER_NAME2")),
+      agentOwnRef    = Option(rs.getString("AGENT_OWN_REF"))
+    )
 
 }

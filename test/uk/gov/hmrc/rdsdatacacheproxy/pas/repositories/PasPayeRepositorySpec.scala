@@ -216,4 +216,173 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       verify(mockCallableStatement).close()
     }
   }
+
+  "getPayeTaxpayer" should {
+
+    val testRequest = GetTaxpayerRequest(
+      hmrcOfficeNumber      = "123",
+      schemeReferenceNumber = "AB456"
+    )
+
+    "call getPayeTaxpayerByTaxReference stored procedure and return Some(GetPayeTaxpayerResponse)" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      val expectedResponse = GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = Some("TEST EMPLOYER"),
+        employerName2  = None,
+        agentOwnRef    = Some("AGENTREF")
+      )
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+      when(mockResultSet.next()).thenReturn(true, false)
+
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
+      when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
+      when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("123")
+      when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
+      when(mockResultSet.getString("EMPLOYER_NAME1")).thenReturn("TEST EMPLOYER")
+      when(mockResultSet.getString("EMPLOYER_NAME2")).thenReturn(null)
+      when(mockResultSet.getString("AGENT_OWN_REF")).thenReturn("AGENTREF")
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result shouldBe Some(expectedResponse)
+
+      verify(mockConnection).prepareCall("{call PAYE_KF_PK.getPayeTaxpayerByTaxReference(?, ?, ?)}")
+      verify(mockCallableStatement).setString(1, testRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, testRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).registerOutParameter(3, OracleTypes.CURSOR)
+      verify(mockCallableStatement).execute()
+      verify(mockResultSet, times(2)).next()
+      verify(mockResultSet).close()
+      verify(mockCallableStatement).close()
+    }
+
+    "call getPayeTaxpayerByTaxReference stored procedure and return None when cursor is empty" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+      when(mockResultSet.next()).thenReturn(false)
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result shouldBe None
+
+      verify(mockConnection).prepareCall("{call PAYE_KF_PK.getPayeTaxpayerByTaxReference(?, ?, ?)}")
+      verify(mockCallableStatement).setString(1, testRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, testRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).registerOutParameter(3, OracleTypes.CURSOR)
+      verify(mockCallableStatement).execute()
+      verify(mockResultSet, times(1)).next()
+      verify(mockResultSet).close()
+      verify(mockCallableStatement).close()
+    }
+
+    "call getPayeTaxpayerByTaxReference stored procedure and return None when cursor is null" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(null)
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result shouldBe None
+
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "left-pad a numeric DISTRICT_NUMBER to 3 digits" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+      when(mockResultSet.next()).thenReturn(true, false)
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
+      when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
+      when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("70")
+      when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result.map(_.districtNumber) shouldBe Some("070")
+    }
+
+    "return an empty districtNumber without padding when DISTRICT_NUMBER is null" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+      when(mockResultSet.next()).thenReturn(true, false)
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
+      when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
+      when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn(null)
+      when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result.map(_.districtNumber) shouldBe Some("")
+    }
+
+    "call getPayeTaxpayerByTaxReference stored procedure and return the first row when multiple rows are returned" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      val expectedResponse = GetPayeTaxpayerResponse(
+        uniqueId       = 1L,
+        instanceId     = 2L,
+        districtNumber = "123",
+        employerRef    = "AB456",
+        employerName1  = Some("FIRST EMPLOYER"),
+        employerName2  = Some("LTD"),
+        agentOwnRef    = Some("AGENTREF")
+      )
+
+      when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+      when(mockResultSet.next()).thenReturn(true, true, false)
+
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L, 3L)
+      when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L, 4L)
+      when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("123")
+      when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
+      when(mockResultSet.getString("EMPLOYER_NAME1")).thenReturn("FIRST EMPLOYER", "SECOND EMPLOYER")
+      when(mockResultSet.getString("EMPLOYER_NAME2")).thenReturn("LTD")
+      when(mockResultSet.getString("AGENT_OWN_REF")).thenReturn("AGENTREF")
+
+      val result = repository.getPayeTaxpayer(testRequest).futureValue
+
+      result shouldBe Some(expectedResponse)
+
+      verify(mockConnection).prepareCall("{call PAYE_KF_PK.getPayeTaxpayerByTaxReference(?, ?, ?)}")
+      verify(mockCallableStatement).execute()
+      verify(mockResultSet, times(2)).next()
+      verify(mockResultSet, times(1)).getLong("UNIQUEID")
+      verify(mockResultSet).close()
+      verify(mockCallableStatement).close()
+    }
+  }
 }
