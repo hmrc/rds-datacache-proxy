@@ -87,4 +87,24 @@ class PasPayeController @Inject() (
               }
         )
     }
+
+  def getPayeTaxpayer: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[GetTaxpayerRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .getPayeTaxpayer(body)
+              .map {
+                case Some(response) => Ok(Json.toJson(response))
+                case None           => NotFound(Json.obj("message" -> "PAYE taxpayer not found"))
+              }
+              .recover { case t =>
+                logger.error("[getPayeTaxpayer] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
 }

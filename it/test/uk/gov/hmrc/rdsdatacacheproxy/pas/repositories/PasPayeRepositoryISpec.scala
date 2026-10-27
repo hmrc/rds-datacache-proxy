@@ -53,6 +53,11 @@ class PasPayeRepositoryISpec
       Future.successful(
         PasStubData.makeGetAppealablePenaltyResponse(request)
       )
+
+    override def getPayeTaxpayer(request: GetTaxpayerRequest): Future[Option[GetPayeTaxpayerResponse]] =
+      Future.successful(
+        PasStubData.makeGetPayeTaxpayerResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -180,6 +185,54 @@ class PasPayeRepositoryISpec
             hmrcOfficeNumber = "840123",
             schemeReferenceNumber = "098345"
           )).futureValue
+      }
+
+      exception.getMessage must include("Error from downstream")
+    }
+  }
+
+  "getPayeTaxpayer" should {
+
+    "return GetPayeTaxpayerResponse when taxpayer is found" in {
+      val request = GetTaxpayerRequest(
+        hmrcOfficeNumber = "123",
+        schemeReferenceNumber = "AB456"
+      )
+
+      val expectedResponse = GetPayeTaxpayerResponse(
+        uniqueId = 1L,
+        instanceId = 1L,
+        districtNumber = "123",
+        employerRef = "AB456",
+        employerName1 = Some("TEST EMPLOYER"),
+        employerName2 = Some("LTD"),
+        agentOwnRef = Some("AGENTREF")
+      )
+
+      val result = repository.getPayeTaxpayer(request).futureValue
+
+      result mustBe Some(expectedResponse)
+    }
+
+    "return None when taxpayer is not found" in {
+      val request = GetTaxpayerRequest(
+        hmrcOfficeNumber = "456",
+        schemeReferenceNumber = "AB456"
+      )
+
+      val result = repository.getPayeTaxpayer(request).futureValue
+
+      result mustBe None
+    }
+
+    "propagate downstream failure from stub" in {
+      val request = GetTaxpayerRequest(
+        hmrcOfficeNumber = "789",
+        schemeReferenceNumber = "AB456"
+      )
+
+      val exception = intercept[Error] {
+        repository.getPayeTaxpayer(request).futureValue
       }
 
       exception.getMessage must include("Error from downstream")

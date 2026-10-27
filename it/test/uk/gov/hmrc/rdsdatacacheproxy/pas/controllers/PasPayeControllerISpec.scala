@@ -53,6 +53,11 @@ class PasPayeControllerISpec
       Future.successful(
         PasStubData.makeGetAppealablePenaltyResponse(request)
       )
+
+    override def getPayeTaxpayer(request: GetTaxpayerRequest): Future[Option[GetPayeTaxpayerResponse]] =
+      Future.successful(
+        PasStubData.makeGetPayeTaxpayerResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -222,6 +227,79 @@ class PasPayeControllerISpec
         "schemeReferenceNumber" -> "5678"
       )
       val response = post(s"$endpoint/paye/penalty", requestJson).futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
+
+  "POST /pas/paye/taxpayer" should {
+
+    "return 200 with a valid GetPayeTaxpayerResponse when taxpayer is found" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "123",
+        "schemeReferenceNumber" -> "AB456"
+      )
+
+      val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[GetPayeTaxpayerResponse] mustBe PasStubData.payeTaxpayer
+    }
+
+    "return 404 when taxpayer is not found" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "456",
+        "schemeReferenceNumber" -> "AB456"
+      )
+
+      val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
+
+      response.status mustBe NOT_FOUND
+      (response.json \ "message").as[String] mustBe "PAYE taxpayer not found"
+    }
+
+    "return 400 when payload is invalid" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "123"
+      )
+
+      val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
+
+      response.status mustBe BAD_REQUEST
+    }
+
+    "return 500 when stub simulates failure" in {
+
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "789",
+        "schemeReferenceNumber" -> "AB456"
+      )
+
+      val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+    }
+
+    "return 401 when unauthorised" in {
+
+      AuthStub.unauthorised()
+
+      val requestJson = Json.obj(
+        "hmrcOfficeNumber" -> "123",
+        "schemeReferenceNumber" -> "AB456"
+      )
+
+      val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
 
       response.status mustBe UNAUTHORIZED
     }

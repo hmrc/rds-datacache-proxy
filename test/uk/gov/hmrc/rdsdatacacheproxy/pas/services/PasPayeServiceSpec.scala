@@ -167,4 +167,58 @@ final class PasPayeServiceSpec extends SpecBase {
       verifyNoMoreInteractions(source)
     }
   }
+
+  "PasPayeService.getPayeTaxpayer" - {
+
+    val testRequest: GetTaxpayerRequest = GetTaxpayerRequest(
+      hmrcOfficeNumber      = "123",
+      schemeReferenceNumber = "AB456"
+    )
+    val testResponse: GetPayeTaxpayerResponse = GetPayeTaxpayerResponse(
+      uniqueId       = 1L,
+      instanceId     = 2L,
+      districtNumber = "123",
+      employerRef    = "AB456",
+      employerName1  = Some("TEST EMPLOYER"),
+      employerName2  = Some("LTD"),
+      agentOwnRef    = Some("AGENTREF")
+    )
+
+    "return Some(GetPayeTaxpayerResponse) from the repository" in {
+      when(source.getPayeTaxpayer(testRequest)).thenReturn(Future.successful(Some(testResponse)))
+
+      val out = service.getPayeTaxpayer(testRequest).futureValue
+
+      out mustBe Some(testResponse)
+
+      verify(source).getPayeTaxpayer(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "return None when the repository finds no taxpayer" in {
+      when(source.getPayeTaxpayer(testRequest)).thenReturn(Future.successful(None))
+
+      val out = service.getPayeTaxpayer(testRequest).futureValue
+
+      out mustBe None
+
+      verify(source).getPayeTaxpayer(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getPayeTaxpayer(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getPayeTaxpayer(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getPayeTaxpayer(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
 }
