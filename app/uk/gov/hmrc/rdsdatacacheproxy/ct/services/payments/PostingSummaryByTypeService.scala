@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.payments.PostingSummaryByTy
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class PostingSummaryByTypeService @Inject()(postingSummaryByTypeRepository: PostingSummaryByTypeRepository) extends Logging {
+class PostingSummaryByTypeService @Inject() (postingSummaryByTypeRepository: PostingSummaryByTypeRepository) extends Logging {
 
   def getPostingSummaryByType(taxRef: Long, postingType: String): Future[PostingSummaryByTypeResponse] = {
     logger.info(s"Calling repository for taxRef: $taxRef and postingType: $postingType")
