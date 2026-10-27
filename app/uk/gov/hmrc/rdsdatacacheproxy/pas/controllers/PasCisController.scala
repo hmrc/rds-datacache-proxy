@@ -89,4 +89,21 @@ class PasCisController @Inject() (
               }
         )
     }
+
+  def getCisPenaltyAllowed: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[GetPenaltyAllowedRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .getCisPenaltyAllowed(body)
+              .map(response => Ok(Json.toJson(response)))
+              .recover { case t =>
+                logger.error("[getCisPenaltyAllowed] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
 }

@@ -107,4 +107,21 @@ class PasPayeController @Inject() (
               }
         )
     }
+
+  def getPayePenaltyAllowed: Action[JsValue] =
+    authorise.async(parse.json) { implicit request =>
+      request.body
+        .validate[GetPenaltyAllowedRequest]
+        .fold(
+          errs => Future.successful(BadRequest(Json.obj("message" -> "Invalid payload", "errors" -> JsError.toJson(errs)))),
+          body =>
+            service
+              .getPayePenaltyAllowed(body)
+              .map(response => Ok(Json.toJson(response)))
+              .recover { case t =>
+                logger.error("[getPayePenaltyAllowed] failed", t)
+                InternalServerError(Json.obj("message" -> "Unexpected error"))
+              }
+        )
+    }
 }

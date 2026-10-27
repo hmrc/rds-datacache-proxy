@@ -219,6 +219,61 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "getCisPenaltyAllowed" - {
+
+    val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+      districtNumber    = 1L,
+      employerReference = "357",
+      uniqueId          = 1L
+    )
+
+    "return 200 with GetPenaltyAllowedResponse when service succeeds" in new Setup {
+
+      val expectedResponse = GetPenaltyAllowedResponse(
+        allowed = true
+      )
+
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/cis/penalties/access-allowed")
+
+      when(mockService.getCisPenaltyAllowed(eqTo(testRequest))).thenReturn(Future.successful(expectedResponse))
+
+      val result: Future[Result] = controller.getCisPenaltyAllowed()(request)
+
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(expectedResponse)
+
+      verify(mockService, times(1)).getCisPenaltyAllowed(testRequest)
+    }
+
+    "return 400 when payload is invalid" in new Setup {
+      val badRequest: JsObject = Json.obj(
+        "foo" -> "bar"
+      )
+      val request: FakeRequest[JsValue] = makeJsonRequest(badRequest, "/cis/penalties/access-allowed")
+
+      val result: Future[Result] = controller.getCisPenaltyAllowed()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] mustBe "Invalid payload"
+      verifyNoInteractions(mockService)
+    }
+
+    "return 500 with generic message on unexpected exception" in new Setup {
+      val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/cis/penalties/access-allowed")
+
+      when(mockService.getCisPenaltyAllowed(eqTo(testRequest))).thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val result: Future[Result] = controller.getCisPenaltyAllowed()(request)
+
+      status(result)      shouldBe INTERNAL_SERVER_ERROR
+      contentType(result) shouldBe Some("application/json")
+      (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
+
+      verify(mockService, times(1)).getCisPenaltyAllowed(testRequest)
+    }
+  }
+
   private trait Setup {
     val mockService: PasCisService = mock[PasCisService]
     val controller: PasCisController = new PasCisController(fakeAuthAction, mockService, cc)

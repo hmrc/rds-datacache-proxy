@@ -167,4 +167,43 @@ final class PasCisServiceSpec extends SpecBase {
       verifyNoMoreInteractions(source)
     }
   }
+
+  "PasCisService.getCisPenaltyAllowed" - {
+
+    val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+      districtNumber    = 1L,
+      employerReference = "357",
+      uniqueId          = 1L
+    )
+
+    val testResponse: GetPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+      allowed = true
+    )
+
+    "return GetPenaltyAllowedResponse from the repository" in {
+      when(source.getCisPenaltyAllowed(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getCisPenaltyAllowed(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getCisPenaltyAllowed(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getCisPenaltyAllowed(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getCisPenaltyAllowed(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getCisPenaltyAllowed(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
 }

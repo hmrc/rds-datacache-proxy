@@ -53,6 +53,11 @@ class PasCisRepositoryISpec
       Future.successful(
         PasStubData.makeGetAppealablePenaltyResponse(request)
       )
+
+    override def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] =
+      Future.successful(
+        PasStubData.makeGetPenaltyAllowedResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -188,4 +193,35 @@ class PasCisRepositoryISpec
     }
   }
 
+  "getCisPenaltyAllowed" should {
+
+    "return GetCisPenaltyAllowedResponse" in {
+
+      val result = repository.getCisPenaltyAllowed(
+        GetPenaltyAllowedRequest(
+          districtNumber = 1L,
+          employerReference = "840123",
+          uniqueId = 1L
+        )).futureValue
+
+      result mustBe GetPenaltyAllowedResponse(
+        allowed = true
+      )
+    }
+
+
+    "propagate downstream failure from stub" in {
+      val request = GetPenaltyAllowedRequest(
+        districtNumber = 2L,
+        employerReference = "AB456",
+        uniqueId = 2L
+      )
+
+      val exception = intercept[Error] {
+        repository.getCisPenaltyAllowed(request).futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
 }
