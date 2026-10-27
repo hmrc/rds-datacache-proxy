@@ -18,16 +18,13 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments
 
 import play.api.libs.json.{Json, OFormat}
 
-case class PostingSummaryByTypeResponse(postingSummaryByTypeResponse: List[PostingSummaryByTypeRow])
+case class PostingSummaryByTypeResponse(postingSummary: List[PostingSummaryByTypeRow])
 
 object PostingSummaryByTypeResponse {
   implicit val format: OFormat[PostingSummaryByTypeResponse] = Json.format[PostingSummaryByTypeResponse]
 }
 
-case class PostingSummaryByTypeRow(accountingPeriod: Option[BigDecimal],
-                                   settlementSequenceNo: Option[BigDecimal],
-                                   postingAmountSum: Option[BigDecimal]
-                                  )
+case class PostingSummaryByTypeRow(accountingPeriod: BigDecimal, settlementSequenceNo: Option[BigDecimal], postingAmountSum: BigDecimal)
 
 object PostingSummaryByTypeRow {
   implicit val format: OFormat[PostingSummaryByTypeRow] = Json.format[PostingSummaryByTypeRow]

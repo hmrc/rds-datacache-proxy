@@ -54,6 +54,19 @@ class PostingSummaryByTypeControllerSpec extends SpecBase with MockitoSugar with
       verify(mockPostingTypeBySummaryRepository).getPostingSummaryByType(1L, "PAF")
     }
 
+    "return 200 and a successful response when repository returns response with minimal details" in new SetUp {
+      when(mockPostingTypeBySummaryRepository.getPostingSummaryByType(any[Long], any[String]))
+        .thenReturn(Future.successful(postingSummaryByTypeRowMissingField))
+
+      val result: Future[Result] =
+        controller.getPostingSummaryByType(2L, "PYT")(fakeRequest)
+
+      status(result)        shouldBe OK
+      contentAsJson(result) shouldBe Json.toJson(postingSummaryByTypeRowMissingField)
+      contentType(result)   shouldBe Some("application/json")
+      verify(mockPostingTypeBySummaryRepository).getPostingSummaryByType(2L, "PYT")
+    }
+
     "return 200 and a successful response when repository return empty record" in new SetUp {
       when(mockPostingTypeBySummaryRepository.getPostingSummaryByType(any[Long], any[String]))
         .thenReturn(Future.successful(emptyPostingSummaryByTypeResponses))

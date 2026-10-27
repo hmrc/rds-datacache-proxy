@@ -55,7 +55,7 @@ class PostingSummaryByTypeRepositoryImpl @Inject() (
 
           val postingSummaryByTypeRows: List[PostingSummaryByTypeRow] = processResultSetList(sp, 3, retrievePostingSummaryByType, context)
           PostingSummaryByTypeResponse(
-            postingSummaryByTypeResponse = postingSummaryByTypeRows
+            postingSummary = postingSummaryByTypeRows
           )
 
         } finally {
@@ -66,9 +66,9 @@ class PostingSummaryByTypeRepositoryImpl @Inject() (
 
   private def retrievePostingSummaryByType(rs: ResultSet): PostingSummaryByTypeRow =
     PostingSummaryByTypeRow(
-      accountingPeriod     = Option(rs.getBigDecimal("ACCOUNTING_PERIOD")),
+      accountingPeriod     = rs.getBigDecimal("ACCOUNTING_PERIOD"),
       settlementSequenceNo = Option(rs.getBigDecimal("SETTLEMENT_SEQUENCE_NO")),
-      postingAmountSum     = Option(rs.getBigDecimal("POSTING_AMOUNT_SUM"))
+      postingAmountSum     = rs.getBigDecimal("POSTING_AMOUNT_SUM")
     )
 
 }

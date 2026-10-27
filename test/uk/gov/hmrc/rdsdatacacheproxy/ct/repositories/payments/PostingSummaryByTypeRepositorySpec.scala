@@ -98,6 +98,31 @@ class PostingSummaryByTypeRepositorySpec extends AnyFlatSpec with Matchers with 
     verify(mockCallableStatement).close()
   }
 
+  "getPostingSummaryByType" should "return PostingSummaryByTypeResponse with minimal results for a given taxPayerReference" in {
+    when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(rs)
+    when(rs.next()).thenReturn(true, false)
+
+    when(rs.getBigDecimal("ACCOUNTING_PERIOD")).thenReturn(BigDecimal(1).bigDecimal)
+    when(rs.getBigDecimal("SETTLEMENT_SEQUENCE_NO")).thenReturn(null)
+    when(rs.getBigDecimal("POSTING_AMOUNT_SUM"))
+      .thenReturn(BigDecimal(1).bigDecimal)
+
+    val result = repository.getPostingSummaryByType(2, "PYT").futureValue
+
+    result shouldBe postingSummaryByTypeRowMissingField
+
+    verify(mockConnection).prepareCall("{call CT_DC_PK.getPostingSummaryByType(?,?,?)}")
+
+    verify(mockCallableStatement).setLong(1, 2L)
+    verify(mockCallableStatement).setString(2, "PYT")
+
+    verify(mockCallableStatement).registerOutParameter(3, OracleTypes.CURSOR)
+    verify(mockCallableStatement).execute()
+
+    verify(rs, times(2)).next()
+    verify(mockCallableStatement).close()
+  }
+
   "getPostingSummaryByType" should "throw exception and close the connection when exception is returned from DB" in {
     when(mockCallableStatement.execute()).thenThrow(new RuntimeException("Boom"))
 
