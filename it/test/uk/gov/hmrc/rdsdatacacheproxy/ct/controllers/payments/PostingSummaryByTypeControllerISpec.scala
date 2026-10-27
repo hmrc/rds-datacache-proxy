@@ -77,7 +77,7 @@ class PostingSummaryByTypeControllerISpec extends AnyWordSpec with Matchers with
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PostingSummaryByTypeResponse] mustBe postingSummaryByTypeRowMultipleMissingFields
+      response.json.as[PostingSummaryByTypeResponse] mustBe postingSummaryByTypeRowMissingField
 
     }
 

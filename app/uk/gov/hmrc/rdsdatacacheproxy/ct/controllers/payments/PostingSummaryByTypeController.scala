@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.payments.PostingSummaryByTypeRepository
+import uk.gov.hmrc.rdsdatacacheproxy.ct.services.payments.PostingSummaryByTypeService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 class PostingSummaryByTypeController @Inject() (
   cc: ControllerComponents,
   authorise: AuthAction,
-  repository: PostingSummaryByTypeRepository
+  service: PostingSummaryByTypeService
 )(implicit ec: ExecutionContext)
     extends BackendController(cc)
     with I18nSupport
@@ -38,7 +38,7 @@ class PostingSummaryByTypeController @Inject() (
 
   def getPostingSummaryByType(taxRef: Long, postingType: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      repository
+      service
         .getPostingSummaryByType(taxRef, postingType)
         .map(postingSummaryByType => Ok(Json.toJson(postingSummaryByType)))
         .recover { case ex: Throwable =>

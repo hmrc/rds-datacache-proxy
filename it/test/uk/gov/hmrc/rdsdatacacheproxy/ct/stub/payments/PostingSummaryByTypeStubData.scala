@@ -20,46 +20,36 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentAllocationCheque
 
 trait PostingSummaryByTypeStubData {
 
-  val emptyPostingSummaryByTypeResponses: PostingSummaryByTypeResponse = PostingSummaryByTypeResponse(postingSummaryByTypeResponse = List.empty)
+  val emptyPostingSummaryByTypeResponses: PostingSummaryByTypeResponse = PostingSummaryByTypeResponse(postingSummary = List.empty)
 
   val postingSummaryByTypeRowMultiple: PostingSummaryByTypeResponse =
     PostingSummaryByTypeResponse(
       List(
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(1),
+          accountingPeriod       = 1,
           settlementSequenceNo = Some(1),
-          postingAmountSum = Some(123456)
+          postingAmountSum = 123456
         ),
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(2),
+          accountingPeriod       = 2,
           settlementSequenceNo = Some(2),
-          postingAmountSum = Some(456789)
+          postingAmountSum = 456789
         ),
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(3),
+          accountingPeriod       = 3,
           settlementSequenceNo = Some(3),
-          postingAmountSum = Some(159159)
+          postingAmountSum = 159159
         )
       )
     )
 
-  val postingSummaryByTypeRowMultipleMissingFields: PostingSummaryByTypeResponse =
+  val postingSummaryByTypeRowMissingField: PostingSummaryByTypeResponse =
     PostingSummaryByTypeResponse(
       List(
         PostingSummaryByTypeRow(
-          accountingPeriod       = Some(1),
-          settlementSequenceNo = Some(1),
-          postingAmountSum = None
-        ),
-        PostingSummaryByTypeRow(
-          accountingPeriod       = Some(2),
+          accountingPeriod       = 2,
           settlementSequenceNo = None,
-          postingAmountSum = Some(456789)
-        ),
-        PostingSummaryByTypeRow(
-          accountingPeriod       = None,
-          settlementSequenceNo = Some(3),
-          postingAmountSum = Some(159159)
+          postingAmountSum = 456789
         )
       )
     )
@@ -67,7 +57,7 @@ trait PostingSummaryByTypeStubData {
   def getPostingSummaryByPostingTypeData(taxRef: Long, postingType: String): PostingSummaryByTypeResponse = {
     (taxRef, postingType) match {
       case (1L, "PAF")  => postingSummaryByTypeRowMultiple
-      case (2L, "PYT")  => postingSummaryByTypeRowMultipleMissingFields
+      case (2L, "PYT")  => postingSummaryByTypeRowMissingField
       case (3L, "SAM")  => throw new RuntimeException("Error from downstream")
       case (_, _)       => emptyPostingSummaryByTypeResponses
     }
