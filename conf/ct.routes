@@ -32,5 +32,6 @@ GET        /account-position/:taxRef                                        uk.g
 GET        /company-details/:taxRef                                         uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CompanyDetailsController.getCompanyDetails(taxRef: Long)
 
 # Payment Routes
-GET       /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
+GET        /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
 GET        /payment-search-result/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)
+GET        /all-accounting-period/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.AllAccountingPeriodsController.getAccountingPeriodList(taxRef: Long)
