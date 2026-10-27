@@ -58,6 +58,11 @@ class PasPayeControllerISpec
       Future.successful(
         PasStubData.makeGetPayeTaxpayerResponse(request)
       )
+
+    override def getPayePenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] =
+      Future.successful(
+        PasStubData.makeGetPenaltyAllowedResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -231,7 +236,6 @@ class PasPayeControllerISpec
       response.status mustBe UNAUTHORIZED
     }
   }
-
   "POST /pas/paye/taxpayer" should {
 
     "return 200 with a valid GetPayeTaxpayerResponse when taxpayer is found" in {
@@ -300,6 +304,53 @@ class PasPayeControllerISpec
       )
 
       val response = post(s"$endpoint/paye/taxpayer", requestJson).futureValue
+
+      response.status mustBe UNAUTHORIZED
+    }
+  }
+  "POST /paye/penalties/access-allowed" should {
+
+    "return 200 with a valid GetPenaltyAllowedResponse" in {
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "districtNumber" -> 1L,
+        "employerReference" -> "hdz",
+        "uniqueId" -> 1L
+      )
+      val response = post(s"$endpoint/paye/penalties/access-allowed", requestJson).futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[GetPenaltyAllowedResponse] mustBe PasStubData.getPenaltyAllowedSuccessResponse
+    }
+
+    "return 500 when stub simulates failure" in {
+
+      AuthStub.authorised()
+
+      val requestJson = Json.obj(
+        "districtNumber" -> 1L,
+        "employerReference" -> "1234",
+        "uniqueId" -> 2L
+      )
+      val response = post(s"$endpoint/paye/penalties/access-allowed", requestJson).futureValue
+
+      response.status mustBe INTERNAL_SERVER_ERROR
+
+    }
+
+    "return 401 when unauthorised" in {
+
+      AuthStub.unauthorised()
+
+      val requestJson = Json.obj(
+        "districtNumber" -> 1L,
+        "employerReference" -> "1234",
+        "uniqueId" -> 1L
+      )
+      val response = post(s"$endpoint/paye/penalties/access-allowed", requestJson).futureValue
 
       response.status mustBe UNAUTHORIZED
     }

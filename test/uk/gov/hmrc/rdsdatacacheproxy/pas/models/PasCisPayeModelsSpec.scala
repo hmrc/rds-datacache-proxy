@@ -339,7 +339,6 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       result.isError mustBe true
     }
   }
-
   "GetTaxpayerRequest" should {
 
     "serialize to JSON correctly" in {
@@ -475,6 +474,84 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       )
 
       val result = json.validate[GetPayeTaxpayerResponse]
+
+      result.isError mustBe true
+    }
+  }
+  "GetCisPenaltyAllowedRequest" should {
+
+    "serialize to JSON correctly" in {
+      val request = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+
+      val json = Json.toJson(request)
+
+      (json \ "districtNumber").as[Long] mustBe 1
+      (json \ "employerReference").as[String] mustBe "357"
+      (json \ "uniqueId").as[Long] mustBe 1
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "districtNumber"    -> 1,
+        "employerReference" -> "357",
+        "uniqueId"          -> 1
+      )
+
+      val result = json.validate[GetPenaltyAllowedRequest]
+
+      result mustBe a[JsSuccess[_]]
+      val request = result.get
+
+      request.districtNumber mustBe 1
+      request.employerReference mustBe "357"
+      request.uniqueId mustBe 1
+    }
+
+    "fail to deserialize when data is missing" in {
+      val json = Json.obj(
+        "districtNumber"    -> 1,
+        "employerReference" -> "357"
+      )
+
+      val result = json.validate[GetPenaltyAllowedRequest]
+
+      result.isError mustBe true
+    }
+  }
+
+  "GetCisPenaltyAllowedResponse" should {
+
+    "serialize to JSON correctly" in {
+      val response = GetPenaltyAllowedResponse(
+        allowed = true
+      )
+
+      val json = Json.toJson(response)
+
+      (json \ "allowed").as[Boolean] mustBe true
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "allowed" -> true
+      )
+
+      val result = json.validate[GetPenaltyAllowedResponse]
+
+      result mustBe a[JsSuccess[_]]
+      result.get.allowed mustBe true
+    }
+
+    "fail to deserialize when type is incorrect" in {
+      val json = Json.obj(
+        "allowed" -> "true"
+      )
+
+      val result = json.validate[GetPenaltyAllowedResponse]
 
       result.isError mustBe true
     }

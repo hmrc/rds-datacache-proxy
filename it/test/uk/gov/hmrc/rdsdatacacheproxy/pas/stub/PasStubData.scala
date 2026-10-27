@@ -58,6 +58,10 @@ object PasStubData {
     penaltyAmount    = Some(BigDecimal(999.23))
   )
 
+  val getPenaltyAllowedSuccessResponse = GetPenaltyAllowedResponse(
+    allowed = true
+  )
+
   val payeTaxpayer: GetPayeTaxpayerResponse = GetPayeTaxpayerResponse(
     uniqueId       = 1L,
     instanceId     = 1L,
@@ -95,6 +99,13 @@ object PasStubData {
       case "123" => Some(payeTaxpayer)
       case "456" => None
       case _     => throw new Error("Error from downstream")
+    }
+  }
+
+  def makeGetPenaltyAllowedResponse(request: GetPenaltyAllowedRequest): GetPenaltyAllowedResponse = {
+    request.uniqueId match {
+      case 1 => getPenaltyAllowedSuccessResponse
+      case _ => throw new Error("Simulated downstream failure")
     }
   }
 }

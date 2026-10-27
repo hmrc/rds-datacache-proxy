@@ -58,6 +58,11 @@ class PasPayeRepositoryISpec
       Future.successful(
         PasStubData.makeGetPayeTaxpayerResponse(request)
       )
+
+    override def getPayePenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] =
+      Future.successful(
+        PasStubData.makeGetPenaltyAllowedResponse(request)
+      )
   }
 
   override lazy val app: Application =
@@ -190,7 +195,6 @@ class PasPayeRepositoryISpec
       exception.getMessage must include("Error from downstream")
     }
   }
-
   "getPayeTaxpayer" should {
 
     "return GetPayeTaxpayerResponse when taxpayer is found" in {
@@ -236,6 +240,37 @@ class PasPayeRepositoryISpec
       }
 
       exception.getMessage must include("Error from downstream")
+    }
+  }
+  "getPayePenaltyAllowed" should {
+
+    "return GetPenaltyAllowedResponse" in {
+
+      val result = repository.getPayePenaltyAllowed(
+        GetPenaltyAllowedRequest(
+          districtNumber = 1L,
+          employerReference = "840123",
+          uniqueId = 1L
+        )).futureValue
+
+      result mustBe GetPenaltyAllowedResponse(
+        allowed = true
+      )
+    }
+
+
+    "propagate downstream failure from stub" in {
+      val request = GetPenaltyAllowedRequest(
+        districtNumber = 2L,
+        employerReference = "AB456",
+        uniqueId = 2L
+      )
+
+      val exception = intercept[Error] {
+        repository.getPayePenaltyAllowed(request).futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
     }
   }
 }

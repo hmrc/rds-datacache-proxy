@@ -385,4 +385,69 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       verify(mockCallableStatement).close()
     }
   }
+
+  "getPayePenaltyAllowed" should {
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is Y" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("Y")
+
+      val getPayePenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getPayePenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = true
+      )
+
+      val result = repository.getPayePenaltyAllowed(getPayePenaltyAllowedRequest).futureValue
+
+      result shouldBe getPayePenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is N" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("N")
+
+      val getPayePenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getPayePenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = false
+      )
+
+      val result = repository.getPayePenaltyAllowed(getPayePenaltyAllowedRequest).futureValue
+
+      result shouldBe getPayePenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+  }
 }

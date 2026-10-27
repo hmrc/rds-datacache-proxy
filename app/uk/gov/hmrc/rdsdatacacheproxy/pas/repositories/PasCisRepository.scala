@@ -28,6 +28,7 @@ trait PasCisSource {
   def createCisAppeal(request: CreateAppealRequest): Future[CreateAppealResponse]
   def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse]
   def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse]
+  def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse]
 }
 class PasCisRepository @Inject() (
   @NamedDatabase("pas") db: Database
@@ -164,6 +165,49 @@ class PasCisRepository @Inject() (
         penaltyType      = Option(cs.getString(4)),
         penaltyAmount    = Option(cs.getBigDecimal(6)).map(BigDecimal(_))
       )
+
+    } finally {
+      cs.close()
+    }
+  }
+
+  override def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] = {
+    Future {
+      db.withConnection { conn =>
+        callGetCisPenaltyAllowed(
+          conn              = conn,
+          p_district_number = request.districtNumber,
+          p_employer_ref    = request.employerReference,
+          p_unique_id       = request.uniqueId
+        )
+      }
+    }
+  }
+
+  private def callGetCisPenaltyAllowed(conn: Connection,
+                                       p_district_number: Long,
+                                       p_employer_ref: String,
+                                       p_unique_id: Long
+                                      ): GetPenaltyAllowedResponse = {
+
+    val cs = conn.prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+
+    try {
+      cs.setLong(1, p_district_number)
+      cs.setString(2, p_employer_ref)
+      cs.setLong(3, p_unique_id)
+
+      cs.registerOutParameter(4, Types.VARCHAR) // p_allowed
+
+      cs.execute()
+
+      val allowed: Boolean = Option(cs.getString(4)).map(_.trim.toUpperCase) match {
+        case Some("Y") => true
+        case Some("N") => false
+        case other     => throw new IllegalStateException(s"Unexpected p_allowed value from DB: $other")
+      }
+
+      GetPenaltyAllowedResponse(allowed)
 
     } finally {
       cs.close()

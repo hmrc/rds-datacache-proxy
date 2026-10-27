@@ -221,4 +221,43 @@ final class PasPayeServiceSpec extends SpecBase {
       verifyNoMoreInteractions(source)
     }
   }
+
+  "PasCisService.getPayePenaltyAllowed" - {
+
+    val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+      districtNumber    = 1L,
+      employerReference = "357",
+      uniqueId          = 1L
+    )
+
+    val testResponse: GetPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+      allowed = true
+    )
+
+    "return GetPenaltyAllowedResponse from the repository" in {
+      when(source.getPayePenaltyAllowed(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getPayePenaltyAllowed(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getPayePenaltyAllowed(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getPayePenaltyAllowed(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getPayePenaltyAllowed(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getPayePenaltyAllowed(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
 }

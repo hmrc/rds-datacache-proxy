@@ -217,4 +217,69 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       verify(mockCallableStatement).close()
     }
   }
+
+  "getCisPenaltyAllowed" should {
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is Y" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("Y")
+
+      val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = true
+      )
+
+      val result = repository.getCisPenaltyAllowed(getCisPenaltyAllowedRequest).futureValue
+
+      result shouldBe getCisPenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is N" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("N")
+
+      val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = false
+      )
+
+      val result = repository.getCisPenaltyAllowed(getCisPenaltyAllowedRequest).futureValue
+
+      result shouldBe getCisPenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+  }
 }

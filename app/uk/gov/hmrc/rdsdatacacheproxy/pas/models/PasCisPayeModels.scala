@@ -100,3 +100,21 @@ case class GetPayeTaxpayerResponse(
 object GetPayeTaxpayerResponse {
   implicit val format: OFormat[GetPayeTaxpayerResponse] = Json.format[GetPayeTaxpayerResponse]
 }
+
+case class GetPenaltyAllowedRequest(
+  districtNumber: Long,
+  employerReference: String,
+  uniqueId: Long
+)
+
+object GetPenaltyAllowedRequest {
+  implicit val format: OFormat[GetPenaltyAllowedRequest] = Json.format[GetPenaltyAllowedRequest]
+}
+
+case class GetPenaltyAllowedResponse(
+  allowed: Boolean
+)
+
+object GetPenaltyAllowedResponse {
+  implicit val format: OFormat[GetPenaltyAllowedResponse] = Json.format[GetPenaltyAllowedResponse]
+}
