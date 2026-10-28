@@ -35,7 +35,7 @@ final case class GroupMember(
                           isRepMemberOfGroup: Option[Int],
                           dateOfJoining: Option[LocalDate],
                           dateOfLeaving: Option[LocalDate],
-                          systemDate: Option[LocalDate]
+                          emailAddress: Option[String]
                         )
 
 object GroupMember {
