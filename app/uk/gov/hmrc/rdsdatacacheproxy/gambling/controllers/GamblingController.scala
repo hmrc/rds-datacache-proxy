@@ -192,6 +192,16 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
       }
     }
 
+  def getGroupMembers(mgdRegNumber: String): Action[AnyContent] =
+    authorise.async { implicit request =>
+      service.getGroupMembers(mgdRegNumber).map {
+        case Right(details) =>
+          Ok(Json.toJson(details))
+        case Left(error) =>
+          handleError(error, s"[GamblingController][getReturnPeriods] code=${error.code} mgdRegNumber=$mgdRegNumber")
+      }
+    }
+
   def getAgentDetails(agentReference: String): Action[AnyContent] =
     authorise.async { implicit request =>
       service.getAgentDetails(agentReference).map {
