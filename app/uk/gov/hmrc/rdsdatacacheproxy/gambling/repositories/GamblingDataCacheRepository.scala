@@ -1342,15 +1342,15 @@ class GamblingDataCacheRepository @Inject()(
               while (rs.next()) {
                 val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
                   GroupMember(
-                    mgdRegNumber = mgdRegNumber,
-                    businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
-                    businessName = Option(rs.getString("BUSINESS_NAME")),
-                    crn = Option(rs.getString("CRN")),
-                    foreignCorporateRef = Option(rs.getString("FOREIGN_CORPORATE_REF")),
-                    isRepMemberOfGroup = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
-                    dateOfJoining = optDate("DATE_OF_JOINING", rs),
-                    dateOfLeaving = optLocalDate("DATE_OF_LEAVING", rs),
-                    emailAddress = Option(rs.getString("EMAIL_ADDR")),
+                    mgdRegNumber              = mgdRegNumber,
+                    businessPartnerNumber     = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    businessName              = Option(rs.getString("BUSINESS_NAME")),
+                    crn                       = Option(rs.getString("CRN")),
+                    foreignCorporateRef       = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    isRepMemberOfGroup        = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
+                    dateOfJoining             = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving             = optLocalDate("DATE_OF_LEAVING", rs),
+                    emailAddress              = Option(rs.getString("EMAIL_ADDR")),
                   )
                 )
                 b.addAll(maybeItem.toList)
