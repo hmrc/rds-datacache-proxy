@@ -425,7 +425,7 @@ class GamblingService @Inject() (
 
       case Right(value) => {
         repository
-          .getReturnPeriods(mgdRegNumber)
+          .getGroupMemberDetails(mgdRegNumber)
           .map {
             case Right(groupmembers) => Right(groupmembers)
 
