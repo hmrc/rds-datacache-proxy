@@ -61,10 +61,10 @@ trait GamblingDataSource {
 }
 
 @Singleton
-class GamblingDataCacheRepository @Inject()(
-                                             @NamedDatabase("gambling") db: Database
-                                           )(implicit ec: ExecutionContext)
-  extends GamblingDataSource
+class GamblingDataCacheRepository @Inject() (
+  @NamedDatabase("gambling") db: Database
+)(implicit ec: ExecutionContext)
+    extends GamblingDataSource
     with RepositorySupport
     with RepositoryErrorHandling {
 
@@ -107,15 +107,15 @@ class GamblingDataCacheRepository @Inject()(
               logger.warn(s"[getMgdDetails] No data found for mgdRegNumber=$mgdRegNumber")
 
               MgdDetails(
-                mgdRegNumber = "",
+                mgdRegNumber       = "",
                 isBusinessSeasonal = None,
-                previousMgdrn1 = None,
-                previousMgdrn2 = None,
-                previousMgdrn3 = None,
-                associatedMgdrn1 = None,
-                associatedMgdrn2 = None,
-                associatedMgdrn3 = None,
-                systemDate = None
+                previousMgdrn1     = None,
+                previousMgdrn2     = None,
+                previousMgdrn3     = None,
+                associatedMgdrn1   = None,
+                associatedMgdrn2   = None,
+                associatedMgdrn3   = None,
+                systemDate         = None
               )
 
             } else {
@@ -126,23 +126,23 @@ class GamblingDataCacheRepository @Inject()(
               def optInt(col: String): Option[Int] =
                 Option(rs.getObject(col)).map {
                   case bd: java.math.BigDecimal => bd.intValue()
-                  case n: java.lang.Number => n.intValue()
-                  case other => other.toString.toInt
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
                 }
 
               def optDate(col: String): Option[java.time.LocalDate] =
                 Option(rs.getDate(col)).map(_.toLocalDate)
 
               MgdDetails(
-                mgdRegNumber = optString("mgd_reg_number").getOrElse(""),
+                mgdRegNumber       = optString("mgd_reg_number").getOrElse(""),
                 isBusinessSeasonal = optInt("is_business_seasonal"),
-                previousMgdrn1 = optString("previous_mgdrn_1"),
-                previousMgdrn2 = optString("previous_mgdrn_2"),
-                previousMgdrn3 = optString("previous_mgdrn_3"),
-                associatedMgdrn1 = optString("associated_mgdrn_1"),
-                associatedMgdrn2 = optString("associated_mgdrn_2"),
-                associatedMgdrn3 = optString("associated_mgdrn_3"),
-                systemDate = optDate("system_date")
+                previousMgdrn1     = optString("previous_mgdrn_1"),
+                previousMgdrn2     = optString("previous_mgdrn_2"),
+                previousMgdrn3     = optString("previous_mgdrn_3"),
+                associatedMgdrn1   = optString("associated_mgdrn_1"),
+                associatedMgdrn2   = optString("associated_mgdrn_2"),
+                associatedMgdrn3   = optString("associated_mgdrn_3"),
+                systemDate         = optDate("system_date")
               )
             }
 
@@ -189,10 +189,10 @@ class GamblingDataCacheRepository @Inject()(
             if (rs == null || !rs.next()) {
               logger.warn(s"[getTradeClassDetails] No data found for mgdRegNumber=$mgdRegNumber")
               TradeClassDetails(
-                mgdRegNumber = "",
-                businessTradeClass = None,
+                mgdRegNumber         = "",
+                businessTradeClass   = None,
                 businessActivityDesc = "",
-                systemDate = None
+                systemDate           = None
               )
             } else {
 
@@ -202,18 +202,18 @@ class GamblingDataCacheRepository @Inject()(
               def optInt(col: String): Option[Int] =
                 Option(rs.getObject(col)).map {
                   case bd: java.math.BigDecimal => bd.intValue()
-                  case n: java.lang.Number => n.intValue()
-                  case other => other.toString.toInt
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
                 }
 
               def optDate(col: String): Option[LocalDate] =
                 Option(rs.getDate(col)).map(_.toLocalDate)
 
               TradeClassDetails(
-                mgdRegNumber = optString("mgd_reg_number").getOrElse(""),
-                businessTradeClass = optInt("business_trade_class"),
+                mgdRegNumber         = optString("mgd_reg_number").getOrElse(""),
+                businessTradeClass   = optInt("business_trade_class"),
                 businessActivityDesc = optString("business_activity_desc").getOrElse(""),
-                systemDate = optDate("system_date")
+                systemDate           = optDate("system_date")
               )
             }
 
@@ -229,8 +229,8 @@ class GamblingDataCacheRepository @Inject()(
   }
 
   override def getBusinessContactDetails(
-                                          mgdRegNumber: String
-                                        ): Future[BusinessContactDetails] = {
+    mgdRegNumber: String
+  ): Future[BusinessContactDetails] = {
 
     logger.info(
       s"[GamblingDataCacheRepository][getBusinessContactDetails] mgdRegNumber=$mgdRegNumber"
@@ -264,12 +264,12 @@ class GamblingDataCacheRepository @Inject()(
           if (rs == null) {
 
             BusinessContactDetails(
-              mgdRegNumber = "",
-              phoneNumber = None,
+              mgdRegNumber      = "",
+              phoneNumber       = None,
               mobilePhoneNumber = None,
-              faxNumber = None,
-              emailAddr = None,
-              systemDate = None
+              faxNumber         = None,
+              emailAddr         = None,
+              systemDate        = None
             )
 
           } else {
@@ -291,22 +291,22 @@ class GamblingDataCacheRepository @Inject()(
                   mgdRegNumber = Option(rs.getString("mgd_reg_number"))
                     .map(_.trim)
                     .getOrElse(""),
-                  phoneNumber = optString("phone_number"),
+                  phoneNumber       = optString("phone_number"),
                   mobilePhoneNumber = optString("mobile_phone_number"),
-                  faxNumber = optString("fax_number"),
-                  emailAddr = optString("email_addr"),
-                  systemDate = optDate("system_date")
+                  faxNumber         = optString("fax_number"),
+                  emailAddr         = optString("email_addr"),
+                  systemDate        = optDate("system_date")
                 )
 
               } else {
 
                 BusinessContactDetails(
-                  mgdRegNumber = "",
-                  phoneNumber = None,
+                  mgdRegNumber      = "",
+                  phoneNumber       = None,
                   mobilePhoneNumber = None,
-                  faxNumber = None,
-                  emailAddr = None,
-                  systemDate = None
+                  faxNumber         = None,
+                  emailAddr         = None,
+                  systemDate        = None
                 )
               }
 
@@ -369,8 +369,8 @@ class GamblingDataCacheRepository @Inject()(
           def optInt(col: String): Option[Int] =
             Option(rs.getObject(col)).map {
               case bd: java.math.BigDecimal => bd.intValue()
-              case n: java.lang.Number => n.intValue()
-              case other => other.toString.toInt
+              case n: java.lang.Number      => n.intValue()
+              case other                    => other.toString.toInt
             }
 
           val businessType: Option[BusinessType] =
@@ -380,13 +380,13 @@ class GamblingDataCacheRepository @Inject()(
             rs.getInt("group_reg") == 1
 
           BusinessDetails(
-            mgdRegNumber = rs.getString("mgd_reg_number"),
-            businessType = businessType,
-            currentlyRegistered = rs.getInt("currently_registered"),
-            groupReg = groupReg,
-            dateOfRegistration = optDate("date_of_registration"),
+            mgdRegNumber          = rs.getString("mgd_reg_number"),
+            businessType          = businessType,
+            currentlyRegistered   = rs.getInt("currently_registered"),
+            groupReg              = groupReg,
+            dateOfRegistration    = optDate("date_of_registration"),
             businessPartnerNumber = optString("business_partner_number"),
-            systemDate = java.time.LocalDate.now()
+            systemDate            = java.time.LocalDate.now()
           )
 
         } finally {
@@ -435,33 +435,33 @@ class GamblingDataCacheRepository @Inject()(
               def optInt(col: String): Option[Int] =
                 Option(rs.getObject(col)).flatMap {
                   case bd: java.math.BigDecimal => Some(bd.intValue())
-                  case n: java.lang.Number => Some(n.intValue())
-                  case _ => None
+                  case n: java.lang.Number      => Some(n.intValue())
+                  case _                        => None
                 }
 
               def optDate(col: String): Option[java.time.LocalDate] =
                 Option(rs.getDate(col)).map(_.toLocalDate)
 
               OperatorDetails(
-                mgdRegNumber = rs.getString("mgd_reg_number"),
-                solePropName = optString("sole_prop_name"),
-                solePropTitle = optString("sole_prop_title"),
-                solePropFirstName = optString("sole_prop_first_name"),
+                mgdRegNumber       = rs.getString("mgd_reg_number"),
+                solePropName       = optString("sole_prop_name"),
+                solePropTitle      = optString("sole_prop_title"),
+                solePropFirstName  = optString("sole_prop_first_name"),
                 solePropMiddleName = optString("sole_prop_middle_name"),
-                solePropLastName = optString("sole_prop_last_name"),
-                tradingName = optString("trading_name"),
-                businessName = optString("business_name"),
-                businessType = optInt("business_type"),
-                adi = optString("adi"),
-                address1 = optString("address_1"),
-                address2 = optString("address_2"),
-                address3 = optString("address_3"),
-                address4 = optString("address_4"),
-                postcode = optString("postcode"),
-                country = optString("country"),
-                abroadSig = optString("abroad_sig"),
-                agentOwnRef = optString("agent_own_ref"),
-                systemDate = optDate("system_date")
+                solePropLastName   = optString("sole_prop_last_name"),
+                tradingName        = optString("trading_name"),
+                businessName       = optString("business_name"),
+                businessType       = optInt("business_type"),
+                adi                = optString("adi"),
+                address1           = optString("address_1"),
+                address2           = optString("address_2"),
+                address3           = optString("address_3"),
+                address4           = optString("address_4"),
+                postcode           = optString("postcode"),
+                country            = optString("country"),
+                abroadSig          = optString("abroad_sig"),
+                agentOwnRef        = optString("agent_own_ref"),
+                systemDate         = optDate("system_date")
               )
 
             } else {
@@ -542,8 +542,8 @@ class GamblingDataCacheRepository @Inject()(
           def optInt(i: Int): Option[Int] =
             Option(cs.getObject(i)).map {
               case bd: java.math.BigDecimal => bd.intValue()
-              case n: java.lang.Number => n.intValue()
-              case other => other.toString.toInt
+              case n: java.lang.Number      => n.intValue()
+              case other                    => other.toString.toInt
             }
 
           val partMembers: List[PartnerMember] = {
@@ -554,12 +554,12 @@ class GamblingDataCacheRepository @Inject()(
                 val b = List.newBuilder[PartnerMember]
                 while (rs.next()) {
                   b += PartnerMember(
-                    namesOfPartMems = Option(rs.getString("names_of_part_mems")),
-                    solePropTitle = Option(rs.getString("sole_prop_title")),
-                    solePropFirstName = Option(rs.getString("sole_prop_first_name")),
+                    namesOfPartMems    = Option(rs.getString("names_of_part_mems")),
+                    solePropTitle      = Option(rs.getString("sole_prop_title")),
+                    solePropFirstName  = Option(rs.getString("sole_prop_first_name")),
                     solePropMiddleName = Option(rs.getString("sole_prop_middle_name")),
-                    solePropLastName = Option(rs.getString("sole_prop_last_name")),
-                    typeOfBusiness = rs.getInt("type_of_business")
+                    solePropLastName   = Option(rs.getString("sole_prop_last_name")),
+                    typeOfBusiness     = rs.getInt("type_of_business")
                   )
                 }
                 b.result()
@@ -597,33 +597,33 @@ class GamblingDataCacheRepository @Inject()(
           }
 
           MgdCertificate(
-            mgdRegNumber = cs.getString(2),
-            registrationDate = optDate(3),
-            individualName = optString(4),
-            businessName = optString(5),
-            tradingName = optString(6),
-            repMemName = optString(7),
-            busAddrLine1 = optString(8),
-            busAddrLine2 = optString(9),
-            busAddrLine3 = optString(10),
-            busAddrLine4 = optString(11),
-            busPostcode = optString(12),
-            busCountry = optString(13),
-            busAdi = optString(14),
-            repMemLine1 = optString(15),
-            repMemLine2 = optString(16),
-            repMemLine3 = optString(17),
-            repMemLine4 = optString(18),
-            repMemPostcode = optString(19),
-            repMemAdi = optString(20),
-            typeOfBusiness = optString(21),
-            businessTradeClass = optInt(22),
-            noOfPartners = optInt(23),
-            groupReg = cs.getString(25),
-            noOfGroupMems = optInt(26),
-            dateCertIssued = optDate(28),
-            partMembers = partMembers,
-            groupMembers = groupMembers,
+            mgdRegNumber         = cs.getString(2),
+            registrationDate     = optDate(3),
+            individualName       = optString(4),
+            businessName         = optString(5),
+            tradingName          = optString(6),
+            repMemName           = optString(7),
+            busAddrLine1         = optString(8),
+            busAddrLine2         = optString(9),
+            busAddrLine3         = optString(10),
+            busAddrLine4         = optString(11),
+            busPostcode          = optString(12),
+            busCountry           = optString(13),
+            busAdi               = optString(14),
+            repMemLine1          = optString(15),
+            repMemLine2          = optString(16),
+            repMemLine3          = optString(17),
+            repMemLine4          = optString(18),
+            repMemPostcode       = optString(19),
+            repMemAdi            = optString(20),
+            typeOfBusiness       = optString(21),
+            businessTradeClass   = optInt(22),
+            noOfPartners         = optInt(23),
+            groupReg             = cs.getString(25),
+            noOfGroupMems        = optInt(26),
+            dateCertIssued       = optDate(28),
+            partMembers          = partMembers,
+            groupMembers         = groupMembers,
             returnPeriodEndDates = returnPeriods
           )
 
@@ -662,23 +662,23 @@ class GamblingDataCacheRepository @Inject()(
               def optInt(col: String): Option[Int] =
                 Option(rs.getObject(col)).map {
                   case bd: java.math.BigDecimal => bd.intValue()
-                  case n: java.lang.Number => n.intValue()
-                  case other => other.toString.toInt
+                  case n: java.lang.Number      => n.intValue()
+                  case other                    => other.toString.toInt
                 }
 
               val businessType: Option[BusinessType] =
                 optInt("business_type").flatMap(BusinessType.fromCode)
 
               BusinessName(
-                mgdRegNumber = rs.getString("MGD_REG_NUMBER"),
-                solePropTitle = Option(rs.getString("SOLE_PROP_TITLE")),
+                mgdRegNumber      = rs.getString("MGD_REG_NUMBER"),
+                solePropTitle     = Option(rs.getString("SOLE_PROP_TITLE")),
                 solePropFirstName = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
-                solePropMidName = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
-                solePropLastName = Option(rs.getString("SOLE_PROP_LAST_NAME")),
-                businessName = Option(rs.getString("BUSINESS_NAME")),
-                businessType = businessType,
-                tradingName = Option(rs.getString("TRADING_NAME")),
-                systemDate = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+                solePropMidName   = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                solePropLastName  = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                businessName      = Option(rs.getString("BUSINESS_NAME")),
+                businessType      = businessType,
+                tradingName       = Option(rs.getString("TRADING_NAME")),
+                systemDate        = Option(rs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
               )
             } else {
               val msg = s"Empty result set for mgdRegNumber=$mgdRegNumber"
@@ -720,8 +720,8 @@ class GamblingDataCacheRepository @Inject()(
           try {
             if (rs.next()) {
               ReturnSummary(
-                mgdRegNumber = rs.getString("MGD_REG_NUMBER"),
-                returnsDue = rs.getInt("RETURNS_DUE"),
+                mgdRegNumber   = rs.getString("MGD_REG_NUMBER"),
+                returnsDue     = rs.getInt("RETURNS_DUE"),
                 returnsOverdue = rs.getInt("RETURNS_OVERDUE")
               )
             } else {
@@ -740,8 +740,8 @@ class GamblingDataCacheRepository @Inject()(
   }
 
   override def getCorrespondenceDetails(
-                                         mgdRegNumber: String
-                                       ): Future[CorrespondenceDetails] = {
+    mgdRegNumber: String
+  ): Future[CorrespondenceDetails] = {
 
     logger.info(
       s"[GamblingDataCacheRepository][getCorrespondenceDetails] mgdRegNumber=$mgdRegNumber"
@@ -775,22 +775,22 @@ class GamblingDataCacheRepository @Inject()(
           if (rs == null) {
 
             CorrespondenceDetails(
-              mgdRegNumber = "",
-              nameLine1 = None,
-              nameLine2 = None,
-              phoneNumber = None,
+              mgdRegNumber      = "",
+              nameLine1         = None,
+              nameLine2         = None,
+              phoneNumber       = None,
               mobilePhoneNumber = None,
-              faxNumber = None,
-              emailAddr = None,
-              adi = None,
-              address1 = None,
-              address2 = None,
-              address3 = None,
-              address4 = None,
-              postcode = None,
-              country = None,
-              iomOrCiFlag = None,
-              systemDate = None
+              faxNumber         = None,
+              emailAddr         = None,
+              adi               = None,
+              address1          = None,
+              address2          = None,
+              address3          = None,
+              address4          = None,
+              postcode          = None,
+              country           = None,
+              iomOrCiFlag       = None,
+              systemDate        = None
             )
 
           } else {
@@ -812,41 +812,41 @@ class GamblingDataCacheRepository @Inject()(
                   mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  nameLine1 = optString("NAME_LINE1"),
-                  nameLine2 = optString("NAME_LINE2"),
-                  phoneNumber = optString("PHONE_NUMBER"),
+                  nameLine1         = optString("NAME_LINE1"),
+                  nameLine2         = optString("NAME_LINE2"),
+                  phoneNumber       = optString("PHONE_NUMBER"),
                   mobilePhoneNumber = optString("MOBILE_PHONE_NUMBER"),
-                  faxNumber = optString("FAX_NUMBER"),
-                  emailAddr = optString("EMAIL_ADDR"),
-                  adi = optString("ADI"),
-                  address1 = optString("ADDRESS_1"),
-                  address2 = optString("ADDRESS_2"),
-                  address3 = optString("ADDRESS_3"),
-                  address4 = optString("ADDRESS_4"),
-                  postcode = optString("POSTCODE"),
-                  country = optString("COUNTRY"),
-                  iomOrCiFlag = optString("IOM_OR_CI_FLAG"),
-                  systemDate = optDate("SYS_DATE")
+                  faxNumber         = optString("FAX_NUMBER"),
+                  emailAddr         = optString("EMAIL_ADDR"),
+                  adi               = optString("ADI"),
+                  address1          = optString("ADDRESS_1"),
+                  address2          = optString("ADDRESS_2"),
+                  address3          = optString("ADDRESS_3"),
+                  address4          = optString("ADDRESS_4"),
+                  postcode          = optString("POSTCODE"),
+                  country           = optString("COUNTRY"),
+                  iomOrCiFlag       = optString("IOM_OR_CI_FLAG"),
+                  systemDate        = optDate("SYS_DATE")
                 )
 
               } else {
                 CorrespondenceDetails(
-                  mgdRegNumber = "",
-                  nameLine1 = None,
-                  nameLine2 = None,
-                  phoneNumber = None,
+                  mgdRegNumber      = "",
+                  nameLine1         = None,
+                  nameLine2         = None,
+                  phoneNumber       = None,
                   mobilePhoneNumber = None,
-                  faxNumber = None,
-                  emailAddr = None,
-                  adi = None,
-                  address1 = None,
-                  address2 = None,
-                  address3 = None,
-                  address4 = None,
-                  postcode = None,
-                  country = None,
-                  iomOrCiFlag = None,
-                  systemDate = None
+                  faxNumber         = None,
+                  emailAddr         = None,
+                  adi               = None,
+                  address1          = None,
+                  address2          = None,
+                  address3          = None,
+                  address4          = None,
+                  postcode          = None,
+                  country           = None,
+                  iomOrCiFlag       = None,
+                  systemDate        = None
                 )
               }
 
@@ -864,8 +864,8 @@ class GamblingDataCacheRepository @Inject()(
   }
 
   override def getBusinessAddressDetails(
-                                          mgdRegNumber: String
-                                        ): Future[BusinessAddressDetails] = {
+    mgdRegNumber: String
+  ): Future[BusinessAddressDetails] = {
 
     Future(blocking {
 
@@ -909,29 +909,29 @@ class GamblingDataCacheRepository @Inject()(
                   mgdRegNumber = Option(rs.getString("mgd_reg_number"))
                     .map(_.trim)
                     .getOrElse(""),
-                  adi = optString("adi"),
-                  address1 = optString("address_1"),
-                  address2 = optString("address_2"),
-                  address3 = optString("address_3"),
-                  address4 = optString("address_4"),
-                  postcode = optString("postcode"),
-                  country = optString("country"),
+                  adi         = optString("adi"),
+                  address1    = optString("address_1"),
+                  address2    = optString("address_2"),
+                  address3    = optString("address_3"),
+                  address4    = optString("address_4"),
+                  postcode    = optString("postcode"),
+                  country     = optString("country"),
                   iomOrCiFlag = optString("iom_or_ci_flag"),
-                  systemDate = optDate("system_date")
+                  systemDate  = optDate("system_date")
                 )
               }
               .getOrElse {
                 BusinessAddressDetails(
                   mgdRegNumber = "",
-                  adi = None,
-                  address1 = None,
-                  address2 = None,
-                  address3 = None,
-                  address4 = None,
-                  postcode = None,
-                  country = None,
-                  iomOrCiFlag = None,
-                  systemDate = None
+                  adi          = None,
+                  address1     = None,
+                  address2     = None,
+                  address3     = None,
+                  address4     = None,
+                  postcode     = None,
+                  country      = None,
+                  iomOrCiFlag  = None,
+                  systemDate   = None
                 )
               }
 
@@ -948,8 +948,8 @@ class GamblingDataCacheRepository @Inject()(
   }
 
   override def getControllingBodyDetails(
-                                          mgdRegNumber: String
-                                        ): Future[ControllingBodyDetails] = {
+    mgdRegNumber: String
+  ): Future[ControllingBodyDetails] = {
 
     Future(blocking {
 
@@ -988,15 +988,15 @@ class GamblingDataCacheRepository @Inject()(
                 def optLong(col: String): Option[Long] =
                   Option(rs.getObject(col)).map {
                     case bd: java.math.BigDecimal => bd.longValue()
-                    case n: java.lang.Number => n.longValue()
-                    case other => other.toString.toLong
+                    case n: java.lang.Number      => n.longValue()
+                    case other                    => other.toString.toLong
                   }
 
                 def optInt(col: String): Option[Int] =
                   Option(rs.getObject(col)).map {
                     case bd: java.math.BigDecimal => bd.intValue()
-                    case n: java.lang.Number => n.intValue()
-                    case other => other.toString.toInt
+                    case n: java.lang.Number      => n.intValue()
+                    case other                    => other.toString.toInt
                   }
 
                 val typeOfControllingBody: Option[BusinessType] =
@@ -1006,77 +1006,77 @@ class GamblingDataCacheRepository @Inject()(
                   mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                     .map(_.trim)
                     .getOrElse(""),
-                  businessPartnerNumber = optString("BUSINESS_PARTNER_NUMBER"),
-                  dateOfJoining = optDate("DATE_OF_JOINING"),
-                  dateOfLeaving = optDate("DATE_OF_LEAVING"),
-                  solePropTitle = optString("SOLE_PROP_TITLE"),
-                  solePropFirstName = optString("SOLE_PROP_FIRST_NAME"),
-                  solePropMiddleName = optString("SOLE_PROP_MIDDLE_NAME"),
-                  solePropLastName = optString("SOLE_PROP_LAST_NAME"),
-                  businessName = optString("BUSINESS_NAME"),
-                  tradingName = optString("TRADING_NAME"),
-                  dateOfBirth = optDate("DATE_OF_BIRTH"),
-                  nino = optString("NINO"),
-                  utr = optLong("UTR"),
-                  vrn = optLong("VRN"),
-                  crn = optString("CRN"),
-                  dateOfIncorporation = optDate("DATE_OF_INCORPORATION"),
+                  businessPartnerNumber  = optString("BUSINESS_PARTNER_NUMBER"),
+                  dateOfJoining          = optDate("DATE_OF_JOINING"),
+                  dateOfLeaving          = optDate("DATE_OF_LEAVING"),
+                  solePropTitle          = optString("SOLE_PROP_TITLE"),
+                  solePropFirstName      = optString("SOLE_PROP_FIRST_NAME"),
+                  solePropMiddleName     = optString("SOLE_PROP_MIDDLE_NAME"),
+                  solePropLastName       = optString("SOLE_PROP_LAST_NAME"),
+                  businessName           = optString("BUSINESS_NAME"),
+                  tradingName            = optString("TRADING_NAME"),
+                  dateOfBirth            = optDate("DATE_OF_BIRTH"),
+                  nino                   = optString("NINO"),
+                  utr                    = optLong("UTR"),
+                  vrn                    = optLong("VRN"),
+                  crn                    = optString("CRN"),
+                  dateOfIncorporation    = optDate("DATE_OF_INCORPORATION"),
                   countryOfIncorporation = optString("COUNTRY_OF_INCORPORATION"),
-                  foreignCorporateRef = optString("FOREIGN_CORPORATE_REF"),
-                  address1 = optString("ADDRESS_1"),
-                  address2 = optString("ADDRESS_2"),
-                  address3 = optString("ADDRESS_3"),
-                  address4 = optString("ADDRESS_4"),
-                  postcode = optString("POSTCODE"),
-                  country = optString("COUNTRY"),
-                  adi = optString("ADI"),
-                  isIomOrCiFlag = optString("IS_IOM_OR_CI"),
-                  phoneNumber = optString("PHONE_NUMBER"),
-                  mobilePhoneNumber = optString("MOBILE_PHONE_NUMBER"),
-                  faxNumber = optString("FAX_NUMBER"),
-                  emailAddr = optString("EMAIL_ADDR"),
-                  typeOfControllingBody = typeOfControllingBody,
-                  isRepMemSameAsCb = optString("IS_REP_MEM_SAME_AS_CB"),
-                  isUkIncorporated = optString("IS_UK_INCORPORATED"),
-                  systemDate = systemDate
+                  foreignCorporateRef    = optString("FOREIGN_CORPORATE_REF"),
+                  address1               = optString("ADDRESS_1"),
+                  address2               = optString("ADDRESS_2"),
+                  address3               = optString("ADDRESS_3"),
+                  address4               = optString("ADDRESS_4"),
+                  postcode               = optString("POSTCODE"),
+                  country                = optString("COUNTRY"),
+                  adi                    = optString("ADI"),
+                  isIomOrCiFlag          = optString("IS_IOM_OR_CI"),
+                  phoneNumber            = optString("PHONE_NUMBER"),
+                  mobilePhoneNumber      = optString("MOBILE_PHONE_NUMBER"),
+                  faxNumber              = optString("FAX_NUMBER"),
+                  emailAddr              = optString("EMAIL_ADDR"),
+                  typeOfControllingBody  = typeOfControllingBody,
+                  isRepMemSameAsCb       = optString("IS_REP_MEM_SAME_AS_CB"),
+                  isUkIncorporated       = optString("IS_UK_INCORPORATED"),
+                  systemDate             = systemDate
                 )
               }
               .getOrElse {
                 ControllingBodyDetails(
-                  mgdRegNumber = "",
-                  businessPartnerNumber = None,
-                  dateOfJoining = None,
-                  dateOfLeaving = None,
-                  solePropTitle = None,
-                  solePropFirstName = None,
-                  solePropMiddleName = None,
-                  solePropLastName = None,
-                  businessName = None,
-                  tradingName = None,
-                  dateOfBirth = None,
-                  nino = None,
-                  utr = None,
-                  vrn = None,
-                  crn = None,
-                  dateOfIncorporation = None,
+                  mgdRegNumber           = "",
+                  businessPartnerNumber  = None,
+                  dateOfJoining          = None,
+                  dateOfLeaving          = None,
+                  solePropTitle          = None,
+                  solePropFirstName      = None,
+                  solePropMiddleName     = None,
+                  solePropLastName       = None,
+                  businessName           = None,
+                  tradingName            = None,
+                  dateOfBirth            = None,
+                  nino                   = None,
+                  utr                    = None,
+                  vrn                    = None,
+                  crn                    = None,
+                  dateOfIncorporation    = None,
                   countryOfIncorporation = None,
-                  foreignCorporateRef = None,
-                  address1 = None,
-                  address2 = None,
-                  address3 = None,
-                  address4 = None,
-                  postcode = None,
-                  country = None,
-                  adi = None,
-                  isIomOrCiFlag = None,
-                  phoneNumber = None,
-                  mobilePhoneNumber = None,
-                  faxNumber = None,
-                  emailAddr = None,
-                  typeOfControllingBody = None,
-                  isRepMemSameAsCb = None,
-                  isUkIncorporated = None,
-                  systemDate = None
+                  foreignCorporateRef    = None,
+                  address1               = None,
+                  address2               = None,
+                  address3               = None,
+                  address4               = None,
+                  postcode               = None,
+                  country                = None,
+                  adi                    = None,
+                  isIomOrCiFlag          = None,
+                  phoneNumber            = None,
+                  mobilePhoneNumber      = None,
+                  faxNumber              = None,
+                  emailAddr              = None,
+                  typeOfControllingBody  = None,
+                  isRepMemSameAsCb       = None,
+                  isUkIncorporated       = None,
+                  systemDate             = None
                 )
               }
 
@@ -1093,8 +1093,8 @@ class GamblingDataCacheRepository @Inject()(
   }
 
   override def getPremisesDetails(
-                                   mgdRegNumber: String
-                                 ): Future[PremisesDetailsResponse] = {
+    mgdRegNumber: String
+  ): Future[PremisesDetailsResponse] = {
 
     Future(blocking {
 
@@ -1151,11 +1151,11 @@ class GamblingDataCacheRepository @Inject()(
                         mgdRegNumber = Option(rs.getString("MGD_REG_NUMBER"))
                           .map(_.trim)
                           .getOrElse(""),
-                        address1 = optString("ADDRESS_1"),
-                        address2 = optString("ADDRESS_2"),
-                        address3 = optString("ADDRESS_3"),
-                        address4 = optString("ADDRESS_4"),
-                        postcode = optString("POSTCODE"),
+                        address1   = optString("ADDRESS_1"),
+                        address2   = optString("ADDRESS_2"),
+                        address3   = optString("ADDRESS_3"),
+                        address4   = optString("ADDRESS_4"),
+                        postcode   = optString("POSTCODE"),
                         systemDate = optDate("SYSTEM_DATE")
                       )
                     }
@@ -1166,7 +1166,7 @@ class GamblingDataCacheRepository @Inject()(
 
             PremisesDetailsResponse(
               totalRows = Some(count),
-              premises = premises
+              premises  = premises
             )
 
           } finally {
@@ -1186,7 +1186,7 @@ class GamblingDataCacheRepository @Inject()(
       val cs = {
         regime match
           case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_PARTNERS(?, ?, ?) }")
-          case _ => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
       }
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
@@ -1204,39 +1204,39 @@ class GamblingDataCacheRepository @Inject()(
               while (rs.next()) {
                 val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
                   Partner(
-                    mgdRegNumber = mgdRegNumber,
-                    businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
-                    dateOfJoining = optDate("DATE_OF_JOINING", rs),
-                    dateOfLeaving = optLocalDate("DATE_OF_LEAVING", rs),
-                    solePropTitle = Option(rs.getString("SOLE_PROP_TITLE")),
-                    solePropFirstName = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
-                    solePropMiddleName = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
-                    solePropLastName = Option(rs.getString("SOLE_PROP_LAST_NAME")),
-                    businessName = Option(rs.getString("BUSINESS_NAME")),
-                    tradingName = Option(rs.getString("TRADING_NAME")),
-                    dateOfBirth = optDate("DATE_OF_BIRTH", rs),
-                    nino = Option(rs.getString("NINO")),
-                    utr = Option(rs.getString("UTR")),
-                    vrn = Option(rs.getString("VRN")),
-                    crn = Option(rs.getString("CRN")),
-                    dateOfIncorporation = optDate("DATE_OF_INCORPORATION", rs),
+                    mgdRegNumber           = mgdRegNumber,
+                    businessPartnerNumber  = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    dateOfJoining          = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving          = optLocalDate("DATE_OF_LEAVING", rs),
+                    solePropTitle          = Option(rs.getString("SOLE_PROP_TITLE")),
+                    solePropFirstName      = Option(rs.getString("SOLE_PROP_FIRST_NAME")),
+                    solePropMiddleName     = Option(rs.getString("SOLE_PROP_MIDDLE_NAME")),
+                    solePropLastName       = Option(rs.getString("SOLE_PROP_LAST_NAME")),
+                    businessName           = Option(rs.getString("BUSINESS_NAME")),
+                    tradingName            = Option(rs.getString("TRADING_NAME")),
+                    dateOfBirth            = optDate("DATE_OF_BIRTH", rs),
+                    nino                   = Option(rs.getString("NINO")),
+                    utr                    = Option(rs.getString("UTR")),
+                    vrn                    = Option(rs.getString("VRN")),
+                    crn                    = Option(rs.getString("CRN")),
+                    dateOfIncorporation    = optDate("DATE_OF_INCORPORATION", rs),
                     countryOfIncorporation = Option(rs.getString("COUNTRY_OF_INCORPORATION")),
-                    foreignCorporateRef = Option(rs.getString("FOREIGN_CORPORATE_REF")),
-                    address1 = Option(rs.getString("ADDRESS_1")),
-                    address2 = Option(rs.getString("ADDRESS_2")),
-                    address3 = Option(rs.getString("ADDRESS_3")),
-                    address4 = Option(rs.getString("ADDRESS_4")),
-                    postcode = Option(rs.getString("POSTCODE")),
-                    country = Option(rs.getString("COUNTRY")),
-                    adi = Option(rs.getString("ADI")),
-                    iomOrCiFlag = Option(rs.getString("IOM_OR_CI_FLAG")),
-                    phoneNumber = Option(rs.getString("PHONE_NUMBER")),
-                    mobilePhoneNumber = Option(rs.getString("MOBILE_PHONE_NUMBER")),
-                    faxNumber = Option(rs.getString("FAX_NUMBER")),
-                    emailAddr = Option(rs.getString("EMAIL_ADDR")),
-                    isFutureLeaveDate = Option(rs.getObject("IS_FUTURE_LEAVE_DATE", classOf[java.lang.Integer])).map(_.intValue()),
-                    isFutureJoinDate = Option(rs.getObject("IS_FUTURE_JOIN_DATE", classOf[java.lang.Integer])).map(_.intValue()),
-                    businessType = Option(rs.getObject("BUSINESS_TYPE", classOf[java.lang.Integer])).map(_.intValue())
+                    foreignCorporateRef    = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    address1               = Option(rs.getString("ADDRESS_1")),
+                    address2               = Option(rs.getString("ADDRESS_2")),
+                    address3               = Option(rs.getString("ADDRESS_3")),
+                    address4               = Option(rs.getString("ADDRESS_4")),
+                    postcode               = Option(rs.getString("POSTCODE")),
+                    country                = Option(rs.getString("COUNTRY")),
+                    adi                    = Option(rs.getString("ADI")),
+                    iomOrCiFlag            = Option(rs.getString("IOM_OR_CI_FLAG")),
+                    phoneNumber            = Option(rs.getString("PHONE_NUMBER")),
+                    mobilePhoneNumber      = Option(rs.getString("MOBILE_PHONE_NUMBER")),
+                    faxNumber              = Option(rs.getString("FAX_NUMBER")),
+                    emailAddr              = Option(rs.getString("EMAIL_ADDR")),
+                    isFutureLeaveDate      = Option(rs.getObject("IS_FUTURE_LEAVE_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    isFutureJoinDate       = Option(rs.getObject("IS_FUTURE_JOIN_DATE", classOf[java.lang.Integer])).map(_.intValue()),
+                    businessType           = Option(rs.getObject("BUSINESS_TYPE", classOf[java.lang.Integer])).map(_.intValue())
                   )
                 )
                 b.addAll(maybeItem.toList)
@@ -1247,7 +1247,7 @@ class GamblingDataCacheRepository @Inject()(
         }
 
         PartnerDetails(
-          partners = partnerDetails,
+          partners   = partnerDetails,
           systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
         )
       } finally {
@@ -1324,7 +1324,7 @@ class GamblingDataCacheRepository @Inject()(
       val cs = {
         regime match
           case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBERS(?, ?, ?) }")
-          case _ => throw new RuntimeException(s"Regime $regime is not supported for getGroupMemberDetails")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getGroupMemberDetails")
       }
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
@@ -1332,25 +1332,25 @@ class GamblingDataCacheRepository @Inject()(
         cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
         cs.execute()
 
-        val groupMemberDetails: List[GroupMember] = {
+        val groupMemberRecordDetails: List[GroupMemberRecord] = {
           val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
           if (rs == null) Nil
           else {
             try {
-              val b = List.newBuilder[GroupMember]
+              val b = List.newBuilder[GroupMemberRecord]
 
               while (rs.next()) {
                 val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
-                  GroupMember(
-                    mgdRegNumber              = mgdRegNumber,
-                    businessPartnerNumber     = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
-                    businessName              = Option(rs.getString("BUSINESS_NAME")),
-                    crn                       = Option(rs.getString("CRN")),
-                    foreignCorporateRef       = Option(rs.getString("FOREIGN_CORPORATE_REF")),
-                    isRepMemberOfGroup        = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
-                    dateOfJoining             = optDate("DATE_OF_JOINING", rs),
-                    dateOfLeaving             = optDate("DATE_OF_LEAVING", rs),
-                    emailAddress              = Option(rs.getString("EMAIL_ADDR")),
+                  GroupMemberRecord(
+                    mgdRegNumber          = mgdRegNumber,
+                    businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    businessName          = Option(rs.getString("BUSINESS_NAME")),
+                    crn                   = Option(rs.getString("CRN")),
+                    foreignCorporateRef   = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    isRepMemberOfGroup    = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
+                    dateOfJoining         = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
+                    emailAddress          = Option(rs.getString("EMAIL_ADDR"))
                   )
                 )
                 b.addAll(maybeItem.toList)
@@ -1361,15 +1361,14 @@ class GamblingDataCacheRepository @Inject()(
         }
 
         GroupMemberDetails(
-          groupMembers = groupMemberDetails,
-          systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
+          groupMemberRecords = groupMemberRecordDetails,
+          systemDate         = Option(cs.getDate(3)).map(_.toLocalDate)
         )
       } finally {
         closeQuietly(cs)
       }
     }
   })
-
 
   override def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]] = Future(blocking {
     db.withConnection { conn =>
@@ -1399,18 +1398,18 @@ class GamblingDataCacheRepository @Inject()(
 
           Right(
             AgentDetails(
-              businessName = Option(cs.getString(2)).map(_.trim).filter(_.nonEmpty),
-              addressLine1 = optString(addressRs, "ADDR_1"),
-              addressLine2 = optString(addressRs, "ADDR_2"),
-              addressLine3 = optString(addressRs, "ADDR_3"),
-              addressLine4 = optString(addressRs, "ADDR_4"),
-              postcode = optString(addressRs, "POST_CODE"),
-              country = optString(addressRs, "COUNTRY"),
-              abroadSignal = optString(addressRs, "ABROAD_SIGNAL"),
-              phoneNumber = optString(contactRs, "PHONE_NUMBER"),
+              businessName      = Option(cs.getString(2)).map(_.trim).filter(_.nonEmpty),
+              addressLine1      = optString(addressRs, "ADDR_1"),
+              addressLine2      = optString(addressRs, "ADDR_2"),
+              addressLine3      = optString(addressRs, "ADDR_3"),
+              addressLine4      = optString(addressRs, "ADDR_4"),
+              postcode          = optString(addressRs, "POST_CODE"),
+              country           = optString(addressRs, "COUNTRY"),
+              abroadSignal      = optString(addressRs, "ABROAD_SIGNAL"),
+              phoneNumber       = optString(contactRs, "PHONE_NUMBER"),
               mobilePhoneNumber = optString(contactRs, "MOBILE_PHONE_NUMBER"),
-              faxNumber = optString(contactRs, "FAX_NUMBER"),
-              email = optString(contactRs, "EMAIL_ADDR")
+              faxNumber         = optString(contactRs, "FAX_NUMBER"),
+              email             = optString(contactRs, "EMAIL_ADDR")
             )
           )
         }

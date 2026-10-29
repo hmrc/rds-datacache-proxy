@@ -28,9 +28,10 @@ import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GroupMemberDetailsController @Inject()(authorise: AuthAction, service: GamblingService, cc: ControllerComponents)(implicit ec: ExecutionContext
+class GroupMembersController @Inject() (authorise: AuthAction, service: GamblingService, cc: ControllerComponents)(implicit
+  ec: ExecutionContext
 ) extends BackendController(cc)
-  with Logging {
+    with Logging {
 
   def getGroupMemberDetails(regime: String, mgdRegNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>

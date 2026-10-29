@@ -186,6 +186,11 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getPartnerDetailsData(regNumber)
     }
 
+    override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMemberDetails] = Future {
+      GamblingStubData.getGroupMembersData(regNumber)
+    }
+
+
     override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] = Future {
       GamblingStubData.getReturnPeriods(regNumber)
     }

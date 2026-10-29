@@ -77,6 +77,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
 
+    override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMemberDetails] =
+      Future.successful(GamblingStubData.getGroupMembersData(regNumber))
+
     override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] =
       Future.successful(GamblingStubData.getReturnPeriods(regNumber))
 

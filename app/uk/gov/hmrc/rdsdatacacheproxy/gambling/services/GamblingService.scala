@@ -415,7 +415,7 @@ class GamblingService @Inject() (
   }
 
   def getGroupMemberDetails(regime: String, rawMgdRegNumber: String)(implicit
-                                                                 hc: HeaderCarrier
+    hc: HeaderCarrier
   ): Future[Either[GamblingError, GroupMemberDetails]] = {
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
 

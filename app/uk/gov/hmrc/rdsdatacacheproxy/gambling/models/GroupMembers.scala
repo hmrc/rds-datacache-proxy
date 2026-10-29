@@ -22,30 +22,30 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 final case class GroupMemberDetails(
-                                     groupMembers: Seq[GroupMember],
-                                     systemDate: Option[LocalDate]
-                                   )
+  groupMemberRecords: Seq[GroupMemberRecord],
+  systemDate: Option[LocalDate]
+)
 
-final case class GroupMember(
-                          mgdRegNumber: String,
-                          businessPartnerNumber: Option[String],
-                          businessName: Option[String],
-                          crn: Option[String],
-                          foreignCorporateRef: Option[String],
-                          isRepMemberOfGroup: Option[Int],
-                          dateOfJoining: Option[LocalDate],
-                          dateOfLeaving: Option[LocalDate],
-                          emailAddress: Option[String]
-                        )
+final case class GroupMemberRecord(
+  mgdRegNumber: String,
+  businessPartnerNumber: Option[String],
+  businessName: Option[String],
+  crn: Option[String],
+  foreignCorporateRef: Option[String],
+  isRepMemberOfGroup: Option[Int],
+  dateOfJoining: Option[LocalDate],
+  dateOfLeaving: Option[LocalDate],
+  emailAddress: Option[String]
+)
 
-object GroupMember {
+object GroupMemberRecord {
 
   private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
   implicit val localDateWrites: Writes[LocalDate] =
     Writes.temporalWrites[LocalDate, DateTimeFormatter](fmt)
 
-  implicit val format: OFormat[GroupMember] =
-    Json.format[GroupMember]
+  implicit val format: OFormat[GroupMemberRecord] =
+    Json.format[GroupMemberRecord]
 }
 
 object GroupMemberDetails {
@@ -56,4 +56,3 @@ object GroupMemberDetails {
   implicit val format: OFormat[GroupMemberDetails] =
     Json.format[GroupMemberDetails]
 }
-
