@@ -343,7 +343,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
   "getReturnSummary (stubbed repository)" should {
 
     "return zero counts when no returns are due or overdue" in {
-      val result = repository.getReturnSummary("XYZ00000000000").futureValue
+      val result = repository.getReturnSummary("XYZ0000 0000000").futureValue
 
       result mustBe ReturnSummary(
         mgdRegNumber   = "XYZ00000000000",

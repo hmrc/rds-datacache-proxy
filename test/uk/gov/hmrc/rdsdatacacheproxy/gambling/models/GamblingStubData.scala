@@ -663,6 +663,45 @@ object GamblingStubData {
       case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
 
+  def getGroupMembersData(regNumber: String): GroupMemberDetails =
+    regNumber match {
+      case "XYM00000000000" =>
+        GroupMemberDetails(
+          groupMembers = List(
+            GroupMember(
+              mgdRegNumber = "XYM00000000004",
+              businessPartnerNumber = "1234567",
+              businessName = "BusinessCo",
+              crn = Some("09876543"),
+              foreignCorporateRef = "def",
+              isRepMemberOfGroup = 1,
+              dateOfJoining = Some(LocalDate.of(2025, 1, 1)),
+              dateOfLeaving = Some(LocalDate.of(2025, 1, 1)),
+              emailAddress = "a@b.com"
+            ),
+          ),
+          systemDate = Some(LocalDate.of(2026, 7, 30))
+        )
+      case "XYZ00000000001" =>
+        GroupMemberDetails(
+          groupMembers = List(
+            GroupMember(
+              mgdRegNumber = "XYM00000000004",
+              businessPartnerNumber = "1234567",
+              businessName = "BusinessCo",
+              crn = Some("09876543"),
+              foreignCorporateRef = "def",
+              isRepMemberOfGroup = 1,
+              dateOfJoining = Some(LocalDate.of(2025, 1, 1)),
+              dateOfLeaving = Some(LocalDate.of(2025, 1, 1)),
+              emailAddress = "a@b.com"
+            )
+          ),
+          systemDate = Some(LocalDate.of(2026, 7, 30))
+        )
+      case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
+    }
+
   def getReturnPeriods(regNumber: String, isRight: Boolean = true): Either[RepositoryError, ReturnPeriods] =
     if (!isRight) {
       Left(RecordNotFound(s"Record not found for $regNumber"))

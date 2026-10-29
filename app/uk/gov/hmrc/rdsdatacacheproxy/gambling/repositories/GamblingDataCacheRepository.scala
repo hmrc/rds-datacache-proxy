@@ -55,7 +55,7 @@ trait GamblingDataSource {
 
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
 
-  def getGroupMemberDetails(mgdRegNumber: String): Future[Either[RepositoryError, GroupMemberDetails]]
+  def getGroupMemberDetails(regime: Regime, mgdRegNumber: String): Future[GroupMemberDetails]
 
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
@@ -1349,7 +1349,7 @@ class GamblingDataCacheRepository @Inject()(
                     foreignCorporateRef       = Option(rs.getString("FOREIGN_CORPORATE_REF")),
                     isRepMemberOfGroup        = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
                     dateOfJoining             = optDate("DATE_OF_JOINING", rs),
-                    dateOfLeaving             = optLocalDate("DATE_OF_LEAVING", rs),
+                    dateOfLeaving             = optDate("DATE_OF_LEAVING", rs),
                     emailAddress              = Option(rs.getString("EMAIL_ADDR")),
                   )
                 )
