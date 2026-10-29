@@ -836,7 +836,38 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
       exception.getMessage must include("Simulated downstream failure")
     }
   }
-  
+
+  "getGroupMembersData() (stubbed repository)" should {
+
+    "return correct getGroupMembersData" in {
+      val result = repository.getGroupMemberDetails(Regime.MGD, "XYM00000000000").futureValue
+
+      result mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getGroupMemberDetails(Regime.MGD, "XYM00000000000").futureValue
+      val result2 = repository.getGroupMemberDetails(Regime.MGD, "XYM00000000000").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different valid regNumbers independently" in {
+      val result1 = repository.getGroupMemberDetails(Regime.MGD, "XYM00000000000").futureValue
+      val result2 = repository.getGroupMemberDetails(Regime.MGD, "XYZ00000000001").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getGroupMemberDetails(Regime.MGD, "XEM33333333333").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
+
   "getReturnPeriods (stubbed repository)" should {
 
     "return correct PartnerDetailsData" in {
