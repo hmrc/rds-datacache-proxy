@@ -670,31 +670,42 @@ object GamblingStubData {
           groupMembers = List(
             GroupMember(
               mgdRegNumber = "XYM00000000004",
-              businessPartnerNumber = "1234567",
-              businessName = "BusinessCo",
+              businessPartnerNumber = Some("0100049899"),
+              businessName = Some("BusinessCo"),
               crn = Some("09876543"),
-              foreignCorporateRef = "def",
-              isRepMemberOfGroup = 1,
+              foreignCorporateRef = Some("FCR-UK-987654"),
+              isRepMemberOfGroup = Some(1),
               dateOfJoining = Some(LocalDate.of(2025, 1, 1)),
               dateOfLeaving = Some(LocalDate.of(2025, 1, 1)),
-              emailAddress = "a@b.com"
+              emailAddress = Some("a@b.com")
+            ),
+            GroupMember(
+              mgdRegNumber = "XYM00000000000",
+              businessPartnerNumber = Some("1100049911"),
+              businessName = Some("Oh It's A Business"),
+              crn = Some("19876544"),
+              foreignCorporateRef = Some("GGR-UK-187654"),
+              isRepMemberOfGroup = Some(0),
+              dateOfJoining = Some(LocalDate.of(2025, 9, 9)),
+              dateOfLeaving = Some(LocalDate.of(2025, 9, 9)),
+              emailAddress = Some("d@e.com")
             ),
           ),
-          systemDate = Some(LocalDate.of(2026, 7, 30))
+          systemDate = Some(LocalDate.of(2026, 10, 29))
         )
       case "XYZ00000000001" =>
         GroupMemberDetails(
           groupMembers = List(
             GroupMember(
-              mgdRegNumber = "XYM00000000004",
-              businessPartnerNumber = "1234567",
-              businessName = "BusinessCo",
-              crn = Some("09876543"),
-              foreignCorporateRef = "def",
-              isRepMemberOfGroup = 1,
-              dateOfJoining = Some(LocalDate.of(2025, 1, 1)),
-              dateOfLeaving = Some(LocalDate.of(2025, 1, 1)),
-              emailAddress = "a@b.com"
+              mgdRegNumber = "XYM00000000001",
+              businessPartnerNumber = Some("2186744422"),
+              businessName = Some("Mr Business"),
+              crn = Some("11176543"),
+              foreignCorporateRef = Some("ACD-UK-222654"),
+              isRepMemberOfGroup = Some(1),
+              dateOfJoining = Some(LocalDate.of(2021, 1, 1)),
+              dateOfLeaving = Some(LocalDate.of(2026, 1, 1)),
+              emailAddress = Some("f@g.com")
             )
           ),
           systemDate = Some(LocalDate.of(2026, 7, 30))
