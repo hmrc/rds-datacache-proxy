@@ -55,7 +55,7 @@ trait GamblingDataSource {
 
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
 
-  def getGroupMemberDetails(regime: Regime, mgdRegNumber: String): Future[GroupMemberDetails]
+  def getGroupMemberDetails(regime: Regime, mgdRegNumber: String): Future[GroupMembers]
 
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
@@ -1319,7 +1319,7 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMemberDetails] = Future(blocking {
+  override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMembers] = Future(blocking {
     db.withConnection { conn =>
       val cs = {
         regime match
@@ -1360,7 +1360,7 @@ class GamblingDataCacheRepository @Inject() (
           }
         }
 
-        GroupMemberDetails(
+        GroupMembers(
           groupMemberRecords = groupMemberRecordDetails,
           systemDate         = Option(cs.getDate(3)).map(_.toLocalDate)
         )

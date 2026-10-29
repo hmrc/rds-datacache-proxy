@@ -186,7 +186,7 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       GamblingStubData.getPartnerDetailsData(regNumber)
     }
 
-    override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMemberDetails] = Future {
+    override def getGroupMemberDetails(regime: Regime, regNumber: String): Future[GroupMembers] = Future {
       GamblingStubData.getGroupMembersData(regNumber)
     }
 
@@ -778,21 +778,21 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[GroupMemberDetails] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
+      response.json.as[GroupMembers] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
     }
 
     "normalise lowercase input" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/xym00000000000 ").futureValue
       response.status mustBe OK
-      response.json.as[GroupMemberDetails] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
+      response.json.as[GroupMembers] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
     }
 
     "trim whitespace around regNumber" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/   XYM00000000000   ").futureValue
       response.status mustBe OK
-      response.json.as[GroupMemberDetails] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
+      response.json.as[GroupMembers] mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
     }
 
     "return consistent results across multiple calls" in {

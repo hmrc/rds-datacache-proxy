@@ -33,9 +33,9 @@ class GroupMembersController @Inject() (authorise: AuthAction, service: Gambling
 ) extends BackendController(cc)
     with Logging {
 
-  def getGroupMemberDetails(regime: String, mgdRegNumber: String): Action[AnyContent] =
+  def getGroupMembers(regime: String, mgdRegNumber: String): Action[AnyContent] =
     authorise.async { implicit request =>
-      service.getGroupMemberDetails(regime, mgdRegNumber).map {
+      service.getGroupMembers(regime, mgdRegNumber).map {
         case Right(details) =>
           Ok(Json.toJson(details))
         case Left(error) =>

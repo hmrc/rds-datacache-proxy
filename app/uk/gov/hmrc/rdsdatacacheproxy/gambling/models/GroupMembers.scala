@@ -21,7 +21,7 @@ import play.api.libs.json.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-final case class GroupMemberDetails(
+final case class GroupMembers(
   groupMemberRecords: Seq[GroupMemberRecord],
   systemDate: Option[LocalDate]
 )
@@ -48,11 +48,11 @@ object GroupMemberRecord {
     Json.format[GroupMemberRecord]
 }
 
-object GroupMemberDetails {
+object GroupMembers {
   private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
   implicit val localDateWrites: Writes[LocalDate] =
     Writes.temporalWrites[LocalDate, DateTimeFormatter](fmt)
 
-  implicit val format: OFormat[GroupMemberDetails] =
-    Json.format[GroupMemberDetails]
+  implicit val format: OFormat[GroupMembers] =
+    Json.format[GroupMembers]
 }

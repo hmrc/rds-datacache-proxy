@@ -663,10 +663,10 @@ object GamblingStubData {
       case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
 
-  def getGroupMembersData(regNumber: String): GroupMemberDetails =
+  def getGroupMembersData(regNumber: String): GroupMembers =
     regNumber match {
       case "XYM00000000000" =>
-        GroupMemberDetails(
+        GroupMembers(
           groupMemberRecords = List(
             GroupMemberRecord(
               mgdRegNumber          = "XYM00000000004",
@@ -694,7 +694,7 @@ object GamblingStubData {
           systemDate = Some(LocalDate.of(2026, 10, 29))
         )
       case "XYZ00000000001" =>
-        GroupMemberDetails(
+        GroupMembers(
           groupMemberRecords = List(
             GroupMemberRecord(
               mgdRegNumber          = "XYM00000000001",

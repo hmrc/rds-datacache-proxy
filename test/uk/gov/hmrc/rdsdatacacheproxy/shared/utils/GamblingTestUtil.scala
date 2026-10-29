@@ -612,22 +612,19 @@ object GamblingTestUtil {
     ),
     systemDate = Some(LocalDate.of(2026, 7, 30))
   )
-
-  val validResponseReturnPeriods = ReturnPeriods(
-    mgdRegNumber          = "XYM00000000000",
-    returnPeriodsId       = Some(1),
-    nstpEndDate1          = Some(LocalDate.of(2024, 10, 14)),
-    nstpEndDate2          = Some(LocalDate.of(2025, 1, 14)),
-    nstpEndDate3          = Some(LocalDate.of(2025, 4, 15)),
-    nstpEndDate4          = Some(LocalDate.of(2025, 7, 15)),
-    nstpEndDate5          = Some(LocalDate.of(2025, 10, 14)),
-    nstpEndDate6          = Some(LocalDate.of(2026, 1, 14)),
-    nstpEndDate7          = Some(LocalDate.of(2026, 4, 15)),
-    nstpEndDate8          = Some(LocalDate.of(2026, 7, 17)),
-    isInLastNstp          = Some("1"),
-    finalPeriodWarning    = Some("0"),
-    hasExistingNstpValues = Some("1"),
-    systemDate            = Some(LocalDate.of(2026, 5, 31))
-  )
-
-}
+  val validResponseGroupMembers = GroupMembers(
+    groupMemberRecords = List(
+      GroupMemberRecord(
+        mgdRegNumber           = "XWM12345678901",
+        businessName = Some("ABC"),
+        businessPartnerNumber  = Some("0100049899"),
+        isRepMemberOfGroup = Some(1),
+        crn                    = Some("09876543"),
+        foreignCorporateRef    = Some("FCR-UK-987654"),
+        dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
+        dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
+        emailAddress = Some("a@b.com")
+      )
+    ),
+    systemDate = Some(LocalDate.of(2026, 7, 30))
+  )}
