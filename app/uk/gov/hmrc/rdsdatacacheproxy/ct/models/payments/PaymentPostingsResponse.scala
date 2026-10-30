@@ -20,10 +20,10 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class PaymentPostingResponse(paymentPostings: List[PaymentPostingRow])
+case class PaymentPostingsResponse(paymentPostings: List[PaymentPostingRow])
 
-object PaymentPostingResponse {
-  implicit val format: OFormat[PaymentPostingResponse] = Json.format[PaymentPostingResponse]
+object PaymentPostingsResponse {
+  implicit val format: OFormat[PaymentPostingsResponse] = Json.format[PaymentPostingsResponse]
 }
 
 case class PaymentPostingRow(

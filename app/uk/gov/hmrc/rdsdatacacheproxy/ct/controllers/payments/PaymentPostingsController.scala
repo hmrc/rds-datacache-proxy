@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.payments.PaymentPostingsService
 
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class PaymentPostingsController @Inject (
     authorise.async { implicit request =>
       service
         .getPaymentPostings(taxRef)
-        .map { (value: PaymentPostingResponse) =>
+        .map { (value: PaymentPostingsResponse) =>
           Ok(Json.toJson(value))
         }
         .recover { case ex: Throwable =>

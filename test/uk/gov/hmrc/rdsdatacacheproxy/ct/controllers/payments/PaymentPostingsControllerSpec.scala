@@ -23,87 +23,82 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingResponse, PaymentPostingRow}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.payments.PaymentPostingsService
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments.PaymentPostingsStubData
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
-class PaymentPostingsControllerSpec extends SpecBase {
+class PaymentPostingsControllerSpec extends SpecBase with PaymentPostingsStubData {
 
   private trait Setup {
     val mockService: PaymentPostingsService = mock[PaymentPostingsService]
 
     val controller = new PaymentPostingsController(cc, fakeAuthAction, mockService)
 
-    val taxRef: Long = 98765232L
+    val emptyPaymentPostingsTaxRef: Long = 124252L
+    val singlePaymentPostingsTaxRef: Long = 7293742L
+    val multiplePaymentPostingsTaxRef: Long = 93837L
+    val errorTaxRef: Long = 99999L
 
-    val emptyList: PaymentPostingResponse = PaymentPostingResponse(paymentPostings = List.empty)
-
-    val paymentPostingResponse: PaymentPostingResponse = PaymentPostingResponse(
-      paymentPostings = List(
-        PaymentPostingRow(
-          accountingPeriod       = 12820832002L,
-          settlementSequenceNo   = 5678L,
-          payslipId              = 999123L,
-          postingAmount          = 123.45,
-          effectiveDateOfPayment = LocalDate.of(2016, 11, 9),
-          paymentType            = "BAC"
-        ),
-        PaymentPostingRow(
-          accountingPeriod       = 12820832002L,
-          settlementSequenceNo   = 5678L,
-          payslipId              = 999123L,
-          postingAmount          = 123.45,
-          effectiveDateOfPayment = LocalDate.of(2017, 11, 9),
-          paymentType            = "BAC"
-        )
-      )
-    )
   }
 
   "getPaymentPostings" - {
 
     "should return 200 OK with empty list of Payment Postings " in new Setup {
 
-      when(mockService.getPaymentPostings(any())).thenReturn(Future.successful(emptyList))
+      when(mockService.getPaymentPostings(any())).thenReturn(Future.successful(emptyPaymentPostings))
 
-      val result: Future[Result] = controller.getPaymentPostings(taxRef)(fakeRequest)
-
-      status(result) mustBe OK
-      contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(emptyList)
-
-      verify(mockService).getPaymentPostings(taxRef)
-      verify(mockService, times(1)).getPaymentPostings(taxRef)
-
-    }
-    "should return 200 OK with list Payment Postings containing multiple elements " in new Setup {
-
-      when(mockService.getPaymentPostings(any())).thenReturn(Future.successful(paymentPostingResponse))
-
-      val result: Future[Result] = controller.getPaymentPostings(taxRef)(fakeRequest)
+      val result: Future[Result] = controller.getPaymentPostings(emptyPaymentPostingsTaxRef)(fakeRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
-      contentAsJson(result) mustBe Json.toJson(paymentPostingResponse)
+      contentAsJson(result) mustBe Json.toJson(emptyPaymentPostings)
 
-      verify(mockService).getPaymentPostings(taxRef)
-      verify(mockService, times(1)).getPaymentPostings(taxRef)
+      verify(mockService).getPaymentPostings(emptyPaymentPostingsTaxRef)
+      verify(mockService, times(1)).getPaymentPostings(emptyPaymentPostingsTaxRef)
+    }
+
+    "should return 200 OK with a single Payment Posting " in new Setup {
+      when(mockService.getPaymentPostings(any())).thenReturn(Future.successful(singlePaymentPosting))
+
+      val result: Future[Result] = controller.getPaymentPostings(singlePaymentPostingsTaxRef)(fakeRequest)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(singlePaymentPosting)
+
+      verify(mockService).getPaymentPostings(singlePaymentPostingsTaxRef)
+      verify(mockService, times(1)).getPaymentPostings(singlePaymentPostingsTaxRef)
+    }
+
+    "should return 200 OK with Payment Postings containing multiple elements " in new Setup {
+
+      when(mockService.getPaymentPostings(any())).thenReturn(Future.successful(multiplePaymentPostings))
+
+      val result: Future[Result] = controller.getPaymentPostings(multiplePaymentPostingsTaxRef)(fakeRequest)
+
+      status(result) mustBe OK
+      contentType(result) mustBe Some("application/json")
+      contentAsJson(result) mustBe Json.toJson(multiplePaymentPostings)
+
+      verify(mockService).getPaymentPostings(multiplePaymentPostingsTaxRef)
+      verify(mockService, times(1)).getPaymentPostings(multiplePaymentPostingsTaxRef)
 
     }
+
     "should return 500 when there is an exception returned from the service " in new Setup {
 
-      when(mockService.getPaymentPostings(any())).thenReturn(Future.failed(new RuntimeException("Error")))
+      when(mockService.getPaymentPostings(any())).thenReturn(Future.failed(new RuntimeException("Unexpected error")))
 
-      val result: Future[Result] = controller.getPaymentPostings(taxRef)(fakeRequest)
+      val result: Future[Result] = controller.getPaymentPostings(errorTaxRef)(fakeRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentType(result) mustBe Some("application/json")
       (contentAsJson(result) \ "message").as[String] mustBe "Unexpected error"
 
-      verify(mockService).getPaymentPostings(taxRef)
-      verify(mockService, times(1)).getPaymentPostings(taxRef)
+      verify(mockService).getPaymentPostings(errorTaxRef)
+      verify(mockService, times(1)).getPaymentPostings(errorTaxRef)
     }
   }
 

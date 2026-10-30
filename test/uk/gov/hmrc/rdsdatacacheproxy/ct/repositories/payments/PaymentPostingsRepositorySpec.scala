@@ -24,16 +24,16 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingResponse, PaymentPostingRow}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments.PaymentPostingsStubData
 
 import java.sql.{CallableStatement, Date, ResultSet}
-import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter with PaymentPostingsStubData {
 
   var db: Database = _
-  var repository: PaymentPostingsRepository = _
+  var repository: PaymentPostingsRepositoryImpl = _
   var mockConnection: java.sql.Connection = _
   var mockCallableStatement: CallableStatement = _
   var mockResultSet: ResultSet = _
@@ -55,66 +55,15 @@ class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
   }
 
-  "getPaymentPostings" should "return list of PaymentPostings" in {
-    val taxRef = 123456789L
-
-    when(mockCallableStatement.getObject(eqTo(1), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
-    when(mockResultSet.next()).thenReturn(true, true, false)
-
-    when(mockResultSet.getLong("ACCOUNTING_PERIOD")).thenReturn(12820832002L, 1232002L)
-    when(mockResultSet.getLong("SETTLEMENT_SEQUENCE_NO")).thenReturn(5678L, 8335435L)
-    when(mockResultSet.getLong("PAYSLIP_ID")).thenReturn(999123L, 999123L)
-    when(mockResultSet.getBigDecimal("POSTING_AMOUNT")).thenReturn(BigDecimal(123.45).bigDecimal, BigDecimal(700.43).bigDecimal)
-    when(mockResultSet.getDate("EFFECTIVE_DATE_OF_PAYMENT")).thenReturn(Date.valueOf("2016-11-9"), Date.valueOf("2017-11-9"))
-    when(mockResultSet.getString("PAYMENT_TYPE")).thenReturn("BAC", "BAC")
-
-    val paymentPostingsList = List(
-      PaymentPostingRow(
-        accountingPeriod       = 12820832002L,
-        settlementSequenceNo   = 5678L,
-        payslipId              = 999123L,
-        postingAmount          = 123.45,
-        effectiveDateOfPayment = LocalDate.of(2016, 11, 9),
-        paymentType            = "BAC"
-      ),
-      PaymentPostingRow(
-        accountingPeriod       = 12820832002L,
-        settlementSequenceNo   = 5678L,
-        payslipId              = 999123L,
-        postingAmount          = 123.45,
-        effectiveDateOfPayment = LocalDate.of(2017, 11, 9),
-        paymentType            = "BAC"
-      )
-    )
-
-    val result = repository.getPaymentPostings(taxRef).futureValue
-
-    result shouldBe PaymentPostingResponse(paymentPostings = paymentPostingsList)
-
-    verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentPostingList(?,?)}")
-
-    verify(mockCallableStatement).setLong(1, taxRef)
-
-    verify(mockCallableStatement).registerOutParameter(2, OracleTypes.CURSOR)
-    verify(mockCallableStatement).execute()
-
-    verify(mockResultSet, times(2)).next()
-
-    verify(mockCallableStatement).close()
-
-  }
-
   "getPaymentPostings" should "return an empty list" in {
-    val taxRef = 123456789L
+    val taxRef = 124252L
 
     when(mockCallableStatement.getObject(eqTo(1), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
     when(mockResultSet.next()).thenReturn(false)
 
-    val paymentPostingsList = List.empty
-
     val result = repository.getPaymentPostings(taxRef).futureValue
 
-    result shouldBe PaymentPostingResponse(paymentPostings = paymentPostingsList)
+    result shouldBe emptyPaymentPostings
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentPostingList(?,?)}")
 
@@ -123,38 +72,25 @@ class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with Befor
     verify(mockCallableStatement).registerOutParameter(2, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
 
-    verify(mockResultSet, times(1)).next()
-
     verify(mockCallableStatement).close()
   }
 
-  "getPaymentAllocationChequeDetails" should "return a list with single element" in {
-    val taxRef = 123456789L
+  "getPaymentPostings" should "return a list with single Payment Postings" in {
+    val taxRef = 7293742L
 
-    when(mockCallableStatement.getObject(eqTo(1), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+    when(mockCallableStatement.getObject(eqTo(2), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
     when(mockResultSet.next()).thenReturn(true, false)
 
-    when(mockResultSet.getLong("ACCOUNTING_PERIOD")).thenReturn(12820832002L)
-    when(mockResultSet.getLong("SETTLEMENT_SEQUENCE_NO")).thenReturn(5678L)
-    when(mockResultSet.getLong("PAYSLIP_ID")).thenReturn(999123L)
-    when(mockResultSet.getBigDecimal("POSTING_AMOUNT")).thenReturn(BigDecimal(123.45).bigDecimal)
-    when(mockResultSet.getDate("EFFECTIVE_DATE_OF_PAYMENT")).thenReturn(Date.valueOf("2016-11-9"))
+    when(mockResultSet.getLong("ACCOUNTING_PERIOD")).thenReturn(202408L)
+    when(mockResultSet.getLong("SETTLEMENT_SEQUENCE_NO")).thenReturn(123456L)
+    when(mockResultSet.getLong("PAYSLIP_ID")).thenReturn(987654L)
+    when(mockResultSet.getBigDecimal("POSTING_AMOUNT")).thenReturn(BigDecimal(1500.75).bigDecimal)
+    when(mockResultSet.getDate("EFFECTIVE_DATE_OF_PAYMENT")).thenReturn(Date.valueOf("2024-09-15"))
     when(mockResultSet.getString("PAYMENT_TYPE")).thenReturn("BAC")
-
-    val paymentPostingsList = List(
-      PaymentPostingRow(
-        accountingPeriod       = 12820832002L,
-        settlementSequenceNo   = 5678L,
-        payslipId              = 999123L,
-        postingAmount          = 123.45,
-        effectiveDateOfPayment = LocalDate.of(2016, 11, 9),
-        paymentType            = "BAC"
-      )
-    )
 
     val result = repository.getPaymentPostings(taxRef).futureValue
 
-    result shouldBe PaymentPostingResponse(paymentPostings = paymentPostingsList)
+    result shouldBe singlePaymentPosting
 
     verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentPostingList(?,?)}")
 
@@ -164,6 +100,38 @@ class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with Befor
     verify(mockCallableStatement).execute()
 
     verify(mockResultSet, times(2)).next()
+
+    verify(mockCallableStatement).close()
+
+  }
+
+  "getPaymentPostings" should "return a list of multiple PaymentPostings" in {
+    val taxRef = 93837L
+
+    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+    when(mockResultSet.next()).thenReturn(true, true, true, false)
+
+    when(mockResultSet.getLong("ACCOUNTING_PERIOD")).thenReturn(202408L, 202407L, 202404L)
+    when(mockResultSet.getLong("SETTLEMENT_SEQUENCE_NO")).thenReturn(123456L, 642736L, 99423764L)
+    when(mockResultSet.getLong("PAYSLIP_ID")).thenReturn(987654L, 983123L, 985624L)
+    when(mockResultSet.getBigDecimal("POSTING_AMOUNT"))
+      .thenReturn(BigDecimal(1500.75).bigDecimal, BigDecimal(2712.63).bigDecimal, BigDecimal(2416.89).bigDecimal)
+    when(mockResultSet.getDate("EFFECTIVE_DATE_OF_PAYMENT"))
+      .thenReturn(Date.valueOf("2024-09-15"), Date.valueOf("2024-08-20"), Date.valueOf("2024-05-26"))
+    when(mockResultSet.getString("PAYMENT_TYPE")).thenReturn("BAC", "BAC", "BAC")
+
+    val result = repository.getPaymentPostings(taxRef).futureValue
+
+    result shouldBe multiplePaymentPostings
+
+    verify(mockConnection).prepareCall("{call CT_DC_PK.getPaymentPostingList(?,?)}")
+
+    verify(mockCallableStatement).setLong(1, taxRef)
+
+    verify(mockCallableStatement).registerOutParameter(2, OracleTypes.CURSOR)
+    verify(mockCallableStatement).execute()
+
+    verify(mockResultSet, times(4)).next()
 
     verify(mockCallableStatement).close()
 
