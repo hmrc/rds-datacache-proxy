@@ -137,14 +137,14 @@ class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with Befor
 
   }
 
-  "getPaymentAllocationChequeDetails" should "close connection when there is exception from the downstream services" in {
-    val taxRef = 123456789L
+  "getPaymentPostings" should "close connection when there is exception from the downstream services" in {
+    val taxRef = 99999L
 
-    when(mockCallableStatement.getObject(eqTo(1), eqTo(classOf[ResultSet]))).thenThrow(new RuntimeException("Error from DB"))
-    when(mockResultSet.next()).thenReturn(true, false)
+    when(mockCallableStatement.execute()).thenThrow(new RuntimeException("Error from downstream"))
 
-    val exception = repository.getPaymentPostings(taxRef).failed.futureValue
-    exception.getMessage should be("Error from DB")
+    val ex = repository.getPaymentPostings(taxRef).failed.futureValue
+    ex.getMessage should include("Error from downstream")
+
     verify(mockCallableStatement).close()
   }
 
