@@ -53,15 +53,15 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
 
   "createCisAppeal" should {
 
-    "call create_appeal stored procedure and return CreateCisAppealResponse" in {
+    "call create_appeal stored procedure and return CreateAppealResponse" in {
 
       when(db.withTransaction(any())).thenAnswer { invocation =>
         val func = invocation.getArgument(0, classOf[Connection => Any])
         func(mockConnection)
       }
 
-      val createCisAppealRequest = CreateCisAppealRequest(1L)
-      val createCisAppealResponse = CreateCisAppealResponse(true)
+      val createCisAppealRequest = CreateAppealRequest(1L)
+      val createCisAppealResponse = CreateAppealResponse(true)
 
       val result = repository.createCisAppeal(createCisAppealRequest).futureValue
 
@@ -76,21 +76,21 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
 
   "getCisAppealablePenalties" should {
 
-    val testRequest = GetCisAppealablePenaltiesRequest(
+    val testRequest = GetAppealablePenaltiesRequest(
       hmrcOfficeNumber      = "123",
       schemeReferenceNumber = "AB456",
       startRow              = 1L,
       endRow                = 10L
     )
 
-    "call get_defaults_by_emp_ref stored procedure and return GetCisAppealablePenaltiesResponse with empty list" in {
+    "call get_defaults_by_emp_ref stored procedure and return GetAppealablePenaltiesResponse with empty list" in {
 
       when(db.withConnection(any())).thenAnswer { invocation =>
         val func = invocation.getArgument(0, classOf[Connection => Any])
         func(mockConnection)
       }
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total               = 0L,
         appealablePenalties = List.empty
       )
@@ -118,24 +118,24 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       verify(mockCallableStatement).close()
     }
 
-    "call get_defaults_by_emp_ref stored procedure and return GetCisAppealablePenaltiesResponse with two items" in {
+    "call get_defaults_by_emp_ref stored procedure and return GetAppealablePenaltiesResponse with two items" in {
 
       when(db.withConnection(any())).thenAnswer { invocation =>
         val func = invocation.getArgument(0, classOf[Connection => Any])
         func(mockConnection)
       }
 
-      val expectedResponse = GetCisAppealablePenaltiesResponse(
+      val expectedResponse = GetAppealablePenaltiesResponse(
         total = 2,
         appealablePenalties = List(
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId         = Some(10001),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("CIS03"),
             penaltyAmount    = Some(BigDecimal(999.23))
           ),
-          GetCisAppealablePenaltyResponse(
+          GetAppealablePenaltyResponse(
             uniqueId         = Some(10002),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -176,7 +176,7 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
 
   "getCisAppealablePenalty" should {
 
-    "call get_appealable_penalty_by_id stored procedure and return GetCisAppealablePenaltyResponse" in {
+    "call get_appealable_penalty_by_id stored procedure and return GetAppealablePenaltyResponse" in {
 
       when(db.withConnection(any())).thenAnswer { invocation =>
         val func = invocation.getArgument(0, classOf[Connection => Any])
@@ -188,12 +188,12 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       when(mockCallableStatement.getBigDecimal(6)).thenReturn(scala.math.BigDecimal(999.23).bigDecimal)
       when(mockCallableStatement.getDate(7)).thenReturn(Date.valueOf(LocalDate.of(2023, 4, 1)))
 
-      val getCisAppealablePenaltyRequest = GetCisAppealablePenaltyRequest(
+      val getCisAppealablePenaltyRequest = GetAppealablePenaltyRequest(
         penaltyId             = 1L,
         hmrcOfficeNumber      = "840123",
         schemeReferenceNumber = "098345"
       )
-      val getCisAppealablePenaltyResponse = GetCisAppealablePenaltyResponse(
+      val getCisAppealablePenaltyResponse = GetAppealablePenaltyResponse(
         uniqueId         = None,
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
@@ -213,6 +213,71 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       verify(mockCallableStatement).registerOutParameter(5, java.sql.Types.DATE)
       verify(mockCallableStatement).registerOutParameter(6, java.sql.Types.NUMERIC)
       verify(mockCallableStatement).registerOutParameter(7, java.sql.Types.DATE)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+  }
+
+  "getCisPenaltyAllowed" should {
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is Y" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("Y")
+
+      val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = true
+      )
+
+      val result = repository.getCisPenaltyAllowed(getCisPenaltyAllowedRequest).futureValue
+
+      result shouldBe getCisPenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "call isPenaltyAccessAllowed stored procedure and return GetPenaltyAllowedResponse when allowed is N" in {
+
+      when(db.withConnection(any())).thenAnswer { invocation =>
+        val func = invocation.getArgument(0, classOf[Connection => Any])
+        func(mockConnection)
+      }
+
+      when(mockCallableStatement.getString(4)).thenReturn("N")
+
+      val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+        districtNumber    = 1L,
+        employerReference = "357",
+        uniqueId          = 1L
+      )
+      val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+        allowed = false
+      )
+
+      val result = repository.getCisPenaltyAllowed(getCisPenaltyAllowedRequest).futureValue
+
+      result shouldBe getCisPenaltyAllowedResponse
+
+      verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
       verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()
     }

@@ -99,6 +99,30 @@ final class CisDatacacheRepositorySpec extends AnyWordSpec with Matchers with Sc
     verify(cs).close()
   }
 
+  "left-pad a numeric AO_DISTRICT to 3 digits" in {
+    val db = mock(classOf[Database])
+    val conn = mock(classOf[java.sql.Connection])
+    val cs = mock(classOf[CallableStatement])
+    val rs = mock(classOf[ResultSet])
+
+    when(db.withConnection(anyArg())).thenAnswer { inv =>
+      val f = inv.getArgument(0, classOf[java.sql.Connection => Any])
+      f(conn)
+    }
+    when(conn.prepareCall(anyArg[String])).thenReturn(cs)
+    when(cs.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(rs)
+
+    when(rs.next()).thenReturn(true, false)
+    when(rs.getString("UNIQUE_ID")).thenReturn("1")
+    when(rs.getString("TAX_OFFICE_NUMBER")).thenReturn("70")
+    when(rs.getString("TAX_OFFICE_REF")).thenReturn("AB456")
+    when(rs.getString("AO_DISTRICT")).thenReturn("70")
+
+    val repo = new CisDatacacheRepository(db)
+
+    repo.getCisTaxpayerByTaxRef("70", "AB456").futureValue.value.aoDistrict mustBe Some("070")
+  }
+
   "return Some(taxpayers)  on two-row cursor" in {
     val db = mock(classOf[Database])
     val conn = mock(classOf[java.sql.Connection])

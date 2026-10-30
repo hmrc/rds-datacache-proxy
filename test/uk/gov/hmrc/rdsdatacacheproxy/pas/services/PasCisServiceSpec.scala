@@ -21,7 +21,7 @@ import org.mockito.Mockito.*
 import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltiesResponse, GetCisAppealablePenaltyResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisSource
 
 import java.time.LocalDate
@@ -40,8 +40,8 @@ final class PasCisServiceSpec extends SpecBase {
   "PasCisService.createCisAppeal" - {
 
     "return CreateCisAppealResponse when the repository returns CreateCisAppealResponse" in {
-      val createCisAppealRequest = CreateCisAppealRequest(1L)
-      val createCisAppealResponse = CreateCisAppealResponse(true)
+      val createCisAppealRequest = CreateAppealRequest(1L)
+      val createCisAppealResponse = CreateAppealResponse(true)
 
       when(source.createCisAppeal(createCisAppealRequest)).thenReturn(Future.successful(createCisAppealResponse))
 
@@ -54,7 +54,7 @@ final class PasCisServiceSpec extends SpecBase {
     }
 
     "propagate upstream failures from the repository" in {
-      val createCisAppealRequest = CreateCisAppealRequest(1L)
+      val createCisAppealRequest = CreateAppealRequest(1L)
       val boom = UpstreamErrorResponse("database connection failed", 500)
 
       when(source.createCisAppeal(createCisAppealRequest)).thenReturn(Future.failed(boom))
@@ -72,23 +72,23 @@ final class PasCisServiceSpec extends SpecBase {
 
   "PasCisService.getCisAppealablePenalties" - {
 
-    val testRequest: GetCisAppealablePenaltiesRequest = GetCisAppealablePenaltiesRequest(
+    val testRequest: GetAppealablePenaltiesRequest = GetAppealablePenaltiesRequest(
       hmrcOfficeNumber      = "123",
       schemeReferenceNumber = "AB456",
       startRow              = 1L,
       endRow                = 10L
     )
-    val testResponse: GetCisAppealablePenaltiesResponse = GetCisAppealablePenaltiesResponse(
+    val testResponse: GetAppealablePenaltiesResponse = GetAppealablePenaltiesResponse(
       total = 2,
       appealablePenalties = List(
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId         = Some(10001),
           issueDate        = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
           penaltyType      = Some("CIS003"),
           penaltyAmount    = Some(BigDecimal(999.23))
         ),
-        GetCisAppealablePenaltyResponse(
+        GetAppealablePenaltyResponse(
           uniqueId         = Some(10002),
           issueDate        = Some(LocalDate.of(2026, 2, 20)),
           taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
@@ -98,7 +98,7 @@ final class PasCisServiceSpec extends SpecBase {
       )
     )
 
-    "return GetCisAppealablePenaltiesResponse from the repository" in {
+    "return GetAppealablePenaltiesResponse from the repository" in {
       when(source.getCisAppealablePenalties(testRequest)).thenReturn(Future.successful(testResponse))
 
       val out = service.getCisAppealablePenalties(testRequest).futureValue
@@ -121,6 +121,88 @@ final class PasCisServiceSpec extends SpecBase {
 
       ex mustBe boom
       verify(source).getCisAppealablePenalties(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
+  "PasCisService.getCisAppealablePenalty" - {
+
+    val testRequest: GetAppealablePenaltyRequest = GetAppealablePenaltyRequest(
+      penaltyId             = 1L,
+      hmrcOfficeNumber      = "840123",
+      schemeReferenceNumber = "098345"
+    )
+
+    val testResponse: GetAppealablePenaltyResponse = GetAppealablePenaltyResponse(
+      uniqueId         = None,
+      issueDate        = Some(LocalDate.of(2023, 1, 1)),
+      taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
+      penaltyType      = Some("CIS003"),
+      penaltyAmount    = Some(BigDecimal(999.23))
+    )
+
+    "return GetAppealablePenaltyResponse from the repository" in {
+      when(source.getCisAppealablePenalty(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getCisAppealablePenalty(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getCisAppealablePenalty(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getCisAppealablePenalty(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getCisAppealablePenalty(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getCisAppealablePenalty(testRequest)
+      verifyNoMoreInteractions(source)
+    }
+  }
+
+  "PasCisService.getCisPenaltyAllowed" - {
+
+    val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
+      districtNumber    = 1L,
+      employerReference = "357",
+      uniqueId          = 1L
+    )
+
+    val testResponse: GetPenaltyAllowedResponse = GetPenaltyAllowedResponse(
+      allowed = true
+    )
+
+    "return GetPenaltyAllowedResponse from the repository" in {
+      when(source.getCisPenaltyAllowed(testRequest)).thenReturn(Future.successful(testResponse))
+
+      val out = service.getCisPenaltyAllowed(testRequest).futureValue
+
+      out mustBe testResponse
+
+      verify(source).getCisPenaltyAllowed(eqTo(testRequest))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate upstream failures from the repository" in {
+      val boom = UpstreamErrorResponse("database connection failed", 500)
+
+      when(source.getCisPenaltyAllowed(testRequest)).thenReturn(Future.failed(boom))
+
+      val ex = service
+        .getCisPenaltyAllowed(testRequest)
+        .failed
+        .futureValue
+
+      ex mustBe boom
+      verify(source).getCisPenaltyAllowed(testRequest)
       verifyNoMoreInteractions(source)
     }
   }

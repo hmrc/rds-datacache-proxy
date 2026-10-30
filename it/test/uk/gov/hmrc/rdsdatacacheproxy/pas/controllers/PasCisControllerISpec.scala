@@ -25,9 +25,9 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, inject}
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
-import uk.gov.hmrc.rdsdatacacheproxy.pas.models.{CreateCisAppealRequest, CreateCisAppealResponse, GetCisAppealablePenaltiesRequest, GetCisAppealablePenaltiesResponse, GetCisAppealablePenaltyRequest, GetCisAppealablePenaltyResponse}
+import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.pas.repositories.PasCisSource
-import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasCisStubData
+import uk.gov.hmrc.rdsdatacacheproxy.pas.stub.PasStubData
 
 import scala.concurrent.Future
 
@@ -39,26 +39,31 @@ class PasCisControllerISpec
     with ApplicationWithWiremock {
 
   class PasCisStub extends PasCisSource {
-    override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] =
+    override def createCisAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] =
       Future.successful(
-        PasCisStubData.makeCreateCisAppealResponse(request)
+        PasStubData.makeCreateAppealResponse(request)
       )
 
-    override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] =
+    override def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] =
       Future.successful(
-        PasCisStubData.makeGetCisAppealablePenaltiesResponse(request)
+        PasStubData.makeGetAppealablePenaltiesResponse(request)
       )
 
-    override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] =
+    override def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] =
       Future.successful(
-        PasCisStubData.makeGetCisAppealablePenaltyResponse(request)
+        PasStubData.makeGetAppealablePenaltyResponse(request)
+      )
+
+    override def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] =
+      Future.successful(
+        PasStubData.makeGetPenaltyAllowedResponse(request)
       )
   }
 
   override lazy val app: Application =
     new GuiceApplicationBuilder()
       .configure(extraConfig)
-      .overrides{
+      .overrides {
         bind[PasCisSource].toInstance(new PasCisStub())
       }
       .build()
@@ -68,7 +73,7 @@ class PasCisControllerISpec
 
   "POST /pas/cis/appeal" should {
 
-    "return 201 with a valid CreateCisAppealResponse" in {
+    "return 201 with a valid CreateAppealResponse" in {
       AuthStub.authorised()
 
       val requestJson = Json.obj(
@@ -79,7 +84,7 @@ class PasCisControllerISpec
       response.status mustBe CREATED
       response.contentType mustBe "application/json"
 
-      response.json.as[CreateCisAppealResponse] mustBe PasCisStubData.createCisAppealSuccessResponse
+      response.json.as[CreateAppealResponse] mustBe PasStubData.createAppealSuccessResponse
     }
 
     "return 500 when stub simulates failure" in {
@@ -110,7 +115,7 @@ class PasCisControllerISpec
 
   "POST /pas/cis/penalties" should {
 
-    "return 200 with a valid GetCisAppealablePenaltiesResponse when List contains 2 items" in {
+    "return 200 with a valid GetAppealablePenaltiesResponse when List contains 2 items" in {
       AuthStub.authorised()
 
       val requestJson = Json.obj(
@@ -125,10 +130,10 @@ class PasCisControllerISpec
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[GetCisAppealablePenaltiesResponse] mustBe PasCisStubData.appealablePenalties
+      response.json.as[GetAppealablePenaltiesResponse] mustBe PasStubData.appealablePenalties
     }
 
-    "return 200 with a valid GetCisAppealablePenaltiesResponse when List is empty" in {
+    "return 200 with a valid GetAppealablePenaltiesResponse when List is empty" in {
       AuthStub.authorised()
 
       val requestJson = Json.obj(
@@ -143,7 +148,7 @@ class PasCisControllerISpec
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[GetCisAppealablePenaltiesResponse] mustBe PasCisStubData.appealablePenaltiesEmpty
+      response.json.as[GetAppealablePenaltiesResponse] mustBe PasStubData.appealablePenaltiesEmpty
     }
 
     "return 500 when stub simulates failure" in {
@@ -181,7 +186,7 @@ class PasCisControllerISpec
 
   "POST /pas/cis/penalty" should {
 
-    "return 200 with a valid GetCisAppealablePenaltyResponse" in {
+    "return 200 with a valid GetAppealablePenaltyResponse" in {
       AuthStub.authorised()
 
       val requestJson = Json.obj(
@@ -194,7 +199,7 @@ class PasCisControllerISpec
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[GetCisAppealablePenaltyResponse] mustBe PasCisStubData.getCisAppealablePenaltySuccessResponse
+      response.json.as[GetAppealablePenaltyResponse] mustBe PasStubData.getAppealablePenaltySuccessResponse
     }
 
     "return 500 when stub simulates failure" in {
@@ -224,6 +229,54 @@ class PasCisControllerISpec
       val response = post(s"$endpoint/cis/penalty", requestJson).futureValue
 
       response.status mustBe UNAUTHORIZED
+    }
+    
+    "POST /cis/penalties/access-allowed" should {
+
+      "return 200 with a valid GetPenaltyAllowedResponse" in {
+        AuthStub.authorised()
+
+        val requestJson = Json.obj(
+          "districtNumber" -> 1L,
+          "employerReference" -> "hdz",
+          "uniqueId" -> 1L
+        )
+        val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
+
+        response.status mustBe OK
+        response.contentType mustBe "application/json"
+
+        response.json.as[GetPenaltyAllowedResponse] mustBe PasStubData.getPenaltyAllowedSuccessResponse
+      }
+
+      "return 500 when stub simulates failure" in {
+
+        AuthStub.authorised()
+
+        val requestJson = Json.obj(
+          "districtNumber" -> 1L,
+          "employerReference" -> "1234",
+          "uniqueId" -> 2L
+        )
+        val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
+
+        response.status mustBe INTERNAL_SERVER_ERROR
+
+      }
+
+      "return 401 when unauthorised" in {
+
+        AuthStub.unauthorised()
+
+        val requestJson = Json.obj(
+          "districtNumber" -> 1L,
+          "employerReference" -> "1234",
+          "uniqueId" -> 1L
+        )
+        val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
+
+        response.status mustBe UNAUTHORIZED
+      }
     }
   }
 }

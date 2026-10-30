@@ -1,5 +1,13 @@
 # microservice specific routes
 
-POST        /cis/appeal              uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.createCisAppeal()
-POST        /cis/penalties           uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisAppealablePenalties()
-POST        /cis/penalty             uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisAppealablePenalty()
+POST        /cis/appeal                                             uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.createCisAppeal()
+POST        /cis/penalties                                          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisAppealablePenalties()
+POST        /cis/penalty                                            uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisAppealablePenalty()
+POST        /cis/penalties/access-allowed                           uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasCisController.getCisPenaltyAllowed()
+
+# PAYE routes
+POST        /paye/appeal                                            uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.createPayeAppeal()
+POST        /paye/penalties                                         uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeAppealablePenalties()
+POST        /paye/penalty                                           uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeAppealablePenalty()
+POST        /paye/taxpayer                                          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeTaxpayer()
+POST        /paye/penalties/access-allowed                          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayePenaltyAllowed()

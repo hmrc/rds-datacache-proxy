@@ -25,9 +25,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait PasCisSource {
-  def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse]
-  def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse]
-  def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse]
+  def createCisAppeal(request: CreateAppealRequest): Future[CreateAppealResponse]
+  def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse]
+  def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse]
+  def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse]
 }
 class PasCisRepository @Inject() (
   @NamedDatabase("pas") db: Database
@@ -38,7 +39,7 @@ class PasCisRepository @Inject() (
   private val DefaultSortField = "unique_id"
   private val DefaultSortOrder = "desc"
 
-  override def createCisAppeal(request: CreateCisAppealRequest): Future[CreateCisAppealResponse] = {
+  override def createCisAppeal(request: CreateAppealRequest): Future[CreateAppealResponse] = {
     Future {
       db.withTransaction { conn =>
         callCreateCisAppeal(
@@ -49,7 +50,7 @@ class PasCisRepository @Inject() (
     }
   }
 
-  private def callCreateCisAppeal(conn: Connection, p_penalty_id: Long): CreateCisAppealResponse = {
+  private def callCreateCisAppeal(conn: Connection, p_penalty_id: Long): CreateAppealResponse = {
 
     val cs = conn.prepareCall("{call CIS_PAS.create_appeal(?)}")
 
@@ -58,7 +59,7 @@ class PasCisRepository @Inject() (
 
       cs.execute()
 
-      CreateCisAppealResponse(
+      CreateAppealResponse(
         created = true
       )
 
@@ -67,7 +68,7 @@ class PasCisRepository @Inject() (
     }
   }
 
-  override def getCisAppealablePenalties(request: GetCisAppealablePenaltiesRequest): Future[GetCisAppealablePenaltiesResponse] = {
+  override def getCisAppealablePenalties(request: GetAppealablePenaltiesRequest): Future[GetAppealablePenaltiesResponse] = {
     Future {
       db.withConnection { conn =>
         callGetCisAppealablePenalties(
@@ -86,7 +87,7 @@ class PasCisRepository @Inject() (
                                             p_cis_scheme_reference: String,
                                             p_start_row: Long,
                                             p_end_row: Long
-                                           ): GetCisAppealablePenaltiesResponse = {
+                                           ): GetAppealablePenaltiesResponse = {
 
     val cs = conn.prepareCall("{call CIS_PAS.get_defaults_by_emp_ref(?, ?, ?, ?, ?, ?, ?, ?)}")
 
@@ -103,9 +104,9 @@ class PasCisRepository @Inject() (
       cs.execute()
 
       val count = cs.getLong(7)
-      val appealablePenaltiesList: Seq[GetCisAppealablePenaltyResponse] = processResultSetSeq(cs, 8, processAppealablePenalties)
+      val appealablePenaltiesList: Seq[GetAppealablePenaltyResponse] = processResultSetSeq(cs, 8, processAppealablePenalties)
 
-      GetCisAppealablePenaltiesResponse(
+      GetAppealablePenaltiesResponse(
         total               = count,
         appealablePenalties = appealablePenaltiesList
       )
@@ -115,8 +116,8 @@ class PasCisRepository @Inject() (
     }
   }
 
-  private def processAppealablePenalties(rs: ResultSet): GetCisAppealablePenaltyResponse =
-    GetCisAppealablePenaltyResponse(
+  private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
+    GetAppealablePenaltyResponse(
       uniqueId         = Option(rs.getLong("UNIQUE_ID")),
       issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
       taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
@@ -124,7 +125,7 @@ class PasCisRepository @Inject() (
       penaltyAmount    = Option(rs.getBigDecimal("PENALTY_AMOUNT")).map(BigDecimal(_))
     )
 
-  override def getCisAppealablePenalty(request: GetCisAppealablePenaltyRequest): Future[GetCisAppealablePenaltyResponse] = {
+  override def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] = {
     Future {
       db.withConnection { conn =>
         callGetCisAppealablePenalty(
@@ -141,7 +142,7 @@ class PasCisRepository @Inject() (
                                           p_penalty_id: Long,
                                           p_hmrc_office_number: String,
                                           p_cis_scheme_reference: String
-                                         ): GetCisAppealablePenaltyResponse = {
+                                         ): GetAppealablePenaltyResponse = {
 
     val cs = conn.prepareCall("{call CIS_PAS.get_appealable_penalty_by_id(?, ?, ?, ?, ?, ?, ?)}")
 
@@ -157,13 +158,56 @@ class PasCisRepository @Inject() (
 
       cs.execute()
 
-      GetCisAppealablePenaltyResponse(
+      GetAppealablePenaltyResponse(
         uniqueId         = None,
         issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
         taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
         penaltyType      = Option(cs.getString(4)),
         penaltyAmount    = Option(cs.getBigDecimal(6)).map(BigDecimal(_))
       )
+
+    } finally {
+      cs.close()
+    }
+  }
+
+  override def getCisPenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] = {
+    Future {
+      db.withConnection { conn =>
+        callGetCisPenaltyAllowed(
+          conn              = conn,
+          p_district_number = request.districtNumber,
+          p_employer_ref    = request.employerReference,
+          p_unique_id       = request.uniqueId
+        )
+      }
+    }
+  }
+
+  private def callGetCisPenaltyAllowed(conn: Connection,
+                                       p_district_number: Long,
+                                       p_employer_ref: String,
+                                       p_unique_id: Long
+                                      ): GetPenaltyAllowedResponse = {
+
+    val cs = conn.prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
+
+    try {
+      cs.setLong(1, p_district_number)
+      cs.setString(2, p_employer_ref)
+      cs.setLong(3, p_unique_id)
+
+      cs.registerOutParameter(4, Types.VARCHAR) // p_allowed
+
+      cs.execute()
+
+      val allowed: Boolean = Option(cs.getString(4)).map(_.trim.toUpperCase) match {
+        case Some("Y") => true
+        case Some("N") => false
+        case other     => throw new IllegalStateException(s"Unexpected p_allowed value from DB: $other")
+      }
+
+      GetPenaltyAllowedResponse(allowed)
 
     } finally {
       cs.close()

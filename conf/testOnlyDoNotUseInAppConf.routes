@@ -11,3 +11,5 @@
 
 # Add all the application routes to the prod.routes file
 ->         /                          prod.Routes
+
+GET         /test-only/gambling/mgd/update-status-period/:regNumber/:consecNo      uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.testOnly.SetPeriodStatusController.setPeriodStatus(regNumber: String, consecNo: Int, status: Int ?=0)
