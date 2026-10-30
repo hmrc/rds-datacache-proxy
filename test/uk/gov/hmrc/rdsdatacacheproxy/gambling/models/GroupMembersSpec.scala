@@ -24,6 +24,40 @@ import java.time.LocalDate
 
 class GroupMembersSpec extends AnyWordSpec with Matchers {
 
+  private val validJson = Json.parse(
+    """
+      |{
+      |   "groupMemberRecords": [
+      |  {
+      |   "mgdRegNumber": "XYM00000000004",
+      |   "businessPartnerNumber": "0100049899",
+      |   "businessName": "BusinessCo",
+      |   "crn": "09876543",
+      |   "foreignCorporateRef": "FCR-UK-987654",
+      |   "isRepMemberOfGroup": 1,
+      |   "dateOfJoining": "2026-03-31",
+      |   "dateOfLeaving": "2026-06-21",
+      |   "emailAddress": "a@b.com"
+      |  },
+      |  {
+      |   "mgdRegNumber": "XYM00000000000",
+      |   "businessPartnerNumber": "1100049911",
+      |   "businessName": "Oh It's A Business",
+      |   "crn": "19876544",
+      |   "foreignCorporateRef": "GGR-UK-187654",
+      |   "isRepMemberOfGroup": 0,
+      |   "dateOfJoining": "2026-03-31",
+      |   "dateOfLeaving": "2026-06-21",
+      |   "emailAddress": "d@e.com"
+      |   }
+      |  ],
+      |  "systemDate": "2026-01-01"
+      |}
+      |""".stripMargin
+  )
+
+
+
   "GroupMembers JSON format" should {
 
     "serialize to JSON correctly" in {
@@ -84,39 +118,7 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
       val leaveDate: LocalDate = LocalDate.of(2026, 6, 21)
       val systemDate: LocalDate = LocalDate.of(2026, 1, 1)
 
-      val json = Json.parse(
-        s"""
-          |{
-          |   "groupMemberRecords": [
-          |  {
-          |   "mgdRegNumber": "XYM00000000004",
-          |   "businessPartnerNumber": "0100049899",
-          |   "businessName": "BusinessCo",
-          |   "crn": "09876543",
-          |   "foreignCorporateRef": "FCR-UK-987654",
-          |   "isRepMemberOfGroup": 1,
-          |   "dateOfJoining": "2026-03-31",
-          |   "dateOfLeaving": "2026-06-21",
-          |   "emailAddress": "a@b.com"
-          |  },
-          |  {
-          |   "mgdRegNumber": "XYM00000000000",
-          |   "businessPartnerNumber": "1100049911",
-          |   "businessName": "Oh It's A Business",
-          |   "crn": "19876544",
-          |   "foreignCorporateRef": "GGR-UK-187654",
-          |   "isRepMemberOfGroup": 0,
-          |   "dateOfJoining": "2026-03-31",
-          |   "dateOfLeaving": "2026-06-21",
-          |   "emailAddress": "d@e.com"
-          |   }
-          |  ],
-          |  "systemDate": "2026-01-01"
-          |}
-          |""".stripMargin
-      )
-
-      val result: JsResult[GroupMembers] = json.validate[GroupMembers]
+      val result: JsResult[GroupMembers] = validJson.validate[GroupMembers]
 
       result mustBe JsSuccess(
         GroupMembers(
@@ -148,7 +150,7 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
     }
 
     "round-trip (write then read) should return same object" in {
-      val original = ReturnSummary("XYZ00000000021", 2, 1)
+      val original = GroupMembers(Seq(GroupMemberRecord("XYZ00000000021",None, None,None,None,None,None, None, None)), None)
 
       val json = Json.toJson(original)
       val parsed = json.as[GroupMembers]
@@ -156,16 +158,38 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
       parsed mustBe original
     }
 
-    "fail to deserialize when fields are missing" in {
-      val json = Json.parse(
+    "succeed when optional fields are missing" in {
+      val validJsonWithMissingFields = Json.parse(
         """
           |{
-          |  "mgdRegNumber": "XYZ00000000012"
+          |   "groupMemberRecords": [
+          |  {
+          |   "mgdRegNumber": "XYM00000000004"
+          |  }
+          | ]
           |}
           |""".stripMargin
       )
 
-      val result = json.validate[GroupMembers]
+      val result = validJsonWithMissingFields.validate[GroupMembers]
+
+      result.isError mustBe false
+    }
+
+    "fail to deserialize when mandatory fields are missing" in {
+      val invalidJson = Json.parse(
+        """
+          |{
+          |   "groupMemberRecords": [
+          |  {
+          |   "businessName": "asjdlkajsdlk"
+          |  }
+          | ]
+          |}
+          |""".stripMargin
+      )
+
+      val result = invalidJson.validate[GroupMembers]
 
       result.isError mustBe true
     }
@@ -174,9 +198,12 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
       val json = Json.parse(
         """
           |{
-          |  "mgdRegNumber": "XYZ00000000012",
-          |  "returnsDue": "one",
-          |  "returnsOverdue": 2
+          |   "groupMemberRecords": [
+          |  {
+          |   "mgdRegNumber": "XYM00000000004",
+          |   "crn": 2308402843208
+          |  }
+          | ]
           |}
           |""".stripMargin
       )
