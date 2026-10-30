@@ -16,41 +16,66 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingResponse, PaymentPostingRow}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingRow, PaymentPostingsResponse}
 
 import java.time.LocalDate
 
 trait PaymentPostingsStubData {
 
-  val paymentPostingsList = List(
-    PaymentPostingRow(
-      accountingPeriod       = 12820832002L,
-      settlementSequenceNo   = 5678L,
-      payslipId              = 999123L,
-      postingAmount          = 123.45,
-      effectiveDateOfPayment = LocalDate.of(2016, 11, 9),
-      paymentType            = "BAC"
-    ),
-    PaymentPostingRow(
-      accountingPeriod       = 12820832002L,
-      settlementSequenceNo   = 5678L,
-      payslipId              = 999123L,
-      postingAmount          = 123.45,
-      effectiveDateOfPayment = LocalDate.of(2017, 11, 9),
-      paymentType            = "BAC"
+  val emptyPaymentPostings: PaymentPostingsResponse =
+    PaymentPostingsResponse(List.empty)
+
+  val singlePaymentPosting: PaymentPostingsResponse =
+    PaymentPostingsResponse(
+      List(
+        PaymentPostingRow(
+          accountingPeriod       = 202408L,
+          settlementSequenceNo   = 123456L,
+          payslipId              = 987654L,
+          postingAmount          = 1500.75,
+          effectiveDateOfPayment = LocalDate.of(2024, 9, 15),
+          paymentType            = "BAC"
+        )
+      )
     )
-  )
 
-  val paymentPostingsResponse: PaymentPostingResponse = PaymentPostingResponse(paymentPostings = paymentPostingsList)
+  val multiplePaymentPostings: PaymentPostingsResponse =
+    PaymentPostingsResponse(
+      List(
+        PaymentPostingRow(
+          accountingPeriod       = 202408L,
+          settlementSequenceNo   = 123456L,
+          payslipId              = 987654L,
+          postingAmount          = 1500.75,
+          effectiveDateOfPayment = LocalDate.of(2024, 9, 15),
+          paymentType            = "BAC"
+        ),
+        PaymentPostingRow(
+          accountingPeriod       = 202407L,
+          settlementSequenceNo   = 642736L,
+          payslipId              = 983123L,
+          postingAmount          = 2712.63,
+          effectiveDateOfPayment = LocalDate.of(2024, 8, 20),
+          paymentType            = "BAC"
+        ),
+        PaymentPostingRow(
+          accountingPeriod       = 202404L,
+          settlementSequenceNo   = 99423764L,
+          payslipId              = 985624L,
+          postingAmount          = 2416.89,
+          effectiveDateOfPayment = LocalDate.of(2024, 5, 26),
+          paymentType            = "BAC"
+        )
+      )
+    )
 
-  val paymentPostingsResponseWIthEmptyList: PaymentPostingResponse = PaymentPostingResponse(paymentPostings = List.empty)
-
-  def getPaymentPostings(taxRef: Long): PaymentPostingResponse = {
+  def getPaymentPostingsFromStubs(taxRef: Long): PaymentPostingsResponse = {
     taxRef match {
-      case (1L)        => paymentPostingsResponse
-      case (98765432L) => paymentPostingsResponseWIthEmptyList
-      case (99999)     => throw new RuntimeException("Error from downstream")
-      case (_)         => paymentPostingsResponseWIthEmptyList
+      case 7293742L => singlePaymentPosting
+      case 93837L   => multiplePaymentPostings
+      case 124252L  => emptyPaymentPostings
+      case (99999)  => throw new RuntimeException("Error from downstream")
+      case _        => singlePaymentPosting
     }
   }
 }

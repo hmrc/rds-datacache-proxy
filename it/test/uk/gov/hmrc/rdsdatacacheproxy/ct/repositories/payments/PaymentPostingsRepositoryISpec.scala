@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments.PaymentPostingsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
@@ -39,9 +39,9 @@ class PaymentPostingsRepositoryISpec
     with PaymentPostingsStubData {
 
   class PaymentPostingsRepositoryStub extends PaymentPostingsRepository {
-    override def getPaymentPostings(taxRef: Long): Future[PaymentPostingResponse] =
+    override def getPaymentPostings(taxRef: Long):Future[PaymentPostingsResponse] =
       Future {
-        paymentPostingsResponse
+        getPaymentPostingsFromStubs(taxRef: Long)
       }
   }
 
@@ -57,35 +57,44 @@ class PaymentPostingsRepositoryISpec
 
   "GET /payment-postings/:taxRef" should {
 
+    "return 200 with Payment Postings Response with a list containing single item" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/payment-postings/7293742").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[PaymentPostingsResponse] mustBe singlePaymentPosting
+    }
+
     "return 200 with Payment Postings Response with a list containing multiple items" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/payment-postings/122323").futureValue
+      val response = get(s"$endpoint/payment-postings/93837").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PaymentPostingResponse] mustBe paymentPostingsResponse
+      response.json.as[PaymentPostingsResponse] mustBe multiplePaymentPostings
     }
 
-    "return 200 with RdsAccountingPeriod empty list" in {
-
+    "return 200 with Payment Postings Response with an empty list" in {
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/payment-postings/122323").futureValue
+      val response = get(s"$endpoint/payment-postings/124252").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[PaymentPostingResponse] mustBe paymentPostingsResponseWIthEmptyList
-
+      response.json.as[PaymentPostingsResponse] mustBe emptyPaymentPostings
     }
 
     "return 500 when stub simulates failure" in {
 
       AuthStub.authorised()
 
-      val response = get(s"$endpoint/payment-postings/122323").futureValue
+      val response = get(s"$endpoint/payment-postings/99999").futureValue
 
       response.status mustBe INTERNAL_SERVER_ERROR
 
@@ -95,7 +104,7 @@ class PaymentPostingsRepositoryISpec
 
       AuthStub.unauthorised()
 
-      val response = get(s"$endpoint/payment-postings/122323").futureValue
+      val response = get(s"$endpoint/payment-postings/99999").futureValue
 
       response.status mustBe UNAUTHORIZED
     }

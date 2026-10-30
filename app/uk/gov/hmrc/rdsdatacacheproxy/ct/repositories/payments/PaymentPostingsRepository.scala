@@ -21,7 +21,7 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.Database
 import play.db.NamedDatabase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingResponse, PaymentPostingRow}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.{PaymentPostingRow, PaymentPostingsResponse}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepositoryDataSupport
 
 import java.sql.{Connection, ResultSet}
@@ -29,9 +29,9 @@ import javax.inject.Inject
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[PaymentAllocationChequeDetailsRepositoryImpl])
+@ImplementedBy(classOf[PaymentPostingsRepositoryImpl])
 trait PaymentPostingsRepository {
-  def getPaymentPostings(taxRef: Long): Future[PaymentPostingResponse]
+  def getPaymentPostings(taxRef: Long): Future[PaymentPostingsResponse]
 
 }
 
@@ -40,7 +40,7 @@ class PaymentPostingsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
     with Logging
     with RepositoryDataSupport {
 
-  override def getPaymentPostings(taxRef: Long): Future[PaymentPostingResponse] = {
+  override def getPaymentPostings(taxRef: Long): Future[PaymentPostingsResponse] = {
     Future {
       db.withConnection { conn =>
         getPaymentPostings(conn, taxRef)
@@ -48,7 +48,7 @@ class PaymentPostingsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
     }
   }
 
-  private def getPaymentPostings(connection: Connection, taxRef: Long): PaymentPostingResponse = {
+  private def getPaymentPostings(connection: Connection, taxRef: Long): PaymentPostingsResponse = {
     val cs = connection.prepareCall("{call CT_DC_PK.getPaymentPostingList(?,?)}")
     try {
       cs.setLong(1, taxRef)
@@ -59,7 +59,7 @@ class PaymentPostingsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
       val results = cs.getObject(2, classOf[ResultSet]);
       val paymentPostings = Option(results).map(readPaymentPostings).getOrElse(List.empty)
 
-      PaymentPostingResponse(
+      PaymentPostingsResponse(
         paymentPostings = paymentPostings
       )
 
@@ -74,7 +74,7 @@ class PaymentPostingsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
       buffer += PaymentPostingRow(
         accountingPeriod       = rs.getLong("ACCOUNTING_PERIOD"),
         settlementSequenceNo   = rs.getLong("SETTLEMENT_SEQUENCE_NO"),
-        payslipId              = rs.getLong("SETTLEMENT_SEQUENCE_NO"),
+        payslipId              = rs.getLong("PAYSLIP_ID"),
         postingAmount          = rs.getBigDecimal("POSTING_AMOUNT"),
         effectiveDateOfPayment = rs.getDate("EFFECTIVE_DATE_OF_PAYMENT").toLocalDate,
         paymentType            = rs.getString("PAYMENT_TYPE")

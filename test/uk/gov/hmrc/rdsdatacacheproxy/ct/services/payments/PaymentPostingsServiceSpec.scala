@@ -22,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.payments.PaymentPostingsRepository
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.payments.PaymentPostingsStubData
 
@@ -37,22 +37,31 @@ class PaymentPostingsServiceSpec extends AnyFreeSpec with Matchers with ScalaFut
     val service = new PaymentPostingsService(mockRepo)
 
     val taxRef: Long = 98762425L
-
-    val paymentPostingResponse: PaymentPostingResponse =
-      PaymentPostingResponse(paymentPostings = paymentPostingsList)
   }
 
-  "PaymentPostingsService must return list of PaymentPostings" in new Setup {
+  "PaymentPostingsService must return a single PaymentPostings" in new Setup {
     when(mockRepo.getPaymentPostings(any()))
-      .thenReturn(Future.successful(paymentPostingResponse))
+      .thenReturn(Future.successful(singlePaymentPosting))
 
-    val result: PaymentPostingResponse = service.getPaymentPostings(taxRef).futureValue
+    val result: PaymentPostingsResponse = service.getPaymentPostings(taxRef).futureValue
 
-    result mustBe paymentPostingResponse
+    result mustBe singlePaymentPosting
 
     verify(mockRepo, times(1)).getPaymentPostings(any())
 
   }
+
+  "PaymentPostingsService must return list of PaymentPostings" in new Setup {
+    when(mockRepo.getPaymentPostings(any()))
+      .thenReturn(Future.successful(multiplePaymentPostings))
+
+    val result: PaymentPostingsResponse = service.getPaymentPostings(taxRef).futureValue
+
+    result mustBe multiplePaymentPostings
+
+    verify(mockRepo, times(1)).getPaymentPostings(any())
+  }
+
   "PaymentPostingsService must propagate failure from repository" in new Setup {
 
     val exception = new RuntimeException("Failure from Repo")

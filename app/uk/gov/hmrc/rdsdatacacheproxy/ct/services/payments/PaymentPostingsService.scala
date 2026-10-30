@@ -18,14 +18,14 @@ package uk.gov.hmrc.rdsdatacacheproxy.ct.services.payments
 
 import jakarta.inject.Inject
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingResponse
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.payments.PaymentPostingsResponse
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.payments.PaymentPostingsRepository
 
 import scala.concurrent.Future
 
 class PaymentPostingsService @Inject (repository: PaymentPostingsRepository) extends Logging {
 
-  def getPaymentPostings(taxRef: Long): Future[PaymentPostingResponse] = {
+  def getPaymentPostings(taxRef: Long): Future[PaymentPostingsResponse] = {
     logger.info(s"Retrieving Payment Postings from repository for taxRef: $taxRef")
     repository.getPaymentPostings(taxRef)
   }
