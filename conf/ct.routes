@@ -35,3 +35,5 @@ GET        /company-details/:taxRef                                         uk.g
 GET        /cheque-payment-allocation-details/:taxRef/:chequeId             uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentAllocationChequeDetailsController.getPaymentAllocationChequeDetails(taxRef: Long, chequeId: Long)
 GET        /payment-search-result/:taxRef                                   uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentSearchResultController.getPaymentSearchResult(taxRef: Long, queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.payments.PaymentSearchResultQueryParams)
 GET        /posting-summary/:taxRef/:postingType                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PostingSummaryByTypeController.getPostingSummaryByType(taxRef: Long, postingType: String)
+
+GET        /payment-postings/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentPostingsController.getPaymentPostings(taxRef: Long)
