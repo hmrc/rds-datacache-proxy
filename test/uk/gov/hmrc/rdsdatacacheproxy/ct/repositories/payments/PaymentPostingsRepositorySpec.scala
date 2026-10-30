@@ -108,7 +108,7 @@ class PaymentPostingsRepositorySpec extends AnyFlatSpec with Matchers with Befor
   "getPaymentPostings" should "return a list of multiple PaymentPostings" in {
     val taxRef = 93837L
 
-    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
+    when(mockCallableStatement.getObject(eqTo(2), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
     when(mockResultSet.next()).thenReturn(true, true, true, false)
 
     when(mockResultSet.getLong("ACCOUNTING_PERIOD")).thenReturn(202408L, 202407L, 202404L)
