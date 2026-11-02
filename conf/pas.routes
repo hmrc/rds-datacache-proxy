@@ -11,3 +11,5 @@ POST        /paye/penalties                                         uk.gov.hmrc.
 POST        /paye/penalty                                           uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeAppealablePenalty()
 POST        /paye/taxpayer                                          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayeTaxpayer()
 POST        /paye/penalties/access-allowed                          uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.PasPayeController.getPayePenaltyAllowed()
+
+GET         /agent/clientlist/status                                uk.gov.hmrc.rdsdatacacheproxy.pas.controllers.ClientListController.getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400)
