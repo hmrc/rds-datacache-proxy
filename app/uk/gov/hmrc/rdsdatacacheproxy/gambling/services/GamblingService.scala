@@ -414,34 +414,28 @@ class GamblingService @Inject() (
 
   }
 
-  def getGroupMembers(regime: String, rawMgdRegNumber: String)(implicit
-                                                               hc: HeaderCarrier
+  def getGroupMembers(rawMgdRegNumber: String)(implicit
+    hc: HeaderCarrier
   ): Future[Either[GamblingError, GroupMembers]] = {
     val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
-
-    Regime.fromString(regime.trim) match {
-      case Left(error) =>
-        if error.isInstanceOf[StatementError.InvalidRegimeCode.type] then Future.successful(Left(InvalidRegimeCode))
-        else Future.successful(Left(UnexpectedError))
-      case Right(regime) =>
-        GRNValidator.validateRegNum(regime, mgdRegNumber) match {
-          case Left(value) =>
-            logger.warn(
-              s"[GamblingService][getGroupMemberDetails] Invalid pattern mgdRegNumber=$mgdRegNumber"
+    GRNValidator.validateRegNum(Regime.MGD, mgdRegNumber) match {
+      case Left(value) =>
+        logger.warn(
+          s"[GamblingService][getGroupMembers] Invalid pattern mgdRegNumber=$mgdRegNumber"
+        )
+        Future.successful(Left(InvalidMgdRegNumber))
+      case Right(value) =>
+        repository
+          .getGroupMembers(mgdRegNumber)
+          .map(details => Right(details))
+          .recover { case ex: Exception =>
+            logger.error(
+              s"[GamblingService][getGroupMembers] Unexpected error mgdRegNumber=$mgdRegNumber",
+              ex
             )
-            Future.successful(Left(InvalidMgdRegNumber))
-          case Right(value) =>
-            repository
-              .getGroupMemberDetails(regime, mgdRegNumber)
-              .map(details => Right(details))
-              .recover { case ex: Exception =>
-                logger.error(
-                  s"[GamblingService][getGroupMemberDetails] Unexpected error mgdRegNumber=$mgdRegNumber",
-                  ex
-                )
-                Left(UnexpectedError)
-              }
-        }
+            Left(UnexpectedError)
+          }
+
     }
   }
 

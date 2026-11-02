@@ -14,7 +14,9 @@ GET        /premises-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.
 GET        /business-address/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getBusinessAddressDetails(mgdRegNumber: String)
 GET        /controlling-body-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getControllingBodyDetails(mgdRegNumber: String)
 GET        /return-periods/mgd/:mgdRegNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnPeriods(mgdRegNumber: String)
+GET        /group-members/mgd/:regNumber                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GroupMembersController.getGroupMembers(regNumber: String)
 GET        /agent-details/:agentReference               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getAgentDetails(agentReference: String)
+
 
 
 #Gambling Returns routes
@@ -38,7 +40,6 @@ GET        /interest-accruing-details/:regime/:regNumber               uk.gov.hm
 GET        /repayment-interest-details/:regime/:regNumber              uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.RepaymentInterestDetailsController.getRepaymentInterestDetails(regime: String, regNumber: String, pageNo: Int ?=1, pageSize: Int ?=10)
 GET        /partner-details/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.PartnerDetailsController.getPartnerDetails(regime: String, regNumber: String)
 GET        /licence-details/:regime/:regNumber                         uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.LicenceController.getLicenceDetails(regime: String, regNumber: String)
-GET        /group-members/:regime/:regNumber                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GroupMembersController.getGroupMemberDetails(regime: String, regNumber: String)
 
 #Filing routes
 GET        /submitted-returns/:regNumber                       uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.SubmittedReturnsController.getMgdSubmittedReturns(regNumber: String, sortBy: Option[Int], orderBy: Option[String])

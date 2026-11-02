@@ -615,16 +615,17 @@ object GamblingTestUtil {
   val validResponseGroupMembers = GroupMembers(
     groupMemberRecords = List(
       GroupMemberRecord(
-        mgdRegNumber           = "XWM12345678901",
-        businessName = Some("ABC"),
-        businessPartnerNumber  = Some("0100049899"),
-        isRepMemberOfGroup = Some(1),
-        crn                    = Some("09876543"),
-        foreignCorporateRef    = Some("FCR-UK-987654"),
-        dateOfJoining          = Some(LocalDate.of(2025, 1, 1)),
-        dateOfLeaving          = Some(LocalDate.of(2026, 1, 1)),
-        emailAddress = Some("a@b.com")
+        mgdRegNumber          = "XWM12345678901",
+        businessName          = Some("ABC"),
+        businessPartnerNumber = Some("0100049899"),
+        isRepMemberOfGroup    = Some(1),
+        crn                   = Some("09876543"),
+        foreignCorporateRef   = Some("FCR-UK-987654"),
+        dateOfJoining         = Some(LocalDate.of(2025, 1, 1)),
+        dateOfLeaving         = Some(LocalDate.of(2026, 1, 1)),
+        emailAddress          = Some("a@b.com")
       )
     ),
     systemDate = Some(LocalDate.of(2026, 7, 30))
-  )}
+  )
+}

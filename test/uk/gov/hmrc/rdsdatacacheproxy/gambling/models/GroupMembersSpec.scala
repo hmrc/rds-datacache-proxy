@@ -56,34 +56,34 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
       |""".stripMargin
   )
 
-
-
   "GroupMembers JSON format" should {
 
     "serialize to JSON correctly" in {
       val model = GroupMembers(
-        Seq(GroupMemberRecord(
-          mgdRegNumber = "XYM00000000004",
-          businessPartnerNumber = Some("0100049899"),
-          businessName = Some("BusinessCo"),
-          crn = Some("09876543"),
-          foreignCorporateRef = Some("FCR-UK-987654"),
-          isRepMemberOfGroup = Some(1),
-          dateOfJoining = Some(LocalDate.parse("2026-03-31")),
-          dateOfLeaving = Some(LocalDate.parse("2026-03-31")),
-          emailAddress = Some("a@b.com")
+        Seq(
+          GroupMemberRecord(
+            mgdRegNumber          = "XYM00000000004",
+            businessPartnerNumber = Some("0100049899"),
+            businessName          = Some("BusinessCo"),
+            crn                   = Some("09876543"),
+            foreignCorporateRef   = Some("FCR-UK-987654"),
+            isRepMemberOfGroup    = Some(1),
+            dateOfJoining         = Some(LocalDate.parse("2026-03-31")),
+            dateOfLeaving         = Some(LocalDate.parse("2026-03-31")),
+            emailAddress          = Some("a@b.com")
+          ),
+          GroupMemberRecord(
+            mgdRegNumber          = "XYM00000000000",
+            businessPartnerNumber = Some("1100049911"),
+            businessName          = Some("Oh It's A Business"),
+            crn                   = Some("19876544"),
+            foreignCorporateRef   = Some("GGR-UK-187654"),
+            isRepMemberOfGroup    = Some(0),
+            dateOfJoining         = Some(LocalDate.parse("2026-05-31")),
+            dateOfLeaving         = Some(LocalDate.parse("2026-05-31")),
+            emailAddress          = Some("d@e.com")
+          )
         ),
-        GroupMemberRecord(
-          mgdRegNumber = "XYM00000000000",
-          businessPartnerNumber = Some("1100049911"),
-          businessName = Some("Oh It's A Business"),
-          crn = Some("19876544"),
-          foreignCorporateRef = Some("GGR-UK-187654"),
-          isRepMemberOfGroup = Some(0),
-          dateOfJoining = Some(LocalDate.parse("2026-05-31")),
-          dateOfLeaving = Some(LocalDate.parse("2026-05-31")),
-          emailAddress = Some("d@e.com")
-        )),
         systemDate = Some(LocalDate.of(2026, 10, 29))
       )
 
@@ -109,8 +109,6 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
       (json \ "groupMemberRecords" \ 1 \ "dateOfLeaving").as[String] mustBe "2026-05-31"
       (json \ "groupMemberRecords" \ 1 \ "emailAddress").as[String] mustBe "d@e.com"
 
-
-
     }
 
     "deserialize from JSON correctly" in {
@@ -132,7 +130,7 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
               Some(1),
               Some(joinDate),
               Some(leaveDate),
-              Some("a@b.com"),
+              Some("a@b.com")
             ),
             GroupMemberRecord(
               "XYM00000000000",
@@ -143,14 +141,16 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
               Some(0),
               Some(joinDate),
               Some(leaveDate),
-              Some("d@e.com"),
-            )),
-            Some(systemDate))
-          )
+              Some("d@e.com")
+            )
+          ),
+          Some(systemDate)
+        )
+      )
     }
 
     "round-trip (write then read) should return same object" in {
-      val original = GroupMembers(Seq(GroupMemberRecord("XYZ00000000021",None, None,None,None,None,None, None, None)), None)
+      val original = GroupMembers(Seq(GroupMemberRecord("XYZ00000000021", None, None, None, None, None, None, None, None)), None)
 
       val json = Json.toJson(original)
       val parsed = json.as[GroupMembers]
