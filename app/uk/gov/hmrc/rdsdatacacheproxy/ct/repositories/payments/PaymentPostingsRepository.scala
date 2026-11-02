@@ -60,7 +60,7 @@ class PaymentPostingsRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
       val paymentPostings = Option(results).map(readPaymentPostings).getOrElse(List.empty)
 
       PaymentPostingsResponse(
-        paymentPostings = paymentPostings
+        paymentPostingResults = paymentPostings
       )
 
     } finally {
