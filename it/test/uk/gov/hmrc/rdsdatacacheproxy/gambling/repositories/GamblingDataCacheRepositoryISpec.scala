@@ -77,7 +77,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails] =
       Future.successful(GamblingStubData.getPartnerDetailsData(regNumber))
 
-    override def getGroupMembers(regime: Regime, regNumber: String): Future[GroupMembers] =
+    override def getGroupMembers(regNumber: String): Future[GroupMembers] =
       Future.successful(GamblingStubData.getGroupMembersData(regNumber))
 
     override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] =
@@ -840,28 +840,28 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
   "getGroupMembersData() (stubbed repository)" should {
 
     "return correct getGroupMembersData" in {
-      val result = repository.getGroupMembers(Regime.MGD, "XYM00000000000").futureValue
+      val result = repository.getGroupMembers("XYM00000000000").futureValue
 
       result mustBe GamblingStubData.getGroupMembersData("XYM00000000000")
     }
 
     "return consistent results across multiple calls" in {
-      val result1 = repository.getGroupMembers(Regime.MGD, "XYM00000000000").futureValue
-      val result2 = repository.getGroupMembers(Regime.MGD, "XYM00000000000").futureValue
+      val result1 = repository.getGroupMembers("XYM00000000000").futureValue
+      val result2 = repository.getGroupMembers("XYM00000000000").futureValue
 
       result1 mustBe result2
     }
 
     "handle different valid regNumbers independently" in {
-      val result1 = repository.getGroupMembers(Regime.MGD, "XYM00000000000").futureValue
-      val result2 = repository.getGroupMembers(Regime.MGD, "XYZ00000000001").futureValue
+      val result1 = repository.getGroupMembers("XYM00000000000").futureValue
+      val result2 = repository.getGroupMembers("XYZ00000000001").futureValue
 
       result1 must not be result2
     }
 
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
-        repository.getGroupMembers(Regime.MGD, "XEM33333333333").futureValue
+        repository.getGroupMembers("XEM33333333333").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

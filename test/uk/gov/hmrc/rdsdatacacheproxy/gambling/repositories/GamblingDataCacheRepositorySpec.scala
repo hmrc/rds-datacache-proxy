@@ -23,7 +23,8 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
+import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.{GroupMembers, *}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseGroupMembers
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
@@ -48,27 +49,29 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var correspondenceRs: ResultSet = _
   var businessAddressRs: ResultSet = _
   var premisesRs: ResultSet = _
+  var groupMembersRs: ResultSet = _
   var agentAddressRs: ResultSet = _
   var agentContactRs: ResultSet = _
 
   before {
-    db                = mock(classOf[Database])
-    mockConnection    = mock(classOf[Connection])
-    mockCs            = mock(classOf[CallableStatement])
-    returnSummaryRs   = mock(classOf[ResultSet])
-    partRs            = mock(classOf[ResultSet])
-    groupRs           = mock(classOf[ResultSet])
-    returnPeriodRs    = mock(classOf[ResultSet])
-    businessRs        = mock(classOf[ResultSet])
-    operatorRs        = mock(classOf[ResultSet])
-    mgdRs             = mock(classOf[ResultSet])
-    tradeClassRs      = mock(classOf[ResultSet])
+    db = mock(classOf[Database])
+    mockConnection = mock(classOf[Connection])
+    mockCs = mock(classOf[CallableStatement])
+    returnSummaryRs = mock(classOf[ResultSet])
+    partRs = mock(classOf[ResultSet])
+    groupRs = mock(classOf[ResultSet])
+    returnPeriodRs = mock(classOf[ResultSet])
+    businessRs = mock(classOf[ResultSet])
+    operatorRs = mock(classOf[ResultSet])
+    mgdRs = mock(classOf[ResultSet])
+    tradeClassRs = mock(classOf[ResultSet])
     businessContactRs = mock(classOf[ResultSet])
-    correspondenceRs  = mock(classOf[ResultSet])
+    correspondenceRs = mock(classOf[ResultSet])
     businessAddressRs = mock(classOf[ResultSet])
-    premisesRs        = mock(classOf[ResultSet])
-    agentAddressRs    = mock(classOf[ResultSet])
-    agentContactRs    = mock(classOf[ResultSet])
+    premisesRs = mock(classOf[ResultSet])
+    agentAddressRs = mock(classOf[ResultSet])
+    agentContactRs = mock(classOf[ResultSet])
+    groupMembersRs = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -96,10 +99,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getTradeClassDetails(mgdRegNumber).futureValue
 
     result shouldBe TradeClassDetails(
-      mgdRegNumber         = mgdRegNumber,
-      businessTradeClass   = Some(3),
+      mgdRegNumber = mgdRegNumber,
+      businessTradeClass = Some(3),
       businessActivityDesc = "Arcade Operator",
-      systemDate           = Some(LocalDate.of(2025, 1, 1))
+      systemDate = Some(LocalDate.of(2025, 1, 1))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -117,10 +120,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getTradeClassDetails("XWM00000001770").futureValue
 
     result shouldBe TradeClassDetails(
-      mgdRegNumber         = "",
-      businessTradeClass   = None,
+      mgdRegNumber = "",
+      businessTradeClass = None,
       businessActivityDesc = "",
-      systemDate           = None
+      systemDate = None
     )
 
     verify(mockCs).close()
@@ -135,10 +138,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getTradeClassDetails("XWM00000001770").futureValue
 
     result shouldBe TradeClassDetails(
-      mgdRegNumber         = "",
-      businessTradeClass   = None,
+      mgdRegNumber = "",
+      businessTradeClass = None,
       businessActivityDesc = "",
-      systemDate           = None
+      systemDate = None
     )
 
     verify(tradeClassRs).close()
@@ -158,10 +161,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     val result =
       repository.getTradeClassDetails("XWM00000001770").futureValue
 
-    result.mgdRegNumber         shouldBe "XWM00000001770"
-    result.businessTradeClass   shouldBe None
+    result.mgdRegNumber shouldBe "XWM00000001770"
+    result.businessTradeClass shouldBe None
     result.businessActivityDesc shouldBe ""
-    result.systemDate           shouldBe None
+    result.systemDate shouldBe None
 
     verify(tradeClassRs).close()
     verify(mockCs).close()
@@ -192,15 +195,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getMgdDetails(mgdRegNumber).futureValue
 
     result shouldBe MgdDetails(
-      mgdRegNumber       = mgdRegNumber,
+      mgdRegNumber = mgdRegNumber,
       isBusinessSeasonal = Some(1),
-      previousMgdrn1     = Some("OLD001"),
-      previousMgdrn2     = Some("OLD002"),
-      previousMgdrn3     = Some("OLD003"),
-      associatedMgdrn1   = Some("ASS001"),
-      associatedMgdrn2   = Some("ASS002"),
-      associatedMgdrn3   = Some("ASS003"),
-      systemDate         = Some(LocalDate.of(2025, 1, 1))
+      previousMgdrn1 = Some("OLD001"),
+      previousMgdrn2 = Some("OLD002"),
+      previousMgdrn3 = Some("OLD003"),
+      associatedMgdrn1 = Some("ASS001"),
+      associatedMgdrn2 = Some("ASS002"),
+      associatedMgdrn3 = Some("ASS003"),
+      systemDate = Some(LocalDate.of(2025, 1, 1))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -218,15 +221,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getMgdDetails("XWM00000001770").futureValue
 
     result shouldBe MgdDetails(
-      mgdRegNumber       = "",
+      mgdRegNumber = "",
       isBusinessSeasonal = None,
-      previousMgdrn1     = None,
-      previousMgdrn2     = None,
-      previousMgdrn3     = None,
-      associatedMgdrn1   = None,
-      associatedMgdrn2   = None,
-      associatedMgdrn3   = None,
-      systemDate         = None
+      previousMgdrn1 = None,
+      previousMgdrn2 = None,
+      previousMgdrn3 = None,
+      associatedMgdrn1 = None,
+      associatedMgdrn2 = None,
+      associatedMgdrn3 = None,
+      systemDate = None
     )
 
     verify(mockCs).close()
@@ -241,15 +244,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getMgdDetails("XWM00000001770").futureValue
 
     result shouldBe MgdDetails(
-      mgdRegNumber       = "",
+      mgdRegNumber = "",
       isBusinessSeasonal = None,
-      previousMgdrn1     = None,
-      previousMgdrn2     = None,
-      previousMgdrn3     = None,
-      associatedMgdrn1   = None,
-      associatedMgdrn2   = None,
-      associatedMgdrn3   = None,
-      systemDate         = None
+      previousMgdrn1 = None,
+      previousMgdrn2 = None,
+      previousMgdrn3 = None,
+      associatedMgdrn1 = None,
+      associatedMgdrn2 = None,
+      associatedMgdrn3 = None,
+      systemDate = None
     )
 
     verify(mgdRs).close()
@@ -277,15 +280,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     val result =
       repository.getMgdDetails("XWM00000001770").futureValue
 
-    result.mgdRegNumber       shouldBe "XWM00000001770"
+    result.mgdRegNumber shouldBe "XWM00000001770"
     result.isBusinessSeasonal shouldBe None
-    result.previousMgdrn1     shouldBe None
-    result.previousMgdrn2     shouldBe None
-    result.previousMgdrn3     shouldBe None
-    result.associatedMgdrn1   shouldBe None
-    result.associatedMgdrn2   shouldBe None
-    result.associatedMgdrn3   shouldBe None
-    result.systemDate         shouldBe None
+    result.previousMgdrn1 shouldBe None
+    result.previousMgdrn2 shouldBe None
+    result.previousMgdrn3 shouldBe None
+    result.associatedMgdrn1 shouldBe None
+    result.associatedMgdrn2 shouldBe None
+    result.associatedMgdrn3 shouldBe None
+    result.systemDate shouldBe None
 
     verify(mgdRs).close()
     verify(mockCs).close()
@@ -310,12 +313,12 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getBusinessContactDetails(mgdRegNumber).futureValue
 
     result shouldBe BusinessContactDetails(
-      mgdRegNumber      = mgdRegNumber,
-      phoneNumber       = Some("111111"),
+      mgdRegNumber = mgdRegNumber,
+      phoneNumber = Some("111111"),
       mobilePhoneNumber = Some("222222"),
-      faxNumber         = Some("333333"),
-      emailAddr         = Some("test@test.com"),
-      systemDate        = Some(LocalDate.of(2025, 1, 1))
+      faxNumber = Some("333333"),
+      emailAddr = Some("test@test.com"),
+      systemDate = Some(LocalDate.of(2025, 1, 1))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -353,22 +356,22 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       repository.getCorrespondenceDetails(mgdRegNumber).futureValue
 
     result shouldBe CorrespondenceDetails(
-      mgdRegNumber      = "XWM00000001770",
-      nameLine1         = Some("foo"),
-      nameLine2         = Some("foo"),
-      phoneNumber       = Some("07618728019"),
+      mgdRegNumber = "XWM00000001770",
+      nameLine1 = Some("foo"),
+      nameLine2 = Some("foo"),
+      phoneNumber = Some("07618728019"),
       mobilePhoneNumber = Some("018937617281"),
-      faxNumber         = Some("foo"),
-      emailAddr         = Some("foo@mail.com"),
-      adi               = Some("none"),
-      address1          = Some("random street"),
-      address2          = Some("bar"),
-      address3          = Some("bar"),
-      address4          = Some("bar"),
-      postcode          = Some("SR1 4DE"),
-      country           = Some("Ingerland!"),
-      iomOrCiFlag       = Some("true"),
-      systemDate        = Some(LocalDate.of(2026, 5, 13))
+      faxNumber = Some("foo"),
+      emailAddr = Some("foo@mail.com"),
+      adi = Some("none"),
+      address1 = Some("random street"),
+      address2 = Some("bar"),
+      address3 = Some("bar"),
+      address4 = Some("bar"),
+      postcode = Some("SR1 4DE"),
+      country = Some("Ingerland!"),
+      iomOrCiFlag = Some("true"),
+      systemDate = Some(LocalDate.of(2026, 5, 13))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -401,15 +404,15 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result shouldBe BusinessAddressDetails(
       mgdRegNumber = "XWM00000001770",
-      adi          = Some("none"),
-      address1     = Some("random street"),
-      address2     = Some("bar"),
-      address3     = Some("bar"),
-      address4     = Some("bar"),
-      postcode     = Some("SR1 4DE"),
-      country      = Some("Ingerland!"),
-      iomOrCiFlag  = Some("true"),
-      systemDate   = Some(LocalDate.of(2026, 5, 13))
+      adi = Some("none"),
+      address1 = Some("random street"),
+      address2 = Some("bar"),
+      address3 = Some("bar"),
+      address4 = Some("bar"),
+      postcode = Some("SR1 4DE"),
+      country = Some("Ingerland!"),
+      iomOrCiFlag = Some("true"),
+      systemDate = Some(LocalDate.of(2026, 5, 13))
     )
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -443,12 +446,12 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       premises = Seq(
         PremisesDetails(
           mgdRegNumber = "XWM00000001770",
-          address1     = Some("random street"),
-          address2     = Some("bar"),
-          address3     = Some("bar"),
-          address4     = Some("bar"),
-          postcode     = Some("SR1 4DE"),
-          systemDate   = Some(LocalDate.of(2026, 5, 13))
+          address1 = Some("random street"),
+          address2 = Some("bar"),
+          address3 = Some("bar"),
+          address4 = Some("bar"),
+          postcode = Some("SR1 4DE"),
+          systemDate = Some(LocalDate.of(2026, 5, 13))
         )
       )
     )
@@ -486,10 +489,10 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     result.mgdRegNumber shouldBe mgdRegNumber
     result.solePropName shouldBe Some("John Trading")
     result.businessName shouldBe Some("Test Business")
-    result.tradingName  shouldBe Some("Trading Ltd")
+    result.tradingName shouldBe Some("Trading Ltd")
     result.businessType shouldBe Some(2)
-    result.address1     shouldBe Some("Line 1")
-    result.postcode     shouldBe Some("AB12 3CD")
+    result.address1 shouldBe Some("Line 1")
+    result.postcode shouldBe Some("AB12 3CD")
 
     verify(mockCs).setString(1, mgdRegNumber)
     verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
@@ -552,9 +555,9 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val result = repository.getBusinessDetails(mgdRegNumber).futureValue
 
-    result.mgdRegNumber          shouldBe mgdRegNumber
-    result.currentlyRegistered   shouldBe 1
-    result.groupReg              shouldBe true
+    result.mgdRegNumber shouldBe mgdRegNumber
+    result.currentlyRegistered shouldBe 1
+    result.groupReg shouldBe true
     result.businessPartnerNumber shouldBe Some("BP123")
 
     verify(mockCs).setString(1, mgdRegNumber)
@@ -702,14 +705,14 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val result = repository.getMgdCertificate(mgdRegNumber).futureValue
 
-    result.mgdRegNumber   shouldBe mgdRegNumber
-    result.businessName   shouldBe Some("Test Business")
-    result.groupReg       shouldBe "Y"
-    result.noOfGroupMems  shouldBe Some(2)
+    result.mgdRegNumber shouldBe mgdRegNumber
+    result.businessName shouldBe Some("Test Business")
+    result.groupReg shouldBe "Y"
+    result.noOfGroupMems shouldBe Some(2)
     result.dateCertIssued shouldBe Some(issuedDate)
 
-    result.partMembers.size          shouldBe 1
-    result.groupMembers.size         shouldBe 1
+    result.partMembers.size shouldBe 1
+    result.groupMembers.size shouldBe 1
     result.returnPeriodEndDates.size shouldBe 1
 
     verify(partRs).close()
@@ -730,8 +733,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val result = repository.getMgdCertificate("XWM00000001770").futureValue
 
-    result.partMembers          shouldBe empty
-    result.groupMembers         shouldBe empty
+    result.partMembers shouldBe empty
+    result.groupMembers shouldBe empty
     result.returnPeriodEndDates shouldBe empty
 
     verify(partRs).close()
@@ -748,8 +751,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val result = repository.getMgdCertificate("XWM00000001770").futureValue
 
-    result.partMembers          shouldBe empty
-    result.groupMembers         shouldBe empty
+    result.partMembers shouldBe empty
+    result.groupMembers shouldBe empty
     result.returnPeriodEndDates shouldBe empty
 
     verify(mockCs).close()
@@ -792,18 +795,18 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result shouldBe Right(
       AgentDetails(
-        businessName      = Some("Gambling company 1"),
-        addressLine1      = Some("1"),
-        addressLine2      = Some("Example street"),
-        addressLine3      = Some("Town"),
-        addressLine4      = Some("County"),
-        postcode          = Some("SW1A 1AA"),
-        country           = Some("United Kingdom"),
-        abroadSignal      = Some("N"),
-        phoneNumber       = Some("02079460000"),
+        businessName = Some("Gambling company 1"),
+        addressLine1 = Some("1"),
+        addressLine2 = Some("Example street"),
+        addressLine3 = Some("Town"),
+        addressLine4 = Some("County"),
+        postcode = Some("SW1A 1AA"),
+        country = Some("United Kingdom"),
+        abroadSignal = Some("N"),
+        phoneNumber = Some("02079460000"),
         mobilePhoneNumber = Some("07700900999"),
-        faxNumber         = Some("02079460123"),
-        email             = Some("user@example.com")
+        faxNumber = Some("02079460123"),
+        email = Some("user@example.com")
       )
     )
 
@@ -872,7 +875,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result match {
       case Left(RecordNotFound(msg)) => msg should include("GET_AGENT_DETAILS")
-      case other                     => fail(s"expected Left(RecordNotFound), got $other")
+      case other => fail(s"expected Left(RecordNotFound), got $other")
     }
 
     verify(mockCs).close()
@@ -886,10 +889,27 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     result match {
       case Left(DatabaseError(msg, _)) => msg should include("GET_AGENT_DETAILS")
-      case other                       => fail(s"expected Left(DatabaseError), got $other")
+      case other => fail(s"expected Left(DatabaseError), got $other")
     }
 
     verify(mockCs).close()
   }
 
+  "getGroupMembers" should "return GroupMembers when data exists" in {
+
+    val mgdRegNumber = "XWM00000001770"
+    when(mockCs.getObject(2)).thenReturn(groupMembersRs)
+    when(mockCs.getObject(3)).thenReturn(LocalDate.of(1992, 1, 1))
+
+    when(groupMembersRs.getObject("GROUP_MEMBERS")).thenReturn(validResponseGroupMembers.groupMemberRecords)
+
+
+    val result = repository.getGroupMembers(mgdRegNumber).futureValue
+
+    result shouldBe validResponseGroupMembers
+
+      verify (mockCs).setString(1, mgdRegNumber)
+      verify (mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+      verify (mockCs).execute()
+  }
 }
