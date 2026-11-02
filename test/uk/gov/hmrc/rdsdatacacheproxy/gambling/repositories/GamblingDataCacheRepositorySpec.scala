@@ -897,12 +897,13 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
   "getGroupMembers" should "return GroupMembers when data exists" in {
 
-    val mgdRegNumber = "XWM00000001770"
+    val mgdRegNumber = "XWM12345678901"
     when(mockCs.getObject(2)).thenReturn(groupMembersRs)
     when(mockCs.getObject(3)).thenReturn(LocalDate.of(1992, 1, 1))
 
     when(groupMembersRs.getObject("GROUP_MEMBERS")).thenReturn(validResponseGroupMembers.groupMemberRecords)
 
+    verify(mockCs).getObject(2)
 
     val result = repository.getGroupMembers(mgdRegNumber).futureValue
 
