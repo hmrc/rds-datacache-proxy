@@ -1319,88 +1319,53 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getGroupMembers(
-                                          mgdRegNumber: String
-                                        ): Future[GroupMembers] = {
+  override def getGroupMembers(regNumber: String): Future[GroupMembers] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBERS(?, ?, ?) }")
 
-    Future(blocking {
+      try {
+        cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PARTNERS
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.execute()
 
-      db.withConnection { conn =>
+        val groupMembers: List[GroupMemberRecord] = {
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+          if (rs == null) Nil
+          else {
+            try {
+              val b = List.newBuilder[GroupMemberRecord]
 
-        val cs = conn.prepareCall(
-          "{ call MGD_DC_VARIATION_PK.GET_BUSINESS_ADDRESS(?, ?, ?) }"
-        )
-
-        def closeQuietly(c: AutoCloseable): Unit =
-          if (c != null)
-            try c.close()
-            catch {
-              case _: Throwable => ()
-            }
-
-        try {
-
-          cs.setString(1, mgdRegNumber)
-          cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
-          cs.execute()
-          
-
-          val optionResultSet = Option(cs.getObject(2).asInstanceOf[java.sql.ResultSet])
-
-          try {
-            optionResultSet
-              .filter(_.next())
-              .map { rs =>
-
-                def optString(col: String): Option[String] =
-                  Option(rs.getString(col))
-                    .map(_.trim)
-                    .filter(_.nonEmpty)
-
-                def optDate(col: String): Option[LocalDate] =
-                  Option(rs.getDate(col))
-                    .map(_.toLocalDate)
-
-                GroupMembers(
-                  mgdRegNumber = Option(rs.getString("mgd_reg_number"))
-                    .map(_.trim)
-                    .getOrElse(""),
-                  businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
-                  businessName          = Option(rs.getString("BUSINESS_NAME")),
-                  crn                   = Option(rs.getString("CRN")),
-                  foreignCorporateRef   = Option(rs.getString("FOREIGN_CORPORATE_REF")),
-                  isRepMemberOfGroup    = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
-                  dateOfJoining         = optDate("DATE_OF_JOINING", rs),
-                  dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
-                  emailAddress          = Option(rs.getString("EMAIL_ADDR"))
+              while (rs.next()) {
+                val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
+                  GroupMemberRecord(
+                    mgdRegNumber          = mgdRegNumber,
+                    businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    businessName          = Option(rs.getString("BUSINESS_NAME")),
+                    crn                   = Option(rs.getString("CRN")),
+                    foreignCorporateRef   = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    isRepMemberOfGroup    = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
+                    dateOfJoining         = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
+                    emailAddress          = Option(rs.getString("EMAIL_ADDR"))
+                  )
                 )
+                b.addAll(maybeItem.toList)
               }
-              .getOrElse {
-                GroupMembers(
-                  mgdRegNumber = "",
-                  adi          = None,
-                  address1     = None,
-                  address2     = None,
-                  address3     = None,
-                  address4     = None,
-                  postcode     = None,
-                  country      = None,
-                  iomOrCiFlag  = None,
-                  systemDate   = None
-                )
-              }
-
-          } finally {
-            optionResultSet.foreach(_.close())
+              b.result()
+            } finally closeQuietly(rs)
           }
-
-        } finally {
-          closeQuietly(cs)
         }
-      }
 
-    })(ec)
-  }
+        GroupMembers(
+          groupMemberRecords = groupMembers,
+          systemDate         = Option(cs.getDate(3)).map(_.toLocalDate)
+        )
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
 
   override def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]] = Future(blocking {
     db.withConnection { conn =>
