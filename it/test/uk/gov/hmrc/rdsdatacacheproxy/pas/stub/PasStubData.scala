@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.pas.stub
 
+import play.api.Logging
 import uk.gov.hmrc.rdsdatacacheproxy.pas.models.*
 
 import java.time.LocalDate
-object PasStubData {
+import scala.concurrent.Future
+object PasStubData extends Logging {
   
   val createAppealSuccessResponse = CreateAppealResponse(created = true)
 
@@ -106,6 +108,23 @@ object PasStubData {
     request.uniqueId match {
       case 1 => getPenaltyAllowedSuccessResponse
       case _ => throw new Error("Simulated downstream failure")
+    }
+  }
+
+  def getClientListDownloadStatusResponse(credentialId: String, serviceName: String, gracePeriod: Int): Future[Int] = {
+    val credentialIdExists = Option(credentialId).exists(_.trim.nonEmpty)
+    val serviceNameExists = Option(serviceName).exists(_.trim.nonEmpty)
+
+    if (credentialIdExists && serviceNameExists) {
+      logger.info(
+        s"[PAS-STUB] getClientListDownloadStatus -> CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} => status=1"
+      )
+      Future.successful(1)
+    } else {
+      logger.warn(
+        s"[PAS-STUB] getClientListDownloadStatus -> missing/blank CREDENTIAL_ID/SERVICE_NAME: CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")} "
+      )
+      Future.successful(2)
     }
   }
 }
