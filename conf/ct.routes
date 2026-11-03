@@ -1,3 +1,5 @@
+GET        /has-client                                                      uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.HasClientController.getHasClient(queryParams: uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.HasClientQueryParams)
+
 # microservice specific routes
 
 GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String = "CT", gracePeriod: Int = 14400)
