@@ -115,4 +115,68 @@ class ClientListRepositorySpec extends AnyWordSpec with Matchers with BeforeAndA
       exception.getMessage must include("Invalid DB config name: invalidDbName")
     }
   }
+
+  "hasClient" should {
+    "return true when stored procedure returns 1 when serviceName is CIS" in {
+      when(mockCallableStatement.getInt(5)).thenReturn(1)
+
+      val result = repository.hasClient("123456", "CRED01", "754", "EZ00100", "CIS").futureValue
+      result mustBe true
+
+      verify(mockConnection).prepareCall("{ call CIS_CLIENT_SEARCH.hasClient(?, ?, ?, ?, ?) }")
+      verify(mockCallableStatement).setString(1, "754")
+      verify(mockCallableStatement).setString(2, "EZ00100")
+      verify(mockCallableStatement).setString(3, "123456")
+      verify(mockCallableStatement).setString(4, "CRED01")
+      verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.INTEGER)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "return true when stored procedure returns 1 when serviceName is PAYE" in {
+      when(mockCallableStatement.getInt(5)).thenReturn(1)
+
+      val result = repository.hasClient("123456", "CRED01", "754", "EZ00100", "PAYE").futureValue
+      result mustBe true
+
+      verify(mockConnection).prepareCall("{ call PAYE_AGENT_LIST_PK.hasClient(?, ?, ?, ?, ?) }")
+      verify(mockCallableStatement).setString(1, "754")
+      verify(mockCallableStatement).setString(2, "EZ00100")
+      verify(mockCallableStatement).setString(3, "123456")
+      verify(mockCallableStatement).setString(4, "CRED01")
+      verify(mockCallableStatement).registerOutParameter(5, oracle.jdbc.OracleTypes.INTEGER)
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "return false when stored procedure returns 0" in {
+      when(mockCallableStatement.getInt(5)).thenReturn(0)
+
+      val result = repository.hasClient("123456", "CRED01", "754", "EZ00100", "cis").futureValue
+      result mustBe false
+
+      verify(mockConnection).prepareCall("{ call CIS_CLIENT_SEARCH.hasClient(?, ?, ?, ?, ?) }")
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "return false when stored procedure returns any other value" in {
+      when(mockCallableStatement.getInt(5)).thenReturn(2)
+
+      val result = repository.hasClient("123456", "CRED01", "754", "EZ00100", "paye").futureValue
+      result mustBe false
+
+      verify(mockConnection).prepareCall("{ call PAYE_AGENT_LIST_PK.hasClient(?, ?, ?, ?, ?) }")
+      verify(mockCallableStatement).execute()
+      verify(mockCallableStatement).close()
+    }
+
+    "return IllegalArgumentException when serviceName is invalid" in {
+      val exception = intercept[java.lang.IllegalArgumentException] {
+        repository.hasClient("123456", "CRED01", "754", "EZ00100", "invalidDbName").futureValue
+      }
+
+      exception.getMessage must include("Invalid DB config name: invalidDbName")
+    }
+  }
 }

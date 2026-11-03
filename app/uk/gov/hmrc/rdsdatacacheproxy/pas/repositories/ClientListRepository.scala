@@ -35,6 +35,7 @@ object DbConfig:
 
 trait ClientListSource {
   def getClientListDownloadStatus(credentialId: String, serviceName: String, gracePeriod: Int = 14400): Future[Int]
+  def hasClient(irAgentId: String, credentialId: String, taxOfficeNumber: String, taxOfficeReference: String, serviceName: String): Future[Boolean]
 }
 
 class ClientListRepository @Inject() (
@@ -71,6 +72,41 @@ class ClientListRepository @Inject() (
 
           getDownloadStatusSql.getInt(4)
         } finally getDownloadStatusSql.close()
+      }
+    }
+  }
+
+  override def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    serviceName: String
+  ): Future[Boolean] = {
+    logger.info(
+      s"[PAS] hasClient(TON=$taxOfficeNumber, TOR=$taxOfficeReference, IR_AGENT_ID=$irAgentId, CREDENTIAL_ID=$credentialId, SERVICE_NAME=$serviceName)"
+    )
+
+    val config = DbConfig.fromString(serviceName)
+
+    val (db, procedure) = config match
+      case DbConfig.Cis  => (dbCis, "{ call CIS_CLIENT_SEARCH.hasClient(?, ?, ?, ?, ?) }")
+      case DbConfig.Paye => (dbPaye, "{ call PAYE_AGENT_LIST_PK.hasClient(?, ?, ?, ?, ?) }")
+
+    Future {
+      db.withConnection { conn =>
+        val hasClientSql: CallableStatement = conn.prepareCall(procedure)
+
+        try {
+          hasClientSql.setString(1, taxOfficeNumber)
+          hasClientSql.setString(2, taxOfficeReference)
+          hasClientSql.setString(3, irAgentId)
+          hasClientSql.setString(4, credentialId)
+          hasClientSql.registerOutParameter(5, OracleTypes.INTEGER)
+          hasClientSql.execute()
+
+          hasClientSql.getInt(5) == 1
+        } finally hasClientSql.close()
       }
     }
   }

@@ -31,4 +31,13 @@ class ClientListService @Inject (clientListSource: ClientListSource) {
       .getClientListDownloadStatus(credentialId, serviceName, gracePeriod)
       .map(ClientListDownloadStatus.fromInt)
   }
+
+  def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    serviceName: String
+  ): Future[Boolean] =
+    clientListSource.hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference, serviceName)
 }

@@ -127,4 +127,27 @@ object PasStubData extends Logging {
       Future.successful(2)
     }
   }
+
+  def hasClientResponse(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    serviceName: String
+  ): Future[Boolean] = {
+    val allParamsExist =
+      Seq(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference, serviceName).forall(p => Option(p).exists(_.trim.nonEmpty))
+
+    if (allParamsExist) {
+      logger.info(
+        s"[PAS-STUB] hasClient -> IR_AGENT_ID=${irAgentId.trim}, CREDENTIAL_ID=${credentialId.trim}, TON=${taxOfficeNumber.trim}, TOR=${taxOfficeReference.trim}, SERVICE_NAME=${serviceName.trim} => hasClient=true"
+      )
+      Future.successful(true)
+    } else {
+      logger.warn(
+        s"[PAS-STUB] hasClient -> missing/blank parameters: IR_AGENT_ID=${Option(irAgentId).map(_.trim).getOrElse("")}, CREDENTIAL_ID=${Option(credentialId).map(_.trim).getOrElse("")}, TON=${Option(taxOfficeNumber).map(_.trim).getOrElse("")}, TOR=${Option(taxOfficeReference).map(_.trim).getOrElse("")}, SERVICE_NAME=${Option(serviceName).map(_.trim).getOrElse("")}"
+      )
+      Future.successful(false)
+    }
+  }
 }
