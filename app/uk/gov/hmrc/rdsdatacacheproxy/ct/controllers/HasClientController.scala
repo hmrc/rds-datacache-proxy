@@ -23,22 +23,28 @@ import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.HasClientService
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.HasClient
-import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.HasClientQueryParams
-
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class HasClientController @Inject() (authorise: AuthAction, service: HasClientService, cc: ControllerComponents)(using ExecutionContext)
+class HasClientController @Inject() (
+  authorise: AuthAction,
+  service: HasClientService,
+  cc: ControllerComponents
+)(using ExecutionContext)
     extends BackendController(cc)
     with Logging {
 
-  def getHasClient(queryParams: HasClientQueryParams): Action[AnyContent] =
+  def getHasClient(
+    utr: Long,
+    irAgentId: String,
+    credentialId: String
+  ): Action[AnyContent] =
     authorise.async { implicit request =>
       service
         .hasClient(
-          queryParams.utr,
-          queryParams.irAgentId,
-          queryParams.credentialId
+          utr,
+          irAgentId,
+          credentialId
         )
         .map(status => Ok(Json.toJson(status)))
         .recover { case ex: Exception =>

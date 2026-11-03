@@ -23,7 +23,6 @@ import play.api.mvc.Result
 import play.api.test.Helpers.{contentAsJson, contentType, status}
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.HasClient
-import uk.gov.hmrc.rdsdatacacheproxy.ct.queryParams.HasClientQueryParams
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.HasClientService
 
 import scala.concurrent.Future
@@ -39,8 +38,6 @@ class HasClientControllerSpec extends SpecBase {
     val irAgentId: String = "AGENT123"
     val credentialId: String = "CREDENTIAL123"
 
-    val queryParams = HasClientQueryParams(utr, irAgentId, credentialId)
-
     val clientExists: HasClient = HasClient(status = 1)
     val clientDoesNotExist: HasClient = HasClient(status = 0)
   }
@@ -53,7 +50,7 @@ class HasClientControllerSpec extends SpecBase {
         .thenReturn(Future.successful(clientExists))
 
       val result: Future[Result] =
-        controller.getHasClient(queryParams)(fakeRequest)
+        controller.getHasClient(utr, irAgentId, credentialId)(fakeRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
@@ -68,7 +65,7 @@ class HasClientControllerSpec extends SpecBase {
         .thenReturn(Future.successful(clientDoesNotExist))
 
       val result: Future[Result] =
-        controller.getHasClient(queryParams)(fakeRequest)
+        controller.getHasClient(utr, irAgentId, credentialId)(fakeRequest)
 
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
@@ -83,7 +80,7 @@ class HasClientControllerSpec extends SpecBase {
         .thenReturn(Future.failed(new RuntimeException("Boom")))
 
       val result: Future[Result] =
-        controller.getHasClient(queryParams)(fakeRequest)
+        controller.getHasClient(utr, irAgentId, credentialId)(fakeRequest)
 
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentType(result) mustBe Some("application/json")

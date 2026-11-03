@@ -59,13 +59,13 @@ class HasClientControllerISpec
 
   private final val endpoint = "/corporation-tax"
 
-  "GET /corporation-tax/has-client" should {
+  "GET /corporation-tax/has-client/:utr/:irAgentId/:credentialId" should {
 
     "return 200 when client exists" in {
       AuthStub.authorised()
 
       val response = get(
-        s"$endpoint/has-client?utr=1&irAgentId=AGENT123&credentialId=CREDENTIAL123"
+        s"$endpoint/has-client/1/AGENT123/CREDENTIAL123"
       ).futureValue
 
       response.status mustBe OK
@@ -77,7 +77,7 @@ class HasClientControllerISpec
       AuthStub.authorised()
 
       val response = get(
-        s"$endpoint/has-client?utr=2&irAgentId=AGENT123&credentialId=CREDENTIAL123"
+        s"$endpoint/has-client/2/AGENT123/CREDENTIAL123"
       ).futureValue
 
       response.status mustBe OK
@@ -89,7 +89,7 @@ class HasClientControllerISpec
   "return 400 when UTR is invalid" in {
     AuthStub.authorised()
 
-    val response = get(s"$endpoint/has-client?utr=invalid&irAgentId=AGENT123&credentialId=CREDENTIAL123").futureValue
+    val response = get(s"$endpoint/has-client/invalid/AGENT123/CREDENTIAL123").futureValue
 
     response.status mustBe BAD_REQUEST
   }
@@ -97,14 +97,14 @@ class HasClientControllerISpec
   "return 401 when unauthorised" in {
     AuthStub.unauthorised()
 
-    val response = get(s"$endpoint/has-client?utr=1&irAgentId=AGENT123&credentialId=CREDENTIAL123").futureValue
+    val response = get(s"$endpoint/has-client/1/AGENT123/CREDENTIAL123").futureValue
     response.status mustBe UNAUTHORIZED
   }
 
   "return 500 when stub simulates a downstream error" in {
     AuthStub.authorised()
 
-    val response = get(s"$endpoint/has-client?utr=67&irAgentId=AGENT123&credentialId=CREDENTIAL123").futureValue
+    val response = get(s"$endpoint/has-client/67/AGENT123/CREDENTIAL123").futureValue
     response.status mustBe INTERNAL_SERVER_ERROR
   }
 }
