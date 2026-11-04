@@ -1344,7 +1344,7 @@ class GamblingDataCacheRepository @Inject() (
                     businessName          = Option(rs.getString("BUSINESS_NAME")),
                     crn                   = Option(rs.getString("CRN")),
                     foreignCorporateRef   = Option(rs.getString("FOREIGN_CORPORATE_REF")),
-                    isRepMemberOfGroup    = Option(rs.getObject("IS_REP_MEMBER_OF_GROUP", classOf[java.lang.Integer])).map(_.intValue()),
+                    isRepMemberOfGroup    = Option(rs.getInt("IS_REP_MEMBER_OF_GROUP")),
                     dateOfJoining         = optDate("DATE_OF_JOINING", rs),
                     dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
                     emailAddress          = Option(rs.getString("EMAIL_ADDR"))
