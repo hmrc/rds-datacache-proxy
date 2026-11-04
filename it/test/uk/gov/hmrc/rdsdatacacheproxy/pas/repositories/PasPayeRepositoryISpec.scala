@@ -107,14 +107,14 @@ class PasPayeRepositoryISpec
         total = 2,
         appealablePenalties = List(
           GetAppealablePenaltyResponse(
-            uniqueId = Some(10001),
+            penaltyId = Some(10001),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType = Some("F"),
             penaltyAmount = Some(BigDecimal(999.23))
           ),
           GetAppealablePenaltyResponse(
-            uniqueId = Some(10002),
+            penaltyId = Some(10002),
             issueDate = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType = Some("F"),
@@ -174,7 +174,7 @@ class PasPayeRepositoryISpec
         )).futureValue
 
       result mustBe GetAppealablePenaltyResponse(
-        uniqueId = None,
+        penaltyId = None,
         issueDate = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
         penaltyType = Some("CIS003"),
@@ -204,10 +204,10 @@ class PasPayeRepositoryISpec
       )
 
       val expectedResponse = GetPayeTaxpayerResponse(
-        uniqueId = 1L,
+        penaltyId = 1L,
         instanceId = 1L,
-        districtNumber = "123",
-        employerRef = "AB456",
+        hmrcOfficeNumber = "123",
+        schemeReferenceNumber = "AB456",
         employerName1 = Some("TEST EMPLOYER"),
         employerName2 = Some("LTD"),
         agentOwnRef = Some("AGENTREF")
@@ -248,9 +248,9 @@ class PasPayeRepositoryISpec
 
       val result = repository.getPayePenaltyAllowed(
         GetPenaltyAllowedRequest(
-          districtNumber = 1L,
-          employerReference = "840123",
-          uniqueId = 1L
+          hmrcOfficeNumber = 1L,
+          schemeReferenceNumber = "840123",
+          penaltyId = 1L
         )).futureValue
 
       result mustBe GetPenaltyAllowedResponse(
@@ -261,9 +261,9 @@ class PasPayeRepositoryISpec
 
     "propagate downstream failure from stub" in {
       val request = GetPenaltyAllowedRequest(
-        districtNumber = 2L,
-        employerReference = "AB456",
-        uniqueId = 2L
+        hmrcOfficeNumber = 2L,
+        schemeReferenceNumber = "AB456",
+        penaltyId = 2L
       )
 
       val exception = intercept[Error] {

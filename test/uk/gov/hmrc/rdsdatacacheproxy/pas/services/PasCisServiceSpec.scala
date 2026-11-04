@@ -82,14 +82,14 @@ final class PasCisServiceSpec extends SpecBase {
       total = 2,
       appealablePenalties = List(
         GetAppealablePenaltyResponse(
-          uniqueId         = Some(10001),
+          penaltyId        = Some(10001),
           issueDate        = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
           penaltyType      = Some("CIS003"),
           penaltyAmount    = Some(BigDecimal(999.23))
         ),
         GetAppealablePenaltyResponse(
-          uniqueId         = Some(10002),
+          penaltyId        = Some(10002),
           issueDate        = Some(LocalDate.of(2026, 2, 20)),
           taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
           penaltyType      = Some("CIS005"),
@@ -134,7 +134,7 @@ final class PasCisServiceSpec extends SpecBase {
     )
 
     val testResponse: GetAppealablePenaltyResponse = GetAppealablePenaltyResponse(
-      uniqueId         = None,
+      penaltyId        = None,
       issueDate        = Some(LocalDate.of(2023, 1, 1)),
       taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
       penaltyType      = Some("CIS003"),
@@ -171,9 +171,9 @@ final class PasCisServiceSpec extends SpecBase {
   "PasCisService.getCisPenaltyAllowed" - {
 
     val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
-      districtNumber    = 1L,
-      employerReference = "357",
-      uniqueId          = 1L
+      hmrcOfficeNumber      = 1L,
+      schemeReferenceNumber = "357",
+      penaltyId             = 1L
     )
 
     val testResponse: GetPenaltyAllowedResponse = GetPenaltyAllowedResponse(
