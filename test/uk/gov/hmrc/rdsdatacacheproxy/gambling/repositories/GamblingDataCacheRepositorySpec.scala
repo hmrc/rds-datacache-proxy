@@ -921,8 +921,8 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     result.groupMemberRecords.head.businessName shouldBe Some("abc")
     result.groupMemberRecords.head.crn shouldBe Some("123455")
     result.groupMemberRecords.head.isRepMemberOfGroup shouldBe Some(1)
-//    result.groupMemberRecords.head.dateOfJoining shouldBe Some(Date.valueOf("1991-01-01"))
-//    result.groupMemberRecords.head.dateOfLeaving shouldBe Some(Date.valueOf("1991-01-02"))
+    result.groupMemberRecords.head.dateOfJoining shouldBe Some(LocalDate.of(1991, 1, 1))
+    result.groupMemberRecords.head.dateOfLeaving shouldBe Some(LocalDate.of(1991, 1, 2))
     result.groupMemberRecords.head.emailAddress shouldBe Some("a@b.com")
 
 
