@@ -121,7 +121,7 @@ class PasPayeRepository @Inject() (
 
   private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
     GetAppealablePenaltyResponse(
-      uniqueId         = Option(rs.getLong("UNIQUE_ID")),
+      penaltyId        = Option(rs.getLong("UNIQUE_ID")),
       issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
       taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
       penaltyType      = Option(rs.getString("DEFAULT_TYPE")),
@@ -162,7 +162,7 @@ class PasPayeRepository @Inject() (
       cs.execute()
 
       GetAppealablePenaltyResponse(
-        uniqueId         = None,
+        penaltyId        = None,
         issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
         taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
         penaltyType      = Option(cs.getString(4)),
@@ -204,7 +204,7 @@ class PasPayeRepository @Inject() (
 
           if (rs.next()) {
             logger.warn(
-              s"[getPayeTaxpayer] multiple rows for districtNumber=$p_district_number, employerRef=$p_employer_ref; using first row (UNIQUEID=${first.uniqueId})"
+              s"[getPayeTaxpayer] multiple rows for hmrcOfficeNumber=$p_district_number, schemeReferenceNumber=$p_employer_ref; using first row (penaltyId=${first.penaltyId})"
             )
           }
           Some(first)
@@ -217,20 +217,20 @@ class PasPayeRepository @Inject() (
   }
 
   // DISTRICT_NUMBER is a NUMBER column so leading zeros are lost (070 -> 70); a district number is always 3 digits
-  private def districtNumber(rs: ResultSet): String =
+  private def hmrcOfficeNumber(rs: ResultSet): String =
     Option(rs.getString("DISTRICT_NUMBER"))
       .map(d => if (d.nonEmpty && d.forall(_.isDigit)) d.reverse.padTo(3, '0').reverse else d)
       .getOrElse("")
 
   private def processPayeTaxpayer(rs: ResultSet): GetPayeTaxpayerResponse =
     GetPayeTaxpayerResponse(
-      uniqueId       = rs.getLong("UNIQUEID"),
-      instanceId     = rs.getLong("INSTANCE_ID"),
-      districtNumber = districtNumber(rs),
-      employerRef    = Option(rs.getString("EMPLOYER_REF")).getOrElse(""),
-      employerName1  = Option(rs.getString("EMPLOYER_NAME1")),
-      employerName2  = Option(rs.getString("EMPLOYER_NAME2")),
-      agentOwnRef    = Option(rs.getString("AGENT_OWN_REF"))
+      penaltyId             = rs.getLong("penaltyId"),
+      instanceId            = rs.getLong("INSTANCE_ID"),
+      hmrcOfficeNumber      = hmrcOfficeNumber(rs),
+      schemeReferenceNumber = Option(rs.getString("EMPLOYER_REF")).getOrElse(""),
+      employerName1         = Option(rs.getString("EMPLOYER_NAME1")),
+      employerName2         = Option(rs.getString("EMPLOYER_NAME2")),
+      agentOwnRef           = Option(rs.getString("AGENT_OWN_REF"))
     )
 
   override def getPayePenaltyAllowed(request: GetPenaltyAllowedRequest): Future[GetPenaltyAllowedResponse] = {
@@ -238,9 +238,9 @@ class PasPayeRepository @Inject() (
       db.withConnection { conn =>
         callGetPayePenaltyAllowed(
           conn              = conn,
-          p_district_number = request.districtNumber,
-          p_employer_ref    = request.employerReference,
-          p_unique_id       = request.uniqueId
+          p_district_number = request.hmrcOfficeNumber,
+          p_employer_ref    = request.schemeReferenceNumber,
+          p_unique_id       = request.penaltyId
         )
       }
     }

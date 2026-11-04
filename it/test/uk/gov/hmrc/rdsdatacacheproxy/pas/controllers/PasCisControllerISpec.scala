@@ -237,9 +237,9 @@ class PasCisControllerISpec
         AuthStub.authorised()
 
         val requestJson = Json.obj(
-          "districtNumber" -> 1L,
-          "employerReference" -> "hdz",
-          "uniqueId" -> 1L
+          "hmrcOfficeNumber" -> 1L,
+          "schemeReferenceNumber" -> "hdz",
+          "penaltyId" -> 1L
         )
         val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
 
@@ -254,9 +254,9 @@ class PasCisControllerISpec
         AuthStub.authorised()
 
         val requestJson = Json.obj(
-          "districtNumber" -> 1L,
-          "employerReference" -> "1234",
-          "uniqueId" -> 2L
+          "hmrcOfficeNumber" -> 1L,
+          "schemeReferenceNumber" -> "1234",
+          "penaltyId" -> 2L
         )
         val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
 
@@ -269,9 +269,9 @@ class PasCisControllerISpec
         AuthStub.unauthorised()
 
         val requestJson = Json.obj(
-          "districtNumber" -> 1L,
-          "employerReference" -> "1234",
-          "uniqueId" -> 1L
+          "hmrcOfficeNumber" -> 1L,
+          "schemeReferenceNumber" -> "1234",
+          "penaltyId" -> 1L
         )
         val response = post(s"$endpoint/cis/penalties/access-allowed", requestJson).futureValue
 

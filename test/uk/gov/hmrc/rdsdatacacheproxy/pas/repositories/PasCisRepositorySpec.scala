@@ -129,14 +129,14 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
         total = 2,
         appealablePenalties = List(
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10001),
+            penaltyId        = Some(10001),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("CIS03"),
             penaltyAmount    = Some(BigDecimal(999.23))
           ),
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10002),
+            penaltyId        = Some(10002),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("CIS03"),
@@ -194,7 +194,7 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
         schemeReferenceNumber = "098345"
       )
       val getCisAppealablePenaltyResponse = GetAppealablePenaltyResponse(
-        uniqueId         = None,
+        penaltyId        = None,
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
         penaltyType      = Some("CIS003"),
@@ -230,9 +230,9 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       when(mockCallableStatement.getString(4)).thenReturn("Y")
 
       val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
-        districtNumber    = 1L,
-        employerReference = "357",
-        uniqueId          = 1L
+        hmrcOfficeNumber      = 1L,
+        schemeReferenceNumber = "357",
+        penaltyId             = 1L
       )
       val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
         allowed = true
@@ -243,9 +243,9 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       result shouldBe getCisPenaltyAllowedResponse
 
       verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
-      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
-      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
-      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.penaltyId)
       verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
       verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()
@@ -261,9 +261,9 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       when(mockCallableStatement.getString(4)).thenReturn("N")
 
       val getCisPenaltyAllowedRequest = GetPenaltyAllowedRequest(
-        districtNumber    = 1L,
-        employerReference = "357",
-        uniqueId          = 1L
+        hmrcOfficeNumber      = 1L,
+        schemeReferenceNumber = "357",
+        penaltyId             = 1L
       )
       val getCisPenaltyAllowedResponse = GetPenaltyAllowedResponse(
         allowed = false
@@ -274,9 +274,9 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       result shouldBe getCisPenaltyAllowedResponse
 
       verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
-      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.districtNumber)
-      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.employerReference)
-      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).setLong(1, getCisPenaltyAllowedRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, getCisPenaltyAllowedRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).setLong(3, getCisPenaltyAllowedRequest.penaltyId)
       verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
       verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()

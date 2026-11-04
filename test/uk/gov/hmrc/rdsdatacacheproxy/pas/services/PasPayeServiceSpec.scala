@@ -82,14 +82,14 @@ final class PasPayeServiceSpec extends SpecBase {
       total = 2,
       appealablePenalties = List(
         GetAppealablePenaltyResponse(
-          uniqueId         = Some(10001),
+          penaltyId        = Some(10001),
           issueDate        = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
           penaltyType      = Some("F"),
           penaltyAmount    = Some(BigDecimal(999.23))
         ),
         GetAppealablePenaltyResponse(
-          uniqueId         = Some(10002),
+          penaltyId        = Some(10002),
           issueDate        = Some(LocalDate.of(2026, 2, 20)),
           taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
           penaltyType      = Some("P"),
@@ -134,7 +134,7 @@ final class PasPayeServiceSpec extends SpecBase {
     )
 
     val testResponse: GetAppealablePenaltyResponse = GetAppealablePenaltyResponse(
-      uniqueId         = None,
+      penaltyId        = None,
       issueDate        = Some(LocalDate.of(2023, 1, 1)),
       taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
       penaltyType      = Some("CIS003"),
@@ -175,13 +175,13 @@ final class PasPayeServiceSpec extends SpecBase {
       schemeReferenceNumber = "AB456"
     )
     val testResponse: GetPayeTaxpayerResponse = GetPayeTaxpayerResponse(
-      uniqueId       = 1L,
-      instanceId     = 2L,
-      districtNumber = "123",
-      employerRef    = "AB456",
-      employerName1  = Some("TEST EMPLOYER"),
-      employerName2  = Some("LTD"),
-      agentOwnRef    = Some("AGENTREF")
+      penaltyId             = 1L,
+      instanceId            = 2L,
+      hmrcOfficeNumber      = "123",
+      schemeReferenceNumber = "AB456",
+      employerName1         = Some("TEST EMPLOYER"),
+      employerName2         = Some("LTD"),
+      agentOwnRef           = Some("AGENTREF")
     )
 
     "return Some(GetPayeTaxpayerResponse) from the repository" in {
@@ -225,9 +225,9 @@ final class PasPayeServiceSpec extends SpecBase {
   "PasCisService.getPayePenaltyAllowed" - {
 
     val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
-      districtNumber    = 1L,
-      employerReference = "357",
-      uniqueId          = 1L
+      hmrcOfficeNumber      = 1L,
+      schemeReferenceNumber = "357",
+      penaltyId             = 1L
     )
 
     val testResponse: GetPenaltyAllowedResponse = GetPenaltyAllowedResponse(
