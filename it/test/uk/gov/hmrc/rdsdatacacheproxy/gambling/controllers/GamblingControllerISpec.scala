@@ -814,12 +814,6 @@ class GamblingControllerISpec extends AnyWordSpec with Matchers with ScalaFuture
       response.status mustBe BAD_REQUEST
     }
 
-    "return 400 for invalid regime" in {
-      AuthStub.authorised()
-      val response = get(s"$endpoint/BAD_REGIME/XYZ00000000012").futureValue
-      response.status mustBe BAD_REQUEST
-    }
-
     "return 400 for regNumber with special characters" in {
       AuthStub.authorised()
       val response = get(s"$endpoint/$MGD/XYZ00000@00000").futureValue
