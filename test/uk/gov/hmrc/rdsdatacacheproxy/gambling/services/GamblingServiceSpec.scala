@@ -23,6 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{DBSystemError, InvalidMgdRegNumber, RecordNotFoundError, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseGroupMembers
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
 
 import java.time.LocalDate
@@ -672,4 +673,56 @@ final class GamblingServiceSpec extends SpecBase {
       service.getAgentDetails("AGENT001").futureValue mustBe Left(UnexpectedError)
     }
   }
+
+  "GamblingService#getGroupMembers" - {
+
+    "return Right(summary) when repository succeeds" in {
+
+      when(repository.getGroupMembers(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.successful(validResponseGroupMembers))
+
+      val result = service.getGroupMembers(validMgdRegNumber).futureValue
+
+      result mustBe Right(validResponseGroupMembers)
+      verify(repository).getGroupMembers(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input (trim + uppercase) before calling repository" in {
+
+      val rawInput = "  xwm12345678901  "
+
+
+      when(repository.getGroupMembers(eqTo(normalisedMgdRegNumber)))
+        .thenReturn(Future.successful(validResponseGroupMembers))
+
+      val result = service.getGroupMembers(rawInput).futureValue
+
+      result mustBe Right(validResponseGroupMembers)
+      verify(repository).getGroupMembers(eqTo(normalisedMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return InvalidMgdRegNumber and not call repository when input is invalid" in {
+
+      val result = service.getGroupMembers("xwm12345678").futureValue
+
+      result mustBe Left(InvalidMgdRegNumber)
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getGroupMembers(eqTo(validMgdRegNumber)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure")))
+
+      val result = service.getGroupMembers(validMgdRegNumber).futureValue
+
+      result mustBe Left(UnexpectedError)
+      verify(repository).getGroupMembers(eqTo(validMgdRegNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
+
+
 }
