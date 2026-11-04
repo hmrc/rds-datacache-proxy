@@ -916,15 +916,14 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val result = repository.getGroupMembers(mgdRegNumber).futureValue
 
-    result.groupMemberRecords.head.mgdRegNumber shouldBe mgdRegNumber
+    result.groupMemberRecords.head.mgdRegNumber          shouldBe mgdRegNumber
     result.groupMemberRecords.head.businessPartnerNumber shouldBe Some("3289084908")
-    result.groupMemberRecords.head.businessName shouldBe Some("abc")
-    result.groupMemberRecords.head.crn shouldBe Some("123455")
-    result.groupMemberRecords.head.isRepMemberOfGroup shouldBe Some(1)
-    result.groupMemberRecords.head.dateOfJoining shouldBe Some(LocalDate.of(1991, 1, 1))
-    result.groupMemberRecords.head.dateOfLeaving shouldBe Some(LocalDate.of(1991, 1, 2))
-    result.groupMemberRecords.head.emailAddress shouldBe Some("a@b.com")
-
+    result.groupMemberRecords.head.businessName          shouldBe Some("abc")
+    result.groupMemberRecords.head.crn                   shouldBe Some("123455")
+    result.groupMemberRecords.head.isRepMemberOfGroup    shouldBe Some(1)
+    result.groupMemberRecords.head.dateOfJoining         shouldBe Some(LocalDate.of(1991, 1, 1))
+    result.groupMemberRecords.head.dateOfLeaving         shouldBe Some(LocalDate.of(1991, 1, 2))
+    result.groupMemberRecords.head.emailAddress          shouldBe Some("a@b.com")
 
     verify(mockCs).setString(1, mgdRegNumber)
     verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)

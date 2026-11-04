@@ -692,7 +692,6 @@ final class GamblingServiceSpec extends SpecBase {
 
       val rawInput = "  xwm12345678901  "
 
-
       when(repository.getGroupMembers(eqTo(normalisedMgdRegNumber)))
         .thenReturn(Future.successful(validResponseGroupMembers))
 
@@ -723,6 +722,5 @@ final class GamblingServiceSpec extends SpecBase {
       verifyNoMoreInteractions(repository)
     }
   }
-
 
 }
