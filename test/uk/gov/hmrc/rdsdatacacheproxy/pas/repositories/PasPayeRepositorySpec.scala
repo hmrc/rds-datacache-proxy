@@ -244,7 +244,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
       when(mockResultSet.next()).thenReturn(true, false)
 
-      when(mockResultSet.getLong("penaltyId")).thenReturn(1L)
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
       when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
       when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("123")
       when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
@@ -335,7 +335,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
       when(mockResultSet.next()).thenReturn(true, false)
-      when(mockResultSet.getLong("penaltyId")).thenReturn(1L)
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
       when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
       when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn(null)
       when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
@@ -365,7 +365,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
       when(mockResultSet.next()).thenReturn(true, true, false)
 
-      when(mockResultSet.getLong("penaltyId")).thenReturn(1L, 3L)
+      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L, 3L)
       when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L, 4L)
       when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("123")
       when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
@@ -380,7 +380,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       verify(mockConnection).prepareCall("{call PAYE_KF_PK.getPayeTaxpayerByTaxReference(?, ?, ?)}")
       verify(mockCallableStatement).execute()
       verify(mockResultSet, times(2)).next()
-      verify(mockResultSet, times(1)).getLong("penaltyId")
+      verify(mockResultSet, times(1)).getLong("UNIQUEID")
       verify(mockResultSet).close()
       verify(mockCallableStatement).close()
     }
