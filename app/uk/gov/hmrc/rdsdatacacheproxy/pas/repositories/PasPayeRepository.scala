@@ -224,7 +224,7 @@ class PasPayeRepository @Inject() (
 
   private def processPayeTaxpayer(rs: ResultSet): GetPayeTaxpayerResponse =
     GetPayeTaxpayerResponse(
-      penaltyId             = rs.getLong("penaltyId"),
+      penaltyId             = rs.getLong("UNIQUEID"),
       instanceId            = rs.getLong("INSTANCE_ID"),
       hmrcOfficeNumber      = hmrcOfficeNumber(rs),
       schemeReferenceNumber = Option(rs.getString("EMPLOYER_REF")).getOrElse(""),
