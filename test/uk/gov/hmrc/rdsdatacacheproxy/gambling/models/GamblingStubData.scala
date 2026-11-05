@@ -666,8 +666,8 @@ object GamblingStubData {
   def getGroupMembersData(regNumber: String): GroupMembers =
     regNumber match {
       case "XYM00000000000" =>
-        GroupMembers(
-          groupMemberRecords = List(
+        GroupMembers(groupMembers =
+          List(
             GroupMemberRecord(
               mgdRegNumber          = "XYM00000000004",
               businessPartnerNumber = Some("0100049899"),
@@ -677,7 +677,8 @@ object GamblingStubData {
               isRepMemberOfGroup    = Some(1),
               dateOfJoining         = Some(LocalDate.of(2025, 1, 1)),
               dateOfLeaving         = Some(LocalDate.of(2025, 1, 1)),
-              emailAddress          = Some("a@b.com")
+              emailAddr             = Some("a@b.com"),
+              systemDate            = Some(LocalDate.of(2026, 10, 31))
             ),
             GroupMemberRecord(
               mgdRegNumber          = "XYM00000000000",
@@ -688,14 +689,14 @@ object GamblingStubData {
               isRepMemberOfGroup    = Some(0),
               dateOfJoining         = Some(LocalDate.of(2025, 9, 9)),
               dateOfLeaving         = Some(LocalDate.of(2025, 9, 9)),
-              emailAddress          = Some("d@e.com")
+              emailAddr             = Some("d@e.com"),
+              systemDate            = Some(LocalDate.of(2026, 10, 31))
             )
-          ),
-          systemDate = Some(LocalDate.of(2026, 10, 29))
+          )
         )
       case "XYZ00000000001" =>
-        GroupMembers(
-          groupMemberRecords = List(
+        GroupMembers(groupMembers =
+          List(
             GroupMemberRecord(
               mgdRegNumber          = "XYM00000000001",
               businessPartnerNumber = Some("2186744422"),
@@ -705,10 +706,10 @@ object GamblingStubData {
               isRepMemberOfGroup    = Some(1),
               dateOfJoining         = Some(LocalDate.of(2021, 1, 1)),
               dateOfLeaving         = Some(LocalDate.of(2026, 1, 1)),
-              emailAddress          = Some("f@g.com")
+              emailAddr             = Some("f@g.com"),
+              systemDate            = Some(LocalDate.of(2026, 10, 31))
             )
-          ),
-          systemDate = Some(LocalDate.of(2026, 7, 30))
+          )
         )
       case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }

@@ -898,7 +898,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
 
     val mgdRegNumber = "XWM12345678901"
     when(mockCs.getObject(2)).thenReturn(groupMembersRs)
-    when(mockCs.getObject(3)).thenReturn(Date.valueOf("1991-01-01"))
+    when(mockCs.getObject(3)).thenReturn(Date.valueOf("1991-01-03"))
 
     when(groupMembersRs.next()).thenReturn(true, false)
 
@@ -915,18 +915,18 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     when(groupMembersRs.getString("EMAIL_ADDR")).thenReturn("a@b.com")
 
     val result = repository.getGroupMembers(mgdRegNumber).futureValue
-
-    result.groupMemberRecords.head.mgdRegNumber          shouldBe mgdRegNumber
-    result.groupMemberRecords.head.businessPartnerNumber shouldBe Some("3289084908")
-    result.groupMemberRecords.head.businessName          shouldBe Some("abc")
-    result.groupMemberRecords.head.crn                   shouldBe Some("123455")
-    result.groupMemberRecords.head.isRepMemberOfGroup    shouldBe Some(1)
-    result.groupMemberRecords.head.dateOfJoining         shouldBe Some(LocalDate.of(1991, 1, 1))
-    result.groupMemberRecords.head.dateOfLeaving         shouldBe Some(LocalDate.of(1991, 1, 2))
-    result.groupMemberRecords.head.emailAddress          shouldBe Some("a@b.com")
+    result.groupMembers.head.mgdRegNumber          shouldBe mgdRegNumber
+    result.groupMembers.head.businessPartnerNumber shouldBe Some("3289084908")
+    result.groupMembers.head.businessName          shouldBe Some("abc")
+    result.groupMembers.head.crn                   shouldBe Some("123455")
+    result.groupMembers.head.isRepMemberOfGroup    shouldBe Some(1)
+    result.groupMembers.head.dateOfJoining         shouldBe Some(LocalDate.of(1991, 1, 1))
+    result.groupMembers.head.dateOfLeaving         shouldBe Some(LocalDate.of(1991, 1, 2))
+    result.groupMembers.head.emailAddr             shouldBe Some("a@b.com")
 
     verify(mockCs).setString(1, mgdRegNumber)
     verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    mockCs.getObject(3) shouldBe Date.valueOf("1991-01-03")
     verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
     verify(mockCs).execute()
   }

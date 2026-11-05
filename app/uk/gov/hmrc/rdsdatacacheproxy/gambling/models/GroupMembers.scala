@@ -21,22 +21,19 @@ import play.api.libs.json.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-final case class GroupMembers(
-  groupMemberRecords: Seq[GroupMemberRecord],
-  systemDate: Option[LocalDate]
-)
+final case class GroupMembers(groupMembers: Seq[GroupMemberRecord])
 
-final case class GroupMemberRecord(
-  mgdRegNumber: String,
-  businessPartnerNumber: Option[String],
-  businessName: Option[String],
-  crn: Option[String],
-  foreignCorporateRef: Option[String],
-  isRepMemberOfGroup: Option[Int],
-  dateOfJoining: Option[LocalDate],
-  dateOfLeaving: Option[LocalDate],
-  emailAddress: Option[String]
-)
+final case class GroupMemberRecord(mgdRegNumber: String,
+                                   businessPartnerNumber: Option[String],
+                                   businessName: Option[String],
+                                   crn: Option[String],
+                                   foreignCorporateRef: Option[String],
+                                   isRepMemberOfGroup: Option[Int],
+                                   dateOfJoining: Option[LocalDate],
+                                   dateOfLeaving: Option[LocalDate],
+                                   emailAddr: Option[String],
+                                   systemDate: Option[LocalDate]
+                                  )
 
 object GroupMemberRecord {
 

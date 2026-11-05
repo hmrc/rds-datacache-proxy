@@ -1347,7 +1347,8 @@ class GamblingDataCacheRepository @Inject() (
                     isRepMemberOfGroup    = Option(rs.getInt("IS_REP_MEMBER_OF_GROUP")),
                     dateOfJoining         = optDate("DATE_OF_JOINING", rs),
                     dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
-                    emailAddress          = Option(rs.getString("EMAIL_ADDR"))
+                    emailAddr             = Option(rs.getString("EMAIL_ADDR")),
+                    systemDate            = Option(cs.getDate(3)).map(_.toLocalDate)
                   )
                 )
                 b.addAll(maybeItem.toList)
@@ -1357,10 +1358,8 @@ class GamblingDataCacheRepository @Inject() (
           }
         }
 
-        GroupMembers(
-          groupMemberRecords = groupMembers,
-          systemDate         = Option(cs.getDate(3)).map(_.toLocalDate)
-        )
+        GroupMembers(groupMembers = groupMembers)
+
       } finally {
         closeQuietly(cs)
       }
