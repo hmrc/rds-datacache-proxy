@@ -1325,7 +1325,7 @@ class GamblingDataCacheRepository @Inject() (
 
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
-        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PARTNERS
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_GROUP_MEMBERS
         cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
         cs.execute()
 
