@@ -28,19 +28,35 @@ import scala.util.control.NonFatal
 
 trait GamblingDataSource {
   def getReturnSummary(mgdRegNumber: String): Future[ReturnSummary]
+
   def getBusinessName(mgdRegNumber: String): Future[BusinessName]
+
   def getBusinessDetails(mgdRegNumber: String): Future[BusinessDetails]
+
   def getMgdCertificate(mgdRegNumber: String): Future[MgdCertificate]
+
   def getOperatorDetails(mgdRegNumber: String): Future[OperatorDetails]
+
   def getBusinessContactDetails(mgdRegNumber: String): Future[BusinessContactDetails]
+
   def getMgdDetails(mgdRegNumber: String): Future[MgdDetails]
+
   def getTradeClassDetails(mgdRegNumber: String): Future[TradeClassDetails]
+
   def getCorrespondenceDetails(mgdRegNumber: String): Future[CorrespondenceDetails]
+
   def getBusinessAddressDetails(mgdRegNumber: String): Future[BusinessAddressDetails]
+
   def getControllingBodyDetails(mgdRegNumber: String): Future[ControllingBodyDetails]
+
   def getPartnerDetails(regime: Regime, regNumber: String): Future[PartnerDetails]
+
   def getPremisesDetails(mgdRegNumber: String): Future[PremisesDetailsResponse]
+
   def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]]
+
+  def getGroupMembers(mgdRegNumber: String): Future[GroupMembers]
+
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
 
@@ -1297,6 +1313,53 @@ class GamblingDataCacheRepository @Inject() (
           val msg = s"Unexpected exception when calling GET_RETURN_PERIODS for $regNumber"
           logger.error(s"[GamblingDataCacheRepository] $msg", ex)
           Left(DatabaseError(msg, ex))
+      } finally {
+        closeQuietly(cs)
+      }
+    }
+  })
+
+  override def getGroupMembers(regNumber: String): Future[GroupMembers] = Future(blocking {
+    db.withConnection { conn =>
+      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBERS(?, ?, ?) }")
+
+      try {
+        cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+        cs.registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR) // OUT P_GROUP_MEMBERS
+        cs.registerOutParameter(3, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.execute()
+
+        val groupMembers: List[GroupMemberRecord] = {
+          val rs = cs.getObject(2).asInstanceOf[java.sql.ResultSet]
+          if (rs == null) Nil
+          else {
+            try {
+              val b = List.newBuilder[GroupMemberRecord]
+
+              while (rs.next()) {
+                val maybeItem = Option(rs.getString("mgd_reg_number")).map(mgdRegNumber =>
+                  GroupMemberRecord(
+                    mgdRegNumber          = mgdRegNumber,
+                    businessPartnerNumber = Option(rs.getString("BUSINESS_PARTNER_NUMBER")),
+                    businessName          = Option(rs.getString("BUSINESS_NAME")),
+                    crn                   = Option(rs.getString("CRN")),
+                    foreignCorporateRef   = Option(rs.getString("FOREIGN_CORPORATE_REF")),
+                    isRepMemberOfGroup    = Option(rs.getInt("IS_REP_MEMBER_OF_GROUP")),
+                    dateOfJoining         = optDate("DATE_OF_JOINING", rs),
+                    dateOfLeaving         = optDate("DATE_OF_LEAVING", rs),
+                    emailAddr             = Option(rs.getString("EMAIL_ADDR")),
+                    systemDate            = Option(cs.getDate(3)).map(_.toLocalDate)
+                  )
+                )
+                b.addAll(maybeItem.toList)
+              }
+              b.result()
+            } finally closeQuietly(rs)
+          }
+        }
+
+        GroupMembers(groupMembers = groupMembers)
+
       } finally {
         closeQuietly(cs)
       }
