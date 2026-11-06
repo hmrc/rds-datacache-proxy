@@ -119,4 +119,63 @@ final class ClientListServiceSpec extends SpecBase {
       verifyNoMoreInteractions(source)
     }
   }
+
+  "ClientListService.hasClient" - {
+
+    val irAgentId = "123456"
+    val hasClientCredentialId = "CRED01"
+    val taxOfficeNumber = "754"
+    val taxOfficeReference = "EZ00100"
+    val hasClientServiceName = "CIS"
+
+    "return true when repository returns true" in {
+      when(
+        source.hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      ).thenReturn(Future.successful(true))
+
+      val result = service.hasClient(irAgentId, hasClientCredentialId, taxOfficeNumber, taxOfficeReference, hasClientServiceName).futureValue
+
+      result mustBe true
+      verify(source)
+        .hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      verifyNoMoreInteractions(source)
+    }
+
+    "return false when repository returns false" in {
+      when(source.hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo("PAYE")))
+        .thenReturn(Future.successful(false))
+
+      val result = service.hasClient(irAgentId, hasClientCredentialId, taxOfficeNumber, taxOfficeReference, "PAYE").futureValue
+
+      result mustBe false
+      verify(source).hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo("PAYE"))
+      verifyNoMoreInteractions(source)
+    }
+
+    "propagate exceptions from repository" in {
+      val exception = new RuntimeException("Database error")
+      when(
+        source.hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      ).thenReturn(Future.failed(exception))
+
+      val result = service.hasClient(irAgentId, hasClientCredentialId, taxOfficeNumber, taxOfficeReference, hasClientServiceName).failed.futureValue
+
+      result mustBe exception
+      verify(source)
+        .hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      verifyNoMoreInteractions(source)
+    }
+
+    "call the repository exactly once" in {
+      when(
+        source.hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      ).thenReturn(Future.successful(true))
+
+      service.hasClient(irAgentId, hasClientCredentialId, taxOfficeNumber, taxOfficeReference, hasClientServiceName).futureValue
+
+      verify(source, times(1))
+        .hasClient(eqTo(irAgentId), eqTo(hasClientCredentialId), eqTo(taxOfficeNumber), eqTo(taxOfficeReference), eqTo(hasClientServiceName))
+      verifyNoMoreInteractions(source)
+    }
+  }
 }

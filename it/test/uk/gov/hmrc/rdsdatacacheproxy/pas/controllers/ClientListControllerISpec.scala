@@ -42,6 +42,13 @@ class ClientListControllerISpec
                                              serviceName: String,
                                              gracePeriod: Int): Future[Int] =
         PasStubData.getClientListDownloadStatusResponse(credentialId, serviceName, gracePeriod)
+
+    override def hasClient(irAgentId: String,
+                           credentialId: String,
+                           taxOfficeNumber: String,
+                           taxOfficeReference: String,
+                           serviceName: String): Future[Boolean] =
+        PasStubData.hasClientResponse(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference, serviceName)
   }
 
   override lazy val app: Application =
@@ -175,6 +182,113 @@ class ClientListControllerISpec
 
       res.status mustBe BAD_REQUEST
       (res.json \ "error").as[String] mustBe "credentialId and serviceName must be provided"
+    }
+  }
+
+  private val hasClientEndpoint = "/pas/agent/clientlist/has-client"
+  private val hasClientErrorMessage = "irAgentId, credentialId, taxOfficeNumber, taxOfficeReference and serviceName must be provided"
+
+  private def getHasClient(irAgentId: String,
+                           credentialId: String,
+                           taxOfficeNumber: String,
+                           taxOfficeReference: String,
+                           serviceName: String): WSResponse =
+    get(
+      s"$hasClientEndpoint?irAgentId=$irAgentId&credentialId=$credentialId&taxOfficeNumber=$taxOfficeNumber&taxOfficeReference=$taxOfficeReference&serviceName=$serviceName"
+    ).futureValue
+
+  "GET /pas/agent/clientlist/has-client (stubbed repo, no DB)" should {
+
+    "return 200 with hasClient true when authorised and serviceName is CIS" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "CRED01", "754", "EZ00100", "CIS")
+
+      res.status mustBe OK
+      (res.json \ "hasClient").as[Boolean] mustBe true
+    }
+
+    "return 200 with hasClient true when authorised and serviceName is PAYE" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "CRED01", "754", "EZ00100", "PAYE")
+
+      res.status mustBe OK
+      (res.json \ "hasClient").as[Boolean] mustBe true
+    }
+
+    "return 400 when irAgentId is empty" in {
+      AuthStub.authorised()
+      val res = getHasClient("", "CRED01", "754", "EZ00100", "CIS")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when credentialId is empty" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "", "754", "EZ00100", "CIS")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when taxOfficeNumber is empty" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "CRED01", "", "EZ00100", "CIS")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when taxOfficeReference is empty" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "CRED01", "754", "", "CIS")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when serviceName is empty" in {
+      AuthStub.authorised()
+      val res = getHasClient("123456", "CRED01", "754", "EZ00100", "")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when irAgentId contains only whitespace" in {
+      AuthStub.authorised()
+      val res = getHasClient("%20%20%20", "CRED01", "754", "EZ00100", "CIS")
+
+      res.status mustBe BAD_REQUEST
+      (res.json \ "error").as[String] mustBe hasClientErrorMessage
+    }
+
+    "return 400 when irAgentId parameter is missing" in {
+      AuthStub.authorised()
+      val res = get(s"$hasClientEndpoint?credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS").futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "return 400 when serviceName parameter is missing" in {
+      AuthStub.authorised()
+      val res = get(s"$hasClientEndpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100").futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "return 400 when all parameters are missing" in {
+      AuthStub.authorised()
+      val res = get(hasClientEndpoint).futureValue
+
+      res.status mustBe BAD_REQUEST
+    }
+
+    "return 401 when there is no active session" in {
+      AuthStub.unauthorised()
+      val res = getHasClient("123456", "CRED01", "754", "EZ00100", "CIS")
+
+      res.status mustBe UNAUTHORIZED
     }
   }
 

@@ -153,6 +153,108 @@ class ClientListControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "hasClient" - {
+
+    val endpoint = "/pas/agent/clientlist/has-client"
+    val errorMessage = "irAgentId, credentialId, taxOfficeNumber, taxOfficeReference and serviceName must be provided"
+
+    "returns 200 with hasClient true when service returns true" in new Setup {
+      when(mockService.hasClient(eqTo("123456"), eqTo("CRED01"), eqTo("754"), eqTo("EZ00100"), eqTo("CIS")))
+        .thenReturn(Future.successful(true))
+
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("123456", "CRED01", "754", "EZ00100", "CIS")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      (contentAsJson(res) \ "hasClient").as[Boolean] mustBe true
+      verify(mockService).hasClient(eqTo("123456"), eqTo("CRED01"), eqTo("754"), eqTo("EZ00100"), eqTo("CIS"))
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 200 with hasClient false when service returns false" in new Setup {
+      when(mockService.hasClient(eqTo("123456"), eqTo("CRED01"), eqTo("754"), eqTo("EZ00100"), eqTo("PAYE")))
+        .thenReturn(Future.successful(false))
+
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=PAYE")
+      val res: Future[Result] = controller.hasClient("123456", "CRED01", "754", "EZ00100", "PAYE")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      (contentAsJson(res) \ "hasClient").as[Boolean] mustBe false
+      verify(mockService).hasClient(eqTo("123456"), eqTo("CRED01"), eqTo("754"), eqTo("EZ00100"), eqTo("PAYE"))
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when irAgentId is empty" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("", "CRED01", "754", "EZ00100", "CIS")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentType(res) mustBe Some(JSON)
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "returns 400 when credentialId is empty" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("123456", "", "754", "EZ00100", "CIS")(req)
+
+      status(res) mustBe BAD_REQUEST
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "returns 400 when taxOfficeNumber is empty" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("123456", "CRED01", "", "EZ00100", "CIS")(req)
+
+      status(res) mustBe BAD_REQUEST
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "returns 400 when taxOfficeReference is empty" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("123456", "CRED01", "754", "", "CIS")(req)
+
+      status(res) mustBe BAD_REQUEST
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "returns 400 when serviceName is empty" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=")
+      val res: Future[Result] = controller.hasClient("123456", "CRED01", "754", "EZ00100", "")(req)
+
+      status(res) mustBe BAD_REQUEST
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "returns 400 when a parameter contains only whitespace" in new Setup {
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=%20%20&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res: Future[Result] = controller.hasClient("   ", "CRED01", "754", "EZ00100", "CIS")(req)
+
+      status(res) mustBe BAD_REQUEST
+      (contentAsJson(res) \ "error").as[String] mustBe errorMessage
+      verifyNoInteractions(mockService)
+    }
+
+    "propagates exceptions from service" in new Setup {
+      when(mockService.hasClient(eqTo("123456"), eqTo("CRED01"), eqTo("754"), eqTo("EZ00100"), eqTo("CIS")))
+        .thenReturn(Future.failed(new RuntimeException("Database error")))
+
+      val req = FakeRequest(GET, s"$endpoint?irAgentId=123456&credentialId=CRED01&taxOfficeNumber=754&taxOfficeReference=EZ00100&serviceName=CIS")
+      val res = controller.hasClient("123456", "CRED01", "754", "EZ00100", "CIS")(req)
+
+      whenReady(res.failed) { ex =>
+        ex mustBe a[RuntimeException]
+        ex.getMessage mustBe "Database error"
+      }
+    }
+  }
+
   private trait Setup {
     val mockService: ClientListService = mock[ClientListService]
     val controller = new ClientListController(fakeAuthAction, mockService, cc)(using ec)
