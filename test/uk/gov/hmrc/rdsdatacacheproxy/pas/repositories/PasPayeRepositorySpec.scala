@@ -128,14 +128,14 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
         total = 2,
         appealablePenalties = List(
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10001),
+            penaltyId        = Some(10001),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("F"),
             penaltyAmount    = Some(BigDecimal(999.23))
           ),
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10002),
+            penaltyId        = Some(10002),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("F"),
@@ -193,7 +193,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
         schemeReferenceNumber = "098345"
       )
       val getPayeAppealablePenaltyResponse = GetAppealablePenaltyResponse(
-        uniqueId         = None,
+        penaltyId        = None,
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
         penaltyType      = Some("CIS003"),
@@ -232,13 +232,13 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       }
 
       val expectedResponse = GetPayeTaxpayerResponse(
-        uniqueId       = 1L,
-        instanceId     = 2L,
-        districtNumber = "123",
-        employerRef    = "AB456",
-        employerName1  = Some("TEST EMPLOYER"),
-        employerName2  = None,
-        agentOwnRef    = Some("AGENTREF")
+        penaltyId             = 1L,
+        instanceId            = 2L,
+        hmrcOfficeNumber      = "123",
+        schemeReferenceNumber = "AB456",
+        employerName1         = Some("TEST EMPLOYER"),
+        employerName2         = None,
+        agentOwnRef           = Some("AGENTREF")
       )
 
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
@@ -316,17 +316,17 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
       when(mockResultSet.next()).thenReturn(true, false)
-      when(mockResultSet.getLong("UNIQUEID")).thenReturn(1L)
+      when(mockResultSet.getLong("penaltyId")).thenReturn(1L)
       when(mockResultSet.getLong("INSTANCE_ID")).thenReturn(2L)
       when(mockResultSet.getString("DISTRICT_NUMBER")).thenReturn("70")
       when(mockResultSet.getString("EMPLOYER_REF")).thenReturn("AB456")
 
       val result = repository.getPayeTaxpayer(testRequest).futureValue
 
-      result.map(_.districtNumber) shouldBe Some("070")
+      result.map(_.hmrcOfficeNumber) shouldBe Some("070")
     }
 
-    "return an empty districtNumber without padding when DISTRICT_NUMBER is null" in {
+    "return an empty hmrcOfficeNumber without padding when DISTRICT_NUMBER is null" in {
 
       when(db.withConnection(any())).thenAnswer { invocation =>
         val func = invocation.getArgument(0, classOf[Connection => Any])
@@ -342,7 +342,7 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
 
       val result = repository.getPayeTaxpayer(testRequest).futureValue
 
-      result.map(_.districtNumber) shouldBe Some("")
+      result.map(_.hmrcOfficeNumber) shouldBe Some("")
     }
 
     "call getPayeTaxpayerByTaxReference stored procedure and return the first row when multiple rows are returned" in {
@@ -353,13 +353,13 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       }
 
       val expectedResponse = GetPayeTaxpayerResponse(
-        uniqueId       = 1L,
-        instanceId     = 2L,
-        districtNumber = "123",
-        employerRef    = "AB456",
-        employerName1  = Some("FIRST EMPLOYER"),
-        employerName2  = Some("LTD"),
-        agentOwnRef    = Some("AGENTREF")
+        penaltyId             = 1L,
+        instanceId            = 2L,
+        hmrcOfficeNumber      = "123",
+        schemeReferenceNumber = "AB456",
+        employerName1         = Some("FIRST EMPLOYER"),
+        employerName2         = Some("LTD"),
+        agentOwnRef           = Some("AGENTREF")
       )
 
       when(mockCallableStatement.getObject(eqTo(3), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet)
@@ -398,9 +398,9 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       when(mockCallableStatement.getString(4)).thenReturn("Y")
 
       val getPayePenaltyAllowedRequest = GetPenaltyAllowedRequest(
-        districtNumber    = 1L,
-        employerReference = "357",
-        uniqueId          = 1L
+        hmrcOfficeNumber      = 1L,
+        schemeReferenceNumber = "357",
+        penaltyId             = 1L
       )
       val getPayePenaltyAllowedResponse = GetPenaltyAllowedResponse(
         allowed = true
@@ -411,9 +411,9 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       result shouldBe getPayePenaltyAllowedResponse
 
       verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
-      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.districtNumber)
-      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.employerReference)
-      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.penaltyId)
       verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
       verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()
@@ -429,9 +429,9 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       when(mockCallableStatement.getString(4)).thenReturn("N")
 
       val getPayePenaltyAllowedRequest = GetPenaltyAllowedRequest(
-        districtNumber    = 1L,
-        employerReference = "357",
-        uniqueId          = 1L
+        hmrcOfficeNumber      = 1L,
+        schemeReferenceNumber = "357",
+        penaltyId             = 1L
       )
       val getPayePenaltyAllowedResponse = GetPenaltyAllowedResponse(
         allowed = false
@@ -442,9 +442,9 @@ class PasPayeRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfte
       result shouldBe getPayePenaltyAllowedResponse
 
       verify(mockConnection).prepareCall("{call CIS_PAS.isPenaltyAccessAllowed(?, ?, ?, ?)}")
-      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.districtNumber)
-      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.employerReference)
-      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.uniqueId)
+      verify(mockCallableStatement).setLong(1, getPayePenaltyAllowedRequest.hmrcOfficeNumber)
+      verify(mockCallableStatement).setString(2, getPayePenaltyAllowedRequest.schemeReferenceNumber)
+      verify(mockCallableStatement).setLong(3, getPayePenaltyAllowedRequest.penaltyId)
       verify(mockCallableStatement).registerOutParameter(4, java.sql.Types.VARCHAR)
       verify(mockCallableStatement).execute()
       verify(mockCallableStatement).close()

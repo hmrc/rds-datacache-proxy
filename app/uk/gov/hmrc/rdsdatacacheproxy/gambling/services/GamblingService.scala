@@ -414,6 +414,31 @@ class GamblingService @Inject() (
 
   }
 
+  def getGroupMembers(rawMgdRegNumber: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GamblingError, GroupMembers]] = {
+    val mgdRegNumber = rawMgdRegNumber.trim.toUpperCase
+    GRNValidator.validateRegNum(Regime.MGD, mgdRegNumber) match {
+      case Left(value) =>
+        logger.warn(
+          s"[GamblingService][getGroupMembers] Invalid pattern mgdRegNumber=$mgdRegNumber"
+        )
+        Future.successful(Left(InvalidMgdRegNumber))
+      case Right(value) =>
+        repository
+          .getGroupMembers(mgdRegNumber)
+          .map(details => Right(details))
+          .recover { case ex: Exception =>
+            logger.error(
+              s"[GamblingService][getGroupMembers] Unexpected error mgdRegNumber=$mgdRegNumber",
+              ex
+            )
+            Left(UnexpectedError)
+          }
+
+    }
+  }
+
   def getAgentDetails(rawAgentReference: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, AgentDetails]] = {
     val agentReference = rawAgentReference.trim
 

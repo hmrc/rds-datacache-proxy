@@ -30,14 +30,14 @@ object PasStubData extends Logging {
       total = 2,
       appealablePenalties = List(
         GetAppealablePenaltyResponse(
-          uniqueId = Some(10001),
+          penaltyId = Some(10001),
           issueDate = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
           penaltyType = Some("F"),
           penaltyAmount = Some(BigDecimal(999.23))
         ),
         GetAppealablePenaltyResponse(
-          uniqueId = Some(10002),
+          penaltyId = Some(10002),
           issueDate = Some(LocalDate.of(2023, 1, 1)),
           taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
           penaltyType = Some("F"),
@@ -53,7 +53,7 @@ object PasStubData extends Logging {
     )
 
   val getAppealablePenaltySuccessResponse = GetAppealablePenaltyResponse(
-    uniqueId = None,
+    penaltyId = None,
     issueDate        = Some(LocalDate.of(2023, 1, 1)),
     taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
     penaltyType      = Some("CIS003"),
@@ -65,10 +65,10 @@ object PasStubData extends Logging {
   )
 
   val payeTaxpayer: GetPayeTaxpayerResponse = GetPayeTaxpayerResponse(
-    uniqueId       = 1L,
+    penaltyId       = 1L,
     instanceId     = 1L,
-    districtNumber = "123",
-    employerRef    = "AB456",
+    hmrcOfficeNumber = "123",
+    schemeReferenceNumber    = "AB456",
     employerName1  = Some("TEST EMPLOYER"),
     employerName2  = Some("LTD"),
     agentOwnRef    = Some("AGENTREF")
@@ -105,7 +105,7 @@ object PasStubData extends Logging {
   }
 
   def makeGetPenaltyAllowedResponse(request: GetPenaltyAllowedRequest): GetPenaltyAllowedResponse = {
-    request.uniqueId match {
+    request.penaltyId match {
       case 1 => getPenaltyAllowedSuccessResponse
       case _ => throw new Error("Simulated downstream failure")
     }

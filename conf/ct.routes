@@ -1,3 +1,5 @@
+GET        /has-client/:utr/:irAgentId/:credentialId                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.HasClientController.getHasClient(utr: Long, irAgentId: String, credentialId: String)
+
 # microservice specific routes
 
 GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String = "CT", gracePeriod: Int = 14400)
@@ -37,3 +39,5 @@ GET        /payment-search-result/:taxRef                                   uk.g
 GET        /posting-summary/:taxRef/:postingType                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PostingSummaryByTypeController.getPostingSummaryByType(taxRef: Long, postingType: String)
 GET        /all-accounting-period/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.AllAccountingPeriodsController.getAccountingPeriodList(taxRef: Long)
 GET        /electronic-payment-allocation-details/:taxRef/:accPeriod/:payslipId            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.ElectronicPaymentAllocationDetailsController.getPayAllocationElectronicDtls(taxRef: Long, accPeriod: Long, payslipId: Long)
+
+GET        /payment-postings/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentPostingsController.getPaymentPostings(taxRef: Long)

@@ -85,14 +85,14 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
         total = 2,
         appealablePenalties = List(
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10001),
+            penaltyId        = Some(10001),
             issueDate        = Some(LocalDate.of(2023, 1, 1)),
             taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
             penaltyType      = Some("F"),
             penaltyAmount    = Some(BigDecimal(999.23))
           ),
           GetAppealablePenaltyResponse(
-            uniqueId         = Some(10002),
+            penaltyId        = Some(10002),
             issueDate        = Some(LocalDate.of(2026, 2, 20)),
             taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
             penaltyType      = Some("P"),
@@ -171,7 +171,7 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
     "return 200 with GetAppealablePenaltyResponse when service succeeds" in new Setup {
 
       val expectedResponse = GetAppealablePenaltyResponse(
-        uniqueId         = None,
+        penaltyId        = None,
         issueDate        = Some(LocalDate.of(2023, 1, 1)),
         taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
         penaltyType      = Some("CIS003"),
@@ -229,13 +229,13 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
     "return 200 with GetPayeTaxpayerResponse when service returns a taxpayer" in new Setup {
 
       val expectedResponse = GetPayeTaxpayerResponse(
-        uniqueId       = 1L,
-        instanceId     = 2L,
-        districtNumber = "123",
-        employerRef    = "AB456",
-        employerName1  = Some("TEST EMPLOYER"),
-        employerName2  = Some("LTD"),
-        agentOwnRef    = Some("AGENTREF")
+        penaltyId             = 1L,
+        instanceId            = 2L,
+        hmrcOfficeNumber      = "123",
+        schemeReferenceNumber = "AB456",
+        employerName1         = Some("TEST EMPLOYER"),
+        employerName2         = Some("LTD"),
+        agentOwnRef           = Some("AGENTREF")
       )
       val request: FakeRequest[JsValue] = makeJsonRequest(Json.toJson(testRequest), "/pas/paye/taxpayer")
 
@@ -309,9 +309,9 @@ class PasPayeControllerSpec extends SpecBase with MockitoSugar {
   "getPayePenaltyAllowed" - {
 
     val testRequest: GetPenaltyAllowedRequest = GetPenaltyAllowedRequest(
-      districtNumber    = 1L,
-      employerReference = "357",
-      uniqueId          = 1L
+      hmrcOfficeNumber      = 1L,
+      schemeReferenceNumber = "357",
+      penaltyId             = 1L
     )
 
     "return 200 with GetPenaltyAllowedResponse when service succeeds" in new Setup {

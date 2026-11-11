@@ -118,7 +118,7 @@ class PasCisRepository @Inject() (
 
   private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
     GetAppealablePenaltyResponse(
-      uniqueId         = Option(rs.getLong("UNIQUE_ID")),
+      penaltyId        = Option(rs.getLong("UNIQUE_ID")),
       issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
       taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
       penaltyType      = Option(rs.getString("PENALTY_TYPE")),
@@ -159,7 +159,7 @@ class PasCisRepository @Inject() (
       cs.execute()
 
       GetAppealablePenaltyResponse(
-        uniqueId         = None,
+        penaltyId        = None,
         issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
         taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
         penaltyType      = Option(cs.getString(4)),
@@ -176,9 +176,9 @@ class PasCisRepository @Inject() (
       db.withConnection { conn =>
         callGetCisPenaltyAllowed(
           conn              = conn,
-          p_district_number = request.districtNumber,
-          p_employer_ref    = request.employerReference,
-          p_unique_id       = request.uniqueId
+          p_district_number = request.hmrcOfficeNumber,
+          p_employer_ref    = request.schemeReferenceNumber,
+          p_unique_id       = request.penaltyId
         )
       }
     }

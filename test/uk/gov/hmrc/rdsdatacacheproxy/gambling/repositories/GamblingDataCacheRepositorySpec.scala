@@ -48,6 +48,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var correspondenceRs: ResultSet = _
   var businessAddressRs: ResultSet = _
   var premisesRs: ResultSet = _
+  var groupMembersRs: ResultSet = _
   var agentAddressRs: ResultSet = _
   var agentContactRs: ResultSet = _
 
@@ -69,6 +70,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     premisesRs        = mock(classOf[ResultSet])
     agentAddressRs    = mock(classOf[ResultSet])
     agentContactRs    = mock(classOf[ResultSet])
+    groupMembersRs    = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -889,6 +891,69 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       case other                       => fail(s"expected Left(DatabaseError), got $other")
     }
 
+    verify(mockCs).close()
+  }
+
+  "getGroupMembers" should "return GroupMembers when data exists" in {
+
+    val mgdRegNumber = "XWM12345678901"
+    when(mockCs.getObject(2)).thenReturn(groupMembersRs)
+    when(mockCs.getObject(3)).thenReturn(Date.valueOf("1991-01-03"))
+
+    when(groupMembersRs.next()).thenReturn(true, false)
+
+    when(groupMembersRs.getString("mgd_reg_number")).thenReturn(mgdRegNumber)
+    when(groupMembersRs.getString("BUSINESS_PARTNER_NUMBER")).thenReturn("3289084908")
+    when(groupMembersRs.getString("BUSINESS_NAME")).thenReturn("abc")
+    when(groupMembersRs.getString("CRN")).thenReturn("123455")
+    when(groupMembersRs.getString("FOREIGN_CORPORATE_REF")).thenReturn("123455")
+    when(groupMembersRs.getInt("IS_REP_MEMBER_OF_GROUP")).thenReturn(1)
+    when(groupMembersRs.getDate("DATE_OF_JOINING"))
+      .thenReturn(Date.valueOf("1991-01-01"))
+    when(groupMembersRs.getDate("DATE_OF_LEAVING"))
+      .thenReturn(Date.valueOf("1991-01-02"))
+    when(groupMembersRs.getString("EMAIL_ADDR")).thenReturn("a@b.com")
+
+    val result = repository.getGroupMembers(mgdRegNumber).futureValue
+    result.groupMembers.head.mgdRegNumber          shouldBe mgdRegNumber
+    result.groupMembers.head.businessPartnerNumber shouldBe Some("3289084908")
+    result.groupMembers.head.businessName          shouldBe Some("abc")
+    result.groupMembers.head.crn                   shouldBe Some("123455")
+    result.groupMembers.head.isRepMemberOfGroup    shouldBe Some(1)
+    result.groupMembers.head.dateOfJoining         shouldBe Some(LocalDate.of(1991, 1, 1))
+    result.groupMembers.head.dateOfLeaving         shouldBe Some(LocalDate.of(1991, 1, 2))
+    result.groupMembers.head.emailAddr             shouldBe Some("a@b.com")
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).registerOutParameter(2, oracle.jdbc.OracleTypes.CURSOR)
+    mockCs.getObject(3) shouldBe Date.valueOf("1991-01-03")
+    verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).execute()
+  }
+
+  it should "throw exception when result set is empty" in {
+
+    when(mockCs.getObject(2)).thenReturn(groupMembersRs)
+    when(groupMembersRs.next()).thenReturn(false)
+
+    val ex = intercept[RuntimeException] {
+      repository.getReturnSummary("XWM123").futureValue
+    }
+
+    ex.getMessage should include("Empty result set")
+    verify(groupMembersRs).close()
+    verify(mockCs).close()
+  }
+
+  it should "throw exception when cursor is null" in {
+
+    when(mockCs.getObject(2)).thenReturn(null)
+
+    val ex = intercept[RuntimeException] {
+      repository.getReturnSummary("XWM123").futureValue
+    }
+
+    ex.getMessage should include("Null cursor")
     verify(mockCs).close()
   }
 
