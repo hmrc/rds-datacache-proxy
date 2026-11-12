@@ -83,7 +83,7 @@ class ClientListRepository @Inject() (
     taxOfficeReference: String,
     serviceName: String
   ): Future[Boolean] = {
-    logger.info(
+    logger.debug(
       s"[PAS] hasClient(TON=$taxOfficeNumber, TOR=$taxOfficeReference, IR_AGENT_ID=$irAgentId, CREDENTIAL_ID=$credentialId, SERVICE_NAME=$serviceName)"
     )
 

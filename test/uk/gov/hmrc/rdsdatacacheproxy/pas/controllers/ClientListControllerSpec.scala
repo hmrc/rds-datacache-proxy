@@ -155,7 +155,7 @@ class ClientListControllerSpec extends SpecBase with MockitoSugar {
 
   "hasClient" - {
 
-    val endpoint = "/pas/agent/clientlist/has-client"
+    val endpoint = "/pas/agent/clientlist/clients/status"
     val errorMessage = "irAgentId, credentialId, taxOfficeNumber, taxOfficeReference and serviceName must be provided"
 
     "returns 200 with hasClient true when service returns true" in new Setup {

@@ -185,7 +185,7 @@ class ClientListControllerISpec
     }
   }
 
-  private val hasClientEndpoint = "/pas/agent/clientlist/has-client"
+  private val hasClientEndpoint = "/pas/agent/clientlist/clients/status"
   private val hasClientErrorMessage = "irAgentId, credentialId, taxOfficeNumber, taxOfficeReference and serviceName must be provided"
 
   private def getHasClient(irAgentId: String,
@@ -197,7 +197,7 @@ class ClientListControllerISpec
       s"$hasClientEndpoint?irAgentId=$irAgentId&credentialId=$credentialId&taxOfficeNumber=$taxOfficeNumber&taxOfficeReference=$taxOfficeReference&serviceName=$serviceName"
     ).futureValue
 
-  "GET /pas/agent/clientlist/has-client (stubbed repo, no DB)" should {
+  "GET /pas/agent/clientlist/clients/status (stubbed repo, no DB)" should {
 
     "return 200 with hasClient true when authorised and serviceName is CIS" in {
       AuthStub.authorised()
