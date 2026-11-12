@@ -51,4 +51,26 @@ class ClientListController @Inject() (
         }
     }
   }
+
+  def hasClient(
+    irAgentId: String,
+    credentialId: String,
+    taxOfficeNumber: String,
+    taxOfficeReference: String,
+    serviceName: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    if (
+      irAgentId.trim().isEmpty || credentialId.trim().isEmpty || taxOfficeNumber.trim().isEmpty ||
+      taxOfficeReference.trim().isEmpty || serviceName.trim().isEmpty
+    ) {
+      Future.successful(
+        BadRequest(Json.obj("error" -> "irAgentId, credentialId, taxOfficeNumber, taxOfficeReference and serviceName must be provided"))
+      )
+    } else {
+      service
+        .hasClient(irAgentId, credentialId, taxOfficeNumber, taxOfficeReference, serviceName)
+        .map(exists => Ok(Json.obj("hasClient" -> exists)))
+    }
+  }
 }
