@@ -37,7 +37,7 @@ final case class GroupMemberRecord(mgdRegNumber: String,
 
 final case class GroupMemberWithPremises(
                                            mgdRegNumber: String,
-                                           businessPartnerRecords: Option[String],
+                                           businessPartnerNumber: String,
                                            businessName: Option[String],
                                            tradingName: Option[String],
                                            crn: Option[String],
