@@ -232,4 +232,21 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         handleError(error, logMessage)
     }
   }
+
+  def getGroupMembersWithPremises(
+    mgdRegNumber: String,
+    businessPartnerNumber: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getGroupMembersWithPremises(mgdRegNumber, businessPartnerNumber).map {
+
+      case Right(details) =>
+        Ok(Json.toJson(details))
+
+      case Left(error) =>
+        val logMessage =
+          s"[GamblingController][getControllingBodyDetails] code=${error.code} mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
+        handleError(error, logMessage)
+    }
+  }
 }

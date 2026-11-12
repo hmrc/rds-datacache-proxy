@@ -454,4 +454,19 @@ class GamblingService @Inject() (
         Left(GamblingError.UnexpectedError)
       }
   }
+
+  def getGroupMembersWithPremises(rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, AgentDetails]] = {
+    val mgdRegNumber = rawMgdRegNumber.trim
+    val businessPartnerNumber = rawBusinessPartnerNumber.trim
+
+    repository.getGroupMembersWithPremises(mgdRegNumber, businessPartnerNumber).map {
+        case Right(details)            => Right(details)
+        case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
+        case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
+      }
+      .recover { case NonFatal(ex) =>
+        logger.error(s"unexpected error retrieving group member with premises details mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber", ex)
+        Left(GamblingError.UnexpectedError)
+      }
+  }
 }

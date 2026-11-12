@@ -35,6 +35,61 @@ final case class GroupMemberRecord(mgdRegNumber: String,
                                    systemDate: Option[LocalDate]
                                   )
 
+final case class GroupMemberWithPremises(
+                                           mgdRegNumber: String,
+                                           businessPartnerRecords: Option[String],
+                                           businessName: Option[String],
+                                           tradingName: Option[String],
+                                           crn: Option[String],
+                                           dateOfIncorporation: Option[LocalDate],
+                                           countryOfIncorporation: Option[String],
+                                           foreignCorporateRef: Option[String],
+                                           utr: Option[Int],
+                                           vrn: Option[Int],
+                                           tradeClass: Option[Int],
+                                           busActDescription: Option[String],
+                                           phoneNumber: Option[String],
+                                           mobilePhoneNumber: Option[String],
+                                           faxNumber: Option[String],
+                                           emailAddr: Option[String],
+                                           adi: Option[String],
+                                           address1: Option[String],
+                                           address2: Option[String],
+                                           address3: Option[String],
+                                           address4: Option[String],
+                                           postcode: Option[String],
+                                           isIomOrCiFlag: Option[String],
+                                           haveGamblingLicenceNo: Option[String],
+                                           gamblingLicenceNo: Option[String],
+                                           heldByLandlord: Option[String],
+                                           localAuthority: Option[String],
+                                           familyEntertainment: Option[String],
+                                           clubGaming: Option[String],
+                                           clubLicence: Option[String],
+                                           prizeGaming: Option[String],
+                                           onPremises: Option[String],
+                                           clubPremises: Option[String],
+                                           regCert: Option[String],
+                                           bookmaking: Option[String],
+                                           bingo: Option[String],
+                                           amusement: Option[String],
+                                           serveAlcohol: Option[String],
+                                           premisesNotCovered: Option[String],
+                                           previousMgdrn1: Option[String],
+                                           previousMgdrn2: Option[String],
+                                           previousMgdrn3: Option[String],
+                                           associatedMgdrn1: Option[String],
+                                           associatedMgdrn2: Option[String],
+                                           associatedMgdrn3: Option[String],
+                                           dateOfJoining: Option[LocalDate],
+                                           dateOfLeaving: Option[LocalDate],
+                                           isRepMemSameAsCb: Option[String],
+                                           isUkIncorporated: Option[String],
+                                           isRepMemberOfGroup: Option[String],
+                                           systemDate: Option[LocalDate],
+                                           premises: Seq[PremisesDetails]
+                                         )
+
 object GroupMemberRecord {
 
   private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
@@ -52,4 +107,13 @@ object GroupMembers {
 
   implicit val format: OFormat[GroupMembers] =
     Json.format[GroupMembers]
+}
+
+object GroupMemberWithPremises {
+  private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
+  implicit val localDateWrites: Writes[LocalDate] =
+    Writes.temporalWrites[LocalDate, DateTimeFormatter](fmt)
+
+  implicit val format: OFormat[GroupMemberWithPremises] =
+    Json.format[GroupMemberWithPremises]
 }

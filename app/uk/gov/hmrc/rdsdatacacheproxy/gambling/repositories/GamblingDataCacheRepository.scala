@@ -57,6 +57,8 @@ trait GamblingDataSource {
 
   def getGroupMembers(mgdRegNumber: String): Future[GroupMembers]
 
+  def getGroupMembersWithPremises(mgdRegNumber: String): Future[GroupMemberWithPremises]
+
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
 
