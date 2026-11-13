@@ -15,8 +15,8 @@ GET        /business-address/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.
 GET        /controlling-body-details/mgd/:mgdRegNumber    uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getControllingBodyDetails(mgdRegNumber: String)
 GET        /return-periods/mgd/:mgdRegNumber            uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getReturnPeriods(mgdRegNumber: String)
 GET        /group-members/mgd/:regNumber                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GroupMembersController.getGroupMembers(regNumber: String)
-GET        /group-member-with-premises/:regime/:regNumber/:partnerNumber                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GroupMembersController.getGroupMemberWithPremises(regime: String, regNumber: String, partnerNumber: String)
 GET        /agent-details/:agentReference               uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GamblingController.getAgentDetails(agentReference: String)
+GET        /group-member-with-premises/:regime/:regNumber/:partnerNumber                           uk.gov.hmrc.rdsdatacacheproxy.gambling.controllers.GroupMembersController.getGroupMemberWithPremises(regime: String, regNumber: String, partnerNumber: String)
 
 
 

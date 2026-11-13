@@ -232,5 +232,4 @@ class GamblingController @Inject() (authorise: AuthAction, service: GamblingServ
         handleError(error, logMessage)
     }
   }
-
 }

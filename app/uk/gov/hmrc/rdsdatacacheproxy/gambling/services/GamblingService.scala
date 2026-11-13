@@ -474,7 +474,7 @@ class GamblingService @Inject() (
             Future.successful(Left(InvalidMgdRegNumber))
           case Right(value) =>
             repository
-              .getGroupMembersWithPremises(regime, mgdRegNumber, businessPartnerNumber)
+              .getGroupMemberWithPremises(regime, mgdRegNumber, businessPartnerNumber)
               .map {
                 case Right(details: GroupMemberWithPremises) => Right(details)
                 case Left(RecordNotFound(_))                 => Left(GamblingError.RecordNotFoundError)
