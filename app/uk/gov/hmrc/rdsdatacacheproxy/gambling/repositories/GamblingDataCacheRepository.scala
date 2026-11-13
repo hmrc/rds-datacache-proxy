@@ -1481,8 +1481,6 @@ class GamblingDataCacheRepository @Inject() (
                |ASSOCIATED_MGDRN_1 => ?,
                |ASSOCIATED_MGDRN_2 => ?,
                |ASSOCIATED_MGDRN_3 => ?,
-               |ASSOCIATED_MGDRN_3 => ?,
-               |ASSOCIATED_MGDRN_3 => ?,
                |DATE_OF_JOINING => ?,
                |DATE_OF_LEAVING => ?,
                |IS_REP_MEM_SAME_AS_CB => ?,
@@ -1493,16 +1491,62 @@ class GamblingDataCacheRepository @Inject() (
           case _          => throw new RuntimeException(s"Regime $regime is not supported for getGroupMemberWithPremises")
       }
       try {
-        //TODO: I need to write out every single param
         cs.setString(1, mgdRegNumber) // IN P_MGD_REG_NUMBER
         cs.setString(2, businessPartnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
         cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PREMISES
-        cs.registerOutParameter(4, oracle.jdbc.OracleTypes.CURSOR) // OUT GROUP_MEMBER
-        cs.registerOutParameter(5, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+        cs.registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR) // OUT MGD_REG_NUMBER
+        cs.registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUSINESS_PARTNER_NUMBER
+        cs.registerOutParameter(6, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUSINESS_NAME
+        cs.registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR) // OUT TRADING_NAME
+        cs.registerOutParameter(8, oracle.jdbc.OracleTypes.VARCHAR) // OUT CRN
+        cs.registerOutParameter(9, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_INCORPORATION
+        cs.registerOutParameter(10, oracle.jdbc.OracleTypes.VARCHAR) // OUT COUNTRY_OF_INCORPORATION
+        cs.registerOutParameter(11, oracle.jdbc.OracleTypes.VARCHAR) // OUT FOREIGN_CORPORATE_REF
+        cs.registerOutParameter(12, oracle.jdbc.OracleTypes.NUMBER) // OUT UTR
+        cs.registerOutParameter(13, oracle.jdbc.OracleTypes.NUMBER) // OUT VRN
+        cs.registerOutParameter(14, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUS_ACT_DESCRIPTION
+        cs.registerOutParameter(15, oracle.jdbc.OracleTypes.VARCHAR) // OUT PHONE_NUMBER
+        cs.registerOutParameter(16, oracle.jdbc.OracleTypes.VARCHAR) // OUT MOBILE_PHONE_NUMBER
+        cs.registerOutParameter(17, oracle.jdbc.OracleTypes.VARCHAR) // OUT FAX_NUMBER
+        cs.registerOutParameter(18, oracle.jdbc.OracleTypes.VARCHAR) // OUT EMAIL_ADDR
+        cs.registerOutParameter(19, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADI
+        cs.registerOutParameter(20, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_1
+        cs.registerOutParameter(21, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_2
+        cs.registerOutParameter(22, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_3
+        cs.registerOutParameter(23, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_4
+        cs.registerOutParameter(24, oracle.jdbc.OracleTypes.VARCHAR) // OUT POSTCODE
+        cs.registerOutParameter(25, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_IOM_OR_CI
+        cs.registerOutParameter(26, oracle.jdbc.OracleTypes.VARCHAR) // OUT HAVE_GAMBLING_LICENCE_NO
+        cs.registerOutParameter(27, oracle.jdbc.OracleTypes.VARCHAR) // OUT GAMBLING_LICENCE_NO
+        cs.registerOutParameter(28, oracle.jdbc.OracleTypes.VARCHAR) // OUT HELD_BY_LANDLORD
+        cs.registerOutParameter(29, oracle.jdbc.OracleTypes.VARCHAR) // OUT LOCAL_AUTHORITY
+        cs.registerOutParameter(30, oracle.jdbc.OracleTypes.VARCHAR) // OUT FAMILY_ENTERTAINMENT
+        cs.registerOutParameter(31, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_GAMING
+        cs.registerOutParameter(32, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_LICENCE
+        cs.registerOutParameter(33, oracle.jdbc.OracleTypes.VARCHAR) // OUT PRIZE_GAMING
+        cs.registerOutParameter(34, oracle.jdbc.OracleTypes.VARCHAR) // OUT ON_PREMISES
+        cs.registerOutParameter(35, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_PREMISES
+        cs.registerOutParameter(36, oracle.jdbc.OracleTypes.VARCHAR) // OUT REG_CERT
+        cs.registerOutParameter(37, oracle.jdbc.OracleTypes.VARCHAR) // OUT BOOKMAKING
+        cs.registerOutParameter(38, oracle.jdbc.OracleTypes.VARCHAR) // OUT BINGO
+        cs.registerOutParameter(39, oracle.jdbc.OracleTypes.VARCHAR) // OUT AMUSEMENT
+        cs.registerOutParameter(40, oracle.jdbc.OracleTypes.VARCHAR) // OUT SERVE_ALCOHOL
+        cs.registerOutParameter(41, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREMISES_NOT_COVERED
+        cs.registerOutParameter(42, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_1
+        cs.registerOutParameter(43, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_2
+        cs.registerOutParameter(44, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_3
+        cs.registerOutParameter(45, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_1
+        cs.registerOutParameter(46, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_2
+        cs.registerOutParameter(47, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_3
+        cs.registerOutParameter(48, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_JOINING
+        cs.registerOutParameter(49, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_LEAVING
+        cs.registerOutParameter(50, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_REP_MEM_SAME_AS_CB
+        cs.registerOutParameter(51, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_REP_MEMBER_OF_GROUP
+        cs.registerOutParameter(52, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_UK_INCORPORATED
+        cs.registerOutParameter(53, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
         cs.execute()
 
         val premisesRs = cs.getObject(3).asInstanceOf[java.sql.ResultSet]
-        val groupMemberRs = cs.getObject(4).asInstanceOf[java.sql.ResultSet]
 
         val premises: Seq[PremisesDetails] =
           if (premisesRs == null) {
@@ -1533,71 +1577,65 @@ class GamblingDataCacheRepository @Inject() (
           logger.warn(msg)
           Left(RecordNotFound(msg))
         } else {
-          try {
-            groupMemberRs.next()
-
-            def optDate(col: String, rs: java.sql.ResultSet): Option[java.time.LocalDate] =
-              Option(rs.getDate(col)).map(_.toLocalDate)
+            def optDate(col: String): Option[java.time.LocalDate] =
+              Option(cs.getDate(col)).map(_.toLocalDate)
 
             Right(
               GroupMemberWithPremises(
-                mgdRegNumber           = groupMemberRs.getString("MGD_REG_NUMBER"),
-                businessPartnerNumber  = groupMemberRs.getString("BUSINESS_PARTNER_NUMBER"),
-                businessName           = Option(groupMemberRs.getString("BUSINESS_NAME")),
-                tradingName            = Option(groupMemberRs.getString("TRADING_NAME")),
-                crn                    = Option(groupMemberRs.getString("TRADING_NAME")),
-                dateOfIncorporation    = optDate("DATE_OF_INCORPORATION", groupMemberRs),
-                countryOfIncorporation = Option(groupMemberRs.getString("COUNTRY_OF_INCORPORATION")),
-                foreignCorporateRef    = Option(groupMemberRs.getString("FOREIGN_CORPORATE_REF")),
-                utr                    = Option(groupMemberRs.getInt("UTR")),
-                vrn                    = Option(groupMemberRs.getInt("VRN")),
-                tradeClass             = Option(groupMemberRs.getInt("TRADE_CLASS")),
-                businessActivityDesc   = Option(groupMemberRs.getString("BUS_ACT_DESCRIPTION")),
-                phoneNumber            = Option(groupMemberRs.getString("PHONE_NUMBER")),
-                mobilePhoneNumber      = Option(groupMemberRs.getString("MOBILE_PHONE_NUMBER")),
-                faxNumber              = Option(groupMemberRs.getString("FAX_NUMBER")),
-                emailAddr              = Option(groupMemberRs.getString("EMAIL_ADDR")),
-                adi                    = Option(groupMemberRs.getString("ADI")),
-                address1               = Option(groupMemberRs.getString("ADDRESS_1")),
-                address2               = Option(groupMemberRs.getString("ADDRESS_2")),
-                address3               = Option(groupMemberRs.getString("ADDRESS_3")),
-                address4               = Option(groupMemberRs.getString("ADDRESS_4")),
-                postcode               = Option(groupMemberRs.getString("POSTCODE")),
-                isIomOrCiFlag          = Option(groupMemberRs.getString("IS_IOM_OR_CI")),
-                haveGamblingLicenceNo  = Option(groupMemberRs.getString("HAVE_GAMBLING_LICENCE_NO")),
-                gamblingLicenceNo      = Option(groupMemberRs.getString("GAMBLING_LICENCE_NO")),
-                heldByLandlord         = Option(groupMemberRs.getString("HELD_BY_LANDLORD")),
-                localAuthority         = Option(groupMemberRs.getString("LOCAL_AUTHORITY")),
-                familyEntertainment    = Option(groupMemberRs.getString("FAMILY_ENTERTAINMENT")),
-                clubGaming             = Option(groupMemberRs.getString("CLUB_GAMING")),
-                clubLicence            = Option(groupMemberRs.getString("CLUB_LICENCE")),
-                prizeGaming            = Option(groupMemberRs.getString("PRIZE_GAMING")),
-                onPremises             = Option(groupMemberRs.getString("ON_PREMISES")),
-                clubPremises           = Option(groupMemberRs.getString("CLUB_PREMISES")),
-                regCert                = Option(groupMemberRs.getString("REG_CERT")),
-                bookmaking             = Option(groupMemberRs.getString("BOOKMAKING")),
-                bingo                  = Option(groupMemberRs.getString("BINGO")),
-                amusement              = Option(groupMemberRs.getString("AMUSEMENT")),
-                serveAlcohol           = Option(groupMemberRs.getString("SERVE_ALCOHOL")),
-                premisesNotCovered     = Option(groupMemberRs.getString("PREMISES_NOT_COVERED")),
-                previousMgdrn1         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_1")),
-                previousMgdrn2         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_2")),
-                previousMgdrn3         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_3")),
-                associatedMgdrn1       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_1")),
-                associatedMgdrn2       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_2")),
-                associatedMgdrn3       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_3")),
-                dateOfJoining          = optDate("DATE_OF_JOINING", groupMemberRs),
-                dateOfLeaving          = optDate("DATE_OF_LEAVING", groupMemberRs),
-                isRepMemSameAsCb       = Option(groupMemberRs.getString("IS_REP_MEM_SAME_AS_CB")),
-                isUkIncorporated       = Option(groupMemberRs.getString("IS_UK_INCORPORATED")),
-                isRepMemberOfGroup     = Option(groupMemberRs.getString("IS_REP_MEMBER_OF_GROUP")),
+                mgdRegNumber           = cs.getString("MGD_REG_NUMBER"),
+                businessPartnerNumber  = cs.getString("BUSINESS_PARTNER_NUMBER"),
+                businessName           = Option(cs.getString("BUSINESS_NAME")),
+                tradingName            = Option(cs.getString("TRADING_NAME")),
+                crn                    = Option(cs.getString("CRN")),
+                dateOfIncorporation    = Option(cs.getDate(9)).map(_.toLocalDate),
+                countryOfIncorporation = Option(cs.getString("COUNTRY_OF_INCORPORATION")),
+                foreignCorporateRef    = Option(cs.getString("FOREIGN_CORPORATE_REF")),
+                utr                    = Option(cs.getInt("UTR")),
+                vrn                    = Option(cs.getInt("VRN")),
+                tradeClass             = Option(cs.getInt("TRADE_CLASS")),
+                businessActivityDesc   = Option(cs.getString("BUS_ACT_DESCRIPTION")),
+                phoneNumber            = Option(cs.getString("PHONE_NUMBER")),
+                mobilePhoneNumber      = Option(cs.getString("MOBILE_PHONE_NUMBER")),
+                faxNumber              = Option(cs.getString("FAX_NUMBER")),
+                emailAddr              = Option(cs.getString("EMAIL_ADDR")),
+                adi                    = Option(cs.getString("ADI")),
+                address1               = Option(cs.getString("ADDRESS_1")),
+                address2               = Option(cs.getString("ADDRESS_2")),
+                address3               = Option(cs.getString("ADDRESS_3")),
+                address4               = Option(cs.getString("ADDRESS_4")),
+                postcode               = Option(cs.getString("POSTCODE")),
+                isIomOrCiFlag          = Option(cs.getString("IS_IOM_OR_CI")),
+                haveGamblingLicenceNo  = Option(cs.getString("HAVE_GAMBLING_LICENCE_NO")),
+                gamblingLicenceNo      = Option(cs.getString("GAMBLING_LICENCE_NO")),
+                heldByLandlord         = Option(cs.getString("HELD_BY_LANDLORD")),
+                localAuthority         = Option(cs.getString("LOCAL_AUTHORITY")),
+                familyEntertainment    = Option(cs.getString("FAMILY_ENTERTAINMENT")),
+                clubGaming             = Option(cs.getString("CLUB_GAMING")),
+                clubLicence            = Option(cs.getString("CLUB_LICENCE")),
+                prizeGaming            = Option(cs.getString("PRIZE_GAMING")),
+                onPremises             = Option(cs.getString("ON_PREMISES")),
+                clubPremises           = Option(cs.getString("CLUB_PREMISES")),
+                regCert                = Option(cs.getString("REG_CERT")),
+                bookmaking             = Option(cs.getString("BOOKMAKING")),
+                bingo                  = Option(cs.getString("BINGO")),
+                amusement              = Option(cs.getString("AMUSEMENT")),
+                serveAlcohol           = Option(cs.getString("SERVE_ALCOHOL")),
+                premisesNotCovered     = Option(cs.getString("PREMISES_NOT_COVERED")),
+                previousMgdrn1         = Option(cs.getString("PREVIOUS_MGDRN_1")),
+                previousMgdrn2         = Option(cs.getString("PREVIOUS_MGDRN_2")),
+                previousMgdrn3         = Option(cs.getString("PREVIOUS_MGDRN_3")),
+                associatedMgdrn1       = Option(cs.getString("ASSOCIATED_MGDRN_1")),
+                associatedMgdrn2       = Option(cs.getString("ASSOCIATED_MGDRN_2")),
+                associatedMgdrn3       = Option(cs.getString("ASSOCIATED_MGDRN_3")),
+                dateOfJoining          = Option(cs.getDate(48)).map(_.toLocalDate),
+                dateOfLeaving          = Option(cs.getDate(49)).map(_.toLocalDate),
+                isRepMemSameAsCb       = Option(cs.getString("IS_REP_MEM_SAME_AS_CB")),
+                isUkIncorporated       = Option(cs.getString("IS_UK_INCORPORATED")),
+                isRepMemberOfGroup     = Option(cs.getString("IS_REP_MEMBER_OF_GROUP")),
                 systemDate             = Option(cs.getDate(4)).map(_.toLocalDate),
                 premises               = premises
               )
             )
-          } finally {
-            closeQuietly(groupMemberRs)
-          }
         }
       } catch {
         case ex: SQLException =>
