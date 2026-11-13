@@ -455,18 +455,39 @@ class GamblingService @Inject() (
       }
   }
 
-  def getGroupMembersWithPremises(rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit hc: HeaderCarrier): Future[Either[GamblingError, AgentDetails]] = {
+  def getGroupMembersWithPremises(regime: String, rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GamblingError, GroupMemberWithPremises]] = {
     val mgdRegNumber = rawMgdRegNumber.trim
     val businessPartnerNumber = rawBusinessPartnerNumber.trim
+    Regime.fromString(regime.trim) match {
+      case Left(error) =>
+        if error.isInstanceOf[StatementError.InvalidRegimeCode.type] then Future.successful(Left(InvalidRegimeCode))
+        else Future.successful(Left(UnexpectedError))
 
-    repository.getGroupMembersWithPremises(mgdRegNumber, businessPartnerNumber).map {
-        case Right(details)            => Right(details)
-        case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
-        case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
-      }
-      .recover { case NonFatal(ex) =>
-        logger.error(s"unexpected error retrieving group member with premises details mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber", ex)
-        Left(GamblingError.UnexpectedError)
-      }
+      case Right(regime) =>
+        GRNValidator.validateRegNum(regime, mgdRegNumber) match {
+          case Left(value) =>
+            logger.warn(
+              s"[GamblingService][getGroupMembersWithPremises] Invalid pattern mgdRegNumber=$mgdRegNumber"
+            )
+            Future.successful(Left(InvalidMgdRegNumber))
+          case Right(value) =>
+            repository
+              .getGroupMembersWithPremises(regime, mgdRegNumber, businessPartnerNumber)
+              .map {
+                case Right(details: GroupMemberWithPremises) => Right(details)
+                case Left(RecordNotFound(_))                 => Left(GamblingError.RecordNotFoundError)
+                case Left(DatabaseError(_, _))               => Left(GamblingError.DBSystemError)
+              }
+              .recover { case NonFatal(ex) =>
+                logger.error(
+                  s"unexpected error retrieving group member with premises mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber",
+                  ex
+                )
+                Left(GamblingError.UnexpectedError)
+              }
+        }
+    }
   }
 }

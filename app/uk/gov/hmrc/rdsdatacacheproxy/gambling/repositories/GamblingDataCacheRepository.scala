@@ -57,7 +57,7 @@ trait GamblingDataSource {
 
   def getGroupMembers(mgdRegNumber: String): Future[GroupMembers]
 
-  def getGroupMembersWithPremises(mgdRegNumber: String): Future[GroupMemberWithPremises]
+  def getGroupMembersWithPremises(regime: Regime, mgdRegNumber: String, businessPartnerNumber: String): Future[GroupMemberWithPremises]
 
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
@@ -1188,7 +1188,7 @@ class GamblingDataCacheRepository @Inject() (
       val cs = {
         regime match
           case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_PARTNERS(?, ?, ?) }")
-          case _ => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getPartnerDetails")
       }
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
@@ -1249,7 +1249,7 @@ class GamblingDataCacheRepository @Inject() (
         }
 
         PartnerDetails(
-          partners = partnerDetails,
+          partners   = partnerDetails,
           systemDate = Option(cs.getDate(3)).map(_.toLocalDate)
         )
       } finally {
@@ -1421,10 +1421,16 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getGroupMemberWithPremises(regNumber: String, businessPartnerNumber: String): Future[Either[RepositoryError, GroupMemberWithPremises]] = Future(blocking {
+  override def getGroupMemberWithPremises(regime: Regime,
+                                          regNumber: String,
+                                          businessPartnerNumber: String
+                                         ): Future[Either[RepositoryError, GroupMemberWithPremises]] = Future(blocking {
     db.withConnection { conn =>
-      val cs = conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBER_WITH_PREMISES(?, ?, ?, ?, ?) }")
-
+      val cs = {
+        regime match
+          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBER_WITH_PREMISES(?, ?, ?, ?, ?) }")
+          case _          => throw new RuntimeException(s"Regime $regime is not supported for getGroupMemberWithPremises")
+      }
       try {
         cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
         cs.setString(2, businessPartnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
@@ -1446,12 +1452,13 @@ class GamblingDataCacheRepository @Inject() (
               while (premisesRs.next()) {
                 b += PremisesDetails(
                   mgdRegNumber = premisesRs.getString("MGD_REG_NUMBER"),
-                  address1 = Option(premisesRs.getString("ADDRESS_1")),
-                  address2 = Option(premisesRs.getString("ADDRESS_2")),
-                  address3 = Option(premisesRs.getString("ADDRESS_3")),
-                  address4 = Option(premisesRs.getString("ADDRESS_4")),
-                  postcode = Option(premisesRs.getString("POSTCODE")),
-                  systemDate = Option(cs.getDate(4)).map(_.toLocalDate))
+                  address1     = Option(premisesRs.getString("ADDRESS_1")),
+                  address2     = Option(premisesRs.getString("ADDRESS_2")),
+                  address3     = Option(premisesRs.getString("ADDRESS_3")),
+                  address4     = Option(premisesRs.getString("ADDRESS_4")),
+                  postcode     = Option(premisesRs.getString("POSTCODE")),
+                  systemDate   = Option(cs.getDate(4)).map(_.toLocalDate)
+                )
               }
               b.result()
             } finally {
@@ -1470,61 +1477,62 @@ class GamblingDataCacheRepository @Inject() (
             def optDate(col: String, rs: java.sql.ResultSet): Option[java.time.LocalDate] =
               Option(rs.getDate(col)).map(_.toLocalDate)
 
-            Right(GroupMemberWithPremises(
-              mgdRegNumber = groupMemberRs.getString("MGD_REG_NUMBER"),
-              businessPartnerNumber = groupMemberRs.getString("BUSINESS_PARTNER_NUMBER"),
-              businessName = Option(groupMemberRs.getString("BUSINESS_NAME")),
-              tradingName = Option(groupMemberRs.getString("TRADING_NAME")),
-              crn = Option(groupMemberRs.getString("TRADING_NAME")),
-              dateOfIncorporation = optDate("DATE_OF_INCORPORATION", groupMemberRs),
-              countryOfIncorporation = Option(groupMemberRs.getString("COUNTRY_OF_INCORPORATION")),
-              foreignCorporateRef = Option(groupMemberRs.getString("FOREIGN_CORPORATE_REF")),
-              utr = Option(groupMemberRs.getInt("UTR")),
-              vrn = Option(groupMemberRs.getInt("VRN")),
-              tradeClass = Option(groupMemberRs.getInt("TRADE_CLASS")),
-              busActDescription = Option(groupMemberRs.getString("BUS_ACT_DESCRIPTION")),
-              phoneNumber = Option(groupMemberRs.getString("PHONE_NUMBER")),
-              mobilePhoneNumber = Option(groupMemberRs.getString("MOBILE_PHONE_NUMBER")),
-              faxNumber = Option(groupMemberRs.getString("FAX_NUMBER")),
-              emailAddr = Option(groupMemberRs.getString("EMAIL_ADDR")),
-              adi = Option(groupMemberRs.getString("ADI")),
-              address1 = Option(groupMemberRs.getString("ADDRESS_1")),
-              address2 = Option(groupMemberRs.getString("ADDRESS_2")),
-              address3 = Option(groupMemberRs.getString("ADDRESS_3")),
-              address4 = Option(groupMemberRs.getString("ADDRESS_4")),
-              postcode = Option(groupMemberRs.getString("POSTCODE")),
-              isIomOrCiFlag = Option(groupMemberRs.getString("IS_IOM_OR_CI")),
-              haveGamblingLicenceNo = Option(groupMemberRs.getString("HAVE_GAMBLING_LICENCE_NO")),
-              gamblingLicenceNo = Option(groupMemberRs.getString("GAMBLING_LICENCE_NO")),
-              heldByLandlord = Option(groupMemberRs.getString("HELD_BY_LANDLORD")),
-              localAuthority = Option(groupMemberRs.getString("LOCAL_AUTHORITY")),
-              familyEntertainment = Option(groupMemberRs.getString("FAMILY_ENTERTAINMENT")),
-              clubGaming = Option(groupMemberRs.getString("CLUB_GAMING")),
-              clubLicence = Option(groupMemberRs.getString("CLUB_LICENCE")),
-              prizeGaming = Option(groupMemberRs.getString("PRIZE_GAMING")),
-              onPremises = Option(groupMemberRs.getString("ON_PREMISES")),
-              clubPremises = Option(groupMemberRs.getString("CLUB_PREMISES")),
-              regCert = Option(groupMemberRs.getString("REG_CERT")),
-              bookmaking = Option(groupMemberRs.getString("BOOKMAKING")),
-              bingo = Option(groupMemberRs.getString("BINGO")),
-              amusement = Option(groupMemberRs.getString("AMUSEMENT")),
-              serveAlcohol = Option(groupMemberRs.getString("SERVE_ALCOHOL")),
-              premisesNotCovered = Option(groupMemberRs.getString("PREMISES_NOT_COVERED")),
-              previousMgdrn1 = Option(groupMemberRs.getString("PREVIOUS_MGDRN_1")),
-              previousMgdrn2 = Option(groupMemberRs.getString("PREVIOUS_MGDRN_2")),
-              previousMgdrn3 = Option(groupMemberRs.getString("PREVIOUS_MGDRN_3")),
-              associatedMgdrn1 = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_1")),
-              associatedMgdrn2 = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_2")),
-              associatedMgdrn3 = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_3")),
-              dateOfJoining = optDate("DATE_OF_JOINING", groupMemberRs),
-              dateOfLeaving = optDate("DATE_OF_LEAVING", groupMemberRs),
-              isRepMemSameAsCb = Option(groupMemberRs.getString("IS_REP_MEM_SAME_AS_CB")),
-              isUkIncorporated = Option(groupMemberRs.getString("IS_UK_INCORPORATED")),
-              isRepMemberOfGroup = Option(groupMemberRs.getString("IS_REP_MEMBER_OF_GROUP")),
-              systemDate = Option(cs.getDate(4)).map(_.toLocalDate),
-              premises = premises
-
-            ))
+            Right(
+              GroupMemberWithPremises(
+                mgdRegNumber           = groupMemberRs.getString("MGD_REG_NUMBER"),
+                businessPartnerNumber  = groupMemberRs.getString("BUSINESS_PARTNER_NUMBER"),
+                businessName           = Option(groupMemberRs.getString("BUSINESS_NAME")),
+                tradingName            = Option(groupMemberRs.getString("TRADING_NAME")),
+                crn                    = Option(groupMemberRs.getString("TRADING_NAME")),
+                dateOfIncorporation    = optDate("DATE_OF_INCORPORATION", groupMemberRs),
+                countryOfIncorporation = Option(groupMemberRs.getString("COUNTRY_OF_INCORPORATION")),
+                foreignCorporateRef    = Option(groupMemberRs.getString("FOREIGN_CORPORATE_REF")),
+                utr                    = Option(groupMemberRs.getInt("UTR")),
+                vrn                    = Option(groupMemberRs.getInt("VRN")),
+                tradeClass             = Option(groupMemberRs.getInt("TRADE_CLASS")),
+                businessActivityDesc   = Option(groupMemberRs.getString("BUS_ACT_DESCRIPTION")),
+                phoneNumber            = Option(groupMemberRs.getString("PHONE_NUMBER")),
+                mobilePhoneNumber      = Option(groupMemberRs.getString("MOBILE_PHONE_NUMBER")),
+                faxNumber              = Option(groupMemberRs.getString("FAX_NUMBER")),
+                emailAddr              = Option(groupMemberRs.getString("EMAIL_ADDR")),
+                adi                    = Option(groupMemberRs.getString("ADI")),
+                address1               = Option(groupMemberRs.getString("ADDRESS_1")),
+                address2               = Option(groupMemberRs.getString("ADDRESS_2")),
+                address3               = Option(groupMemberRs.getString("ADDRESS_3")),
+                address4               = Option(groupMemberRs.getString("ADDRESS_4")),
+                postcode               = Option(groupMemberRs.getString("POSTCODE")),
+                isIomOrCiFlag          = Option(groupMemberRs.getString("IS_IOM_OR_CI")),
+                haveGamblingLicenceNo  = Option(groupMemberRs.getString("HAVE_GAMBLING_LICENCE_NO")),
+                gamblingLicenceNo      = Option(groupMemberRs.getString("GAMBLING_LICENCE_NO")),
+                heldByLandlord         = Option(groupMemberRs.getString("HELD_BY_LANDLORD")),
+                localAuthority         = Option(groupMemberRs.getString("LOCAL_AUTHORITY")),
+                familyEntertainment    = Option(groupMemberRs.getString("FAMILY_ENTERTAINMENT")),
+                clubGaming             = Option(groupMemberRs.getString("CLUB_GAMING")),
+                clubLicence            = Option(groupMemberRs.getString("CLUB_LICENCE")),
+                prizeGaming            = Option(groupMemberRs.getString("PRIZE_GAMING")),
+                onPremises             = Option(groupMemberRs.getString("ON_PREMISES")),
+                clubPremises           = Option(groupMemberRs.getString("CLUB_PREMISES")),
+                regCert                = Option(groupMemberRs.getString("REG_CERT")),
+                bookmaking             = Option(groupMemberRs.getString("BOOKMAKING")),
+                bingo                  = Option(groupMemberRs.getString("BINGO")),
+                amusement              = Option(groupMemberRs.getString("AMUSEMENT")),
+                serveAlcohol           = Option(groupMemberRs.getString("SERVE_ALCOHOL")),
+                premisesNotCovered     = Option(groupMemberRs.getString("PREMISES_NOT_COVERED")),
+                previousMgdrn1         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_1")),
+                previousMgdrn2         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_2")),
+                previousMgdrn3         = Option(groupMemberRs.getString("PREVIOUS_MGDRN_3")),
+                associatedMgdrn1       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_1")),
+                associatedMgdrn2       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_2")),
+                associatedMgdrn3       = Option(groupMemberRs.getString("ASSOCIATED_MGDRN_3")),
+                dateOfJoining          = optDate("DATE_OF_JOINING", groupMemberRs),
+                dateOfLeaving          = optDate("DATE_OF_LEAVING", groupMemberRs),
+                isRepMemSameAsCb       = Option(groupMemberRs.getString("IS_REP_MEM_SAME_AS_CB")),
+                isUkIncorporated       = Option(groupMemberRs.getString("IS_UK_INCORPORATED")),
+                isRepMemberOfGroup     = Option(groupMemberRs.getString("IS_REP_MEMBER_OF_GROUP")),
+                systemDate             = Option(cs.getDate(4)).map(_.toLocalDate),
+                premises               = premises
+              )
+            )
           } finally {
             closeQuietly(groupMemberRs)
           }
