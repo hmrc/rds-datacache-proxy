@@ -60,7 +60,7 @@ class GroupMembersController @Inject() (authorise: AuthAction, service: Gambling
 
       case Left(error) =>
         val logMessage =
-          s"[GamblingController][getControllingBodyDetails] code=${error.code} mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
+          s"[GamblingController][getGroupMemberWithPremises] code=${error.code} mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
         handleError(error, logMessage)
     }
   }

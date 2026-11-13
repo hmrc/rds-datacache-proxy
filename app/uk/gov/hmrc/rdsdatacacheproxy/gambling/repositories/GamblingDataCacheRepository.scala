@@ -1431,10 +1431,69 @@ class GamblingDataCacheRepository @Inject() (
     db.withConnection { conn =>
       val cs = {
         regime match
-          case Regime.MGD => conn.prepareCall("{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBER_WITH_PREMISES(?, ?, ?, ?, ?) }")
+          case Regime.MGD => conn.prepareCall(
+            s"""{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBER_WITH_PREMISES(
+               |P_MGD_REG_NUMBER => ?,
+               |P_BUSINESS_PARTNER_NUMBER => ?,
+               |P_PREMISES => ?,
+               |MGD_REG_NUMBER => ?,
+               |BUSINESS_PARTNER_NUMBER => ?,
+               |BUSINESS_NAME => ?,
+               |TRADING_NAME => ?,
+               |CRN => ?,
+               |DATE_OF_INCORPORATION => ?,
+               |COUNTRY_OF_INCORPORATION => ?,
+               |FOREIGN_CORPORATE_REF => ?,
+               |UTR => ?,
+               |VRN => ?,
+               |TRADE_CLASS => ?,
+               |BUS_ACT_DESCRIPTION => ?,
+               |PHONE_NUMBER => ?,
+               |MOBILE_PHONE_NUMBER => ?,
+               |FAX_NUMBER => ?,
+               |EMAIL_ADDR => ?,
+               |ADI => ?,
+               |ADDRESS_1 => ?,
+               |ADDRESS_2 => ?,
+               |ADDRESS_3 => ?,
+               |ADDRESS_4 => ?,
+               |POSTCODE => ?,
+               |IS_IOM_OR_CI => ?,
+               |HAVE_GAMBLING_LICENCE_NO => ?,
+               |GAMBLING_LICENCE_NO => ?,
+               |HELD_BY_LANDLORD => ?,
+               |LOCAL_AUTHORITY => ?,
+               |FAMILY_ENTERTAINMENT => ?,
+               |CLUB_GAMING => ?,
+               |CLUB_LICENCE => ?,
+               |PRIZE_GAMING => ?,
+               |ON_PREMISES => ?,
+               |CLUB_PREMISES => ?,
+               |REG_CERT => ?,
+               |BOOKMAKING => ?,
+               |BINGO => ?,
+               |AMUSEMENT => ?,
+               |SERVE_ALCOHOL => ?,
+               |PREMISES_NOT_COVERED => ?,
+               |PREVIOUS_MGDRN_1 => ?,
+               |PREVIOUS_MGDRN_2 => ?,
+               |PREVIOUS_MGDRN_3 => ?,
+               |ASSOCIATED_MGDRN_1 => ?,
+               |ASSOCIATED_MGDRN_2 => ?,
+               |ASSOCIATED_MGDRN_3 => ?,
+               |ASSOCIATED_MGDRN_3 => ?,
+               |ASSOCIATED_MGDRN_3 => ?,
+               |DATE_OF_JOINING => ?,
+               |DATE_OF_LEAVING => ?,
+               |IS_REP_MEM_SAME_AS_CB => ?,
+               |IS_REP_MEMBER_OF_GROUP => ?,
+               |IS_UK_INCORPORATED => ?,
+               |P_SYSDATE => ?) }""".stripMargin
+          )
           case _          => throw new RuntimeException(s"Regime $regime is not supported for getGroupMemberWithPremises")
       }
       try {
+        //TODO: I need to write out every single param
         cs.setString(1, mgdRegNumber) // IN P_MGD_REG_NUMBER
         cs.setString(2, businessPartnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
         cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PREMISES

@@ -476,9 +476,9 @@ class GamblingService @Inject() (
             repository
               .getGroupMemberWithPremises(regime, mgdRegNumber, businessPartnerNumber)
               .map {
-                case Right(details: GroupMemberWithPremises) => Right(details)
-                case Left(RecordNotFound(_))                 => Left(GamblingError.RecordNotFoundError)
-                case Left(DatabaseError(_, _))               => Left(GamblingError.DBSystemError)
+                case Right(details)            => Right(details)
+                case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
+                case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
               }
               .recover { case NonFatal(ex) =>
                 logger.error(
