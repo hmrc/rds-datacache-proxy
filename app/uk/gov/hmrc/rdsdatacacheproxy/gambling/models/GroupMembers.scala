@@ -84,8 +84,8 @@ final case class GroupMemberWithPremises(
   dateOfJoining: Option[LocalDate],
   dateOfLeaving: Option[LocalDate],
   isRepMemSameAsCb: Option[String],
-  isUkIncorporated: Option[String],
   isRepMemberOfGroup: Option[String],
+  isUkIncorporated: Option[String],
   systemDate: Option[LocalDate],
   premises: Seq[PremisesDetails]
 )
