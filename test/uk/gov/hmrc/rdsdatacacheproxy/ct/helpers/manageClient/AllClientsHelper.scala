@@ -20,17 +20,15 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientL
 
 import java.time.LocalDate
 
-
 trait AllClientsHelper {
 
-  
   val allClients: AllClients = AllClients(
     clientCount = 100,
     clientList = ClientList(
-      utr = "12345",
+      utr          = "12345",
       companyRegNo = "01234A",
-      companyName = "ABC Limited",
-      agentOwnRef = "ABC10"
+      companyName  = "ABC Limited",
+      agentOwnRef  = "ABC10"
     ),
     clientNameChars = List(
       "A"
@@ -41,16 +39,16 @@ trait AllClientsHelper {
     clientCount = 100,
     clientList = List(
       ClientList(
-      utr = "12345",
-      companyRegNo = "01234A",
-      companyName = "ABC Limited",
-      agentOwnRef = "ABC10"
-    ),
+        utr          = "12345",
+        companyRegNo = "01234A",
+        companyName  = "ABC Limited",
+        agentOwnRef  = "ABC10"
+      ),
       ClientList(
-        utr = "67890",
+        utr          = "67890",
         companyRegNo = "6789B",
-        companyName = "DEF Limited",
-        agentOwnRef = "DEF10"
+        companyName  = "DEF Limited",
+        agentOwnRef  = "DEF10"
       )
     ),
     clientNameChars = List(
@@ -61,13 +59,15 @@ trait AllClientsHelper {
   val multipleItemsClientNameAllClients: AllClients = AllClients(
     clientCount = 100,
     clientList = ClientList(
-      utr = "111213",
+      utr          = "111213",
       companyRegNo = "111213C",
-      companyName = "GHI Limited",
-      agentOwnRef = "GHI10"
+      companyName  = "GHI Limited",
+      agentOwnRef  = "GHI10"
     ),
     clientNameChars = List(
-      "G", "H", "I"
+      "G",
+      "H",
+      "I"
     )
   )
 }

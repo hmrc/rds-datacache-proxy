@@ -27,12 +27,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient.AllClientsRepo
 
 import scala.concurrent.Future
 
-class AllClientsServiceSpec
-    extends AnyFreeSpec
-    with Matchers
-    with ScalaFutures
-    with MockitoSugar
-    with AllClientsHelper {
+class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar with AllClientsHelper {
 
   private trait Setup {
 
@@ -81,7 +76,7 @@ class AllClientsServiceSpec
       val exception = new RuntimeException("Error")
 
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.failed(exception)
+        .thenReturn(Future.failed(exception))
 
       val result = service.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").futureValue
 
