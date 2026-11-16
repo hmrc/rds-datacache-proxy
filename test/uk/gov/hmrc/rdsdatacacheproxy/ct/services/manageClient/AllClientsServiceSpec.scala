@@ -78,7 +78,7 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").futureValue
+      val result = service.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").failed.futureValue
 
       result mustBe exception
 

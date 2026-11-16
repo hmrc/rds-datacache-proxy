@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient
+package uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList, ClientNameChars}
-
-import java.time.LocalDate
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList}
 
 trait AllClientsHelper {
 
   val allClients: AllClients = AllClients(
     clientCount = 100,
-    clientList = ClientList(
-      utr          = "12345",
-      companyRegNo = "01234A",
-      companyName  = "ABC Limited",
-      agentOwnRef  = "ABC10"
+    clientList = List(
+      ClientList(
+        utr          = "12345",
+        companyRegNo = "01234A",
+        companyName  = "ABC Limited",
+        agentOwnRef  = "ABC10"
+      )
     ),
     clientNameChars = List(
       "A"
@@ -58,11 +58,13 @@ trait AllClientsHelper {
 
   val multipleItemsClientNameAllClients: AllClients = AllClients(
     clientCount = 100,
-    clientList = ClientList(
-      utr          = "111213",
-      companyRegNo = "111213C",
-      companyName  = "GHI Limited",
-      agentOwnRef  = "GHI10"
+    clientList = List(
+      ClientList(
+        utr          = "111213",
+        companyRegNo = "111213C",
+        companyName  = "GHI Limited",
+        agentOwnRef  = "GHI10"
+      )
     ),
     clientNameChars = List(
       "G",

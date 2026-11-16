@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient
 
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList, ClientNameChars}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList}
 
-import java.time.LocalDate
 
 
 object AllClientsStubData {
@@ -26,11 +25,13 @@ object AllClientsStubData {
   
   val allClients: AllClients = AllClients(
     clientCount = 100,
-    clientList = ClientList(
+    clientList = List(
+      ClientList(
       utr = "12345",
       companyRegNo = "01234A",
       companyName = "ABC Limited",
       agentOwnRef = "ABC10"
+      )
     ),
     clientNameChars = List(
       "A"
@@ -60,11 +61,13 @@ object AllClientsStubData {
 
   val multipleItemsClientNameAllClients: AllClients = AllClients(
     clientCount = 100,
-    clientList = ClientList(
+    clientList = List(
+      ClientList(
       utr = "111213",
       companyRegNo = "111213C",
       companyName = "GHI Limited",
       agentOwnRef = "GHI10"
+      )
     ),
     clientNameChars = List(
       "G", "H", "I"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments
+package uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient
 
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
