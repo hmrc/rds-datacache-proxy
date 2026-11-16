@@ -24,6 +24,7 @@ import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Result
 import play.api.test.Helpers.*
+import play.api.libs.json.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.AllClientsHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.manageClient.AllClientsService
@@ -45,8 +46,9 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
       val result: Future[Result] =
         controller.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC")(fakeRequest)
 
-      status(result)      shouldBe OK
-      contentType(result) shouldBe Some("application/json")
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(allClients)
       verify(mockService).getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC")
     }
 
@@ -57,8 +59,9 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
       val result: Future[Result] =
         controller.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC")(fakeRequest)
 
-      status(result)      shouldBe OK
-      contentType(result) shouldBe Some("application/json")
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(multipleClientListAllClients)
       verify(mockService).getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC")
     }
 
@@ -69,8 +72,9 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
       val result: Future[Result] =
         controller.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")(fakeRequest)
 
-      status(result)      shouldBe OK
-      contentType(result) shouldBe Some("application/json")
+      status(result)        shouldBe OK
+      contentType(result)   shouldBe Some("application/json")
+      contentAsJson(result) shouldBe Json.toJson(multipleItemsClientNameAllClients)
       verify(mockService).getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")
     }
 
