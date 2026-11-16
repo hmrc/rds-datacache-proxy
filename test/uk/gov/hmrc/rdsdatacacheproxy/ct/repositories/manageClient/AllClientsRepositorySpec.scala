@@ -71,7 +71,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
 
       when(rs2.getString("client_name_start_chars")).thenReturn("A")
 
-      val result = repo.getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC").futureValue
       result shouldBe allClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.Get_All_Clients(?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -79,7 +79,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       verify(mockCS).setString(1, "irAgentId1")
       verify(mockCS).setString(2, "credentialId1")
       verify(mockCS).setInt(3, 0) // start starts with 0
-      verify(mockCS).setInt(4, -1)
+      verify(mockCS).setInt(4, 30)
       verify(mockCS).setInt(5, 0)
       verify(mockCS).setString(6, "ASC")
 
@@ -110,7 +110,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
 
       when(rs2.getString("client_name_start_chars")).thenReturn("D")
 
-      val result = repo.getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC").futureValue
       result shouldBe multipleClientListAllClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.Get_All_Clients(?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -118,7 +118,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       verify(mockCS).setString(1, "irAgentId2")
       verify(mockCS).setString(2, "credentialId2")
       verify(mockCS).setInt(3, 0) // start starts with 0
-      verify(mockCS).setInt(4, -1)
+      verify(mockCS).setInt(4, 30)
       verify(mockCS).setInt(5, 0)
       verify(mockCS).setString(6, "ASC")
 
@@ -149,7 +149,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
 
       when(rs2.getString("client_name_start_chars")).thenReturn("G", "H", "I")
 
-      val result = repo.getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC").futureValue
       result shouldBe multipleItemsClientNameAllClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.Get_All_Clients(?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -157,7 +157,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       verify(mockCS).setString(1, "irAgentId3")
       verify(mockCS).setString(2, "credentialId3")
       verify(mockCS).setInt(3, 0) // start starts with 0
-      verify(mockCS).setInt(4, -1)
+      verify(mockCS).setInt(4, 30)
       verify(mockCS).setInt(5, 0)
       verify(mockCS).setString(6, "ASC")
 
@@ -176,7 +176,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
     "return an exception and close the connection" in {
       when(mockCS.execute()).thenThrow(new RuntimeException("DB error"))
 
-      val ex = repo.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").failed.futureValue
+      val ex = repo.getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC").failed.futureValue
       ex.getMessage should include("DB error")
 
       verify(mockCS).close()

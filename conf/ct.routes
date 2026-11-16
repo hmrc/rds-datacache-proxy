@@ -43,4 +43,4 @@ GET        /electronic-payment-allocation-details/:taxRef/:accPeriod/:payslipId 
 GET        /payment-postings/:taxRef                                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PaymentPostingsController.getPaymentPostings(taxRef: Long)
 
 # Manage Clients Routes
-GET        /all-clients/:irAgentId/:credentialId                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient.AllClientsController.getAllClients(irAgentId: String, credentialId: String, start: Int ?= 0, count: Int ?= -1, sort: Int ?= 0, order: String ?= "ASC")
+GET        /all-clients/:irAgentId/:credentialId                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient.AllClientsController.getAllClients(irAgentId: String, credentialId: String, start: Int ?= 0, count: Int ?= 30, sort: Int ?= 0, order: String ?= "ASC")

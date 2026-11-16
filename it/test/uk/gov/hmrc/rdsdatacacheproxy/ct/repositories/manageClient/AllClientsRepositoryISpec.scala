@@ -57,7 +57,7 @@ class AllClientsRepositoryISpec
 
     "return all clients" in {
 
-      val result = repo.getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC").futureValue
 
       result mustBe AllClientsStubData.allClients
 
@@ -65,14 +65,14 @@ class AllClientsRepositoryISpec
 
     "return multiple items of client list in all clients" in {
 
-      val result = repo.getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC").futureValue
 
       result mustBe AllClientsStubData.multipleClientListAllClients
     }
 
     "return multiple items of client name chars in all clients" in {
 
-      val result = repo.getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC").futureValue
+      val result = repo.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC").futureValue
 
       result mustBe AllClientsStubData.multipleItemsClientNameAllClients
 
@@ -81,7 +81,7 @@ class AllClientsRepositoryISpec
     "return downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
 
-        repo.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").futureValue
+        repo.getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC").futureValue
       }
 
       exception.getMessage must include("Downstream error")

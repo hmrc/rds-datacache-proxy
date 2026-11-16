@@ -43,11 +43,11 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
         .thenReturn(Future.successful(allClients))
 
       val result: Future[Result] =
-        controller.getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC")(fakeRequest)
+        controller.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC")(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC")
+      verify(mockService).getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC")
     }
 
     "return a 200 and a successful response for multiple items of client list in all clients" in new Setup {
@@ -55,11 +55,11 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
         .thenReturn(Future.successful(multipleClientListAllClients))
 
       val result: Future[Result] =
-        controller.getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC")(fakeRequest)
+        controller.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC")(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC")
+      verify(mockService).getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC")
     }
 
     "return a 200 and a successful response for multiple items of client name chars in all clients" in new Setup {
@@ -67,11 +67,11 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
         .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 
       val result: Future[Result] =
-        controller.getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC")(fakeRequest)
+        controller.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")(fakeRequest)
 
       status(result)      shouldBe OK
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC")
+      verify(mockService).getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")
     }
 
     "return 500 and when repository call fails" in new Setup {
@@ -79,11 +79,11 @@ class AllClientsControllerSpec extends SpecBase with MockitoSugar with AllClient
         .thenReturn(Future.failed(new RuntimeException("Error")))
 
       val result: Future[Result] =
-        controller.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC")(fakeRequest)
+        controller.getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC")(fakeRequest)
 
       status(result)      shouldBe INTERNAL_SERVER_ERROR
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC")
+      verify(mockService).getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC")
     }
 
   }

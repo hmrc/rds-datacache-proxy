@@ -42,22 +42,22 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(allClients))
 
-      val result = service.getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC").futureValue
+      val result = service.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC").futureValue
 
       result mustBe allClients
 
-      verify(mockRepo, times(1)).getAllClients("irAgentId1", "credentialId1", 0, -1, 0, "ASC")
+      verify(mockRepo, times(1)).getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC")
     }
 
     "must return all clients with multiple items of client list" in new Setup {
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(multipleClientListAllClients))
 
-      val result = service.getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC").futureValue
+      val result = service.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC").futureValue
 
       result mustBe multipleClientListAllClients
 
-      verify(mockRepo, times(1)).getAllClients("irAgentId2", "credentialId2", 0, -1, 0, "ASC")
+      verify(mockRepo, times(1)).getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC")
 
     }
 
@@ -65,11 +65,11 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 
-      val result = service.getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC").futureValue
+      val result = service.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC").futureValue
 
       result mustBe multipleItemsClientNameAllClients
 
-      verify(mockRepo, times(1)).getAllClients("irAgentId3", "credentialId3", 0, -1, 0, "ASC")
+      verify(mockRepo, times(1)).getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")
     }
 
     "must propagate failure from repository" in new Setup {
@@ -78,11 +78,11 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.failed(exception))
 
-      val result = service.getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC").failed.futureValue
+      val result = service.getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC").failed.futureValue
 
       result mustBe exception
 
-      verify(mockRepo, times(1)).getAllClients("irAgentIdNA", "credentialIdNA", 0, -1, 0, "ASC")
+      verify(mockRepo, times(1)).getAllClients("irAgentIdNA", "credentialIdNA", 0, 30, 0, "ASC")
     }
   }
 
