@@ -133,7 +133,7 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "INVALID_REGIME_CODE",
+        "code"    -> "INVALID_REGIME_CODE",
         "message" -> "Invalid Regime Code"
       )
 
@@ -149,7 +149,7 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "INVALID_MGD_REG_NUMBER",
+        "code"    -> "INVALID_MGD_REG_NUMBER",
         "message" -> "mgdRegNumber does not exist"
       )
 
@@ -165,7 +165,7 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
-        "code" -> "UNEXPECTED_ERROR",
+        "code"    -> "UNEXPECTED_ERROR",
         "message" -> "Unexpected error occurred"
       )
 

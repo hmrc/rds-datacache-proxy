@@ -1592,7 +1592,7 @@ class GamblingDataCacheRepository @Inject() (
               businessName           = Option(cs.getString(idx.next())), // "BUSINESS_NAME"
               tradingName            = Option(cs.getString(idx.next())), // "TRADING_NAME"
               crn                    = Option(cs.getString(idx.next())), // "CRN"
-              dateOfIncorporation    = Option(cs.getDate(idx.next())).map(_.toLocalDate), //DATE_OF_INCORPORATION
+              dateOfIncorporation    = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_INCORPORATION
               countryOfIncorporation = Option(cs.getString(idx.next())), // "COUNTRY_OF_INCORPORATION"
               foreignCorporateRef    = Option(cs.getString(idx.next())), // "FOREIGN_CORPORATE_REF"
               utr                    = Option(cs.getInt(idx.next())), // "UTR"
@@ -1632,11 +1632,11 @@ class GamblingDataCacheRepository @Inject() (
               associatedMgdrn1       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_1"
               associatedMgdrn2       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_2"
               associatedMgdrn3       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_3"
-              dateOfJoining          = Option(cs.getDate(idx.next())).map(_.toLocalDate), //DATE_OF_JOINING
-              dateOfLeaving          = Option(cs.getDate(idx.next())).map(_.toLocalDate), //DATE_OF_LEAVING
-              isRepMemSameAsCb       = Option(cs.getString(idx.next())), //IS_REP_MEM_SAME_AS_CB
-              isRepMemberOfGroup     = Option(cs.getString(idx.next())), //IS_REP_MEMBER_OF_GROUP
-              isUkIncorporated       = Option(cs.getString(idx.next())), //IS_UK_INCORPORATED
+              dateOfJoining          = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_JOINING
+              dateOfLeaving          = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_LEAVING
+              isRepMemSameAsCb       = Option(cs.getString(idx.next())), // IS_REP_MEM_SAME_AS_CB
+              isRepMemberOfGroup     = Option(cs.getString(idx.next())), // IS_REP_MEMBER_OF_GROUP
+              isUkIncorporated       = Option(cs.getString(idx.next())), // IS_UK_INCORPORATED
               systemDate             = Option(cs.getDate(idx.next())).map(_.toLocalDate), // P_SYSDATE
               premises               = premises
             )
