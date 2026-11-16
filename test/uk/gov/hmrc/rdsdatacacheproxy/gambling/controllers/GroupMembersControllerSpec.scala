@@ -105,4 +105,72 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getGroupMembers(eqTo("ERR00001770"))(any())
     }
   }
+
+  "GroupMembersController#getGroupMemberWithPremises" - {
+
+    "returns 200 when service succeeds" in new Setup {
+
+      when(mockService.getGroupMembers(eqTo("XWM00000001770"))(any()))
+        .thenReturn(Future.successful(Right(validResponseGroupMembers)))
+
+      val req = FakeRequest(GET, s"/gambling/group-members/mgd/XWM00000001770")
+      val res: Future[Result] = controller.getGroupMembers("XWM00000001770")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(validResponseGroupMembers)
+
+      verify(mockService).getGroupMembers(eqTo("XWM00000001770"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getGroupMembers(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+
+      val req = FakeRequest(GET, "/gambling/group-members/INVALID_REGIME/XWM00000001770")
+      val res: Future[Result] = controller.getGroupMembers(" ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getGroupMembers(eqTo(" "))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getGroupMembers(any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/group-members/mgd/InvalidRegNo")
+      val res: Future[Result] = controller.getGroupMembers(" ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getGroupMembers(eqTo(" "))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getGroupMembers(any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/group-members/mgd/ERR00001770")
+      val res: Future[Result] = controller.getGroupMembers("ERR00001770")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code" -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getGroupMembers(eqTo("ERR00001770"))(any())
+    }
+  }
+
 }
