@@ -35,7 +35,7 @@ final case class GroupMemberRecord(mgdRegNumber: String,
                                    systemDate: Option[LocalDate]
                                   )
 
-final case class GroupMemberWithPremises(
+final case class MemberDetails(
   mgdRegNumber: String,
   businessPartnerNumber: String,
   businessName: Option[String],
@@ -109,11 +109,11 @@ object GroupMembers {
     Json.format[GroupMembers]
 }
 
-object GroupMemberWithPremises {
+object MemberDetails {
   private val fmt = DateTimeFormatter.ISO_LOCAL_DATE
   implicit val localDateWrites: Writes[LocalDate] =
     Writes.temporalWrites[LocalDate, DateTimeFormatter](fmt)
 
-  implicit val format: OFormat[GroupMemberWithPremises] =
-    Json.format[GroupMemberWithPremises]
+  implicit val format: OFormat[MemberDetails] =
+    Json.format[MemberDetails]
 }

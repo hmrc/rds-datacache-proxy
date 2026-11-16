@@ -629,7 +629,7 @@ object GamblingTestUtil {
     )
   )
 
-  val validResponseGroupMemberWithPremises = GroupMemberWithPremises(
+  val validResponseMemberDetails = MemberDetails(
     mgdRegNumber           = "XWM12345678901",
     businessPartnerNumber  = "0100049899",
     businessName           = Some("Business Name"),

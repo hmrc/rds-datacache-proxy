@@ -455,9 +455,9 @@ class GamblingService @Inject() (
       }
   }
 
-  def getGroupMembersWithPremises(regime: String, rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit
+  def getMemberDetails(regime: String, rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit
     hc: HeaderCarrier
-  ): Future[Either[GamblingError, GroupMemberWithPremises]] = {
+  ): Future[Either[GamblingError, MemberDetails]] = {
     val mgdRegNumber = rawMgdRegNumber.trim
     val businessPartnerNumber = rawBusinessPartnerNumber.trim
     Regime.fromString(regime.trim) match {
@@ -469,12 +469,12 @@ class GamblingService @Inject() (
         GRNValidator.validateRegNum(regime, mgdRegNumber) match {
           case Left(value) =>
             logger.warn(
-              s"[GamblingService][getGroupMembersWithPremises] Invalid pattern mgdRegNumber=$mgdRegNumber"
+              s"[GamblingService][getMemberDetails] Invalid pattern mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
             )
             Future.successful(Left(InvalidMgdRegNumber))
           case Right(value) =>
             repository
-              .getGroupMemberWithPremises(regime, mgdRegNumber, businessPartnerNumber)
+              .getMemberDetails(regime, mgdRegNumber, businessPartnerNumber)
               .map {
                 case Right(details)            => Right(details)
                 case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
