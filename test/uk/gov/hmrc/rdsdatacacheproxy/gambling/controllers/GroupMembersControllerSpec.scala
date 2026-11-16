@@ -118,18 +118,17 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
 
       status(res) mustBe OK
       contentType(res) mustBe Some(JSON)
-      contentAsJson(res) mustBe Json.toJson(validResponseGroupMembers)
+      contentAsJson(res) mustBe Json.toJson(validResponseMemberDetails)
 
       verify(mockService).getMemberDetails(eqTo("mgd"), eqTo("XWM12345678901"), eqTo("0100049899"))(any())
       verifyNoMoreInteractions(mockService)
     }
 
     "returns 400 when InvalidRegimeError" in new Setup {
-      when(mockService.getMemberDetails(any())(any()))
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidRegimeCode)))
-
-      val req = FakeRequest(GET, "/gambling/group-members/INVALID_REGIME/XWM00000001770")
-      val res: Future[Result] = controller.getMemberDetails(" ")(req)
+      val req = FakeRequest(GET, "/gambling/group-members/INVALID_REGIME/XWM12345678901/0100049899")
+      val res: Future[Result] = controller.getMemberDetails(" ", " ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -137,15 +136,15 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Invalid Regime Code"
       )
 
-      verify(mockService).getMemberDetails(eqTo(" "))(any())
+      verify(mockService).getMemberDetails(eqTo(" "), eqTo(" "), eqTo(" "))(any())
     }
 
     "returns 400 when InvalidMgdRegNumber" in new Setup {
-      when(mockService.getMemberDetails(any())(any()))
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
 
-      val req = FakeRequest(GET, s"/gambling/group-members/mgd/InvalidRegNo")
-      val res: Future[Result] = controller.getMemberDetails(" ")(req)
+      val req = FakeRequest(GET, s"/gambling/member-details/mgd/InvalidRegNo/any")
+      val res: Future[Result] = controller.getMemberDetails(" ", " ", " ")(req)
 
       status(res) mustBe BAD_REQUEST
       contentAsJson(res) mustBe Json.obj(
@@ -153,15 +152,15 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "mgdRegNumber does not exist"
       )
 
-      verify(mockService).getMemberDetails(eqTo(" "))(any())
+      verify(mockService).getMemberDetails(eqTo(" "), eqTo(" "), eqTo(" "))(any())
     }
 
     "returns 500 when UnexpectedError" in new Setup {
-      when(mockService.getMemberDetails(any())(any()))
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
         .thenReturn(Future.successful(Left(UnexpectedError)))
 
       val req = FakeRequest(GET, s"/gambling/group-members/mgd/ERR00001770")
-      val res: Future[Result] = controller.getMemberDetails("ERR00001770")(req)
+      val res: Future[Result] = controller.getMemberDetails("mgd", "ERR00001770", "#")(req)
 
       status(res) mustBe INTERNAL_SERVER_ERROR
       contentAsJson(res) mustBe Json.obj(
@@ -169,7 +168,7 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
         "message" -> "Unexpected error occurred"
       )
 
-      verify(mockService).getMemberDetails(eqTo("ERR00001770"))(any())
+      verify(mockService).getMemberDetails(eqTo("mgd"), eqTo("ERR00001770"), eqTo("#"))(any())
     }
   }
 
