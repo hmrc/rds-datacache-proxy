@@ -30,7 +30,7 @@ trait AllClientsHelper {
         agentOwnRef  = "ABC10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "A"
     )
   )
@@ -51,7 +51,7 @@ trait AllClientsHelper {
         agentOwnRef  = "DEF10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "D"
     )
   )
@@ -66,7 +66,7 @@ trait AllClientsHelper {
         agentOwnRef  = "GHI10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "G",
       "H",
       "I"

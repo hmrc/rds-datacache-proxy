@@ -58,15 +58,15 @@ class AllClientsRepositoryImpl @Inject() (
           sp.execute()
 
           val clientListDetails = sp.getObject(8, classOf[ResultSet])
-          val clientNameCharsDetails = sp.getObject(9, classOf[ResultSet])
+          val clientNameStartCharsDetails = sp.getObject(9, classOf[ResultSet])
 
           val clientList = readClientList(clientListDetails)
-          val clientNameChars = readClientNameChars(clientNameCharsDetails)
+          val clientNameStartChars = readClientNameStartChars(clientNameStartCharsDetails)
 
           AllClients(
-            clientCount     = sp.getInt(7),
-            clientList      = clientList,
-            clientNameChars = clientNameChars
+            clientCount          = sp.getInt(7),
+            clientList           = clientList,
+            clientNameStartChars = clientNameStartChars
           )
 
         } finally {
@@ -89,7 +89,7 @@ class AllClientsRepositoryImpl @Inject() (
     buffer.toList
   }
 
-  private def readClientNameChars(rs: ResultSet): List[String] = {
+  private def readClientNameStartChars(rs: ResultSet): List[String] = {
     val buffer = ListBuffer[String]()
     while (rs.next()) {
       buffer += rs.getString("client_name_start_chars")

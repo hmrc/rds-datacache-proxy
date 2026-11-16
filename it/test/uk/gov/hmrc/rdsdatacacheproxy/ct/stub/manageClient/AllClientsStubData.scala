@@ -33,7 +33,7 @@ object AllClientsStubData {
       agentOwnRef = "ABC10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "A"
     )
   )
@@ -54,7 +54,7 @@ object AllClientsStubData {
         agentOwnRef = "DEF10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "D"
     )
   )
@@ -69,7 +69,7 @@ object AllClientsStubData {
       agentOwnRef = "GHI10"
       )
     ),
-    clientNameChars = List(
+    clientNameStartChars = List(
       "G", "H", "I"
     )
   )

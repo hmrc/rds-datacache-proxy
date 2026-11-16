@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 case class AllClients(
   clientCount: Int,
   clientList: List[ClientList],
-  clientNameChars: List[String]
+  clientNameStartChars: List[String]
 )
 
 object AllClients {
