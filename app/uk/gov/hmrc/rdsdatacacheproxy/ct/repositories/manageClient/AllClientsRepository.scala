@@ -92,7 +92,7 @@ class AllClientsRepositoryImpl @Inject() (
   private def readClientNameStartChars(rs: ResultSet): List[String] = {
     val buffer = ListBuffer[String]()
     while (rs.next()) {
-      buffer += rs.getString("client_name_start_chars")
+      buffer += rs.getString("clientnamestartingcharacter")
     }
     buffer.toList
   }

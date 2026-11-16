@@ -69,7 +69,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       when(rs1.getString("company_name")).thenReturn("ABC Limited")
       when(rs1.getString("agent_own_ref")).thenReturn("ABC10")
 
-      when(rs2.getString("client_name_start_chars")).thenReturn("A")
+      when(rs2.getString("clientnamestartingcharacter")).thenReturn("A")
 
       val result = repo.getAllClients("irAgentId1", "credentialId1", 0, 30, 0, "ASC").futureValue
       result shouldBe allClients
@@ -108,7 +108,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       when(rs1.getString("company_name")).thenReturn("ABC Limited", "DEF Limited")
       when(rs1.getString("agent_own_ref")).thenReturn("ABC10", "DEF10")
 
-      when(rs2.getString("client_name_start_chars")).thenReturn("D")
+      when(rs2.getString("clientnamestartingcharacter")).thenReturn("D")
 
       val result = repo.getAllClients("irAgentId2", "credentialId2", 0, 30, 0, "ASC").futureValue
       result shouldBe multipleClientListAllClients
@@ -147,7 +147,7 @@ class AllClientsRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndA
       when(rs1.getString("company_name")).thenReturn("GHI Limited")
       when(rs1.getString("agent_own_ref")).thenReturn("GHI10")
 
-      when(rs2.getString("client_name_start_chars")).thenReturn("G", "H", "I")
+      when(rs2.getString("clientnamestartingcharacter")).thenReturn("G", "H", "I")
 
       val result = repo.getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC").futureValue
       result shouldBe multipleItemsClientNameAllClients
