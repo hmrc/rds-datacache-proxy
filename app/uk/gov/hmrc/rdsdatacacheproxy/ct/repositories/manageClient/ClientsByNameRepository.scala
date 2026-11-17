@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[ClientsByNameRepositoryImpl])
 trait ClientsByNameRepository {
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients]
+  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName]
 }
 
 class ClientsByNameRepositoryImpl @Inject() (
@@ -22,7 +22,7 @@ class ClientsByNameRepositoryImpl @Inject() (
   extends ClientsByNameRepository
     with Logging {
 
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] = {
+  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName] = {
     Future {
       db.withConnection { connect =>
         val sp = connect.prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
