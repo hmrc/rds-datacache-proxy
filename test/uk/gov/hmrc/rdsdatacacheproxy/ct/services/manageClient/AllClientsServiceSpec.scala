@@ -61,7 +61,7 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
 
     }
 
-    "must return payment allocation details with minimal details" in new Setup {
+    "must return all clients with multiple items of client name chars" in new Setup {
       when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 

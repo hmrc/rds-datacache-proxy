@@ -81,9 +81,9 @@ class AllClientsRepositoryImpl @Inject() (
     while (rs.next()) {
       buffer += ClientList(
         utr          = rs.getString("utr"),
-        companyRegNo = rs.getString("company_reg_no"),
+        companyRegNo = Some(rs.getString("company_reg_no")),
         companyName  = rs.getString("company_name"),
-        agentOwnRef  = rs.getString("agent_own_ref")
+        agentOwnRef  = Some(rs.getString("agent_own_ref"))
       )
     }
     buffer.toList

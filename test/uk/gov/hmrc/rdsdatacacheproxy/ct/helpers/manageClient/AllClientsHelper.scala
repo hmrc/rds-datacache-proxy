@@ -25,9 +25,9 @@ trait AllClientsHelper {
     clientList = List(
       ClientList(
         utr          = "12345",
-        companyRegNo = "01234A",
+        companyRegNo = Some("01234A"),
         companyName  = "ABC Limited",
-        agentOwnRef  = "ABC10"
+        agentOwnRef  = Some("ABC10")
       )
     ),
     clientNameStartChars = List(
@@ -40,15 +40,15 @@ trait AllClientsHelper {
     clientList = List(
       ClientList(
         utr          = "12345",
-        companyRegNo = "01234A",
+        companyRegNo = Some("01234A"),
         companyName  = "ABC Limited",
-        agentOwnRef  = "ABC10"
+        agentOwnRef  = Some("ABC10")
       ),
       ClientList(
         utr          = "67890",
-        companyRegNo = "6789B",
+        companyRegNo = Some("6789B"),
         companyName  = "DEF Limited",
-        agentOwnRef  = "DEF10"
+        agentOwnRef  = Some("DEF10")
       )
     ),
     clientNameStartChars = List(
@@ -61,9 +61,9 @@ trait AllClientsHelper {
     clientList = List(
       ClientList(
         utr          = "111213",
-        companyRegNo = "111213C",
+        companyRegNo = Some("111213C"),
         companyName  = "GHI Limited",
-        agentOwnRef  = "GHI10"
+        agentOwnRef  = Some("GHI10")
       )
     ),
     clientNameStartChars = List(

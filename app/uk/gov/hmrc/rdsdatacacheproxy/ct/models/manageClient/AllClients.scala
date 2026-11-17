@@ -30,9 +30,9 @@ object AllClients {
 
 case class ClientList(
   utr: String,
-  companyRegNo: String,
+  companyRegNo: Option[String],
   companyName: String,
-  agentOwnRef: String
+  agentOwnRef: Option[String]
 )
 
 object ClientList {
