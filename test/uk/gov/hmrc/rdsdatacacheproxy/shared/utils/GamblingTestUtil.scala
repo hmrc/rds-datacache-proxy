@@ -630,8 +630,8 @@ object GamblingTestUtil {
   )
 
   val validResponseMemberDetails = MemberDetails(
-    mgdRegNumber           = "XWM12345678901",
-    businessPartnerNumber  = "0100049899",
+    mgdRegNumber           = "XYM00000000001",
+    businessPartnerNumber  = "0100049988",
     businessName           = Some("Business Name"),
     tradingName            = Some("Trading Name"),
     crn                    = Some("09876543"),

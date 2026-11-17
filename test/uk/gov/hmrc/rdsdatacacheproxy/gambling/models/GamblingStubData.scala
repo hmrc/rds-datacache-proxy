@@ -714,9 +714,156 @@ object GamblingStubData {
       case "XEM33333333333" => throw new RuntimeException("Simulated downstream failure")
     }
 
+  def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Either[RepositoryError, MemberDetails] =
+    (regNumber, partnerNumber) match {
+      case ("XYM00000000000", "0100049899") =>
+        Right(MemberDetails(
+          mgdRegNumber = "XYM00000000000",
+          businessPartnerNumber = "0100049899",
+          businessName = Some("Business Name"),
+          tradingName = Some("Trading Name"),
+          crn = Some("09876543"),
+          dateOfIncorporation = Some(LocalDate.of(2025, 1, 1)),
+          countryOfIncorporation = Some("UK"),
+          foreignCorporateRef = Some("FCR-UK-987654"),
+          utr = Some(1234567890),
+          vrn = Some(123456789),
+          tradeClass = Some(3),
+          businessActivityDesc = Some("Business Activities"),
+          phoneNumber = Some("0800 123 456"),
+          mobilePhoneNumber = Some("07900 678 900"),
+          faxNumber = Some("No one uses fax anymore"),
+          emailAddr = Some("a@b.com"),
+          adi = Some("our friend adi"),
+          address1 = Some("123 Road"),
+          address2 = Some("Place"),
+          address3 = Some("More info about this place"),
+          address4 = Some("Even more? noo"),
+          postcode = Some("SA0 1AH"),
+          isIomOrCiFlag = Some("1"),
+          haveGamblingLicenceNo = Some("0"),
+          gamblingLicenceNo = Some("1"),
+          heldByLandlord = Some("0"),
+          localAuthority = Some("1"),
+          familyEntertainment = Some("0"),
+          clubGaming = Some("1"),
+          clubLicence = Some("0"),
+          prizeGaming = Some("1"),
+          onPremises = Some("0"),
+          clubPremises = Some("1"),
+          regCert = Some("0"),
+          bookmaking = Some("1"),
+          bingo = Some("0"),
+          amusement = Some("1"),
+          serveAlcohol = Some("0"),
+          premisesNotCovered = Some("1"),
+          previousMgdrn1 = Some("XVM12345678800"),
+          previousMgdrn2 = Some("XVM12345678801"),
+          previousMgdrn3 = Some("XVM12345678802"),
+          associatedMgdrn1 = Some("XGM12345678800"),
+          associatedMgdrn2 = Some("XGM12345678801"),
+          associatedMgdrn3 = Some("XGM123456788002"),
+          dateOfJoining = Some(LocalDate.of(2026, 1, 16)),
+          dateOfLeaving = Some(LocalDate.of(2026, 10, 16)),
+          isRepMemSameAsCb = Some("1"),
+          isRepMemberOfGroup = Some("1"),
+          isUkIncorporated = Some("1"),
+          systemDate = Some(LocalDate.of(2026, 11, 16)),
+          premises = Seq(
+            PremisesDetails(
+              mgdRegNumber = "XWM12345678901",
+              address1 = Some("123 Road"),
+              address2 = Some("Place"),
+              address3 = Some("More info about this place"),
+              address4 = Some("Even more? noo"),
+              postcode = Some("SA0 1AH"),
+              systemDate = Some(LocalDate.of(2026, 11, 16))
+            ),
+            PremisesDetails(
+              mgdRegNumber = "XWM12345678901",
+              address1 = Some("456 Road"),
+              address2 = Some("Zone"),
+              address3 = None,
+              address4 = None,
+              postcode = Some("BA0 1HA"),
+              systemDate = Some(LocalDate.of(2026, 11, 16))
+            )
+          )
+        )
+        )
+      case ("XYM00000000001", "0100049888") =>
+        Right(MemberDetails(
+          mgdRegNumber = "XYM00000000001",
+          businessPartnerNumber = "0100049888",
+          businessName = Some("Business Joe"),
+          tradingName = Some("Trading Joe"),
+          crn = Some("09876543"),
+          dateOfIncorporation = Some(LocalDate.of(2026, 1, 1)),
+          countryOfIncorporation = Some("USA"),
+          foreignCorporateRef = Some("FCR-USA-987654"),
+          utr = Some(1234567811),
+          vrn = Some(123456119),
+          tradeClass = Some(1),
+          businessActivityDesc = Some("Business"),
+          phoneNumber = Some("0800 123 111"),
+          mobilePhoneNumber = Some("07900 678 111"),
+          faxNumber = Some("NO FAX FR"),
+          emailAddr = Some("b@a.com"),
+          adi = Some("additional info: I am tired"),
+          address1 = Some("234 Road"),
+          address2 = Some("Plaice (the fish)"),
+          address3 = Some("More info about this plaice"),
+          address4 = None,
+          postcode = None,
+          isIomOrCiFlag = Some("0"),
+          haveGamblingLicenceNo = Some("1"),
+          gamblingLicenceNo = Some("0"),
+          heldByLandlord = Some("1"),
+          localAuthority = Some("0"),
+          familyEntertainment = Some("1"),
+          clubGaming = Some("0"),
+          clubLicence = Some("1"),
+          prizeGaming = Some("0"),
+          onPremises = Some("1"),
+          clubPremises = Some("0"),
+          regCert = Some("1"),
+          bookmaking = Some("0"),
+          bingo = Some("1"),
+          amusement = Some("0"),
+          serveAlcohol = Some("1"),
+          premisesNotCovered = Some("0"),
+          previousMgdrn1 = Some("XVM12345678805"),
+          previousMgdrn2 = Some("XVM12345678805"),
+          previousMgdrn3 = Some("XVM13345678805"),
+          associatedMgdrn1 = Some("XGM12345678803"),
+          associatedMgdrn2 = Some("XGM12345678801"),
+          associatedMgdrn3 = Some("XGM12345678802"),
+          dateOfJoining = Some(LocalDate.of(2026, 10, 16)),
+          dateOfLeaving = Some(LocalDate.of(2026, 1, 16)),
+          isRepMemSameAsCb = Some("0"),
+          isRepMemberOfGroup = Some("0"),
+          isUkIncorporated = Some("0"),
+          systemDate = Some(LocalDate.of(2026, 2, 16)),
+          premises = Seq(
+            PremisesDetails(
+              mgdRegNumber = "XWM12345678901",
+              address1 = Some("123 Road"),
+              address2 = Some("Place"),
+              address3 = Some("More info about this place"),
+              address4 = Some("Even more? noo"),
+              postcode = Some("SA0 1AH"),
+              systemDate = Some(LocalDate.of(2026, 11, 16))
+            )
+          )
+        ))
+      case ("XEM33333333333", _) => throw new RuntimeException("Simulated downstream failure")
+      case unknown =>
+        Left(RecordNotFound(s"Unknown registration number $regNumber"))
+    }
+
   def getReturnPeriods(regNumber: String, isRight: Boolean = true): Either[RepositoryError, ReturnPeriods] =
     if (!isRight) {
-      Left(RecordNotFound(s"Record not found for $regNumber"))
+      Left(RecordNotFound(s"Unknown ref numbe$regNumber"))
     } else {
       regNumber match {
         case "XYM00000000000" =>

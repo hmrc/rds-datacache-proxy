@@ -49,18 +49,18 @@ class GroupMembersController @Inject() (authorise: AuthAction, service: Gambling
 
   def getMemberDetails(
     regime: String,
-    mgdRegNumber: String,
-    businessPartnerNumber: String
+    regNumber: String,
+    partnerNumber: String
   ): Action[AnyContent] = authorise.async { implicit request =>
 
-    service.getMemberDetails(regime, mgdRegNumber, businessPartnerNumber).map {
+    service.getMemberDetails(regime, regNumber, partnerNumber).map {
 
       case Right(details) =>
         Ok(Json.toJson(details))
 
       case Left(error) =>
         val logMessage =
-          s"[GamblingController][] code=${error.code} mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
+          s"[GamblingController][] code=${error.code} mgdRegNumber=$regNumber partnerNumber=$partnerNumber"
         handleError(error, logMessage)
     }
   }

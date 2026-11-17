@@ -57,7 +57,7 @@ trait GamblingDataSource {
 
   def getGroupMembers(mgdRegNumber: String): Future[GroupMembers]
 
-  def getMemberDetails(regime: Regime, mgdRegNumber: String, businessPartnerNumber: String): Future[Either[RepositoryError, MemberDetails]]
+  def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Future[Either[RepositoryError, MemberDetails]]
 
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
@@ -1421,7 +1421,7 @@ class GamblingDataCacheRepository @Inject() (
     }
   })
 
-  override def getMemberDetails(regime: Regime, mgdRegNumber: String, businessPartnerNumber: String): Future[Either[RepositoryError, MemberDetails]] =
+  override def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Future[Either[RepositoryError, MemberDetails]] =
     Future(blocking {
       db.withConnection { conn =>
         val cs = {
@@ -1490,8 +1490,8 @@ class GamblingDataCacheRepository @Inject() (
           // iterates an index from 1 using the def next() to avoid hardcoding indexes
           val callIdx = Iterator.from(1)
 
-          cs.setString(callIdx.next(), mgdRegNumber) // IN P_MGD_REG_NUMBER
-          cs.setString(callIdx.next(), businessPartnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
+          cs.setString(callIdx.next(), regNumber) // IN P_MGD_REG_NUMBER
+          cs.setString(callIdx.next(), partnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
           cs.registerOutParameter(callIdx.next(), oracle.jdbc.OracleTypes.CURSOR) // OUT P_PREMISES
           cs.registerOutParameter(callIdx.next(), oracle.jdbc.OracleTypes.VARCHAR) // OUT MGD_REG_NUMBER
           cs.registerOutParameter(callIdx.next(), oracle.jdbc.OracleTypes.VARCHAR) // OUT BUSINESS_PARTNER_NUMBER
@@ -1573,7 +1573,7 @@ class GamblingDataCacheRepository @Inject() (
             }
 
           if (cs == null) {
-            val msg = s"Failed while retrieving group member details with premises for registration number <$mgdRegNumber>"
+            val msg = s"Failed while retrieving group member details with premises for registration number <$regNumber>"
             logger.warn(msg)
             Left(RecordNotFound(msg))
           } else {
@@ -1639,11 +1639,11 @@ class GamblingDataCacheRepository @Inject() (
           }
         } catch {
           case ex: SQLException =>
-            val msg = s"SQLException when calling GET_GROUP_MEMBER_WITH_PREMISES for $mgdRegNumber"
+            val msg = s"SQLException when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
             logger.error(s"[GamblingDataCacheRepository] $msg", ex)
             Left(DatabaseError(msg, ex))
           case NonFatal(ex) =>
-            val msg = s"Unexpected exception when calling GET_GROUP_MEMBER_WITH_PREMISES for $mgdRegNumber"
+            val msg = s"Unexpected exception when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
             logger.error(s"[GamblingDataCacheRepository] $msg", ex)
             Left(DatabaseError(msg, ex))
         } finally {
