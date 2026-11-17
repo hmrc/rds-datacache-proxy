@@ -1,4 +1,5 @@
 GET        /has-client/:utr/:irAgentId/:credentialId                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.HasClientController.getHasClient(utr: Long, irAgentId: String, credentialId: String)
+GET        /common-data                                                     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CommonDataController.getCommonData()
 
 # microservice specific routes
 
