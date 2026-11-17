@@ -46,7 +46,7 @@ final case class MemberDetails(
   foreignCorporateRef: Option[String],
   utr: Option[Long],
   vrn: Option[Long],
-  tradeClass: Option[Long],
+  tradeClass: Option[Int],
   businessActivityDesc: Option[String],
   phoneNumber: Option[String],
   mobilePhoneNumber: Option[String],

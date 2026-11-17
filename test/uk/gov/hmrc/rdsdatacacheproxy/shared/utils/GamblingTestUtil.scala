@@ -654,7 +654,7 @@ object GamblingTestUtil {
     postcode               = Some("SA0 1AH"),
     isIomOrCiFlag          = Some("1"),
     haveGamblingLicenceNo  = Some("0"),
-    gamblingLicenceNo      = Some("1"),
+    gamblingLicenceNo      = Some("123-456789-A-123456-789"),
     heldByLandlord         = Some("0"),
     localAuthority         = Some("1"),
     familyEntertainment    = Some("0"),
