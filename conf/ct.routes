@@ -45,3 +45,4 @@ GET        /payment-postings/:taxRef                                        uk.g
 
 # Manage Clients Routes
 GET        /all-clients/:irAgentId/:credentialId                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient.AllClientsController.getAllClients(irAgentId: String, credentialId: String, start: Int ?= 0, count: Int ?= 30, sort: Int ?= 0, order: String ?= "ASC")
+GET        /clients-by-utr/:irAgentId/:credentialId/:utr                    uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient.GetClientsByUtrController.getClientsByUtr(irAgentId: String, credentialId: String, utr: String)
