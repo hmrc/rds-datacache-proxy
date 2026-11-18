@@ -39,3 +39,6 @@ GET        /payment-search-result/:taxRef                                   uk.g
 GET        /posting-summary/:taxRef/:postingType                            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.PostingSummaryByTypeController.getPostingSummaryByType(taxRef: Long, postingType: String)
 GET        /all-accounting-period/:taxRef                 uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.AllAccountingPeriodsController.getAccountingPeriodList(taxRef: Long)
 GET        /electronic-payment-allocation-details/:taxRef/:accPeriod/:payslipId            uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.payments.ElectronicPaymentAllocationDetailsController.getPayAllocationElectronicDtls(taxRef: Long, accPeriod: Long, payslipId: Long)
+
+# Manage Clients Routes
+GET        /clients-by-agent-own-ref/:irAgentId/:credentialId/:clientId           uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.manageClient.ClientsByAgentOwnRefController.getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int ?= 0, count: Int ?= -1, sort: Int ?= 0, order: String ?= "ASC")
