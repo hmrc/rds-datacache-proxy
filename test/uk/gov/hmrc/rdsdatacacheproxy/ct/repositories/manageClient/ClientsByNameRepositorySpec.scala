@@ -24,12 +24,12 @@ import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.ClientsByNameHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.AllClientsHelper
 
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with ClientsByNameHelper {
+class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with AllClientsHelper {
 
   var db: Database = _
   var repo: ClientsByNameRepositoryImpl = _
@@ -72,7 +72,7 @@ class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeA
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("A")
 
       val result = repo.getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC").futureValue
-      result shouldBe clientsByName
+      result shouldBe allClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
@@ -112,7 +112,7 @@ class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeA
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("D")
 
       val result = repo.getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC").futureValue
-      result shouldBe multipleClientListClientsByName
+      result shouldBe multipleClientListAllClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
@@ -152,7 +152,7 @@ class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeA
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("G", "H", "I")
 
       val result = repo.getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC").futureValue
-      result shouldBe multipleItemsClientNameClientsByName
+      result shouldBe multipleItemsClientNameAllClients
 
       verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 

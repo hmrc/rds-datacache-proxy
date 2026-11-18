@@ -54,7 +54,7 @@ class ElectronicPaymentAllocationDetailsServiceSpec
       verify(mockRepo, times(1)).getPayAllocationElectronicDtls(6212811176L, 2L, 3L)
     }
 
-    "must return payment allocation details with multiple allocation details" in new Setup {
+    "must return electronic payment allocation details with multiple allocation details" in new Setup {
       when(mockRepo.getPayAllocationElectronicDtls(any[Long], any[Long], any[Long]))
         .thenReturn(Future.successful(multipleEPaymentAllocationDetails))
 
@@ -66,7 +66,7 @@ class ElectronicPaymentAllocationDetailsServiceSpec
 
     }
 
-    "must return payment allocation details with minimal details" in new Setup {
+    "must return electronic payment allocation details with minimal details" in new Setup {
       when(mockRepo.getPayAllocationElectronicDtls(any[Long], any[Long], any[Long]))
         .thenReturn(Future.successful(emptyEPaymentAllocationDetails))
 

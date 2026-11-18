@@ -26,12 +26,12 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import play.api.libs.json.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.ClientsByNameHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.AllClientsHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.manageClient.ClientsByNameService
 
 import scala.concurrent.Future
 
-class ClientsByNameControllerSpec extends SpecBase with MockitoSugar with ClientsByNameHelper {
+class ClientsByNameControllerSpec extends SpecBase with MockitoSugar with AllClientsHelper {
 
   private class Setup {
     val mockService: ClientsByNameService = mock[ClientsByNameService]
@@ -41,40 +41,40 @@ class ClientsByNameControllerSpec extends SpecBase with MockitoSugar with Client
   "ClientsByNameControllerSpec" - {
     "return a 200 and a successful response for clients by name" in new Setup {
       when(mockService.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(clientsByName))
+        .thenReturn(Future.successful(allClients))
 
       val result: Future[Result] =
         controller.getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(clientsByName)
+      contentAsJson(result) shouldBe Json.toJson(allClients)
       verify(mockService).getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC")
     }
 
     "return a 200 and a successful response for multiple items of client list in clients by name" in new Setup {
       when(mockService.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(multipleClientListClientsByName))
+        .thenReturn(Future.successful(multipleClientListAllClients))
 
       val result: Future[Result] =
         controller.getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(multipleClientListClientsByName)
+      contentAsJson(result) shouldBe Json.toJson(multipleClientListAllClients)
       verify(mockService).getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC")
     }
 
     "return a 200 and a successful response for multiple items of client name chars in clients by name" in new Setup {
       when(mockService.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(multipleItemsClientNameClientsByName))
+        .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 
       val result: Future[Result] =
         controller.getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
-      contentAsJson(result) shouldBe Json.toJson(multipleItemsClientNameClientsByName)
+      contentAsJson(result) shouldBe Json.toJson(multipleItemsClientNameAllClients)
       verify(mockService).getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC")
     }
 

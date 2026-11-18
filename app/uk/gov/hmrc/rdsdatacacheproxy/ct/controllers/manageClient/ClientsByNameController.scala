@@ -22,22 +22,22 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.rdsdatacacheproxy.actions.AuthAction
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.ClientsByName
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.AllClients
 import uk.gov.hmrc.rdsdatacacheproxy.ct.services.manageClient.ClientsByNameService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ClientsByNameController @Inject() (
-                                       authorise: AuthAction,
-                                       clientsByNameService: ClientsByNameService,
-                                       cc: ControllerComponents
-                                     )(implicit ec: ExecutionContext)
-  extends BackendController(cc)
+  authorise: AuthAction,
+  clientsByNameService: ClientsByNameService,
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
     with Logging {
 
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Action[AnyContent] = authorise.async {
-    implicit request =>
+  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Action[AnyContent] =
+    authorise.async { implicit request =>
       clientsByNameService
         .getClientsByName(irAgentId, credentialId, name, start, count, sort, order)
         .map { clientsByName =>
@@ -47,5 +47,5 @@ class ClientsByNameController @Inject() (
           logger.error("Error while retrieving clients by namme", ex)
           InternalServerError(Json.obj("error" -> "Failed to retrieve clients by name"))
         }
-  }
+    }
 }
