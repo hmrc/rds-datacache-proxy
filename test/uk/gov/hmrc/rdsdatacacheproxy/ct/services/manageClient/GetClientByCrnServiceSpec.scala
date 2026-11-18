@@ -41,9 +41,9 @@ class GetClientByCrnServiceSpec extends AnyFreeSpec with Matchers with ScalaFutu
 
     val singleClient: ClientList = ClientList(
       utr          = "1234567890",
-      companyRegNo = "AB123456",
+      companyRegNo = Some("AB123456"),
       companyName  = "Acme Trading Ltd",
-      agentOwnRef  = "AGT-REF-001"
+      agentOwnRef  = Some("AGT-REF-001")
     )
 
     val singleObjectResponse: AllClients = AllClients(

@@ -78,9 +78,9 @@ class GetClientsByCrnRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
   private def processClientList(rs: ResultSet): ClientList = {
     ClientList(
       utr          = rs.getString("UTR"),
-      companyRegNo = rs.getString("COMPANY_REG_NO"),
+      companyRegNo = Option(rs.getString("COMPANY_REG_NO")),
       companyName  = rs.getString("COMPANY_NAME"),
-      agentOwnRef  = rs.getString("AGENT_OWN_REF")
+      agentOwnRef  = Option(rs.getString("AGENT_OWN_REF"))
     )
   }
   private def processNameStartChars(rs: ResultSet): String = {

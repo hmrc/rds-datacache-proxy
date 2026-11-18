@@ -1,7 +1,7 @@
+# microservice specific routes
+
 GET        /has-client/:utr/:irAgentId/:credentialId                        uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.HasClientController.getHasClient(utr: Long, irAgentId: String, credentialId: String)
 GET        /common-data                                                     uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.CommonDataController.getCommonData()
-
-# microservice specific routes
 
 GET        /client-list-status/:credentialId                                uk.gov.hmrc.rdsdatacacheproxy.ct.controllers.ClientListDownloadStatusController.getClientListDownloadStatus(credentialId: String, serviceName: String = "CT", gracePeriod: Int = 14400)
 

@@ -78,9 +78,9 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val clientListResult = List(
       ClientList(
         utr          = "792732",
-        companyRegNo = "M67532",
+        companyRegNo = Some("M67532"),
         companyName  = "Rubix Solutions",
-        agentOwnRef  = "8754000057"
+        agentOwnRef  = Some("8754000057")
       )
     )
 
@@ -171,15 +171,15 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val clientListResult = List(
       ClientList(
         utr          = "792732",
-        companyRegNo = "M67532",
+        companyRegNo = Some("M67532"),
         companyName  = "Rubix Solutions",
-        agentOwnRef  = "8754000057"
+        agentOwnRef  = Some("8754000057")
       ),
       ClientList(
         utr          = "12345",
-        companyRegNo = "HJUT12",
+        companyRegNo = Some("HJUT12"),
         companyName  = "Rowley Tyres",
-        agentOwnRef  = "79734973"
+        agentOwnRef  = Some("79734973")
       )
     )
 

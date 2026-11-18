@@ -46,10 +46,10 @@ class GetClientByCrnControllerSpec extends SpecBase {
     )
 
     val multipleClients: List[ClientList] = List(
-      ClientList("1234567890", "AB123456", "Acme Trading Ltd", "AGT-REF-001"),
-      ClientList("2345678901", "CD234567", "Brightwater Holdings", "AGT-REF-002"),
-      ClientList("3456789012", "EF345678", "Bluefield Logistics", "AGT-REF-003"),
-      ClientList("4567890123", "GH456789", "Zenith Consulting Ltd", "AGT-REF-004")
+      ClientList("1234567890", Some("AB123456"), "Acme Trading Ltd", Some("AGT-REF-001")),
+      ClientList("2345678901", Some("CD234567"), "Brightwater Holdings", Some("AGT-REF-002")),
+      ClientList("3456789012", Some("EF345678"), "Bluefield Logistics", Some("AGT-REF-003")),
+      ClientList("4567890123", Some("GH456789"), "Zenith Consulting Ltd", Some("AGT-REF-004"))
     )
 
     val multipleObjectsResponse: AllClients = AllClients(
