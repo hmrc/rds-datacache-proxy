@@ -481,8 +481,9 @@ class GamblingService @Inject() (
                 case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
               }
               .recover { case NonFatal(ex) =>
+                println( s"crash details: $ex")
                 logger.error(
-                  s"unexpected error retrieving group member with premises mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber",
+                  s"unexpected error retrieving member details mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber",
                   ex
                 )
                 Left(GamblingError.UnexpectedError)
