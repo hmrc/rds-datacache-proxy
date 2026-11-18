@@ -22,12 +22,12 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.ClientsByNameHelper
+import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.AllClientsHelper
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient.ClientsByNameRepository
 
 import scala.concurrent.Future
 
-class ClientsByNameServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar with ClientsByNameHelper {
+class ClientsByNameServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures with MockitoSugar with AllClientsHelper {
 
   private trait Setup {
 
@@ -40,22 +40,22 @@ class ClientsByNameServiceSpec extends AnyFreeSpec with Matchers with ScalaFutur
   "ClientsByNameServiceSpec" - {
     "must return clients by name" in new Setup {
       when(mockRepo.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(clientsByName))
+        .thenReturn(Future.successful(allClients))
 
       val result = service.getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC").futureValue
 
-      result mustBe clientsByName
+      result mustBe allClients
 
       verify(mockRepo, times(1)).getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC")
     }
 
     "must return clients by name with multiple items of client list" in new Setup {
       when(mockRepo.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(multipleClientListClientsByName))
+        .thenReturn(Future.successful(multipleClientListAllClients))
 
       val result = service.getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC").futureValue
 
-      result mustBe multipleClientListClientsByName
+      result mustBe multipleClientListAllClients
 
       verify(mockRepo, times(1)).getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC")
 
@@ -63,11 +63,11 @@ class ClientsByNameServiceSpec extends AnyFreeSpec with Matchers with ScalaFutur
 
     "must return clients by name with multiple items of client name chars" in new Setup {
       when(mockRepo.getClientsByName(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
-        .thenReturn(Future.successful(multipleItemsClientNameClientsByName))
+        .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 
       val result = service.getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC").futureValue
 
-      result mustBe multipleItemsClientNameClientsByName
+      result mustBe multipleItemsClientNameAllClients
 
       verify(mockRepo, times(1)).getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC")
     }

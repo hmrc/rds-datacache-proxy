@@ -23,9 +23,9 @@ import play.api.Application
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.ClientsByName
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.AllClients
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient.ClientsByNameRepository
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient.ClientsByNameStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient.AllClientsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.{ApplicationWithWiremock, AuthStub}
 
 import scala.concurrent.Future
@@ -33,8 +33,8 @@ import scala.concurrent.Future
 class ClientsByNameControllerISpec extends AnyWordSpec with Matchers with ScalaFutures with IntegrationPatience with ApplicationWithWiremock {
 
   class ClientsByNameRepositoryStub extends ClientsByNameRepository {
-    override def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName] = {
-      Future.successful(ClientsByNameStubData.getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String))
+    override def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] = {
+      Future.successful(AllClientsStubData.getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String))
     }
   }
 
@@ -58,10 +58,10 @@ class ClientsByNameControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ClientsByName] mustBe ClientsByNameStubData.clientsByName
+      response.json.as[AllClients] mustBe AllClientsStubData.allClients
     }
 
-    "return 200 and multiple items of client list in all clients" in {
+    "return 200 and multiple items of client list for client by name" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/clients-by-name/irAgentId2/credentialId2/name2").futureValue
@@ -69,10 +69,10 @@ class ClientsByNameControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ClientsByName] mustBe ClientsByNameStubData.multipleClientListClientsByName
+      response.json.as[AllClients] mustBe AllClientsStubData.multipleClientListAllClients
     }
 
-    "return 200 and multiple items of client name chars in all clients" in {
+    "return 200 and multiple items of client name chars for client by name" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/clients-by-name/irAgentId3/credentialId3/name3").futureValue
@@ -80,7 +80,7 @@ class ClientsByNameControllerISpec extends AnyWordSpec with Matchers with ScalaF
       response.status mustBe OK
       response.contentType mustBe "application/json"
 
-      response.json.as[ClientsByName] mustBe ClientsByNameStubData.multipleItemsClientNameClientsByName
+      response.json.as[AllClients] mustBe AllClientsStubData.multipleItemsClientNameAllClients
     }
 
     "return 500 when stub fails" in {

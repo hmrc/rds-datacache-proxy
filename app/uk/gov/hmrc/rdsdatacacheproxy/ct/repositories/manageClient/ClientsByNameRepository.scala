@@ -1,10 +1,26 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient
 
 import com.google.inject.ImplementedBy
 import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{ClientsByName, ClientList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList}
 
 import java.sql.*
 import javax.inject.Inject
@@ -13,16 +29,23 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[ClientsByNameRepositoryImpl])
 trait ClientsByNameRepository {
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName]
+  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients]
 }
 
 class ClientsByNameRepositoryImpl @Inject() (
-                                           @NamedDatabase("ct-core") db: Database
-                                         )(implicit ec: ExecutionContext)
-  extends ClientsByNameRepository
+  @NamedDatabase("ct-core") db: Database
+)(implicit ec: ExecutionContext)
+    extends ClientsByNameRepository
     with Logging {
 
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName] = {
+  def getClientsByName(irAgentId: String,
+                       credentialId: String,
+                       name: String,
+                       start: Int,
+                       count: Int,
+                       sort: Int,
+                       order: String
+                      ): Future[AllClients] = {
     Future {
       db.withConnection { connect =>
         val sp = connect.prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
@@ -48,7 +71,7 @@ class ClientsByNameRepositoryImpl @Inject() (
           val clientList = readClientList(clientListDetails)
           val clientNameStartChars = readClientNameStartChars(clientNameStartCharsDetails)
 
-          ClientsByName(
+          AllClients(
             clientCount          = sp.getInt(8),
             clientList           = clientList,
             clientNameStartChars = clientNameStartChars
@@ -66,9 +89,9 @@ class ClientsByNameRepositoryImpl @Inject() (
     while (rs.next()) {
       buffer += ClientList(
         utr          = rs.getString("utr"),
-        companyRegNo = rs.getString("company_reg_no"),
+        companyRegNo = Some(rs.getString("company_reg_no")),
         companyName  = rs.getString("company_name"),
-        agentOwnRef  = rs.getString("agent_own_ref")
+        agentOwnRef  = Some(rs.getString("agent_own_ref"))
       )
     }
     buffer.toList

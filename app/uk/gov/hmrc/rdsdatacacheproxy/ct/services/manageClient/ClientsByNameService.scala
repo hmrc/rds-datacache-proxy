@@ -17,7 +17,7 @@
 package uk.gov.hmrc.rdsdatacacheproxy.ct.services.manageClient
 
 import play.api.Logging
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.ClientsByName
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.AllClients
 import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient.ClientsByNameRepository
 
 import javax.inject.Inject
@@ -25,7 +25,14 @@ import scala.concurrent.Future
 
 class ClientsByNameService @Inject() (clientsByNameRepository: ClientsByNameRepository) extends Logging {
 
-  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName] = {
+  def getClientsByName(irAgentId: String,
+                       credentialId: String,
+                       name: String,
+                       start: Int,
+                       count: Int,
+                       sort: Int,
+                       order: String
+                      ): Future[AllClients] = {
     logger.info(
       s"Calling repository for irAgentId: $irAgentId, credentialId: $credentialId, name: $name, start: $start, count: $count, sort: $sort and order: $order"
     )

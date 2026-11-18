@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.ClientsByName
-import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient.ClientsByNameStubData
+import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.AllClients
+import uk.gov.hmrc.rdsdatacacheproxy.ct.stub.manageClient.AllClientsStubData
 import uk.gov.hmrc.rdsdatacacheproxy.itutil.ApplicationWithWiremock
 
 import scala.concurrent.Future
@@ -39,8 +39,8 @@ class ClientsByNameRepositoryISpec
 
   class ClientsByNameRepositoryStub extends ClientsByNameRepository {
 
-    override def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[ClientsByName] =
-      Future.successful(ClientsByNameStubData.getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String))
+    override def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] =
+      Future.successful(AllClientsStubData.getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String))
   }
 
   override lazy val app: Application =
@@ -59,7 +59,7 @@ class ClientsByNameRepositoryISpec
 
       val result = repo.getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC").futureValue
 
-      result mustBe ClientsByNameStubData.clientsByName
+      result mustBe AllClientsStubData.allClients
 
     }
 
@@ -67,14 +67,14 @@ class ClientsByNameRepositoryISpec
 
       val result = repo.getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC").futureValue
 
-      result mustBe ClientsByNameStubData.multipleClientListClientsByName
+      result mustBe AllClientsStubData.multipleClientListAllClients
     }
 
     "return multiple items of client name chars in clients by name" in {
 
       val result = repo.getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC").futureValue
 
-      result mustBe ClientsByNameStubData.multipleItemsClientNameClientsByName
+      result mustBe AllClientsStubData.multipleItemsClientNameAllClients
 
     }
 
