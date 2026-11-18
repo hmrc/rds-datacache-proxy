@@ -61,10 +61,8 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val credentialId = "78366363"
     val companyRegNo = "REG-67-63"
 
-    when(mockCallableStatement.getInt(4)).thenReturn(12)
-
-    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
-    when(mockCallableStatement.getObject(eqTo(6), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
+    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
+    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
     when(mockResultSet1.next()).thenReturn(true, false)
     when(mockResultSet2.next()).thenReturn(true, false)
 
@@ -89,19 +87,19 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val result = repository.getClientByCrn(irAgentReference, credentialId, companyRegNo).futureValue
 
     result shouldBe AllClients(
-      clientCount          = 12,
+      clientCount          = 1,
       clientList           = clientListResult,
       clientNameStartChars = clientNameChars
     )
 
-    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ? , ?)}")
+    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ?)}")
 
     verify(mockCallableStatement).setString(1, irAgentReference)
     verify(mockCallableStatement).setString(2, credentialId)
     verify(mockCallableStatement).setString(3, companyRegNo)
 
-    verify(mockCallableStatement).registerOutParameter(6, OracleTypes.CURSOR)
-    verify(mockCallableStatement).registerOutParameter(6, OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(4, OracleTypes.CURSOR)
+    verify(mockCallableStatement).registerOutParameter(5, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
 
     verify(mockResultSet1, times(2)).next()
@@ -117,29 +115,27 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val credentialId = "78366363"
     val companyRegNo = "REG-67-63"
 
-    when(mockCallableStatement.getInt(4)).thenReturn(12)
-
-    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
-    when(mockCallableStatement.getObject(eqTo(6), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
+    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
+    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
     when(mockResultSet1.next()).thenReturn(false)
     when(mockResultSet2.next()).thenReturn(false)
 
     val result = repository.getClientByCrn(irAgentReference, credentialId, companyRegNo).futureValue
 
     result shouldBe AllClients(
-      clientCount          = 12,
+      clientCount          = 0,
       clientList           = List.empty,
       clientNameStartChars = List.empty
     )
 
-    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ? , ?)}")
+    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ?)}")
 
     verify(mockCallableStatement).setString(1, irAgentReference)
     verify(mockCallableStatement).setString(2, credentialId)
     verify(mockCallableStatement).setString(3, companyRegNo)
 
+    verify(mockCallableStatement).registerOutParameter(4, OracleTypes.CURSOR)
     verify(mockCallableStatement).registerOutParameter(5, OracleTypes.CURSOR)
-    verify(mockCallableStatement).registerOutParameter(6, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
 
     verify(mockResultSet1, times(1)).next()
@@ -154,10 +150,8 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val credentialId = "78366363"
     val companyRegNo = "REG-67-63"
 
-    when(mockCallableStatement.getInt(4)).thenReturn(12)
-
-    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
-    when(mockCallableStatement.getObject(eqTo(6), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
+    when(mockCallableStatement.getObject(eqTo(4), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet1)
+    when(mockCallableStatement.getObject(eqTo(5), eqTo(classOf[ResultSet]))).thenReturn(mockResultSet2)
     when(mockResultSet1.next()).thenReturn(true, true, false)
     when(mockResultSet2.next()).thenReturn(true, true, false)
 
@@ -188,19 +182,19 @@ class GetClientsByCrnRepositorySpec extends AnyFlatSpec with Matchers with Befor
     val result = repository.getClientByCrn(irAgentReference, credentialId, companyRegNo).futureValue
 
     result shouldBe AllClients(
-      clientCount          = 12,
+      clientCount          = clientListResult.size,
       clientList           = clientListResult,
       clientNameStartChars = clientNameChars
     )
 
-    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ? , ?)}")
+    verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ?)}")
 
     verify(mockCallableStatement).setString(1, irAgentReference)
     verify(mockCallableStatement).setString(2, credentialId)
     verify(mockCallableStatement).setString(3, companyRegNo)
 
+    verify(mockCallableStatement).registerOutParameter(4, OracleTypes.CURSOR)
     verify(mockCallableStatement).registerOutParameter(5, OracleTypes.CURSOR)
-    verify(mockCallableStatement).registerOutParameter(6, OracleTypes.CURSOR)
     verify(mockCallableStatement).execute()
 
     verify(mockResultSet1, times(3)).next()

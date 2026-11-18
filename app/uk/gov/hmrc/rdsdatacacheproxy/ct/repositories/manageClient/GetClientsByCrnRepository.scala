@@ -44,25 +44,24 @@ class GetClientsByCrnRepositoryImpl @Inject() (@NamedDatabase("ct-core") db: Dat
     Future(blocking {
       db.withConnection { connection =>
 
-        val cs = connection.prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ? , ?)}")
+        val cs = connection.prepareCall("{call CT_CLIENT_SEARCH.get_client_by_crn(? ,? , ? , ?, ?)}")
 
         try {
           cs.setString(1, irAgentReference)
           cs.setString(2, credentialId)
           cs.setString(3, companyRegNo)
 
-          cs.registerOutParameter(4, OracleTypes.NUMERIC)
+          cs.registerOutParameter(4, OracleTypes.CURSOR)
           cs.registerOutParameter(5, OracleTypes.CURSOR)
-          cs.registerOutParameter(6, OracleTypes.CURSOR)
 
           cs.execute()
 
-          val clientListResponse: List[ClientList] = processResultSetList(cs, 5, processClientList, context)
+          val clientListResponse: List[ClientList] = processResultSetList(cs, 4, processClientList, context)
 
-          val clientNameStartChars: List[String] = processResultSetList(cs, 6, processNameStartChars, context)
+          val clientNameStartChars: List[String] = processResultSetList(cs, 5, processNameStartChars, context)
 
           AllClients(
-            clientCount          = cs.getInt(4),
+            clientCount          = clientListResponse.size,
             clientList           = clientListResponse,
             clientNameStartChars = clientNameStartChars
           )

@@ -64,7 +64,7 @@ class GetClientByCrnServiceSpec extends AnyFreeSpec with Matchers with ScalaFutu
     verify(mockRepo, times(1)).getClientByCrn(any(), any(), any())
 
   }
-  "ReallocationFromAccPeriodService must propagate failure from repository" in new Setup {
+  "GetClientByCrnService must propagate failure from repository" in new Setup {
 
     val exception = new RuntimeException("Failure from Repo")
 
