@@ -1070,32 +1070,75 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).setString(1, mgdRegNumber)
     verify(mockCs).setString(2, partnerNumber)
     verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(9, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(10, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(11, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(12, oracle.jdbc.OracleTypes.NUMERIC)
+    verify(mockCs).registerOutParameter(13, oracle.jdbc.OracleTypes.NUMERIC)
+    verify(mockCs).registerOutParameter(14, oracle.jdbc.OracleTypes.NUMBER)
+    verify(mockCs).registerOutParameter(15, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(16, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(17, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(18, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(19, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(20, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(21, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(22, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(23, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(24, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(25, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(26, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(27, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(28, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(29, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(30, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(31, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(32, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(33, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(34, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(35, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(36, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(37, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(38, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(39, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(40, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(41, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(42, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(43, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(44, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(45, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(46, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(47, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(48, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(49, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(50, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(51, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(52, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(53, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(54, oracle.jdbc.OracleTypes.DATE)
     verify(mockCs).execute()
   }
 
-  it should "throw exception when result set is empty" in {
 
-    when(mockCs.getObject(2)).thenReturn(groupMembersRs)
-    when(groupMembersRs.next()).thenReturn(false)
+  it should "return empty list when cursor is empty" in {
 
-    val ex = intercept[RuntimeException] {
-      repository.getReturnSummary("XWM123").futureValue
-    }
+    val mgdRegNumber = "XWM12345678901"
+    val partnerNumber = "0100049988"
 
-    ex.getMessage should include("Empty result set")
-    verify(groupMembersRs).close()
-    verify(mockCs).close()
-  }
+    when(mockCs.getObject(3)).thenReturn(premisesRs)
 
-  it should "throw exception when cursor is null" in {
+    when(premisesRs.next()).thenReturn(false)
 
-    when(mockCs.getObject(2)).thenReturn(null)
+    val result = repository.getMemberDetails(Regime.MGD, mgdRegNumber, partnerNumber).futureValue
 
-    val ex = intercept[RuntimeException] {
-      repository.getReturnSummary("XWM123").futureValue
-    }
+    result.map(_.premises).getOrElse(Seq.empty) shouldBe empty
 
-    ex.getMessage should include("Null cursor")
+    verify(premisesRs).close()
     verify(mockCs).close()
   }
 
