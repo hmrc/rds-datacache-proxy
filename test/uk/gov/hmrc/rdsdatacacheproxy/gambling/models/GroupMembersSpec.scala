@@ -466,7 +466,6 @@ class GroupMembersSpec extends AnyWordSpec with Matchers {
           |  }
           |""".stripMargin
       )
-      println(validJsonWithMissingFields)
       val result = validJsonWithMissingFields.validate[MemberDetails]
 
       result.isError mustBe false
