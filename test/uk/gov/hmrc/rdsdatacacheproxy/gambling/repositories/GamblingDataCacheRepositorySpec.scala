@@ -1013,7 +1013,6 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
       .thenReturn(Date.valueOf("2026-11-16"))
 
     val result: Either[RepositoryError, MemberDetails] = repository.getMemberDetails(Regime.MGD, mgdRegNumber, partnerNumber).futureValue
-    println(result)
     result.map(_.mgdRegNumber).getOrElse("")           shouldBe mgdRegNumber
     result.map(_.businessPartnerNumber).getOrElse("")  shouldBe partnerNumber
     result.map(_.businessName).getOrElse("")           shouldBe Some("Business Name")
