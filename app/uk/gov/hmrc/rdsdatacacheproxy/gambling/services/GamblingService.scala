@@ -458,7 +458,7 @@ class GamblingService @Inject() (
   def getMemberDetails(regime: String, rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit
     hc: HeaderCarrier
   ): Future[Either[GamblingError, MemberDetails]] = {
-    val mgdRegNumber = rawMgdRegNumber.trim
+    val mgdRegNumber = rawMgdRegNumber.toUpperCase.trim
     val businessPartnerNumber = rawBusinessPartnerNumber.trim
     Regime.fromString(regime.trim) match {
       case Left(error) =>
@@ -468,9 +468,6 @@ class GamblingService @Inject() (
       case Right(regime) =>
         GRNValidator.validateRegNum(regime, mgdRegNumber) match {
           case Left(value) =>
-            logger.warn(
-              s"[GamblingService][getMemberDetails] Invalid pattern mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber"
-            )
             Future.successful(Left(InvalidMgdRegNumber))
           case Right(value) =>
             repository
@@ -481,11 +478,6 @@ class GamblingService @Inject() (
                 case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
               }
               .recover { case NonFatal(ex) =>
-                println(s"crash details: $ex")
-                logger.error(
-                  s"unexpected error retrieving member details mgdRegNumber=$mgdRegNumber partnerNumber=$businessPartnerNumber",
-                  ex
-                )
                 Left(GamblingError.UnexpectedError)
               }
         }

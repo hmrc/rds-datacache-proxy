@@ -18,7 +18,7 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
-import org.scalatest.BeforeAndAfter
+import org.scalatest.{BeforeAndAfter, EitherValues}
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -30,7 +30,7 @@ import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter with EitherValues {
 
   var db: Database = _
   var repository: GamblingDataCacheRepository = _
@@ -1124,21 +1124,24 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).execute()
   }
 
-
-  it should "return empty list when cursor is empty" in {
+  it should "return DBError when partner number is incorrect" in {
 
     val mgdRegNumber = "XWM12345678901"
-    val partnerNumber = "0100049988"
+    val partnerNumber = "INVALID"
 
-    when(mockCs.getObject(3)).thenReturn(premisesRs)
-
+    when(mockCs.getObject(3)).thenReturn(Seq.empty) // MGD_REG_NUMBER
+    when(mockCs.getString(4)).thenReturn(mgdRegNumber) // MGD_REG_NUMBER
+    when(mockCs.getString(5)).thenReturn(partnerNumber) // BUSINESS_PARTNER_NUMBER
     when(premisesRs.next()).thenReturn(false)
 
     val result = repository.getMemberDetails(Regime.MGD, mgdRegNumber, partnerNumber).futureValue
 
     result.map(_.premises).getOrElse(Seq.empty) shouldBe empty
 
-    verify(premisesRs).close()
+    result.left.value shouldBe a[DatabaseError]
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).setString(2, partnerNumber)
     verify(mockCs).close()
   }
 
