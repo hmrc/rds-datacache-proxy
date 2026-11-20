@@ -82,4 +82,13 @@ object AllClientsStubData {
     }
   }
 
+  def getClientsByName(irAgentId: String, credentialId: String, name: String, start: Int, count: Int, sort: Int, order: String): AllClients = {
+    irAgentId match {
+      case "irAgentId1"  => allClients
+      case "irAgentId2"  => multipleClientListAllClients
+      case "irAgentId3"  => multipleItemsClientNameAllClients
+      case _ => throw new RuntimeException("Downstream error")
+    }
+  }
+
 }

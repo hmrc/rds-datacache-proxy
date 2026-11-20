@@ -72,6 +72,17 @@ class AllClientsServiceSpec extends AnyFreeSpec with Matchers with ScalaFutures 
       verify(mockRepo, times(1)).getAllClients("irAgentId3", "credentialId3", 0, 30, 0, "ASC")
     }
 
+    "must return clients by name with a different combo of params" in new Setup {
+      when(mockRepo.getAllClients(any[String], any[String], any[Int], any[Int], any[Int], any[String]))
+        .thenReturn(Future.successful(multipleItemsClientNameAllClients))
+
+      val result = service.getAllClients("irAgentId4", "credentialId4", 0, -1, 3, "DESC").futureValue
+
+      result mustBe multipleItemsClientNameAllClients
+
+      verify(mockRepo, times(1)).getAllClients("irAgentId4", "credentialId4", 0, -1, 3, "DESC")
+    }
+
     "must propagate failure from repository" in new Setup {
       val exception = new RuntimeException("Error")
 
