@@ -29,7 +29,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.helpers.manageClient.AllClientsHelper
 import java.sql.{CallableStatement, ResultSet}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ClientsByNameRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with AllClientsHelper {
+class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with AllClientsHelper {
 
   var db: Database = _
   var repo: ClientsByNameRepositoryImpl = _
