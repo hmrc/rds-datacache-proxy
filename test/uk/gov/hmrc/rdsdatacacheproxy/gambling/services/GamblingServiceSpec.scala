@@ -23,7 +23,7 @@ import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{DBSystemError, InvalidMgdRegNumber, RecordNotFoundError, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories.GamblingDataSource
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseGroupMembers
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseGroupMembers, validResponseMemberDetails}
 import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
 
 import java.time.LocalDate
@@ -723,4 +723,48 @@ final class GamblingServiceSpec extends SpecBase {
     }
   }
 
+  "GamblingService#getMemberDetails" - {
+
+    val rawRegime = "mgd"
+    val regime = Regime.MGD
+    val validReg = "XYM00000000001"
+    val partnerNumber = "0100049988"
+
+    "return Right(details) when repository succeeds" in {
+
+      when(repository.getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber)))
+        .thenReturn(Future.successful(Right(validResponseMemberDetails)))
+
+      val result = service.getMemberDetails(rawRegime, validReg, partnerNumber).futureValue
+      result mustBe Right(validResponseMemberDetails)
+      verify(repository).getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "normalise input (trim + uppercase) before calling repository" in {
+
+      val rawInput = "  xym00000000001  "
+
+      when(repository.getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber)))
+        .thenReturn(Future.successful(Right(validResponseMemberDetails)))
+
+      val result = service.getMemberDetails(rawRegime, rawInput, partnerNumber).futureValue
+
+      result mustBe Right(validResponseMemberDetails)
+      verify(repository).getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber))
+      verifyNoMoreInteractions(repository)
+    }
+
+    "return UnexpectedError when repository fails" in {
+
+      when(repository.getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber)))
+        .thenReturn(Future.failed(new RuntimeException("DB failure")))
+
+      val result = service.getMemberDetails(rawRegime, validReg, partnerNumber).futureValue
+
+      result mustBe Left(UnexpectedError)
+      verify(repository).getMemberDetails(eqTo(regime), eqTo(validReg), eqTo(partnerNumber))
+      verifyNoMoreInteractions(repository)
+    }
+  }
 }

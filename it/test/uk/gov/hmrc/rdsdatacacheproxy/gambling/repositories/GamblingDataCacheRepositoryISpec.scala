@@ -80,6 +80,9 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     override def getGroupMembers(regNumber: String): Future[GroupMembers] =
       Future.successful(GamblingStubData.getGroupMembersData(regNumber))
 
+    override def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Future[Either[RepositoryError, MemberDetails]] =
+      Future.successful(GamblingStubData.getMemberDetails(regime, regNumber, partnerNumber))
+
     override def getReturnPeriods(regNumber: String): Future[Either[RepositoryError, ReturnPeriods]] =
       Future.successful(GamblingStubData.getReturnPeriods(regNumber))
 
@@ -870,7 +873,7 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
 
   "getReturnPeriods (stubbed repository)" should {
 
-    "return correct PartnerDetailsData" in {
+    "return correct ReturnPeriods" in {
       val result = repository.getReturnPeriods("XYM00000000000").futureValue
 
       result mustBe GamblingStubData.getReturnPeriods("XYM00000000000")
@@ -893,6 +896,37 @@ class GamblingDataCacheRepositoryISpec extends AnyWordSpec with Matchers with Sc
     "propagate downstream failure from stub" in {
       val exception = intercept[RuntimeException] {
         repository.getReturnPeriods("XEM33333333333").futureValue
+      }
+
+      exception.getMessage must include("Simulated downstream failure")
+    }
+  }
+
+  "getMemberDetails (stubbed repository)" should {
+
+    "return correct MemberDetails" in {
+      val result = repository.getMemberDetails(Regime.MGD, "XYM00000000000", "0100049899").futureValue
+
+      result mustBe GamblingStubData.getMemberDetails(Regime.MGD, "XYM00000000000", "0100049899")
+    }
+
+    "return consistent results across multiple calls" in {
+      val result1 = repository.getMemberDetails(Regime.MGD, "XYM00000000000", "0100049899").futureValue
+      val result2 = repository.getMemberDetails(Regime.MGD, "XYM00000000000", "0100049899").futureValue
+
+      result1 mustBe result2
+    }
+
+    "handle different valid regNumbers independently" in {
+      val result1 = repository.getMemberDetails(Regime.MGD, "XYM00000000000", "0100049899").futureValue
+      val result2 = repository.getMemberDetails(Regime.MGD, "XYM00000000001", "0100049888").futureValue
+
+      result1 must not be result2
+    }
+
+    "propagate downstream failure from stub" in {
+      val exception = intercept[RuntimeException] {
+        repository.getMemberDetails(Regime.MGD, "XEM33333333333", " ").futureValue
       }
 
       exception.getMessage must include("Simulated downstream failure")

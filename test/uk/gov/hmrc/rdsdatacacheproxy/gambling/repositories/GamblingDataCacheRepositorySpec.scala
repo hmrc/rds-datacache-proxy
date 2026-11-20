@@ -18,19 +18,19 @@ package uk.gov.hmrc.rdsdatacacheproxy.gambling.repositories
 
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
-import org.scalatest.BeforeAndAfter
+import org.scalatest.{BeforeAndAfter, EitherValues}
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.db.Database
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.*
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound}
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.{DatabaseError, RecordNotFound, RepositoryError}
 
 import java.sql.{CallableStatement, Connection, Date, ResultSet}
 import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
+class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with BeforeAndAfter with EitherValues {
 
   var db: Database = _
   var repository: GamblingDataCacheRepository = _
@@ -49,6 +49,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
   var businessAddressRs: ResultSet = _
   var premisesRs: ResultSet = _
   var groupMembersRs: ResultSet = _
+  var memberRs: ResultSet = _
   var agentAddressRs: ResultSet = _
   var agentContactRs: ResultSet = _
 
@@ -71,6 +72,7 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     agentAddressRs    = mock(classOf[ResultSet])
     agentContactRs    = mock(classOf[ResultSet])
     groupMembersRs    = mock(classOf[ResultSet])
+    memberRs          = mock(classOf[ResultSet])
 
     when(db.withConnection(any())).thenAnswer { invocation =>
       val fn = invocation.getArgument(0, classOf[Connection => Any])
@@ -930,30 +932,215 @@ class GamblingDataCacheRepositorySpec extends AnyFlatSpec with Matchers with Bef
     verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.DATE)
     verify(mockCs).execute()
   }
+  "getMemberDetails" should "return Member Details when data exists" in {
+    val mgdRegNumber = "XWM12345678901"
+    val partnerNumber = "0100049988"
+    val long: Long = 1234567890
+    val premises = Seq(
+      PremisesDetails(
+        mgdRegNumber = "XWM12345678901",
+        address1     = Some("123 Road"),
+        address2     = Some("Place"),
+        address3     = Some("More info about this place"),
+        address4     = Some("Even more? noo"),
+        postcode     = Some("SA0 1AH"),
+        systemDate   = Some(LocalDate.of(2026, 11, 16))
+      )
+    )
 
-  it should "throw exception when result set is empty" in {
+    when(mockCs.getObject(3)).thenReturn(premisesRs) // P_PREMISES
+    when(mockCs.getString(4)).thenReturn(mgdRegNumber) // MGD_REG_NUMBER
+    when(mockCs.getString(5)).thenReturn(partnerNumber) // BUSINESS_PARTNER_NUMBER
+    when(mockCs.getString(6)).thenReturn("Business Name") // BUSINESS_NAME
+    when(mockCs.getString(7)).thenReturn("Trading Name") // TRADING_NAME
+    when(mockCs.getString(8)).thenReturn("09876543") // CRN
+    when(mockCs.getDate(9)).thenReturn(Date.valueOf("2025-01-01")) // DATE_OF_INCORPORATION
+    when(mockCs.getString(10)).thenReturn("UK") // COUNTRY_OF_INCORPORATION
+    when(mockCs.getString(11)).thenReturn("FCR-UK-987654") // FOREIGN_CORPORATE_REF
+    when(mockCs.getLong(12)).thenReturn(long) // UTR
+    when(mockCs.getLong(13)).thenReturn(long) // VRN
+    when(mockCs.getInt(14)).thenReturn(3) // TRADE_CLASS
+    when(mockCs.getString(15)).thenReturn("Business Activities") // BUS_ACT_DESCRIPTION
+    when(mockCs.getString(16)).thenReturn("0800 123 456") // PHONE_NUMBER
+    when(mockCs.getString(17)).thenReturn("07900 678 900") // MOBILE_PHONE_NUMBER
+    when(mockCs.getString(18)).thenReturn("No one uses fax anymore") // FAX_NUMBER
+    when(mockCs.getString(19)).thenReturn("a@b.com") // EMAIL_ADDR
+    when(mockCs.getString(20)).thenReturn("our friend adi") // ADI
+    when(mockCs.getString(21)).thenReturn("123 Road") // ADDRESS_1
+    when(mockCs.getString(22)).thenReturn("Place") // ADDRESS_2
+    when(mockCs.getString(23)).thenReturn("More info about this place") // ADDRESS_3
+    when(mockCs.getString(24)).thenReturn("Even more? noo") // ADDRESS_4
+    when(mockCs.getString(25)).thenReturn("SA0 1AH") // POSTCODE
+    when(mockCs.getString(26)).thenReturn("1") // IS_IOM_OR_CI
+    when(mockCs.getString(27)).thenReturn("0") // HAVE_GAMBLING_LICENCE_NO
+    when(mockCs.getString(28)).thenReturn("123-456789-A-123456-789") // GAMBLING_LICENCE_NO
+    when(mockCs.getString(29)).thenReturn("0") // HELD_BY_LANDLORD
+    when(mockCs.getString(30)).thenReturn("1") // LOCAL_AUTHORITY
+    when(mockCs.getString(31)).thenReturn("0") // FAMILY_ENTERTAINMENT
+    when(mockCs.getString(32)).thenReturn("1") // CLUB_GAMING
+    when(mockCs.getString(33)).thenReturn("0") // CLUB_LICENCE
+    when(mockCs.getString(34)).thenReturn("1") // PRIZE_GAMING
+    when(mockCs.getString(35)).thenReturn("0") // ON_PREMISES
+    when(mockCs.getString(36)).thenReturn("1") // CLUB_PREMISES
+    when(mockCs.getString(37)).thenReturn("0") // REG_CERT
+    when(mockCs.getString(38)).thenReturn("1") // BOOKMAKING
+    when(mockCs.getString(39)).thenReturn("0") // BINGO
+    when(mockCs.getString(40)).thenReturn("1") // AMUSEMENT
+    when(mockCs.getString(41)).thenReturn("0") // SERVE_ALCOHOL
+    when(mockCs.getString(42)).thenReturn("1") // PREMISES_NOT_COVERED
+    when(mockCs.getString(43)).thenReturn("XVM12345678800") // PREVIOUS_MGDRN_1
+    when(mockCs.getString(44)).thenReturn("XVM12345678801") // PREVIOUS_MGDRN_2
+    when(mockCs.getString(45)).thenReturn("XVM12345678802") // PREVIOUS_MGDRN_3
+    when(mockCs.getString(46)).thenReturn("XGM12345678800") // ASSOCIATED_MGDRN_1
+    when(mockCs.getString(47)).thenReturn("XGM12345678801") // ASSOCIATED_MGDRN_2
+    when(mockCs.getString(48)).thenReturn("XGM123456788002") // ASSOCIATED_MGDRN_3
+    when(mockCs.getDate(49)).thenReturn(Date.valueOf("2026-01-16")) // DATE_OF_JOINING
+    when(mockCs.getDate(50)).thenReturn(Date.valueOf("2026-10-16")) // DATE_OF_LEAVING
+    when(mockCs.getString(51)).thenReturn("1") // IS_REP_MEM_SAME_AS_CB
+    when(mockCs.getString(52)).thenReturn("1") // IS_REP_MEMBER_OF_GROUP
+    when(mockCs.getString(53)).thenReturn("1") // IS_UK_INCORPORATED
+    when(mockCs.getDate(54)).thenReturn(Date.valueOf("2026-11-16")) // P_SYSDATE
 
-    when(mockCs.getObject(2)).thenReturn(groupMembersRs)
-    when(groupMembersRs.next()).thenReturn(false)
+    when(premisesRs.next()).thenReturn(true, false)
 
-    val ex = intercept[RuntimeException] {
-      repository.getReturnSummary("XWM123").futureValue
-    }
+    when(premisesRs.getString("MGD_REG_NUMBER")).thenReturn(mgdRegNumber)
+    when(premisesRs.getString("ADDRESS_1")).thenReturn("123 Road")
+    when(premisesRs.getString("ADDRESS_2")).thenReturn("Place")
+    when(premisesRs.getString("ADDRESS_3")).thenReturn("More info about this place")
+    when(premisesRs.getString("ADDRESS_4")).thenReturn("Even more? noo")
+    when(premisesRs.getString("POSTCODE")).thenReturn("SA0 1AH")
+    when(premisesRs.getDate("SYSTEM_DATE"))
+      .thenReturn(Date.valueOf("2026-11-16"))
 
-    ex.getMessage should include("Empty result set")
-    verify(groupMembersRs).close()
-    verify(mockCs).close()
+    val result: Either[RepositoryError, MemberDetails] = repository.getMemberDetails(Regime.MGD, mgdRegNumber, partnerNumber).futureValue
+    result.map(_.mgdRegNumber).getOrElse("")           shouldBe mgdRegNumber
+    result.map(_.businessPartnerNumber).getOrElse("")  shouldBe partnerNumber
+    result.map(_.businessName).getOrElse("")           shouldBe Some("Business Name")
+    result.map(_.tradingName).getOrElse("")            shouldBe Some("Trading Name")
+    result.map(_.crn).getOrElse("")                    shouldBe Some("09876543")
+    result.map(_.dateOfIncorporation).getOrElse("")    shouldBe Some(LocalDate.of(2025, 1, 1))
+    result.map(_.countryOfIncorporation).getOrElse("") shouldBe Some("UK")
+    result.map(_.foreignCorporateRef).getOrElse("")    shouldBe Some("FCR-UK-987654")
+    result.map(_.utr).getOrElse(999)                   shouldBe Some(long)
+    result.map(_.vrn).getOrElse(999)                   shouldBe Some(long)
+    result.map(_.tradeClass).getOrElse(999)            shouldBe Some(3)
+    result.map(_.businessActivityDesc).getOrElse("")   shouldBe Some("Business Activities")
+    result.map(_.phoneNumber).getOrElse("")            shouldBe Some("0800 123 456")
+    result.map(_.mobilePhoneNumber).getOrElse("")      shouldBe Some("07900 678 900")
+    result.map(_.faxNumber).getOrElse("")              shouldBe Some("No one uses fax anymore")
+    result.map(_.emailAddr).getOrElse("")              shouldBe Some("a@b.com")
+    result.map(_.adi).getOrElse("")                    shouldBe Some("our friend adi")
+    result.map(_.address1).getOrElse("")               shouldBe Some("123 Road")
+    result.map(_.address2).getOrElse("")               shouldBe Some("Place")
+    result.map(_.address3).getOrElse("")               shouldBe Some("More info about this place")
+    result.map(_.address4).getOrElse("")               shouldBe Some("Even more? noo")
+    result.map(_.postcode).getOrElse("")               shouldBe Some("SA0 1AH")
+    result.map(_.isIomOrCiFlag).getOrElse("")          shouldBe Some("1")
+    result.map(_.haveGamblingLicenceNo).getOrElse("")  shouldBe Some("0")
+    result.map(_.gamblingLicenceNo).getOrElse("")      shouldBe Some("123-456789-A-123456-789")
+    result.map(_.heldByLandlord).getOrElse("")         shouldBe Some("0")
+    result.map(_.localAuthority).getOrElse("")         shouldBe Some("1")
+    result.map(_.familyEntertainment).getOrElse("")    shouldBe Some("0")
+    result.map(_.clubGaming).getOrElse("")             shouldBe Some("1")
+    result.map(_.clubLicence).getOrElse("")            shouldBe Some("0")
+    result.map(_.prizeGaming).getOrElse("")            shouldBe Some("1")
+    result.map(_.onPremises).getOrElse("")             shouldBe Some("0")
+    result.map(_.clubPremises).getOrElse("")           shouldBe Some("1")
+    result.map(_.regCert).getOrElse("")                shouldBe Some("0")
+    result.map(_.bookmaking).getOrElse("")             shouldBe Some("1")
+    result.map(_.bingo).getOrElse("")                  shouldBe Some("0")
+    result.map(_.amusement).getOrElse("")              shouldBe Some("1")
+    result.map(_.serveAlcohol).getOrElse("")           shouldBe Some("0")
+    result.map(_.premisesNotCovered).getOrElse("")     shouldBe Some("1")
+    result.map(_.previousMgdrn1).getOrElse("")         shouldBe Some("XVM12345678800")
+    result.map(_.previousMgdrn2).getOrElse("")         shouldBe Some("XVM12345678801")
+    result.map(_.previousMgdrn3).getOrElse("")         shouldBe Some("XVM12345678802")
+    result.map(_.associatedMgdrn1).getOrElse("")       shouldBe Some("XGM12345678800")
+    result.map(_.associatedMgdrn2).getOrElse("")       shouldBe Some("XGM12345678801")
+    result.map(_.associatedMgdrn3).getOrElse("")       shouldBe Some("XGM123456788002")
+    result.map(_.dateOfJoining).getOrElse("")          shouldBe Some(LocalDate.of(2026, 1, 16))
+    result.map(_.dateOfLeaving).getOrElse("")          shouldBe Some(LocalDate.of(2026, 10, 16))
+    result.map(_.isRepMemSameAsCb).getOrElse("")       shouldBe Some("1")
+    result.map(_.isRepMemberOfGroup).getOrElse("")     shouldBe Some("1")
+    result.map(_.isUkIncorporated).getOrElse("")       shouldBe Some("1")
+    result.map(_.systemDate).getOrElse("")             shouldBe Some(LocalDate.of(2026, 11, 16))
+    result.map(_.premises).getOrElse(Seq.empty)        shouldBe premises
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).setString(2, partnerNumber)
+    verify(mockCs).registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR)
+    verify(mockCs).registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(6, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(8, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(9, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(10, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(11, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(12, oracle.jdbc.OracleTypes.NUMERIC)
+    verify(mockCs).registerOutParameter(13, oracle.jdbc.OracleTypes.NUMERIC)
+    verify(mockCs).registerOutParameter(14, oracle.jdbc.OracleTypes.NUMBER)
+    verify(mockCs).registerOutParameter(15, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(16, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(17, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(18, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(19, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(20, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(21, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(22, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(23, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(24, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(25, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(26, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(27, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(28, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(29, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(30, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(31, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(32, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(33, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(34, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(35, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(36, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(37, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(38, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(39, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(40, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(41, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(42, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(43, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(44, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(45, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(46, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(47, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(48, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(49, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(50, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).registerOutParameter(51, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(52, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(53, oracle.jdbc.OracleTypes.VARCHAR)
+    verify(mockCs).registerOutParameter(54, oracle.jdbc.OracleTypes.DATE)
+    verify(mockCs).execute()
   }
 
-  it should "throw exception when cursor is null" in {
+  it should "return DBError when partner number is incorrect" in {
 
-    when(mockCs.getObject(2)).thenReturn(null)
+    val mgdRegNumber = "XWM12345678901"
+    val partnerNumber = "INVALID"
 
-    val ex = intercept[RuntimeException] {
-      repository.getReturnSummary("XWM123").futureValue
-    }
+    when(mockCs.getObject(3)).thenReturn(Seq.empty) // MGD_REG_NUMBER
+    when(mockCs.getString(4)).thenReturn(mgdRegNumber) // MGD_REG_NUMBER
+    when(mockCs.getString(5)).thenReturn(partnerNumber) // BUSINESS_PARTNER_NUMBER
+    when(premisesRs.next()).thenReturn(false)
 
-    ex.getMessage should include("Null cursor")
+    val result = repository.getMemberDetails(Regime.MGD, mgdRegNumber, partnerNumber).futureValue
+
+    result.map(_.premises).getOrElse(Seq.empty) shouldBe empty
+
+    result.left.value shouldBe a[DatabaseError]
+
+    verify(mockCs).setString(1, mgdRegNumber)
+    verify(mockCs).setString(2, partnerNumber)
     verify(mockCs).close()
   }
 

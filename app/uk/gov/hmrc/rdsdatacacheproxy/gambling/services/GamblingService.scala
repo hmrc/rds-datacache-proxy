@@ -454,4 +454,33 @@ class GamblingService @Inject() (
         Left(GamblingError.UnexpectedError)
       }
   }
+
+  def getMemberDetails(regime: String, rawMgdRegNumber: String, rawBusinessPartnerNumber: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GamblingError, MemberDetails]] = {
+    val mgdRegNumber = rawMgdRegNumber.toUpperCase.trim
+    val businessPartnerNumber = rawBusinessPartnerNumber.trim
+    Regime.fromString(regime.trim) match {
+      case Left(error) =>
+        if error.isInstanceOf[StatementError.InvalidRegimeCode.type] then Future.successful(Left(InvalidRegimeCode))
+        else Future.successful(Left(UnexpectedError))
+
+      case Right(regime) =>
+        GRNValidator.validateRegNum(regime, mgdRegNumber) match {
+          case Left(value) =>
+            Future.successful(Left(InvalidMgdRegNumber))
+          case Right(value) =>
+            repository
+              .getMemberDetails(regime, mgdRegNumber, businessPartnerNumber)
+              .map {
+                case Right(details)            => Right(details)
+                case Left(RecordNotFound(_))   => Left(GamblingError.RecordNotFoundError)
+                case Left(DatabaseError(_, _)) => Left(GamblingError.DBSystemError)
+              }
+              .recover { case NonFatal(ex) =>
+                Left(GamblingError.UnexpectedError)
+              }
+        }
+    }
+  }
 }

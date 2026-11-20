@@ -28,7 +28,7 @@ import play.api.test.Helpers.*
 import uk.gov.hmrc.rdsdatacacheproxy.base.SpecBase
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.models.errors.GamblingError.{InvalidMgdRegNumber, InvalidRegimeCode, UnexpectedError}
 import uk.gov.hmrc.rdsdatacacheproxy.gambling.services.GamblingService
-import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.validResponseGroupMembers
+import uk.gov.hmrc.rdsdatacacheproxy.shared.utils.GamblingTestUtil.{validResponseGroupMembers, validResponseMemberDetails}
 
 import scala.concurrent.Future
 
@@ -105,4 +105,71 @@ class GroupMembersControllerSpec extends SpecBase with MockitoSugar {
       verify(mockService).getGroupMembers(eqTo("ERR00001770"))(any())
     }
   }
+
+  "GroupMembersController#getMemberDetails" - {
+
+    "returns 200 when service succeeds" in new Setup {
+
+      when(mockService.getMemberDetails(eqTo("mgd"), eqTo("XWM12345678901"), eqTo("0100049899"))(any()))
+        .thenReturn(Future.successful(Right(validResponseMemberDetails)))
+
+      val req = FakeRequest(GET, s"/gambling/group-members-with-premises/mgd/XWM12345678901/0100049899")
+      val res: Future[Result] = controller.getMemberDetails("mgd", "XWM12345678901", "0100049899")(req)
+
+      status(res) mustBe OK
+      contentType(res) mustBe Some(JSON)
+      contentAsJson(res) mustBe Json.toJson(validResponseMemberDetails)
+
+      verify(mockService).getMemberDetails(eqTo("mgd"), eqTo("XWM12345678901"), eqTo("0100049899"))(any())
+      verifyNoMoreInteractions(mockService)
+    }
+
+    "returns 400 when InvalidRegimeError" in new Setup {
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidRegimeCode)))
+      val req = FakeRequest(GET, "/gambling/group-members/INVALID_REGIME/XWM12345678901/0100049899")
+      val res: Future[Result] = controller.getMemberDetails(" ", " ", " ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_REGIME_CODE",
+        "message" -> "Invalid Regime Code"
+      )
+
+      verify(mockService).getMemberDetails(eqTo(" "), eqTo(" "), eqTo(" "))(any())
+    }
+
+    "returns 400 when InvalidMgdRegNumber" in new Setup {
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(InvalidMgdRegNumber)))
+
+      val req = FakeRequest(GET, s"/gambling/member-details/mgd/InvalidRegNo/any")
+      val res: Future[Result] = controller.getMemberDetails(" ", " ", " ")(req)
+
+      status(res) mustBe BAD_REQUEST
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "INVALID_MGD_REG_NUMBER",
+        "message" -> "mgdRegNumber does not exist"
+      )
+
+      verify(mockService).getMemberDetails(eqTo(" "), eqTo(" "), eqTo(" "))(any())
+    }
+
+    "returns 500 when UnexpectedError" in new Setup {
+      when(mockService.getMemberDetails(any(), any(), any())(any()))
+        .thenReturn(Future.successful(Left(UnexpectedError)))
+
+      val req = FakeRequest(GET, s"/gambling/group-members/mgd/ERR00001770")
+      val res: Future[Result] = controller.getMemberDetails("mgd", "ERR00001770", "#")(req)
+
+      status(res) mustBe INTERNAL_SERVER_ERROR
+      contentAsJson(res) mustBe Json.obj(
+        "code"    -> "UNEXPECTED_ERROR",
+        "message" -> "Unexpected error occurred"
+      )
+
+      verify(mockService).getMemberDetails(eqTo("mgd"), eqTo("ERR00001770"), eqTo("#"))(any())
+    }
+  }
+
 }
