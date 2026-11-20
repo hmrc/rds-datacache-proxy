@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with BeforeAndAfter with AllClientsHelper {
 
   var db: Database = _
-  var repo: ClientsByNameRepositoryImpl = _
+  var repo: ClientsByAgentOwnRefRepositoryImpl = _
   var mockConnection: java.sql.Connection = _
   var mockCS: CallableStatement = _
   var rs1: ResultSet = _
@@ -52,11 +52,11 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
 
     when(mockConnection.prepareCall(any[String])).thenReturn(mockCS)
 
-    repo = new ClientsByNameRepositoryImpl(db)
+    repo = new ClientsByAgentOwnRefRepositoryImpl(db)
   }
 
-  "getClientsByName" - {
-    "return clients by name" in {
+  "getClientsByAgentOwnRef" - {
+    "return clients by agent own ref" in {
       when(mockCS.getObject(eqTo(9), eqTo(classOf[ResultSet]))).thenReturn(rs1)
       when(mockCS.getObject(eqTo(10), eqTo(classOf[ResultSet]))).thenReturn(rs2)
       when(rs1.next()).thenReturn(true, false)
@@ -71,14 +71,14 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
 
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("A")
 
-      val result = repo.getClientsByName("irAgentId1", "credentialId1", "name1", 0, -1, 0, "ASC").futureValue
+      val result = repo.getClientsByAgentOwnRef("irAgentId1", "credentialId1", "clientId1", 0, -1, 0, "ASC").futureValue
       result shouldBe allClients
 
-      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_agents_own_ref(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
       verify(mockCS).setString(1, "irAgentId1")
       verify(mockCS).setString(2, "credentialId1")
-      verify(mockCS).setString(3, "name1")
+      verify(mockCS).setString(3, "clientId1")
       verify(mockCS).setInt(4, 0) // start starts with 0
       verify(mockCS).setInt(5, -1)
       verify(mockCS).setInt(6, 0)
@@ -96,7 +96,7 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
       verify(mockCS).close()
     }
 
-    "return multiple items of client list in clients by name" in {
+    "return multiple items of client list in clients by agent own ref" in {
       when(mockCS.getObject(eqTo(9), eqTo(classOf[ResultSet]))).thenReturn(rs1)
       when(mockCS.getObject(eqTo(10), eqTo(classOf[ResultSet]))).thenReturn(rs2)
       when(rs1.next()).thenReturn(true, true, false)
@@ -111,14 +111,14 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
 
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("D")
 
-      val result = repo.getClientsByName("irAgentId2", "credentialId2", "name2", 0, -1, 0, "ASC").futureValue
+      val result = repo.getClientsByAgentOwnRef("irAgentId2", "credentialId2", "clientId2", 0, -1, 0, "ASC").futureValue
       result shouldBe multipleClientListAllClients
 
-      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_agents_own_ref(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
       verify(mockCS).setString(1, "irAgentId2")
       verify(mockCS).setString(2, "credentialId2")
-      verify(mockCS).setString(3, "name2")
+      verify(mockCS).setString(3, "clientId2")
       verify(mockCS).setInt(4, 0) // start starts with 0
       verify(mockCS).setInt(5, -1)
       verify(mockCS).setInt(6, 0)
@@ -136,7 +136,7 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
       verify(mockCS).close()
     }
 
-    "return multiple items of client name chars in all clients" in {
+    "return multiple items of client agent own ref chars in all clients" in {
       when(mockCS.getObject(eqTo(9), eqTo(classOf[ResultSet]))).thenReturn(rs1)
       when(mockCS.getObject(eqTo(10), eqTo(classOf[ResultSet]))).thenReturn(rs2)
       when(rs1.next()).thenReturn(true, false)
@@ -151,14 +151,14 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
 
       when(rs2.getString("clientnamestartingcharacter")).thenReturn("G", "H", "I")
 
-      val result = repo.getClientsByName("irAgentId3", "credentialId3", "name3", 0, -1, 0, "ASC").futureValue
+      val result = repo.getClientsByAgentOwnRef("irAgentId3", "credentialId3", "clientId3", 0, -1, 0, "ASC").futureValue
       result shouldBe multipleItemsClientNameAllClients
 
-      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_name(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_agents_own_ref(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")
 
       verify(mockCS).setString(1, "irAgentId3")
       verify(mockCS).setString(2, "credentialId3")
-      verify(mockCS).setString(3, "name3")
+      verify(mockCS).setString(3, "clientId3")
       verify(mockCS).setInt(4, 0) // start starts with 0
       verify(mockCS).setInt(5, -1)
       verify(mockCS).setInt(6, 0)
@@ -179,7 +179,7 @@ class ClientsByAgentOwnRefRepositorySpec extends AnyFreeSpec with Matchers with 
     "return an exception and close the connection" in {
       when(mockCS.execute()).thenThrow(new RuntimeException("DB error"))
 
-      val ex = repo.getClientsByName("irAgentIdNA", "credentialIdNA", "nameNA", 0, -1, 0, "ASC").failed.futureValue
+      val ex = repo.getClientsByAgentOwnRef("irAgentIdNA", "credentialIdNA", "clientIdNA", 0, -1, 0, "ASC").failed.futureValue
       ex.getMessage should include("DB error")
 
       verify(mockCS).close()

@@ -39,7 +39,7 @@ class ClientByAgentOwnRefControllerSpec extends SpecBase with MockitoSugar with 
   }
 
   "ClientByAgentOwnRefControllerSpec" - {
-    "return a 200 and a successful response for clients by agent ref" in new Setup {
+    "return a 200 and a successful response for clients by agent own ref" in new Setup {
       when(mockService.getClientsByAgentOwnRef(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(allClients))
 
@@ -52,30 +52,30 @@ class ClientByAgentOwnRefControllerSpec extends SpecBase with MockitoSugar with 
       verify(mockService).getClientsByAgentOwnRef("irAgentId1", "credentialId1", "clientId1", 0, -1, 0, "ASC")
     }
 
-    "return a 200 and a successful response for multiple items of client list in all clients" in new Setup {
+    "return a 200 and a successful response for multiple items of client list in clients by agent-own-ref" in new Setup {
       when(mockService.getClientsByAgentOwnRef(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(multipleClientListAllClients))
 
       val result: Future[Result] =
-        controller.getClientsByAgentOwnRef("irAgentId2", "credentialId2", "clientId2", 0, 30, 0, "ASC")(fakeRequest)
+        controller.getClientsByAgentOwnRef("irAgentId2", "credentialId2", "clientId2", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
       contentAsJson(result) shouldBe Json.toJson(multipleClientListAllClients)
-      verify(mockService).getClientsByAgentOwnRef("irAgentId2", "credentialId2", "clientId2", 0, 30, 0, "ASC")
+      verify(mockService).getClientsByAgentOwnRef("irAgentId2", "credentialId2", "clientId2", 0, -1, 0, "ASC")
     }
 
-    "return a 200 and a successful response for multiple items of client name chars in all clients" in new Setup {
+    "return a 200 and a successful response for multiple items of client name chars in clients by agent-own-ref" in new Setup {
       when(mockService.getClientsByAgentOwnRef(any[String], any[String], any[String], any[Int], any[Int], any[Int], any[String]))
         .thenReturn(Future.successful(multipleItemsClientNameAllClients))
 
       val result: Future[Result] =
-        controller.getClientsByAgentOwnRef("irAgentId3", "credentialId3", "clientId3", 0, 30, 0, "ASC")(fakeRequest)
+        controller.getClientsByAgentOwnRef("irAgentId3", "credentialId3", "clientId3", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)        shouldBe OK
       contentType(result)   shouldBe Some("application/json")
       contentAsJson(result) shouldBe Json.toJson(multipleItemsClientNameAllClients)
-      verify(mockService).getClientsByAgentOwnRef("irAgentId3", "credentialId3", "clientId3", 0, 30, 0, "ASC")
+      verify(mockService).getClientsByAgentOwnRef("irAgentId3", "credentialId3", "clientId3", 0, -1, 0, "ASC")
     }
 
     "return 500 and when repository call fails" in new Setup {
@@ -83,11 +83,11 @@ class ClientByAgentOwnRefControllerSpec extends SpecBase with MockitoSugar with 
         .thenReturn(Future.failed(new RuntimeException("Error")))
 
       val result: Future[Result] =
-        controller.getClientsByAgentOwnRef("irAgentIdNA", "credentialIdNA", "clientIdNA", 0, 30, 0, "ASC")(fakeRequest)
+        controller.getClientsByAgentOwnRef("irAgentIdNA", "credentialIdNA", "clientIdNA", 0, -1, 0, "ASC")(fakeRequest)
 
       status(result)      shouldBe INTERNAL_SERVER_ERROR
       contentType(result) shouldBe Some("application/json")
-      verify(mockService).getClientsByAgentOwnRef("irAgentIdNA", "credentialIdNA", "clientIdNA", 0, 30, 0, "ASC")
+      verify(mockService).getClientsByAgentOwnRef("irAgentIdNA", "credentialIdNA", "clientIdNA", 0, -1, 0, "ASC")
     }
 
   }
