@@ -35,9 +35,9 @@ class GetClientsByUtrController @Inject() (
     extends BackendController(cc)
     with Logging {
 
-  def getClientsByUtr(irAgentId: String, credentialId: String, utr: String): Action[AnyContent] = authorise.async { implicit request =>
+  def getClientsByUtr(irAgentReference: String, credentialId: String, utr: String): Action[AnyContent] = authorise.async { implicit request =>
     getClientsByUtrService
-      .getClientsByUtr(irAgentId, credentialId, utr)
+      .getClientsByUtr(irAgentReference, credentialId, utr)
       .map { clients =>
         Ok(Json.toJson(clients))
       }

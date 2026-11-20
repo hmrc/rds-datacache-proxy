@@ -25,12 +25,8 @@ import scala.concurrent.Future
 
 class GetClientsByUtrService @Inject() (getClientsByUtrRepository: GetClientsByUtrRepository) extends Logging {
 
-  def getClientsByUtr(irAgentId: String, credentialId: String, utr: String): Future[AllClients] = {
-
-    logger.info(
-      s"Calling repository for irAgentId: $irAgentId, credentialId: $credentialId and utr: $utr"
-    )
-
-    getClientsByUtrRepository.getClientsByUtr(irAgentId, credentialId, utr)
+  def getClientsByUtr(irAgentReference: String, credentialId: String, utr: String): Future[AllClients] = {
+    logger.info(s"Calling repository for UTR : $utr")
+    getClientsByUtrRepository.getClientsByUtr(irAgentReference, credentialId, utr)
   }
 }

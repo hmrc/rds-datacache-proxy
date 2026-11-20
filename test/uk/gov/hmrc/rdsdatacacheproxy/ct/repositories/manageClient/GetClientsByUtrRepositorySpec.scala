@@ -76,9 +76,7 @@ class GetClientsByUtrRepositorySpec extends AnyFreeSpec with Matchers with Befor
 
       result shouldBe singleClient
 
-      verify(mockConnection).prepareCall(
-        "{call CT_CLIENT_SEARCH.get_client_by_utr(?, ?, ?, ?, ?)}"
-      )
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
 
       verify(mockCS).setString(1, "IR2002")
       verify(mockCS).setString(2, "CR2002")
@@ -113,6 +111,8 @@ class GetClientsByUtrRepositorySpec extends AnyFreeSpec with Matchers with Befor
         repo.getClientsByUtr("IR3003", "CR3003", "2345678901").futureValue
 
       result shouldBe multipleClients
+
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
 
       verify(mockCS).setString(1, "IR3003")
       verify(mockCS).setString(2, "CR3003")
@@ -149,6 +149,7 @@ class GetClientsByUtrRepositorySpec extends AnyFreeSpec with Matchers with Befor
 
       result shouldBe multipleNameStartChars
 
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
       verify(mockCS).setString(1, "IR4004")
       verify(mockCS).setString(2, "CR4004")
       verify(mockCS).setString(3, "4567890123")
@@ -176,6 +177,7 @@ class GetClientsByUtrRepositorySpec extends AnyFreeSpec with Matchers with Befor
 
       result shouldBe emptyClients
 
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
       verify(mockCS).setString(1, "IR1001")
       verify(mockCS).setString(2, "CR1001")
       verify(mockCS).setString(3, "1234567890")
@@ -203,8 +205,9 @@ class GetClientsByUtrRepositorySpec extends AnyFreeSpec with Matchers with Befor
       when(rs1.getString("company_name")).thenReturn("ABC Limited")
       when(rs1.getString("agent_own_ref")).thenReturn(null)
 
-      val result =
-        repo.getClientsByUtr("IR2002", "CR2002", "1234567890").futureValue
+      val result = repo.getClientsByUtr("IR2002", "CR2002", "1234567890").futureValue
+
+      verify(mockConnection).prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
 
       result.clientList.head.companyRegNo shouldBe None
       result.clientList.head.agentOwnRef  shouldBe None

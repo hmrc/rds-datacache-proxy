@@ -21,11 +21,11 @@ import oracle.jdbc.OracleTypes
 import play.api.Logging
 import play.api.db.{Database, NamedDatabase}
 import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientList}
+import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.RepositoryDataSupport
 
 import java.sql.*
 import javax.inject.Inject
-import scala.collection.mutable.ListBuffer
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, blocking}
 
 @ImplementedBy(classOf[GetClientsByUtrRepositoryImpl])
 trait GetClientsByUtrRepository {
@@ -36,70 +36,55 @@ class GetClientsByUtrRepositoryImpl @Inject() (
   @NamedDatabase("ct-core") db: Database
 )(implicit ec: ExecutionContext)
     extends GetClientsByUtrRepository
+    with RepositoryDataSupport
     with Logging {
 
-  def getClientsByUtr(irAgentId: String, credentialId: String, utr: String): Future[AllClients] = {
-    Future {
-      db.withConnection { connect =>
-        val sp = connect.prepareCall(
-          "{call CT_CLIENT_SEARCH.get_client_by_utr(?, ?, ?, ?, ?)}"
-        )
+  def getClientsByUtr(irAgentReference: String, credentialId: String, utr: String): Future[AllClients] = {
+    val context = s"Invoking repository for utr:$utr"
+    logger.info(s"Retrieving Clients Details by CRN")
+    Future(blocking {
+      db.withConnection { connection =>
+
+        val cs = connection.prepareCall("{call CT_CLIENT_SEARCH.get_client_by_utr(? ,? , ? , ?, ?)}")
 
         try {
-          sp.setString(1, irAgentId)
-          sp.setString(2, credentialId)
-          sp.setString(3, utr)
+          cs.setString(1, irAgentReference)
+          cs.setString(2, credentialId)
+          cs.setString(3, utr)
 
-          sp.registerOutParameter(4, OracleTypes.CURSOR)
-          sp.registerOutParameter(5, OracleTypes.CURSOR)
+          cs.registerOutParameter(4, OracleTypes.CURSOR)
+          cs.registerOutParameter(5, OracleTypes.CURSOR)
 
-          sp.execute()
+          cs.execute()
 
-          val clientListDetails =
-            sp.getObject(4, classOf[ResultSet])
+          val clientListResponse: List[ClientList] = processResultSetList(cs, 4, processClientList, context)
 
-          val clientNameStartCharsDetails =
-            sp.getObject(5, classOf[ResultSet])
-
-          val clientList = readClientList(clientListDetails)
-
-          val clientNameStartChars =
-            readClientNameStartChars(clientNameStartCharsDetails)
+          val clientNameStartChars: List[String] = processResultSetList(cs, 5, processNameStartChars, context)
 
           AllClients(
-            clientCount          = clientList.size,
-            clientList           = clientList,
+            clientCount          = clientListResponse.size,
+            clientList           = clientListResponse,
             clientNameStartChars = clientNameStartChars
           )
 
         } finally {
-          sp.close()
+          cs.close()
         }
+
       }
-    }
+    })
   }
 
-  private def readClientList(rs: ResultSet): List[ClientList] = {
-    val buffer = ListBuffer[ClientList]()
-
-    while (rs.next()) {
-      buffer += ClientList(
-        utr          = rs.getString("utr"),
-        companyRegNo = Option(rs.getString("company_reg_no")),
-        companyName  = rs.getString("company_name"),
-        agentOwnRef  = Option(rs.getString("agent_own_ref"))
-      )
-    }
-    buffer.toList
+  private def processClientList(rs: ResultSet): ClientList = {
+    ClientList(
+      utr          = rs.getString("utr"),
+      companyRegNo = Option(rs.getString("company_reg_no")),
+      companyName  = rs.getString("company_name"),
+      agentOwnRef  = Option(rs.getString("agent_own_ref"))
+    )
   }
 
-  private def readClientNameStartChars(rs: ResultSet): List[String] = {
-    val buffer = ListBuffer[String]()
-
-    while (rs.next()) {
-      buffer += rs.getString("clientnamestartingcharacter")
-    }
-
-    buffer.toList
+  private def processNameStartChars(rs: ResultSet): String = {
+    rs.getString("clientnamestartingcharacter")
   }
 }
