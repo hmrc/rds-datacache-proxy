@@ -34,7 +34,7 @@ class ClientsByAgentOwnRefControllerISpec extends AnyWordSpec with Matchers with
 
   class ClientsByAgentOwnRefRepositoryStub extends ClientsByAgentOwnRefRepository {
     override def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] = {
-      Future.successful(AllClientsStubData.getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String))
+      Future.successful(AllClientsStubData.getClientsByAgentOwnRef(clientId: String))
     }
   }
 
@@ -61,10 +61,21 @@ class ClientsByAgentOwnRefControllerISpec extends AnyWordSpec with Matchers with
       response.json.as[AllClients] mustBe AllClientsStubData.allClients
     }
 
-    "return 200 and multiple items of client name chars in clients by agent-own-ref" in {
+    "return 200 and multiple items in clients by agent-own-ref" in {
       AuthStub.authorised()
 
       val response = get(s"$endpoint/clients-by-agent-own-ref/irAgentId2/credentialId2/clientId2").futureValue
+
+      response.status mustBe OK
+      response.contentType mustBe "application/json"
+
+      response.json.as[AllClients] mustBe AllClientsStubData.multipleClientListAllClients
+    }
+
+    "return 200 and multiple items of client name chars in clients by agent-own-ref" in {
+      AuthStub.authorised()
+
+      val response = get(s"$endpoint/clients-by-agent-own-ref/irAgentId3/credentialId3/clientId3").futureValue
 
       response.status mustBe OK
       response.contentType mustBe "application/json"

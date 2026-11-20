@@ -29,16 +29,30 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[ClientsByAgentOwnRefRepositoryImpl])
 trait ClientsByAgentOwnRefRepository {
-  def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients]
+  def getClientsByAgentOwnRef(irAgentId: String,
+                              credentialId: String,
+                              clientId: String,
+                              start: Int,
+                              count: Int,
+                              sort: Int,
+                              order: String
+                             ): Future[AllClients]
 }
 
 class ClientsByAgentOwnRefRepositoryImpl @Inject() (
-                                              @NamedDatabase("ct-core") db: Database
-                                            )(implicit ec: ExecutionContext)
-  extends ClientsByAgentOwnRefRepository
+  @NamedDatabase("ct-core") db: Database
+)(implicit ec: ExecutionContext)
+    extends ClientsByAgentOwnRefRepository
     with Logging {
 
-  def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] = {
+  def getClientsByAgentOwnRef(irAgentId: String,
+                              credentialId: String,
+                              clientId: String,
+                              start: Int,
+                              count: Int,
+                              sort: Int,
+                              order: String
+                             ): Future[AllClients] = {
     Future {
       db.withConnection { connect =>
         val sp = connect.prepareCall("{call CT_CLIENT_SEARCH.get_clients_by_agents_own_ref(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}")

@@ -23,13 +23,27 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.repositories.manageClient.ClientsByAgent
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class ClientsByAgentOwnRefService @Inject()(clientsByAgentOwnRefRepository: ClientsByAgentOwnRefRepository) extends Logging {
+class ClientsByAgentOwnRefService @Inject() (clientsByAgentOwnRefRepository: ClientsByAgentOwnRefRepository) extends Logging {
 
-  def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): Future[AllClients] = {
+  def getClientsByAgentOwnRef(irAgentId: String,
+                              credentialId: String,
+                              clientId: String,
+                              start: Int,
+                              count: Int,
+                              sort: Int,
+                              order: String
+                             ): Future[AllClients] = {
     logger.info(
       s"Calling repository for irAgentId: $irAgentId, credentialId: $credentialId, clientId: $clientId, start: $start, count: $count, sort: $sort and order: $order"
     )
 
-    clientsByAgentOwnRefRepository.getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String)
+    clientsByAgentOwnRefRepository.getClientsByAgentOwnRef(irAgentId: String,
+                                                           credentialId: String,
+                                                           clientId: String,
+                                                           start: Int,
+                                                           count: Int,
+                                                           sort: Int,
+                                                           order: String
+                                                          )
   }
 }

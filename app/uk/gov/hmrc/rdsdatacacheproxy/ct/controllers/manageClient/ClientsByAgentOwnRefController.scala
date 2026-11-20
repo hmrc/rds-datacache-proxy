@@ -28,24 +28,30 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.services.manageClient.ClientsByAgentOwnR
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ClientsByAgentOwnRefController @Inject()(
-                                          authorise: AuthAction,
-                                          clientsByAgentOwnRefService: ClientsByAgentOwnRefService,
-                                          cc: ControllerComponents
-                                        )(implicit ec: ExecutionContext)
-  extends BackendController(cc)
+class ClientsByAgentOwnRefController @Inject() (
+  authorise: AuthAction,
+  clientsByAgentOwnRefService: ClientsByAgentOwnRefService,
+  cc: ControllerComponents
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
     with Logging {
 
-  def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): Action[AnyContent] = authorise.async {
-    implicit request =>
-      clientsByAgentOwnRefService
-        .getClientsByAgentOwnRef(irAgentId, credentialId, clientId, start, count, sort, order)
-        .map { allClients =>
-          Ok(Json.toJson(allClients))
-        }
-        .recover { case ex: Exception =>
-          logger.error("Error while retrieving clients by agent own ref", ex)
-          InternalServerError(Json.obj("error" -> "Failed to retrieve clients by agent own ref"))
-        }
+  def getClientsByAgentOwnRef(irAgentId: String,
+                              credentialId: String,
+                              clientId: String,
+                              start: Int,
+                              count: Int,
+                              sort: Int,
+                              order: String
+                             ): Action[AnyContent] = authorise.async { implicit request =>
+    clientsByAgentOwnRefService
+      .getClientsByAgentOwnRef(irAgentId, credentialId, clientId, start, count, sort, order)
+      .map { allClients =>
+        Ok(Json.toJson(allClients))
+      }
+      .recover { case ex: Exception =>
+        logger.error("Error while retrieving clients by agent own ref", ex)
+        InternalServerError(Json.obj("error" -> "Failed to retrieve clients by agent own ref"))
+      }
   }
 }

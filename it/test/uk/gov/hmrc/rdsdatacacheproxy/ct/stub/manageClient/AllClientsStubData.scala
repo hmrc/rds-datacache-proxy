@@ -21,15 +21,15 @@ import uk.gov.hmrc.rdsdatacacheproxy.ct.models.manageClient.{AllClients, ClientL
 
 object AllClientsStubData {
 
-  
+
   val allClients: AllClients = AllClients(
     clientCount = 100,
     clientList = List(
       ClientList(
-      utr = "12345",
-      companyRegNo = Some("01234A"),
-      companyName = "ABC Limited",
-      agentOwnRef = Some("ABC10")
+        utr = "12345",
+        companyRegNo = Some("01234A"),
+        companyName = "ABC Limited",
+        agentOwnRef = Some("ABC10")
       )
     ),
     clientNameStartChars = List(
@@ -41,11 +41,11 @@ object AllClientsStubData {
     clientCount = 100,
     clientList = List(
       ClientList(
-      utr = "12345",
-      companyRegNo = Some("01234A"),
-      companyName = "ABC Limited",
-      agentOwnRef = Some("ABC10")
-    ),
+        utr = "12345",
+        companyRegNo = Some("01234A"),
+        companyName = "ABC Limited",
+        agentOwnRef = Some("ABC10")
+      ),
       ClientList(
         utr = "67890",
         companyRegNo = Some("6789B"),
@@ -62,10 +62,10 @@ object AllClientsStubData {
     clientCount = 100,
     clientList = List(
       ClientList(
-      utr = "111213",
-      companyRegNo = Some("111213C"),
-      companyName = "GHI Limited",
-      agentOwnRef = Some("GHI10")
+        utr = "111213",
+        companyRegNo = Some("111213C"),
+        companyName = "GHI Limited",
+        agentOwnRef = Some("GHI10")
       )
     ),
     clientNameStartChars = List(
@@ -91,12 +91,12 @@ object AllClientsStubData {
     }
   }
 
-  def getClientsByAgentOwnRef(irAgentId: String, credentialId: String, clientId: String, start: Int, count: Int, sort: Int, order: String): AllClients = {
-    irAgentId match {
-      case "irAgentId1" => allClients
-      case "irAgentId2" => multipleItemsClientNameAllClients
+  def getClientsByAgentOwnRef(clientId: String): AllClients = {
+    clientId match {
+      case "clientId1"  => allClients
+      case "clientId2"  => multipleClientListAllClients
+      case "clientId3"  => multipleItemsClientNameAllClients
       case _ => throw new RuntimeException("Downstream error")
     }
   }
-
 }
