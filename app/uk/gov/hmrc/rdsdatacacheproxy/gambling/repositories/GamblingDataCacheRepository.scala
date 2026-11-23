@@ -1638,7 +1638,7 @@ class GamblingDataCacheRepository @Inject() (
           case ex: SQLException =>
             val msg = s"SQLException when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
             logger.error(s"[GamblingDataCacheRepository] $msg", ex)
-            Left(DatabaseError(msg, ex))
+            Left(RecordNotFound(msg))
           case NonFatal(ex) =>
             val msg = s"Unexpected exception when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
             logger.error(s"[GamblingDataCacheRepository] $msg", ex)
