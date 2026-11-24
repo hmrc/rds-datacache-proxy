@@ -130,17 +130,17 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
         appealablePenalties = List(
           GetAppealablePenaltyResponse(
             penaltyId        = Some(10001),
-            issueDate        = Some(LocalDate.of(2023, 1, 1)),
-            taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-            penaltyType      = Some("CIS03"),
-            penaltyAmount    = Some(BigDecimal(999.23))
+            issueDate        = LocalDate.of(2023, 1, 1),
+            taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+            penaltyType      = "CIS3",
+            penaltyAmount    = BigDecimal(999.23)
           ),
           GetAppealablePenaltyResponse(
             penaltyId        = Some(10002),
-            issueDate        = Some(LocalDate.of(2023, 1, 1)),
-            taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-            penaltyType      = Some("CIS03"),
-            penaltyAmount    = Some(BigDecimal(999.23))
+            issueDate        = LocalDate.of(2023, 1, 1),
+            taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+            penaltyType      = "CIS3",
+            penaltyAmount    = BigDecimal(999.23)
           )
         )
       )
@@ -152,7 +152,7 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       when(mockResultSet.getLong("UNIQUE_ID")).thenReturn(10001L, 10002L)
       when(mockResultSet.getDate("ISSUE_DATE")).thenReturn(java.sql.Date.valueOf("2023-01-01"))
       when(mockResultSet.getDate("TAX_PERIOD_END_DATE")).thenReturn(java.sql.Date.valueOf("2023-04-01"))
-      when(mockResultSet.getString("PENALTY_TYPE")).thenReturn("CIS03")
+      when(mockResultSet.getString("PENALTY_TYPE")).thenReturn("CIS3")
       when(mockResultSet.getBigDecimal("PENALTY_AMOUNT")).thenReturn(new java.math.BigDecimal("999.23"))
 
       val result = repository.getCisAppealablePenalties(testRequest).futureValue
@@ -183,7 +183,7 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
         func(mockConnection)
       }
 
-      when(mockCallableStatement.getString(4)).thenReturn("CIS003")
+      when(mockCallableStatement.getString(4)).thenReturn("CIS3")
       when(mockCallableStatement.getDate(5)).thenReturn(Date.valueOf(LocalDate.of(2023, 1, 1)))
       when(mockCallableStatement.getBigDecimal(6)).thenReturn(scala.math.BigDecimal(999.23).bigDecimal)
       when(mockCallableStatement.getDate(7)).thenReturn(Date.valueOf(LocalDate.of(2023, 4, 1)))
@@ -195,10 +195,10 @@ class PasCisRepositorySpec extends AnyWordSpec with Matchers with BeforeAndAfter
       )
       val getCisAppealablePenaltyResponse = GetAppealablePenaltyResponse(
         penaltyId        = None,
-        issueDate        = Some(LocalDate.of(2023, 1, 1)),
-        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-        penaltyType      = Some("CIS003"),
-        penaltyAmount    = Some(999.23)
+        issueDate        = LocalDate.of(2023, 1, 1),
+        taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+        penaltyType      = "CIS3",
+        penaltyAmount    = 999.23
       )
 
       val result = repository.getCisAppealablePenalty(getCisAppealablePenaltyRequest).futureValue

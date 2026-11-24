@@ -68,10 +68,10 @@ object GetAppealablePenaltyRequest {
 
 case class GetAppealablePenaltyResponse(
   penaltyId: Option[Long],
-  issueDate: Option[LocalDate],
-  taxPeriodEndDate: Option[LocalDate],
-  penaltyType: Option[String],
-  penaltyAmount: Option[BigDecimal]
+  issueDate: LocalDate,
+  taxPeriodEndDate: LocalDate,
+  penaltyType: String,
+  penaltyAmount: BigDecimal
 )
 
 object GetAppealablePenaltyResponse {

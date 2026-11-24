@@ -153,18 +153,18 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
     "serialize to JSON correctly" in {
       val penalty1 = GetAppealablePenaltyResponse(
         penaltyId        = Some(10001),
-        issueDate        = Some(LocalDate.of(2023, 1, 1)),
-        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-        penaltyType      = Some("CIS003"),
-        penaltyAmount    = Some(BigDecimal("999.23"))
+        issueDate        = LocalDate.of(2023, 1, 1),
+        taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+        penaltyType      = "CIS3",
+        penaltyAmount    = BigDecimal("999.23")
       )
 
       val penalty2 = GetAppealablePenaltyResponse(
         penaltyId        = Some(10002),
-        issueDate        = Some(LocalDate.of(2025, 1, 1)),
-        taxPeriodEndDate = Some(LocalDate.of(2026, 4, 1)),
-        penaltyType      = Some("CIS005"),
-        penaltyAmount    = Some(BigDecimal("148.29"))
+        issueDate        = LocalDate.of(2025, 1, 1),
+        taxPeriodEndDate = LocalDate.of(2026, 4, 1),
+        penaltyType      = "CIS5",
+        penaltyAmount    = BigDecimal("148.29")
       )
 
       val response = GetAppealablePenaltiesResponse(
@@ -180,14 +180,14 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       (first \ "penaltyId").as[Int] mustBe 10001
       (first \ "issueDate").as[LocalDate] mustBe LocalDate.of(2023, 1, 1)
       (first \ "taxPeriodEndDate").as[LocalDate] mustBe LocalDate.of(2023, 4, 1)
-      (first \ "penaltyType").as[String] mustBe "CIS003"
+      (first \ "penaltyType").as[String] mustBe "CIS3"
       (first \ "penaltyAmount").as[BigDecimal] mustBe BigDecimal("999.23")
 
       val second = (json \ "appealablePenalties" \ 1).get
       (second \ "penaltyId").as[Int] mustBe 10002
       (second \ "issueDate").as[LocalDate] mustBe LocalDate.of(2025, 1, 1)
       (second \ "taxPeriodEndDate").as[LocalDate] mustBe LocalDate.of(2026, 4, 1)
-      (second \ "penaltyType").as[String] mustBe "CIS005"
+      (second \ "penaltyType").as[String] mustBe "CIS5"
       (second \ "penaltyAmount").as[BigDecimal] mustBe BigDecimal("148.29")
     }
 
@@ -199,14 +199,14 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
             "penaltyId"        -> 1001,
             "issueDate"        -> "2026-01-15",
             "taxPeriodEndDate" -> "2025-12-05",
-            "penaltyType"      -> "CIS003",
+            "penaltyType"      -> "CIS3",
             "penaltyAmount"    -> 100
           ),
           Json.obj(
             "penaltyId"        -> 1002,
             "issueDate"        -> "2026-02-20",
             "taxPeriodEndDate" -> "2026-01-05",
-            "penaltyType"      -> "CIS005",
+            "penaltyType"      -> "CIS5",
             "penaltyAmount"    -> 200
           )
         )
@@ -221,17 +221,17 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       response.appealablePenalties mustBe List(
         GetAppealablePenaltyResponse(
           penaltyId        = Some(1001),
-          issueDate        = Some(LocalDate.of(2026, 1, 15)),
-          taxPeriodEndDate = Some(LocalDate.of(2025, 12, 5)),
-          penaltyType      = Some("CIS003"),
-          penaltyAmount    = Some(BigDecimal(100))
+          issueDate        = LocalDate.of(2026, 1, 15),
+          taxPeriodEndDate = LocalDate.of(2025, 12, 5),
+          penaltyType      = "CIS3",
+          penaltyAmount    = BigDecimal(100)
         ),
         GetAppealablePenaltyResponse(
           penaltyId        = Some(1002),
-          issueDate        = Some(LocalDate.of(2026, 2, 20)),
-          taxPeriodEndDate = Some(LocalDate.of(2026, 1, 5)),
-          penaltyType      = Some("CIS005"),
-          penaltyAmount    = Some(BigDecimal(200))
+          issueDate        = LocalDate.of(2026, 2, 20),
+          taxPeriodEndDate = LocalDate.of(2026, 1, 5),
+          penaltyType      = "CIS5",
+          penaltyAmount    = BigDecimal(200)
         )
       )
     }
@@ -295,10 +295,10 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
     "serialize to JSON correctly" in {
       val response = GetAppealablePenaltyResponse(
         penaltyId        = Some(10001),
-        issueDate        = Some(LocalDate.of(2023, 1, 1)),
-        taxPeriodEndDate = Some(LocalDate.of(2023, 4, 1)),
-        penaltyType      = Some("CIS003"),
-        penaltyAmount    = Some(BigDecimal(999.23))
+        issueDate        = LocalDate.of(2023, 1, 1),
+        taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+        penaltyType      = "CIS3",
+        penaltyAmount    = BigDecimal(999.23)
       )
 
       val json = Json.toJson(response)
@@ -306,7 +306,7 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       (json \ "penaltyId").as[Int] mustBe 10001
       (json \ "issueDate").as[String] mustBe "2023-01-01"
       (json \ "taxPeriodEndDate").as[String] mustBe "2023-04-01"
-      (json \ "penaltyType").as[String] mustBe "CIS003"
+      (json \ "penaltyType").as[String] mustBe "CIS3"
       (json \ "penaltyAmount").as[Double] mustBe 999.23
     }
 
@@ -315,7 +315,7 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
         "penaltyId"        -> 10001,
         "issueDate"        -> "2023-01-01",
         "taxPeriodEndDate" -> "2023-04-01",
-        "penaltyType"      -> "CIS003",
+        "penaltyType"      -> "CIS3",
         "penaltyAmount"    -> 999.23
       )
 
@@ -323,10 +323,10 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
       result mustBe a[JsSuccess[_]]
       result.get.penaltyId mustBe Some(10001)
-      result.get.issueDate mustBe Some(LocalDate.of(2023, 1, 1))
-      result.get.taxPeriodEndDate mustBe Some(LocalDate.of(2023, 4, 1))
-      result.get.penaltyType mustBe Some("CIS003")
-      result.get.penaltyAmount mustBe Some(999.23)
+      result.get.issueDate mustBe LocalDate.of(2023, 1, 1)
+      result.get.taxPeriodEndDate mustBe LocalDate.of(2023, 4, 1)
+      result.get.penaltyType mustBe "CIS3"
+      result.get.penaltyAmount mustBe 999.23
     }
 
     "fail to deserialize when type is incorrect" in {

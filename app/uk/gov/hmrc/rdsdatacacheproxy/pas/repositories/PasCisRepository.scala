@@ -119,10 +119,10 @@ class PasCisRepository @Inject() (
   private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
     GetAppealablePenaltyResponse(
       penaltyId        = Option(rs.getLong("UNIQUE_ID")),
-      issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
-      taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
-      penaltyType      = Option(rs.getString("PENALTY_TYPE")),
-      penaltyAmount    = Option(rs.getBigDecimal("PENALTY_AMOUNT")).map(BigDecimal(_))
+      issueDate        = rs.getDate("ISSUE_DATE").toLocalDate,
+      taxPeriodEndDate = rs.getDate("TAX_PERIOD_END_DATE").toLocalDate,
+      penaltyType      = rs.getString("PENALTY_TYPE"),
+      penaltyAmount    = BigDecimal(rs.getBigDecimal("PENALTY_AMOUNT"))
     )
 
   override def getCisAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] = {
@@ -160,10 +160,10 @@ class PasCisRepository @Inject() (
 
       GetAppealablePenaltyResponse(
         penaltyId        = None,
-        issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
-        taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
-        penaltyType      = Option(cs.getString(4)),
-        penaltyAmount    = Option(cs.getBigDecimal(6)).map(BigDecimal(_))
+        issueDate        = cs.getDate(5).toLocalDate,
+        taxPeriodEndDate = cs.getDate(7).toLocalDate,
+        penaltyType      = cs.getString(4),
+        penaltyAmount    = BigDecimal(cs.getBigDecimal(6))
       )
 
     } finally {
