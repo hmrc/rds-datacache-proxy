@@ -57,6 +57,8 @@ trait GamblingDataSource {
 
   def getGroupMembers(mgdRegNumber: String): Future[GroupMembers]
 
+  def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Future[Either[RepositoryError, MemberDetails]]
+
   def getAgentDetails(agentReference: String): Future[Either[RepositoryError, AgentDetails]]
 }
 
@@ -1418,4 +1420,231 @@ class GamblingDataCacheRepository @Inject() (
       }
     }
   })
+
+  override def getMemberDetails(regime: Regime, regNumber: String, partnerNumber: String): Future[Either[RepositoryError, MemberDetails]] =
+    Future(blocking {
+      db.withConnection { conn =>
+        val cs = {
+          regime match
+            case Regime.MGD =>
+              conn.prepareCall(
+                s"""{ call MGD_DC_VARIATION_PK.GET_GROUP_MEMBER_WITH_PREMISES(
+               |P_MGD_REG_NUMBER => ?,
+               |P_BUSINESS_PARTNER_NUMBER => ?,
+               |P_PREMISES => ?,
+               |MGD_REG_NUMBER => ?,
+               |BUSINESS_PARTNER_NUMBER => ?,
+               |BUSINESS_NAME => ?,
+               |TRADING_NAME => ?,
+               |CRN => ?,
+               |DATE_OF_INCORPORATION => ?,
+               |COUNTRY_OF_INCORPORATION => ?,
+               |FOREIGN_CORPORATE_REF => ?,
+               |UTR => ?,
+               |VRN => ?,
+               |TRADE_CLASS => ?,
+               |BUS_ACT_DESCRIPTION => ?,
+               |PHONE_NUMBER => ?,
+               |MOBILE_PHONE_NUMBER => ?,
+               |FAX_NUMBER => ?,
+               |EMAIL_ADDR => ?,
+               |ADI => ?,
+               |ADDRESS_1 => ?,
+               |ADDRESS_2 => ?,
+               |ADDRESS_3 => ?,
+               |ADDRESS_4 => ?,
+               |POSTCODE => ?,
+               |IS_IOM_OR_CI => ?,
+               |HAVE_GAMBLING_LICENCE_NO => ?,
+               |GAMBLING_LICENCE_NO => ?,
+               |HELD_BY_LANDLORD => ?,
+               |LOCAL_AUTHORITY => ?,
+               |FAMILY_ENTERTAINMENT => ?,
+               |CLUB_GAMING => ?,
+               |CLUB_LICENCE => ?,
+               |PRIZE_GAMING => ?,
+               |ON_PREMISES => ?,
+               |CLUB_PREMISES => ?,
+               |REG_CERT => ?,
+               |BOOKMAKING => ?,
+               |BINGO => ?,
+               |AMUSEMENT => ?,
+               |SERVE_ALCOHOL => ?,
+               |PREMISES_NOT_COVERED => ?,
+               |PREVIOUS_MGDRN_1 => ?,
+               |PREVIOUS_MGDRN_2 => ?,
+               |PREVIOUS_MGDRN_3 => ?,
+               |ASSOCIATED_MGDRN_1 => ?,
+               |ASSOCIATED_MGDRN_2 => ?,
+               |ASSOCIATED_MGDRN_3 => ?,
+               |DATE_OF_JOINING => ?,
+               |DATE_OF_LEAVING => ?,
+               |IS_REP_MEM_SAME_AS_CB => ?,
+               |IS_REP_MEMBER_OF_GROUP => ?,
+               |IS_UK_INCORPORATED => ?,
+               |P_SYSDATE => ?) }""".stripMargin
+              )
+            case _ => throw new RuntimeException(s"Regime $regime is not supported for getMemberDetails")
+        }
+        try {
+          cs.setString(1, regNumber) // IN P_MGD_REG_NUMBER
+          cs.setString(2, partnerNumber) // IN P_BUSINESS_PARTNER_NUMBER
+          cs.registerOutParameter(3, oracle.jdbc.OracleTypes.CURSOR) // OUT P_PREMISES
+          cs.registerOutParameter(4, oracle.jdbc.OracleTypes.VARCHAR) // OUT MGD_REG_NUMBER
+          cs.registerOutParameter(5, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUSINESS_PARTNER_NUMBER
+          cs.registerOutParameter(6, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUSINESS_NAME
+          cs.registerOutParameter(7, oracle.jdbc.OracleTypes.VARCHAR) // OUT TRADING_NAME
+          cs.registerOutParameter(8, oracle.jdbc.OracleTypes.VARCHAR) // OUT CRN
+          cs.registerOutParameter(9, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_INCORPORATION
+          cs.registerOutParameter(10, oracle.jdbc.OracleTypes.VARCHAR) // OUT COUNTRY_OF_INCORPORATION
+          cs.registerOutParameter(11, oracle.jdbc.OracleTypes.VARCHAR) // OUT FOREIGN_CORPORATE_REF
+          cs.registerOutParameter(12, oracle.jdbc.OracleTypes.NUMERIC) // OUT UTR
+          cs.registerOutParameter(13, oracle.jdbc.OracleTypes.NUMERIC) // OUT VRN
+          cs.registerOutParameter(14, oracle.jdbc.OracleTypes.NUMBER) // OUT TRADE_CLASS
+          cs.registerOutParameter(15, oracle.jdbc.OracleTypes.VARCHAR) // OUT BUS_ACT_DESCRIPTION
+          cs.registerOutParameter(16, oracle.jdbc.OracleTypes.VARCHAR) // OUT PHONE_NUMBER
+          cs.registerOutParameter(17, oracle.jdbc.OracleTypes.VARCHAR) // OUT MOBILE_PHONE_NUMBER
+          cs.registerOutParameter(18, oracle.jdbc.OracleTypes.VARCHAR) // OUT FAX_NUMBER
+          cs.registerOutParameter(19, oracle.jdbc.OracleTypes.VARCHAR) // OUT EMAIL_ADDR
+          cs.registerOutParameter(20, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADI
+          cs.registerOutParameter(21, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_1
+          cs.registerOutParameter(22, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_2
+          cs.registerOutParameter(23, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_3
+          cs.registerOutParameter(24, oracle.jdbc.OracleTypes.VARCHAR) // OUT ADDRESS_4
+          cs.registerOutParameter(25, oracle.jdbc.OracleTypes.VARCHAR) // OUT POSTCODE
+          cs.registerOutParameter(26, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_IOM_OR_CI
+          cs.registerOutParameter(27, oracle.jdbc.OracleTypes.VARCHAR) // OUT HAVE_GAMBLING_LICENCE_NO
+          cs.registerOutParameter(28, oracle.jdbc.OracleTypes.VARCHAR) // OUT GAMBLING_LICENCE_NO
+          cs.registerOutParameter(29, oracle.jdbc.OracleTypes.VARCHAR) // OUT HELD_BY_LANDLORD
+          cs.registerOutParameter(30, oracle.jdbc.OracleTypes.VARCHAR) // OUT LOCAL_AUTHORITY
+          cs.registerOutParameter(31, oracle.jdbc.OracleTypes.VARCHAR) // OUT FAMILY_ENTERTAINMENT
+          cs.registerOutParameter(32, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_GAMING
+          cs.registerOutParameter(33, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_LICENCE
+          cs.registerOutParameter(34, oracle.jdbc.OracleTypes.VARCHAR) // OUT PRIZE_GAMING
+          cs.registerOutParameter(35, oracle.jdbc.OracleTypes.VARCHAR) // OUT ON_PREMISES
+          cs.registerOutParameter(36, oracle.jdbc.OracleTypes.VARCHAR) // OUT CLUB_PREMISES
+          cs.registerOutParameter(37, oracle.jdbc.OracleTypes.VARCHAR) // OUT REG_CERT
+          cs.registerOutParameter(38, oracle.jdbc.OracleTypes.VARCHAR) // OUT BOOKMAKING
+          cs.registerOutParameter(39, oracle.jdbc.OracleTypes.VARCHAR) // OUT BINGO
+          cs.registerOutParameter(40, oracle.jdbc.OracleTypes.VARCHAR) // OUT AMUSEMENT
+          cs.registerOutParameter(41, oracle.jdbc.OracleTypes.VARCHAR) // OUT SERVE_ALCOHOL
+          cs.registerOutParameter(42, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREMISES_NOT_COVERED
+          cs.registerOutParameter(43, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_1
+          cs.registerOutParameter(44, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_2
+          cs.registerOutParameter(45, oracle.jdbc.OracleTypes.VARCHAR) // OUT PREVIOUS_MGDRN_3
+          cs.registerOutParameter(46, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_1
+          cs.registerOutParameter(47, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_2
+          cs.registerOutParameter(48, oracle.jdbc.OracleTypes.VARCHAR) // OUT ASSOCIATED_MGDRN_3
+          cs.registerOutParameter(49, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_JOINING
+          cs.registerOutParameter(50, oracle.jdbc.OracleTypes.DATE) // OUT DATE_OF_LEAVING
+          cs.registerOutParameter(51, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_REP_MEM_SAME_AS_CB
+          cs.registerOutParameter(52, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_REP_MEMBER_OF_GROUP
+          cs.registerOutParameter(53, oracle.jdbc.OracleTypes.VARCHAR) // OUT IS_UK_INCORPORATED
+          cs.registerOutParameter(54, oracle.jdbc.OracleTypes.DATE) // OUT P_SYSDATE
+          cs.execute()
+
+          val premisesRs = cs.getObject(3).asInstanceOf[java.sql.ResultSet]
+
+          val premises: Seq[PremisesDetails] =
+            if (premisesRs == null) {
+              Seq.empty
+            } else {
+              try {
+                val b = List.newBuilder[PremisesDetails]
+
+                while (premisesRs.next()) {
+                  b += PremisesDetails(
+                    mgdRegNumber = premisesRs.getString("MGD_REG_NUMBER"),
+                    address1     = Option(premisesRs.getString("ADDRESS_1")),
+                    address2     = Option(premisesRs.getString("ADDRESS_2")),
+                    address3     = Option(premisesRs.getString("ADDRESS_3")),
+                    address4     = Option(premisesRs.getString("ADDRESS_4")),
+                    postcode     = Option(premisesRs.getString("POSTCODE")),
+                    systemDate   = Option(premisesRs.getDate("SYSTEM_DATE")).map(_.toLocalDate)
+                  )
+                }
+                b.result()
+              } finally {
+                closeQuietly(premisesRs)
+              }
+            }
+
+          if (cs == null) {
+            val msg = s"Failed while retrieving group member details with premises for registration number <$regNumber>"
+            logger.warn(msg)
+            Left(RecordNotFound(msg))
+          } else {
+            // iterates an index from 3 using the def next() to avoid hardcoding indexes
+            val idx = Iterator.from(4)
+
+            Right(
+              MemberDetails(
+                mgdRegNumber           = cs.getString(idx.next()), // "MGD_REG_NUMBER"
+                businessPartnerNumber  = cs.getString(idx.next()), // "BUSINESS_PARTNER_NUMBER"
+                businessName           = Option(cs.getString(idx.next())), // "BUSINESS_NAME"
+                tradingName            = Option(cs.getString(idx.next())), // "TRADING_NAME"
+                crn                    = Option(cs.getString(idx.next())), // "CRN"
+                dateOfIncorporation    = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_INCORPORATION
+                countryOfIncorporation = Option(cs.getString(idx.next())), // "COUNTRY_OF_INCORPORATION"
+                foreignCorporateRef    = Option(cs.getString(idx.next())), // "FOREIGN_CORPORATE_REF"
+                utr                    = Option(cs.getLong(idx.next())), // "UTR"
+                vrn                    = Option(cs.getLong(idx.next())), // "VRN"
+                tradeClass             = Option(cs.getInt(idx.next())), // "TRADE_CLASS"
+                businessActivityDesc   = Option(cs.getString(idx.next())), // "BUS_ACT_DESCRIPTION"
+                phoneNumber            = Option(cs.getString(idx.next())), // "PHONE_NUMBER"
+                mobilePhoneNumber      = Option(cs.getString(idx.next())), // "MOBILE_PHONE_NUMBER"
+                faxNumber              = Option(cs.getString(idx.next())), // "FAX_NUMBER"
+                emailAddr              = Option(cs.getString(idx.next())), // "EMAIL_ADDR"
+                adi                    = Option(cs.getString(idx.next())), // "ADI"
+                address1               = Option(cs.getString(idx.next())), // "ADDRESS_1"
+                address2               = Option(cs.getString(idx.next())), // "ADDRESS_2"
+                address3               = Option(cs.getString(idx.next())), // "ADDRESS_3"
+                address4               = Option(cs.getString(idx.next())), // "ADDRESS_4"
+                postcode               = Option(cs.getString(idx.next())), // "POSTCODE"
+                isIomOrCiFlag          = Option(cs.getString(idx.next()).trim), // "IS_IOM_OR_CI"
+                haveGamblingLicenceNo  = Option(cs.getString(idx.next()).trim), // "HAVE_GAMBLING_LICENCE_NO"
+                gamblingLicenceNo      = Option(cs.getString(idx.next())), // "GAMBLING_LICENCE_NO"
+                heldByLandlord         = Option(cs.getString(idx.next()).trim), // "HELD_BY_LANDLORD"
+                localAuthority         = Option(cs.getString(idx.next()).trim), // "LOCAL_AUTHORITY"
+                familyEntertainment    = Option(cs.getString(idx.next()).trim), // "FAMILY_ENTERTAINMENT"
+                clubGaming             = Option(cs.getString(idx.next()).trim), // "CLUB_GAMING"
+                clubLicence            = Option(cs.getString(idx.next()).trim), // "CLUB_LICENCE"
+                prizeGaming            = Option(cs.getString(idx.next()).trim), // "PRIZE_GAMING"
+                onPremises             = Option(cs.getString(idx.next()).trim), // "ON_PREMISES"
+                clubPremises           = Option(cs.getString(idx.next()).trim), // "CLUB_PREMISES"
+                regCert                = Option(cs.getString(idx.next()).trim), // "REG_CERT"
+                bookmaking             = Option(cs.getString(idx.next()).trim), // "BOOKMAKING"
+                bingo                  = Option(cs.getString(idx.next()).trim), // "BINGO"
+                amusement              = Option(cs.getString(idx.next()).trim), // "AMUSEMENT"
+                serveAlcohol           = Option(cs.getString(idx.next()).trim), // "SERVE_ALCOHOL"
+                premisesNotCovered     = Option(cs.getString(idx.next()).trim), // "PREMISES_NOT_COVERED"
+                previousMgdrn1         = Option(cs.getString(idx.next())), // "PREVIOUS_MGDRN_1"
+                previousMgdrn2         = Option(cs.getString(idx.next())), // "PREVIOUS_MGDRN_2"
+                previousMgdrn3         = Option(cs.getString(idx.next())), // "PREVIOUS_MGDRN_3"
+                associatedMgdrn1       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_1"
+                associatedMgdrn2       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_2"
+                associatedMgdrn3       = Option(cs.getString(idx.next())), // "ASSOCIATED_MGDRN_3"
+                dateOfJoining          = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_JOINING
+                dateOfLeaving          = Option(cs.getDate(idx.next())).map(_.toLocalDate), // DATE_OF_LEAVING
+                isRepMemSameAsCb       = Option(cs.getString(idx.next()).trim), // IS_REP_MEM_SAME_AS_CB
+                isRepMemberOfGroup     = Option(cs.getString(idx.next()).trim), // IS_REP_MEMBER_OF_GROUP
+                isUkIncorporated       = Option(cs.getString(idx.next()).trim), // IS_UK_INCORPORATED
+                systemDate             = Option(cs.getDate(idx.next())).map(_.toLocalDate), // P_SYSDATE
+                premises               = premises
+              )
+            )
+          }
+        } catch {
+          case ex: SQLException =>
+            val msg = s"SQLException when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
+            Left(RecordNotFound(msg))
+          case NonFatal(ex) =>
+            val msg = s"Unexpected exception when calling GET_GROUP_MEMBER_WITH_PREMISES for $regNumber"
+            logger.error(s"[GamblingDataCacheRepository] $msg", ex)
+            Left(DatabaseError(msg, ex))
+        } finally {
+          closeQuietly(cs)
+        }
+      }
+    })
 }

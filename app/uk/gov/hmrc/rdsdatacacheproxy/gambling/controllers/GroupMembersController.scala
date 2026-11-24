@@ -47,6 +47,25 @@ class GroupMembersController @Inject() (authorise: AuthAction, service: Gambling
       }
     }
 
+  def getMemberDetails(
+    regime: String,
+    regNumber: String,
+    partnerNumber: String
+  ): Action[AnyContent] = authorise.async { implicit request =>
+
+    service.getMemberDetails(regime, regNumber, partnerNumber).map {
+
+      case Right(details) =>
+        Ok(Json.toJson(details))
+
+      case Left(error) =>
+        val logMessage = {
+          s"[GamblingController][getMemberDetails] code=${error.code} mgdRegNumber=$regNumber partnerNumber=$partnerNumber"
+        }
+        handleError(error, logMessage)
+    }
+  }
+
   private def handleError(error: GamblingError, logMessage: String): Result =
     error match {
       case InvalidMgdRegNumber | InvalidRegimeCode =>
