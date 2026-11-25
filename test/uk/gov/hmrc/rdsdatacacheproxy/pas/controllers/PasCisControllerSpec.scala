@@ -84,15 +84,15 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
       val expectedResponse = GetAppealablePenaltiesResponse(
         total = 2,
         appealablePenalties = List(
-          GetAppealablePenaltyResponse(
-            penaltyId        = Some(10001),
+          GetAppealablePenaltyItem(
+            penaltyId        = 10001,
             issueDate        = LocalDate.of(2023, 1, 1),
             taxPeriodEndDate = LocalDate.of(2023, 4, 1),
             penaltyType      = "CIS3",
             penaltyAmount    = BigDecimal(999.23)
           ),
-          GetAppealablePenaltyResponse(
-            penaltyId        = Some(10002),
+          GetAppealablePenaltyItem(
+            penaltyId        = 10002,
             issueDate        = LocalDate.of(2026, 2, 20),
             taxPeriodEndDate = LocalDate.of(2026, 1, 5),
             penaltyType      = "CIS5",
@@ -171,7 +171,6 @@ class PasCisControllerSpec extends SpecBase with MockitoSugar {
     "return 200 with GetAppealablePenaltyResponse when service succeeds" in new Setup {
 
       val expectedResponse = GetAppealablePenaltyResponse(
-        penaltyId        = None,
         issueDate        = LocalDate.of(2023, 1, 1),
         taxPeriodEndDate = LocalDate.of(2023, 4, 1),
         penaltyType      = "CIS3",

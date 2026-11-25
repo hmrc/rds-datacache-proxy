@@ -107,7 +107,7 @@ class PasPayeRepository @Inject() (
       cs.execute()
 
       val count = cs.getLong(7)
-      val appealablePenaltiesList: Seq[GetAppealablePenaltyResponse] = processResultSetSeq(cs, 8, processAppealablePenalties)
+      val appealablePenaltiesList: Seq[GetAppealablePenaltyItem] = processResultSetSeq(cs, 8, processAppealablePenalties)
 
       GetAppealablePenaltiesResponse(
         total               = count,
@@ -119,9 +119,9 @@ class PasPayeRepository @Inject() (
     }
   }
 
-  private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
-    GetAppealablePenaltyResponse(
-      penaltyId        = Option(rs.getLong("UNIQUE_ID")),
+  private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyItem =
+    GetAppealablePenaltyItem(
+      penaltyId        = rs.getLong("UNIQUE_ID"),
       issueDate        = rs.getDate("ISSUE_DATE").toLocalDate,
       taxPeriodEndDate = rs.getDate("TAX_PERIOD_END_DATE").toLocalDate,
       penaltyType      = rs.getString("DEFAULT_TYPE"),
@@ -162,7 +162,6 @@ class PasPayeRepository @Inject() (
       cs.execute()
 
       GetAppealablePenaltyResponse(
-        penaltyId        = None,
         issueDate        = cs.getDate(5).toLocalDate,
         taxPeriodEndDate = cs.getDate(7).toLocalDate,
         penaltyType      = cs.getString(4),

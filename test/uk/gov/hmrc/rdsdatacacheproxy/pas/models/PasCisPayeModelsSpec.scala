@@ -151,16 +151,16 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
   "GetAppealablePenaltiesResponse" should {
 
     "serialize to JSON correctly" in {
-      val penalty1 = GetAppealablePenaltyResponse(
-        penaltyId        = Some(10001),
+      val penalty1 = GetAppealablePenaltyItem(
+        penaltyId        = 10001,
         issueDate        = LocalDate.of(2023, 1, 1),
         taxPeriodEndDate = LocalDate.of(2023, 4, 1),
         penaltyType      = "CIS3",
         penaltyAmount    = BigDecimal("999.23")
       )
 
-      val penalty2 = GetAppealablePenaltyResponse(
-        penaltyId        = Some(10002),
+      val penalty2 = GetAppealablePenaltyItem(
+        penaltyId        = 10002,
         issueDate        = LocalDate.of(2025, 1, 1),
         taxPeriodEndDate = LocalDate.of(2026, 4, 1),
         penaltyType      = "CIS5",
@@ -219,15 +219,15 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
       response.total mustBe 2
       response.appealablePenalties mustBe List(
-        GetAppealablePenaltyResponse(
-          penaltyId        = Some(1001),
+        GetAppealablePenaltyItem(
+          penaltyId        = 1001,
           issueDate        = LocalDate.of(2026, 1, 15),
           taxPeriodEndDate = LocalDate.of(2025, 12, 5),
           penaltyType      = "CIS3",
           penaltyAmount    = BigDecimal(100)
         ),
-        GetAppealablePenaltyResponse(
-          penaltyId        = Some(1002),
+        GetAppealablePenaltyItem(
+          penaltyId        = 1002,
           issueDate        = LocalDate.of(2026, 2, 20),
           taxPeriodEndDate = LocalDate.of(2026, 1, 5),
           penaltyType      = "CIS5",
@@ -240,6 +240,60 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       val json = Json.obj()
 
       val result = json.validate[GetAppealablePenaltiesResponse]
+
+      result.isError mustBe true
+    }
+  }
+
+  "GetAppealablePenaltyItem" should {
+
+    "serialize to JSON correctly" in {
+      val response = GetAppealablePenaltyItem(
+        penaltyId        = 100000001L,
+        issueDate        = LocalDate.of(2023, 1, 1),
+        taxPeriodEndDate = LocalDate.of(2023, 4, 1),
+        penaltyType      = "CIS3",
+        penaltyAmount    = BigDecimal(999.23)
+      )
+
+      val json = Json.toJson(response)
+
+      (json \ "penaltyId").as[Long] mustBe 100000001L
+      (json \ "issueDate").as[String] mustBe "2023-01-01"
+      (json \ "taxPeriodEndDate").as[String] mustBe "2023-04-01"
+      (json \ "penaltyType").as[String] mustBe "CIS3"
+      (json \ "penaltyAmount").as[Double] mustBe 999.23
+    }
+
+    "deserialize from JSON correctly" in {
+      val json = Json.obj(
+        "penaltyId"        -> 10001,
+        "issueDate"        -> "2023-01-01",
+        "taxPeriodEndDate" -> "2023-04-01",
+        "penaltyType"      -> "CIS3",
+        "penaltyAmount"    -> 999.23
+      )
+
+      val result = json.validate[GetAppealablePenaltyItem]
+
+      result mustBe a[JsSuccess[_]]
+      result.get.penaltyId mustBe 10001L
+      result.get.issueDate mustBe LocalDate.of(2023, 1, 1)
+      result.get.taxPeriodEndDate mustBe LocalDate.of(2023, 4, 1)
+      result.get.penaltyType mustBe "CIS3"
+      result.get.penaltyAmount mustBe BigDecimal(999.23)
+    }
+
+    "fail to deserialize when type is incorrect" in {
+      val json = Json.obj(
+        "penaltyId"        -> "10001",
+        "issueDate"        -> "2023-01-01",
+        "taxPeriodEndDate" -> "2023-04-01",
+        "penaltyType"      -> "CIS3",
+        "penaltyAmount"    -> 999.23
+      )
+
+      val result = json.validate[GetAppealablePenaltyItem]
 
       result.isError mustBe true
     }
@@ -294,7 +348,6 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
     "serialize to JSON correctly" in {
       val response = GetAppealablePenaltyResponse(
-        penaltyId        = Some(10001),
         issueDate        = LocalDate.of(2023, 1, 1),
         taxPeriodEndDate = LocalDate.of(2023, 4, 1),
         penaltyType      = "CIS3",
@@ -303,7 +356,6 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
       val json = Json.toJson(response)
 
-      (json \ "penaltyId").as[Int] mustBe 10001
       (json \ "issueDate").as[String] mustBe "2023-01-01"
       (json \ "taxPeriodEndDate").as[String] mustBe "2023-04-01"
       (json \ "penaltyType").as[String] mustBe "CIS3"
@@ -312,7 +364,6 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
     "deserialize from JSON correctly" in {
       val json = Json.obj(
-        "penaltyId"        -> 10001,
         "issueDate"        -> "2023-01-01",
         "taxPeriodEndDate" -> "2023-04-01",
         "penaltyType"      -> "CIS3",
@@ -322,7 +373,6 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
       val result = json.validate[GetAppealablePenaltyResponse]
 
       result mustBe a[JsSuccess[_]]
-      result.get.penaltyId mustBe Some(10001)
       result.get.issueDate mustBe LocalDate.of(2023, 1, 1)
       result.get.taxPeriodEndDate mustBe LocalDate.of(2023, 4, 1)
       result.get.penaltyType mustBe "CIS3"
@@ -331,7 +381,10 @@ class PasCisPayeModelsSpec extends AnyWordSpec with Matchers {
 
     "fail to deserialize when type is incorrect" in {
       val json = Json.obj(
-        "penaltyId" -> "10001"
+        "issueDate"        -> "2023-01-01",
+        "taxPeriodEndDate" -> "2023-04-01",
+        "penaltyType"      -> 999.23,
+        "penaltyAmount"    -> "10001"
       )
 
       val result = json.validate[GetAppealablePenaltyResponse]

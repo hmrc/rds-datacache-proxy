@@ -29,15 +29,15 @@ object PasStubData extends Logging {
     GetAppealablePenaltiesResponse(
       total = 2,
       appealablePenalties = List(
-        GetAppealablePenaltyResponse(
-          penaltyId = Some(10001),
+        GetAppealablePenaltyItem(
+          penaltyId = 10001,
           issueDate = LocalDate.of(2023, 1, 1),
           taxPeriodEndDate = LocalDate.of(2023, 4, 1),
           penaltyType = "F",
           penaltyAmount = BigDecimal(999.23)
         ),
-        GetAppealablePenaltyResponse(
-          penaltyId = Some(10002),
+        GetAppealablePenaltyItem(
+          penaltyId = 10002,
           issueDate = LocalDate.of(2023, 1, 1),
           taxPeriodEndDate = LocalDate.of(2023, 4, 1),
           penaltyType = "F",
@@ -53,7 +53,6 @@ object PasStubData extends Logging {
     )
 
   val getAppealablePenaltySuccessResponse = GetAppealablePenaltyResponse(
-    penaltyId        = None,
     issueDate        = LocalDate.of(2023, 1, 1),
     taxPeriodEndDate = LocalDate.of(2023, 4, 1),
     penaltyType      = "CIS3",
