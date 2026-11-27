@@ -107,7 +107,7 @@ class PasPayeRepository @Inject() (
       cs.execute()
 
       val count = cs.getLong(7)
-      val appealablePenaltiesList: Seq[GetAppealablePenaltyResponse] = processResultSetSeq(cs, 8, processAppealablePenalties)
+      val appealablePenaltiesList: Seq[GetAppealablePenaltyItem] = processResultSetSeq(cs, 8, processAppealablePenalties)
 
       GetAppealablePenaltiesResponse(
         total               = count,
@@ -119,13 +119,13 @@ class PasPayeRepository @Inject() (
     }
   }
 
-  private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyResponse =
-    GetAppealablePenaltyResponse(
-      penaltyId        = Option(rs.getLong("UNIQUE_ID")),
-      issueDate        = Option(rs.getDate("ISSUE_DATE")).map(_.toLocalDate),
-      taxPeriodEndDate = Option(rs.getDate("TAX_PERIOD_END_DATE")).map(_.toLocalDate),
-      penaltyType      = Option(rs.getString("DEFAULT_TYPE")),
-      penaltyAmount    = Option(rs.getBigDecimal("PENALTY_AMOUNT")).map(BigDecimal(_))
+  private def processAppealablePenalties(rs: ResultSet): GetAppealablePenaltyItem =
+    GetAppealablePenaltyItem(
+      penaltyId        = rs.getLong("UNIQUE_ID"),
+      issueDate        = rs.getDate("ISSUE_DATE").toLocalDate,
+      taxPeriodEndDate = rs.getDate("TAX_PERIOD_END_DATE").toLocalDate,
+      penaltyType      = rs.getString("DEFAULT_TYPE"),
+      penaltyAmount    = BigDecimal(rs.getBigDecimal("PENALTY_AMOUNT"))
     )
 
   override def getPayeAppealablePenalty(request: GetAppealablePenaltyRequest): Future[GetAppealablePenaltyResponse] = {
@@ -162,11 +162,10 @@ class PasPayeRepository @Inject() (
       cs.execute()
 
       GetAppealablePenaltyResponse(
-        penaltyId        = None,
-        issueDate        = Option(cs.getDate(5)).map(_.toLocalDate),
-        taxPeriodEndDate = Option(cs.getDate(7)).map(_.toLocalDate),
-        penaltyType      = Option(cs.getString(4)),
-        penaltyAmount    = Option(cs.getBigDecimal(6)).map(BigDecimal(_))
+        issueDate        = cs.getDate(5).toLocalDate,
+        taxPeriodEndDate = cs.getDate(7).toLocalDate,
+        penaltyType      = cs.getString(4),
+        penaltyAmount    = BigDecimal(cs.getBigDecimal(6))
       )
 
     } finally {

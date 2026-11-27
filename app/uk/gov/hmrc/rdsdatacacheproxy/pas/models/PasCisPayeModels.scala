@@ -49,11 +49,23 @@ object GetAppealablePenaltiesRequest {
 
 case class GetAppealablePenaltiesResponse(
   total: Long,
-  appealablePenalties: Seq[GetAppealablePenaltyResponse]
+  appealablePenalties: Seq[GetAppealablePenaltyItem]
 )
 
 object GetAppealablePenaltiesResponse {
   implicit val format: OFormat[GetAppealablePenaltiesResponse] = Json.format[GetAppealablePenaltiesResponse]
+}
+
+case class GetAppealablePenaltyItem(
+  penaltyId: Long,
+  issueDate: LocalDate,
+  taxPeriodEndDate: LocalDate,
+  penaltyType: String,
+  penaltyAmount: BigDecimal
+)
+
+object GetAppealablePenaltyItem {
+  implicit val format: OFormat[GetAppealablePenaltyItem] = Json.format[GetAppealablePenaltyItem]
 }
 
 case class GetAppealablePenaltyRequest(
@@ -67,11 +79,10 @@ object GetAppealablePenaltyRequest {
 }
 
 case class GetAppealablePenaltyResponse(
-  penaltyId: Option[Long],
-  issueDate: Option[LocalDate],
-  taxPeriodEndDate: Option[LocalDate],
-  penaltyType: Option[String],
-  penaltyAmount: Option[BigDecimal]
+  issueDate: LocalDate,
+  taxPeriodEndDate: LocalDate,
+  penaltyType: String,
+  penaltyAmount: BigDecimal
 )
 
 object GetAppealablePenaltyResponse {
